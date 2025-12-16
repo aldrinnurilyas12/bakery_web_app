@@ -1,0 +1,40 @@
+services:
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   image: laravel-app
+  #   container_name: sahabat_group_main_app
+  #   restart: unless-stopped
+  #   working_dir: /var/www/sahabat_group
+  #   volumes:
+  #     - .:/var/www/sahabat_group
+  #   networks:
+  #     - laravel
+  #   depends_on:
+  #     - mysql
+  #   ports:
+  #     - "8000:80"
+
+  mysql:
+    image: mysql:8.0
+    container_name: db_bakery_app
+    restart: always
+    environment:
+      MYSQL_DATABASE: turre_pos
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: sahabat_group
+      MYSQL_PASSWORD: sahabatgroup
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3308:3306"
+    networks:
+      - laravel
+
+volumes:
+  mysql-data:
+
+    # networks:
+    #   laravel:
+    #     driver: bridge

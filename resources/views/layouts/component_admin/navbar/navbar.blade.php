@@ -4,7 +4,7 @@
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
     <div style="padding: 10px;" class="logo-content-turre">
-        <img height="70" width="90" src="{{ asset('assets/front_end/assets/img/logo.png') }}" alt="">
+        <h5 style="color: white;">Kencana Bakery</h5>
     </div>
     <!-- Sidebar Toggle-->
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
@@ -21,23 +21,26 @@
     <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
         <li class="nav-item dropdown">
 
-            @if (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->shop_logo)
+            @if (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username)
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <img style="border-radius: 50%;" width="30" height="30"
-                        src="{{ asset('storage/' . app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->shop_logo) }}"
-                        alt="">
+                    {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
                 </a>
             @else
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <img style="border-radius: 50%;" width="30" height="30"
-                        src="{{ asset('assets/front_end/assets/img/empty.png') }}" alt="">
+                    {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
                 </a>
             @endif
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="{{ route('profile_information') }}">Akun</a></li>
                 <li><a class="dropdown-item" href="#!">Settings</a></li>
+                <li><a class="dropdown-item" href="#!"></a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="btn btn-danger" type="submit">Log Out</button>
+                    </form>
+                </li>
                 {{-- <li><hr class="dropdown-divider" /></li> --}}
             </ul>
         </li>

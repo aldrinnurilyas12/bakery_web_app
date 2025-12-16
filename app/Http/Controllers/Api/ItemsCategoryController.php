@@ -17,7 +17,7 @@ class ItemsCategoryController extends Controller
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
-        $category_data = DB::table('product_category')->where('shop_id', $shop)->get();
+        $category_data = DB::table('product_category')->get();
 
         return view('layouts.main_pages.category.category', compact('category_data'));
     }
@@ -39,9 +39,7 @@ class ItemsCategoryController extends Controller
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
         ItemsCategoryModel::create([
-            'shop_id' => $shop,
-            'category_name' => $request->category_name,
-            'created_by' => app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->shop_name
+            'category_name' => $request->category_name
         ]);
 
         session()->flash('message_success', 'Data kategori berhasil disimpan!');
@@ -63,9 +61,8 @@ class ItemsCategoryController extends Controller
     {
         $ctgid = $request->id;
         $checking_category = ItemsCategoryModel::find($id);
-        $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
-        $category_data = ItemsCategoryModel::where('id', $ctgid)->where('shop_id', $shop)->get();
+        $category_data = ItemsCategoryModel::where('id', $ctgid)->get();
 
         if (!$checking_category && $category_data->isEmpty()) {
             return view('errors.404');

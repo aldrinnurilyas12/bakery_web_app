@@ -5,17 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ShopModel extends Model
+class RewardsModel extends Model
 {
     use HasFactory;
-    protected $table = 'shop';
 
+    protected $table = 'rewards';
     protected $fillable = [
-        'user_id',
-        'shop_name',
-        'shop_code',
-        'owner_name',
-        'shop_logo',
+        'rewards_code',
+        'rewards_name',
+        'point', 
+        'quota',
+        'images',
+        'status',
+        'start_date',
+        'end_date',
         'created_by',
         'updated_by'
     ];

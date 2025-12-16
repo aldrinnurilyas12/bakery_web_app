@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
@@ -26,21 +27,10 @@ class ProfileController extends Controller
     public function user_profile(Request $request): View
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
-        $authenticatedUser = auth()->user()->id;
-        $users = DB::table('users as us')
-            ->select('us.id', 'us.username', 'us.email', 'sh.shop_name', 'sh.owner_name', 'sh.shop_logo', 'us.created_at')
-            ->leftJoin('shop as sh', 'us.id', '=', 'sh.user_id')
-            ->where('us.id', $authenticatedUser)
-            ->get();
-
-        $products_total = DB::table('products')->where('shop_id', $shop)->count();
-        $transaction_total = DB::table('transactions')->where('shop_id', $shop)->count();
-        $customers = DB::table('transactions_detail_information as tdi')
-            ->distinct('customer')
-            ->leftJoin('transactions as t', 'tdi.transaction_id', '=', 't.id')
-            ->where('shop_id', $shop)->count();
-
-        return view('profile.partials.update-profile-information-form', compact('users', 'products_total', 'transaction_total', 'customers'));
+        $authenticatedUser = auth()->user()->nik;
+        $employee = DB::table('v_employee')->where('nik', $authenticatedUser)->first();
+         $birth_date = Carbon::parse($employee->birth_date);
+        return view('profile.partials.update-profile-information-form', compact('employee', 'birth_date'));
     }
 
     /**

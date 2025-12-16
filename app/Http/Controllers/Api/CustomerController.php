@@ -15,7 +15,7 @@ class CustomerController extends Controller
     public function index()
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
-        $customers =  DB::table('v_customer_transactions')->where('shop_id', $shop)->get();
+        $customers =  DB::table('v_customer_transactions')->get();
 
         return view('layouts.main_pages.customers.customers', compact('customers'));
     }

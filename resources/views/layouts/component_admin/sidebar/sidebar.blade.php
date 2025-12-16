@@ -8,47 +8,106 @@
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">MASTER DATA</div>
-                        <a class="nav-link" href="{{ route('master_products.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-tags" aria-hidden="true"></i>
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('dashboard_main') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-tachometer" aria-hidden="true"></i>
                             </div>
-                            Items
+                            Home
                         </a>
 
-                        <a class="nav-link" href="{{ route('master_category.index') }}">
+                        <div class="sb-sidenav-menu-heading">MASTER DATA</div>
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('products_data') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-cube" aria-hidden="true"></i>
+                            </div>
+                            Products
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('dailyproducts_data') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-list-alt" aria-hidden="true"></i>
+                            </div>
+                            Daily Products
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_category.index') }}">
                             <div class="sb-nav-link-icon"><i class="fa fa-cubes" aria-hidden="true"></i>
                             </div>
                             Category
                         </a>
 
-                        <a class="nav-link" href="{{ route('master_customers.index') }}">
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('raw_material') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                            </div>
+                            Raw Materials
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_category.index') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-random" aria-hidden="true"></i>
+                            </div>
+                            Production Product
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('rewards') }}">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-gift"></i>
+                            </div>
+                            Rewards
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_customers.index') }}">
                             <div class="sb-nav-link-icon"><i class="fa fa-id-card" aria-hidden="true"></i>
                             </div>
                             Customers
                         </a>
 
-                        <a class="nav-link" href="{{ route('discount.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-percent" aria-hidden="true"></i>
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_employee.index') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-user" aria-hidden="true"></i>
                             </div>
-                            Discount
+                            Karyawan
                         </a>
 
-                        <a class="nav-link" href="{{ route('master_products.index') }}">
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_products.index') }}">
                             <div class="sb-nav-link-icon"><i class="fa fa-line-chart" aria-hidden="true"></i>
                             </div>
                             Reports
                         </a>
 
                         <div class="sb-sidenav-menu-heading">TRANSACTION</div>
-                        <a class="nav-link" href="{{ route('transaction.index') }}">
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('transaction.index') }}">
                             <div class="sb-nav-link-icon"><i class="fa fa-exchange" aria-hidden="true"></i>
                             </div>
                             Transactions
                         </a>
-                        {{-- <a class="nav-link" href="tables.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Tables
-                        </a> --}}
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('transaction.index') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                            </div>
+                            Transactions Pick-up
+                        </a>
+
+
+                        <div class="sb-sidenav-menu-heading">CRM</div>
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('promo_campaign') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-tags" aria-hidden="true"></i>
+                            </div>
+                            Promo Campaign
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('voucher') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-ticket" aria-hidden="true"></i>
+                            </div>
+                            E-Voucher
+                        </a>
+
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('discount.index') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-handshake"></i>
+                            </div>
+                            Redeem Rewards
+                        </a>
+
+                        <div class="sb-sidenav-menu-heading">LAINNYA</div>
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('users_data') }}">
+                            <div class="sb-nav-link-icon"><i class="fa fa-users" aria-hidden="true"></i>
+                            </div>
+                            Akun Pengguna
+                        </a>
 
                         <div class="sb-sidenav-menu-heading">
                             <form method="POST" action="{{ route('logout') }}">
@@ -60,7 +119,7 @@
                 </div>
                 <div class="sb-sidenav-footer">
                     <div class="small">Logged in as:</div>
-                    {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->shop_name }}
+                    {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
                 </div>
             </nav>
         </div>
