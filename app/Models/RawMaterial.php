@@ -16,6 +16,7 @@ class RawMaterial extends Model
         'quantity',
         'price',
         'material_type',
+        'material_category',
         'expired_date',
         'status',
         'created_by',

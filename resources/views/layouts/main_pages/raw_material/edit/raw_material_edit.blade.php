@@ -50,26 +50,40 @@
                                 autocomplete="off">
                         </div>
 
-                        <div class="form-group">
-                            <label><strong>Massa Bahan Baku</strong></label>
-                            <input type="text" class="form-control" value="{{ $raw_material->material_type }}"
-                                autocomplete="off" readonly>
-                        </div>
 
                         <div class="form-group">
-                            <label><strong>Pilih Masa Bahan Baku</strong></label>
-                            <select name="material_type" class="form-control" id="">
-                                <option value="">=== Pilih Massa Bahan Baku ===</option>
-                                <option value="pcs">Pcs</option>
-                                <option value="miligram">Miligram</option>
-                                <option value="gram">Gram</option>
-                                <option value="kilogram">Kilogram</option>
-                                <option value="quintal">Quintal</option>
-                                <option value="Ton">Ton</option>
-                                <option value="Box">Box</option>
-                                <option value="Sachet">Sachet</option>
-                                <option value="Pack">Pack</option>
-                                <option value="Karung">Karung</option>
+                            <label><strong>Pilih Massa Bahan Baku</strong></label>
+                            <select name="material_type" class="form-control">
+                                <option value="pcs" {{ $raw_material->material_type == 'pcs' ? 'selected' : '' }}>Pcs
+                                </option>
+                                <option value="miligram"
+                                    {{ $raw_material->material_type == 'miligram' ? 'selected' : '' }}>Miligram</option>
+                                <option value="gram" {{ $raw_material->material_type == 'gram' ? 'selected' : '' }}>
+                                    Gram</option>
+                                <option value="kilogram"
+                                    {{ $raw_material->material_type == 'kilogram' ? 'selected' : '' }}>Kilogram</option>
+                                <option value="quintal"
+                                    {{ $raw_material->material_type == 'quintal' ? 'selected' : '' }}>Quintal</option>
+                                <option value="ton" {{ $raw_material->material_type == 'ton' ? 'selected' : '' }}>
+                                    Ton</option>
+                                <option value="sachet"
+                                    {{ $raw_material->material_type == 'sachet' ? 'selected' : '' }}>Sachet</option>
+                                <option value="pack" {{ $raw_material->material_type == 'pack' ? 'selected' : '' }}>
+                                    Pack</option>
+                                <option value="box" {{ $raw_material->material_type == 'box' ? 'selected' : '' }}>
+                                    Box</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label><strong>Kategori Bahan Baku</strong></label>
+                            <select name="material_category" class="form-control" id="">
+                                @foreach ($material_category as $ctg)
+                                    <option value="{{ $ctg->id }}"
+                                        {{ $ctg->id == $raw_material->material_category ? 'selected' : '' }}>
+                                        {{ $ctg->category_name . ' => ' . $ctg->description }}</option>
+                                @endforeach
                             </select>
                         </div>
 

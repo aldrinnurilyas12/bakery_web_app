@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Voucher;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Api\ProductionProductController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,13 +22,10 @@ Route::get('/', function () {
     return view('layouts.main_pages.welcome_page');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
+Route::get('dashboard', function () {
+    return view('layouts.main_pages.home_page');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route::middleware('guest')->group(function () {
-//     Route::apiResource('user_register', App\Http\Controllers\Auth\RegisteredUserController::class);
-// });
 
 
 Route::middleware('auth')->group(function () {
@@ -35,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('profile_information', [ProfileController::class, 'user_profile'])->name('profile_information');
     Route::put('profile_update/{id}', [ProfileController::class, 'update'])->name('profile_update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
     
     
     // USERS Route
@@ -46,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::put('users_update/{nik}' , [RegisteredUserController::class, 'update'])->name('users_update');
     Route::delete('users_delete/{id}' , [RegisteredUserController::class, 'destroy'])->name('users_delete');
     Route::put('user_profile_update/{nik}', [EmployeeController::class, 'update_user_profile'])->name('user_profile_update');
+    Route::put('user_active_update/{nik}', [RegisteredUserController::class, 'update_user_active'])->name('user_active_update');
 
     //  Customer API
     Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class);
@@ -116,6 +116,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/raw_material', function () {
         return view('pages.raw_material');
     })->name('raw_material');
+
+    // Production Product Route
+    Route::apiResource('master_production_product', App\Http\Controllers\Api\ProductionProductController::class);
+    Route::get('production_create', [ProductionProductController::class, 'create'])->name('production_create');
+    Route::get('production_update/{production_code}', [ProductionProductController::class, 'edit'])->name('production_update');
+    Route::put('production_edit/{production_code}', [ProductionProductController::class, 'update'])->name('production_edit');
+    Route::delete('production_delete/{production_code}', [ProductionProductController::class, 'destroy'])->name('production_delete');
+    Route::put('update_target_production/{production_code}', [ProductionProductController::class, 'update_target_production'])->name('update_target_production');
+    Route::put('update_production_status/{production_code}', [ProductionProductController::class, 'update_production_status'])->name('update_production_status');
+    Route::get('/production_products', function () {
+        return view('pages.production_product');
+    })->name('production_products');
 
 
     // Routes Category

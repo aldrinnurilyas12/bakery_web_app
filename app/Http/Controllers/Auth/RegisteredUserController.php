@@ -90,6 +90,15 @@ class RegisteredUserController extends Controller
         }
     }
 
+    public function update_user_active(Request $request) {
+        User::where('nik', $request->nik)->update([
+            'is_active' => $request->is_active
+        ]);
+
+        session()->flash('message_success', 'Data pengguna berhasil diperbaui!');
+        return redirect()->back();
+    }
+
     public function destroy($id) {
         $user = User::find($id);
         

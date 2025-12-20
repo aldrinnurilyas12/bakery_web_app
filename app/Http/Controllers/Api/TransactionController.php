@@ -25,12 +25,11 @@ class TransactionController extends Controller
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
         $show_transaction = DB::table('transactions as t')
-            ->select('t.id', 't.invoice', 't.quantity', 't.total', 't.created_at', 't.created_by', 'tdi.customer',  DB::raw('GROUP_CONCAT(p.product_name) as product_name'))
-            ->leftJoin('transactions_detail_information as tdi', 't.id', '=', 'tdi.transaction_id')
-            ->leftJoin('transactions_detail as td', 't.id', '=', 'td.transaction_id')
-            ->leftJoin('products as p', 'td.product_id', '=', 'p.id')
-            ->where('t.shop_id', $shop)
-            ->groupBy('t.id', 't.invoice', 't.created_at', 't.created_by', 'tdi.customer')
+            ->select('t.transaction_code as invoice', 't.quantity', 't.total_amount', 't.created_at', 't.created_by', 't.customer',  DB::raw('GROUP_CONCAT(p.product_name) as product_name'))
+            ->leftJoin('transactions_detail as td', 't.transaction_code', '=', 'td.transaction_code')
+            ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+            ->leftJoin('customer as c', 't.customer', '=', 'c.customer_code')
+            ->groupBy('t.transaction_code', 't.created_at', 't.created_by', 't.customer', 't.quantity', 't.total_amount')
             ->orderBy('t.created_at', 'DESC')
             ->get();
 
@@ -54,11 +53,11 @@ class TransactionController extends Controller
     public function transaction_create_layout(Request $request): View
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
-        $category_data = DB::table('product_category')->where('shop_id', $shop)->get();
-        $discount = DB::table('discounts')->where('shop_id', $shop)->get();
-        $all_products =  DB::table('v_products')->where('shop_id', $shop)->paginate(8);
+        $category_data = DB::table('product_category')->get();
+        $all_products =  DB::table('v_daily_products')->paginate(8);
+        // $products_images = DB::table('products_images')->get();
 
-        $itemProducts = ProductsModel::with('category')->where('shop_id', auth()->user()->id)->get();
+        $itemProducts = ProductsModel::with('category')->get();
 
         // dd($itemProducts);
 
@@ -93,7 +92,7 @@ class TransactionController extends Controller
         }
 
 
-        return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products', 'grand_total', 'price_total', 'qty', 'cart_value', 'all_products', 'category_data', 'discount', 'itemProducts'));
+        return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products', 'grand_total', 'price_total', 'qty', 'cart_value', 'all_products', 'category_data', 'itemProducts'));
     }
 
     /**
@@ -180,7 +179,7 @@ class TransactionController extends Controller
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
         $invoice = DB::table('transactions as t')
             ->select('t.id', 't.invoice', 't.quantity', 't.total', 't.created_at', 't.created_by', 'tdi.customer', 'tdi.email', 'p.product_name', 'p.price', 'tdi.payment_method', 'td.quantity_per_product')
-            ->leftJoin('transactions_detail_information as tdi', 't.id', '=', 'tdi.transaction_id')
+            ->leftJoin('transactions_detail as tdi', 't.id', '=', 'tdi.transaction_id')
             ->leftJoin('transactions_detail as td', 't.id', '=', 'td.transaction_id')
             ->leftJoin('products as p', 'td.product_id', '=', 'p.id')
             ->where('t.shop_id', $shop)

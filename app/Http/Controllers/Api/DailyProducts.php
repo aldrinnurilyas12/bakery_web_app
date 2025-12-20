@@ -100,8 +100,11 @@ class DailyProducts extends Controller
     public function destroy(string $id, Request $request)
     {
 
-        DB::table('products_daily')->where('product_code', $request->product_code)->delete();
+        $daily_product = DailyProductsModel::where('product_code', $request->product_code)->first();
 
+        if($daily_product){
+            $daily_product->delete();
+        }
         session()->flash('message_success', 'Data Daily Produk berhasil dihapus!');
         return redirect()->route('dailyproducts_data');
 

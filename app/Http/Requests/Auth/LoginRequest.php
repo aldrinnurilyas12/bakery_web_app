@@ -67,14 +67,18 @@ class LoginRequest extends FormRequest
             throw ValidationException::withMessages([
                 'login' => 'Email belum diaktivasi'
             ]);
+        }elseif($user_available->is_active == 'N'){
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'login' => 'Akun anda sudah tidak aktif silahkan hubungi IT'
+            ]);
+        
         } elseif (!Auth::attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
                 'password' => 'Password salah, coba lagi.'
             ]);
         }
-
-
 
         // Jika semua pemeriksaan berhasil, login pengguna
         Auth::login($user_available);

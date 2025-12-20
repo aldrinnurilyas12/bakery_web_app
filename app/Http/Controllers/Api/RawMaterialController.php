@@ -24,8 +24,8 @@ class RawMaterialController extends Controller
      * Show the form for creating a new resource.
      */
     public function create() : View
-    {
-        return view('layouts.main_pages.raw_material.create.raw_material_create');
+    {   $material_category = DB::table('raw_material_category')->get();
+        return view('layouts.main_pages.raw_material.create.raw_material_create', compact('material_category'));
     }
 
     /**
@@ -38,13 +38,14 @@ class RawMaterialController extends Controller
             'quantity' => 'required',
             'price'=> 'required',
             'material_type'=> 'required',
+            'material_category'=> 'required',
             'expired_date'=> 'required'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
-        $material_code = 'raw' . $unique_code;
+        $material_code = 'RAW' . $unique_code;
 
         RawMaterial::create([
             'material_code' =>$material_code,
@@ -52,6 +53,7 @@ class RawMaterialController extends Controller
             'quantity' => $request->quantity,
             'price' =>$request->price,
             'material_type' =>$request->material_type,
+            'material_category' => $request->material_category,
             'expired_date' =>$request->expired_date,
             'status' => 4,
             'created_by' =>$created_by,
@@ -74,13 +76,16 @@ class RawMaterialController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id) : View
+    public function edit(string $id, Request $request) : View
     {
         $raw_material = DB::table('raw_material as rm')
-                            ->leftJoin('status_category as s','rm.status', '=', 's.id')->first();
+                            ->leftJoin('status_category as s','rm.status', '=', 's.id')
+                            ->leftJoin('raw_material_category as ctg', 'rm.material_category', '=', 'ctg.id')
+                            ->where('material_code', $request->material_code)->first();
         $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
+        $material_category = DB::table('raw_material_category')->get();
         $expired_date = Carbon::Parse($raw_material->expired_date);
-        return view('layouts.main_pages.raw_material.edit.raw_material_edit', compact('raw_material', 'status', 'expired_date'));
+        return view('layouts.main_pages.raw_material.edit.raw_material_edit', compact('raw_material','material_category', 'status', 'expired_date'));
     }
 
     /**
@@ -102,6 +107,7 @@ class RawMaterialController extends Controller
             'quantity' => $request->quantity,
             'price' =>$request->price,
             'material_type' =>$request->material_type,
+            'material_category' =>$request->material_category,
             'expired_date' =>$request->expired_date,
             'status' => $request->status,
             'updated_by' =>$updated_by,
@@ -109,7 +115,7 @@ class RawMaterialController extends Controller
 
         ]);
 
-         session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
+        session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
         return redirect()->route('raw_material');
     }
 

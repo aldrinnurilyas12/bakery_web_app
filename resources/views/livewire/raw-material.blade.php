@@ -6,7 +6,7 @@
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('master_products.index') }}">Daily Produk</a>
+                        Master Data / <a href="{{ route('raw_material') }}">Bahan Baku</a>
                     </div>
 
                     @if ($raw_material->isNotEmpty())
@@ -21,7 +21,7 @@
 
                         @if ($raw_material->isNotEmpty())
                             <div class="table-responsive">
-                                <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                <table class="table" id="dataTable" width="100%" cellspacing="0" wire:ignore>
                                     <thead>
                                         <tr>
                                             <th>No</th>
@@ -32,6 +32,7 @@
                                             <th>Massa</th>
                                             <th>Status</th>
                                             <th>Harga</th>
+                                            <th>Kategori</th>
                                             <th>Tanggal Expired</th>
                                             <th>Created at</th>
                                             <th>Created by</th>
@@ -49,17 +50,12 @@
                                                 <td>{{ $no++ }}</td>
                                                 <td>
                                                     <div style="display: flex; gap:10px;" class="btn-action">
-                                                        <a class="btn btn-primary"
-                                                            href="{{ route('material_update', $raw->material_code) }}">Edit</a>
+                                                        <a href="{{ route('material_update', $raw->material_code) }}"><i
+                                                                class="fa fa-edit"></i></a>
 
-
-                                                        <form
-                                                            action="{{ route('material_delete', $raw->material_code) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger">Hapus</button>
-                                                        </form>
+                                                        <a href="#" data-toggle="modal"
+                                                            data-target="#deleteModal{{ $raw->material_code }}"><i
+                                                                class="fa fa-trash"></i></a>
                                                     </div>
                                                 </td>
                                                 <td>{{ $raw->material_code }}</td>
@@ -74,6 +70,7 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ 'Rp.' . number_format($raw->price) }}</td>
+                                                <td>{{ $raw->category_name }}</td>
                                                 <td>{{ $raw->expired_date }}</td>
                                                 <td>{{ $raw->created_at }}</td>
                                                 <td>{{ $raw->created_by }}</td>
@@ -107,27 +104,31 @@
         </div>
     </main>
 
-    {{-- <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus data produk</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" type="submit">Log Out</button>
-                    </form>
+    @foreach ($raw_material as $raw)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $raw->material_code }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $raw->material_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data Bahan Baku</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Apakah anda yakin ingin menghapus data Bahan Baku
+                        {{ $raw->material_code . '  - ' . $raw->material_name }}?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{{ route('material_delete', $raw->material_code) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div> --}}
+    @endforeach
 
     @if (Session::has('message_success'))
         <script>
@@ -140,6 +141,7 @@
             });
         </script>
     @endif
+
 
 
 

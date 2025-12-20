@@ -50,17 +50,14 @@
                                                 <td>{{ $no++ }}</td>
                                                 <td>
                                                     <div style="display: flex; gap:10px;" class="btn-action">
-                                                        <a class="btn btn-primary"
-                                                            href="{{ route('product_update', $product->product_code) }}">Edit</a>
+                                                        <a href="{{ route('product_update', $product->product_code) }}"><i
+                                                                class="fas fa-edit"></i></a>
+
+                                                        <a href="#" data-toggle="modal"
+                                                            data-target="#deleteModal{{ $product->product_code }}"><i
+                                                                class="fas fa-trash"></i></a>
 
 
-                                                        <form
-                                                            action="{{ route('master_products.destroy', $product->product_code) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger">Hapus</button>
-                                                        </form>
                                                     </div>
                                                 </td>
                                                 <td>
@@ -128,27 +125,30 @@
         </div>
     </main>
 
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus data produk</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" type="submit">Log Out</button>
-                    </form>
+    @foreach ($products as $product)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $product->product_code }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $product->product_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data produk</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Apakah anda yakin ingin menghapus produk
+                        {{ $product->product_code . ' - ' . $product->product }} ?</div>
+                    <div class="modal-footer">
+                        <form action="{{ route('master_products.destroy', $product->product_code) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endforeach
 
     @if (Session::has('message_success'))
         <script>

@@ -8,8 +8,8 @@
 
     <!-- DataTables -->
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @livewireStyles
 </head>
 
@@ -31,15 +31,14 @@
 
     </div>
 
-    <!-- jQuery -->
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
     @livewireScripts
 </body>
+<script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+
 
 @if (Session::has('message_success'))
     <script>
@@ -52,5 +51,6 @@
         });
     </script>
 @endif
+
 
 </html>

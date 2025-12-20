@@ -111,7 +111,7 @@
 
                         <div class="form-group">
                             <label><strong>Upload Gambar/Foto Produk </strong></label>
-                            <input type="file" name="images[]" multiple class="form-control">
+                            <input type="file" name="images[]" multiple class="form-control" required>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Simpan Data</button>

@@ -7,8 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery - Data Pengguna</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
-    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -87,6 +91,12 @@
                                                     </td>
                                                     <td>
                                                         {{ $user->is_active }}
+                                                        &nbsp;
+                                                        <a href="#" data-toggle="modal"
+                                                            data-target="#changeStatus{{ $user->nik }}">
+                                                            <br>
+                                                            <i class="fa fa-edit"></i>
+                                                        </a>
                                                     </td>
                                                     <td>{{ $user->created_at }}</td>
                                                     <td>{{ $user->updated_at }}</td>
@@ -123,9 +133,39 @@
         </div>
     </div>
 
-    <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+
+    @foreach ($v_users as $user)
+        <div wire:ignore class="modal fade" id="changeStatus{{ $user->nik }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $user->nik }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ubah Akun Pengguna</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Ubah status Akun {{ $user->username }}
+                        <br>
+                        <form method="POST" action="{{ route('user_active_update', $user->nik) }}">
+                            @csrf
+                            @method('PUT')
+                            <label for=""><strong> Pilih Status </strong></label>
+                            <select name="is_active" class="form-control" id="">
+                                <option value="">=== Pilih Status ===</option>
+                                <option value="Y">Aktif</option>
+                                <option value="N">Tidak</option>
+                            </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
 
 </body>
 

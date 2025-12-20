@@ -148,8 +148,9 @@ class RewardsController extends Controller
                     unlink($dropPicture);
                 }
 
+            session()->flash('message_success', 'Data reward berhasil dihapus!');
+            return redirect()->route('rewards');
         }
-        session()->flash('message_success', 'Data reward berhasil dihapus!');
-        return redirect()->route('rewards');
+        
     }
 }

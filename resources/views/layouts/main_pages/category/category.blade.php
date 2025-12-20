@@ -103,12 +103,11 @@
             </main>
         </div>
     </div>
-
-    <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
-
 </body>
+
+<script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
 
 @if (Session::has('message_success'))
     <script>

@@ -51,11 +51,21 @@
                                 <option value="gram">Gram</option>
                                 <option value="kilogram">Kilogram</option>
                                 <option value="quintal">Quintal</option>
-                                <option value="Ton">Ton</option>
-                                <option value="Box">Box</option>
-                                <option value="Sachet">Sachet</option>
-                                <option value="Pack">Pack</option>
-                                <option value="Karung">Karung</option>
+                                <option value="ton">Ton</option>
+                                <option value="sachet">Sachet</option>
+                                <option value="pack">Pack</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Kategori Bahan Baku</strong></label>
+                            <select name="material_category" class="form-control" id="">
+                                <option value="">=== Pilih Kategori Bahan Baku ===</option>
+                                @foreach ($material_category as $cat)
+                                    <option value="{{ $cat->id }}">
+                                        {{ $cat->category_name . ' => ' . $cat->description }}</option>
+                                @endforeach
+
                             </select>
                         </div>
 

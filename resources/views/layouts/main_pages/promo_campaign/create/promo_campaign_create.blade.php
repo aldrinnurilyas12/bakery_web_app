@@ -38,7 +38,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Masukan kode promo</strong></label>
+                            <label style="margin: 0;"><strong>Masukan kode promo</strong></label>
+                            <br>
+                            <small style="color:gray;margin:0;">*Tidak pakai spasi (contoh : PROMO25DES)</small>
                             <input type="text" name="promo_code" class="form-control" value="{{ old('promo_code') }}"
                                 placeholder="Masukan kode promo" autocomplete="off">
                         </div>

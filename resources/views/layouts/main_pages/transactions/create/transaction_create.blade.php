@@ -308,9 +308,10 @@
                                     </li>
                                     @foreach ($category_data as $ctg)
                                         <li class="nav-item" role="presentation">
-                                            <a class="nav-link" id="tab-{{ $ctg->id }}-tab"
-                                                data-bs-toggle="tab" href="#tab-{{ $ctg->id }}" role="tab"
-                                                aria-controls="tab-{{ $ctg->id }}" aria-selected="false">
+                                            <a class="nav-link" id="tab-{{ $ctg->category_name }}-tab"
+                                                data-bs-toggle="tab" href="#tab-{{ $ctg->category_name }}"
+                                                role="tab" aria-controls="tab-{{ $ctg->category_name }}"
+                                                aria-selected="false">
                                                 {{ $ctg->category_name }}
                                             </a>
                                         </li>
@@ -334,20 +335,31 @@
                                                     <div class="content-product-show">
                                                         <div class="products-card"
                                                             style="display: flex; flex-wrap: wrap; gap: 20px;">
+
+
                                                             @foreach ($all_products as $product)
+                                                                @php
+                                                                    $products_images = DB::table('product_images')
+                                                                        ->where('product_code', $product->product_code)
+                                                                        ->first();
+                                                                @endphp
+
                                                                 <div class="card" style="width: 200px;">
-                                                                    <img class="card-img"
-                                                                        src="{{ asset('storage/' . $product->images) }}"
-                                                                        alt="">
-                                                                    <p><strong>{{ $product->product_name }}</strong>
+                                                                    @if ($product->product_code == $products_images->product_code)
+                                                                        <img class="card-img"
+                                                                            src="{{ asset('storage/' . $products_images->images) }}"
+                                                                            alt="">
+                                                                    @else
+                                                                    @endif
+                                                                    <p><strong>{{ $product->product }}</strong>
                                                                     </p>
                                                                     <div class="price">
                                                                         <p>{{ 'Rp.' . number_format($product->price) }}
                                                                         </p>
                                                                     </div>
                                                                     <div class="stok">
-                                                                        <p>Stok: {{ $product->stock }}</p>
-                                                                        <p>Terjual: {{ $product->sold }}</p>
+                                                                        <p>Stok: {{ $product->stock_available }}</p>
+                                                                        {{-- <p>Terjual: {{ $product->sold }}</p> --}}
                                                                     </div>
                                                                     <div class="btn-add-cart">
                                                                         <form action="{{ route('cart_add') }}"
@@ -355,10 +367,10 @@
                                                                             @csrf
                                                                             <input type="hidden" name="id"
                                                                                 value="{{ $product->id }}">
-                                                                            <input type="hidden" name="images"
-                                                                                value="{{ $product->images }}">
+                                                                            {{-- <input type="hidden" name="images"
+                                                                                value="{{ $product->images }}"> --}}
                                                                             <input type="hidden" name="product_name"
-                                                                                value="{{ $product->product_name }}">
+                                                                                value="{{ $product->product }}">
                                                                             <input type="hidden" name="price"
                                                                                 value="{{ $product->price }}">
                                                                             <button class="btn-add-to-cart"
@@ -383,21 +395,32 @@
                                     @if ($all_products->isNotEmpty())
                                         @foreach ($category_data as $ctg)
                                             @php
-                                                $filtered_products = $all_products->where('category_id', $ctg->id);
+                                                $filtered_products = $all_products->where(
+                                                    'category',
+                                                    $ctg->category_name,
+                                                );
                                             @endphp
-                                            <div class="tab-pane fade" id="tab-{{ $ctg->id }}" role="tabpanel"
-                                                aria-labelledby="tab-{{ $ctg->id }}-tab">
+                                            <div class="tab-pane fade" id="tab-{{ $ctg->category_name }}"
+                                                role="tabpanel" aria-labelledby="tab-{{ $ctg->category_name }}-tab">
                                                 <div class="card-body">
                                                     <div class="products-card"
                                                         style="display: flex; flex-wrap: wrap; gap: 20px;">
                                                         @if ($filtered_products->isNotEmpty())
                                                             @foreach ($filtered_products as $product)
+                                                                @php
+                                                                    $products_images = DB::table('product_images')
+                                                                        ->where('product_code', $product->product_code)
+                                                                        ->first();
+                                                                @endphp
                                                                 <div style="position: left;" class="card"
                                                                     style="width: 200px;">
-                                                                    <img class="card-img"
-                                                                        src="{{ asset('storage/' . $product->images) }}"
-                                                                        alt="">
-                                                                    <p><strong>{{ $product->product_name }}</strong>
+                                                                    @if ($product->product_code == $products_images->product_code)
+                                                                        <img class="card-img"
+                                                                            src="{{ asset('storage/' . $products_images->images) }}"
+                                                                            alt="">
+                                                                    @else
+                                                                    @endif
+                                                                    <p><strong>{{ $product->product }}</strong>
                                                                     </p>
                                                                     <div class="price">
                                                                         <p>{{ 'Rp.' . number_format($product->price) }}
@@ -405,11 +428,11 @@
                                                                     </div>
                                                                     <div class="stok">
                                                                         <p>Stok:
-                                                                            {{ $product->stock }}
+                                                                            {{ $product->stock_available }}
                                                                         </p>
-                                                                        <p>Terjual:
+                                                                        {{-- <p>Terjual:
                                                                             {{ $product->sold }}
-                                                                        </p>
+                                                                        </p> --}}
                                                                     </div>
                                                                     <div class="btn-add-cart">
                                                                         <form action="{{ route('cart_add') }}"
@@ -417,10 +440,10 @@
                                                                             @csrf
                                                                             <input type="hidden" name="id"
                                                                                 value="{{ $product->id }}">
-                                                                            <input type="hidden" name="images"
-                                                                                value="{{ $product->images }}">
+                                                                            {{-- <input type="hidden" name="images"
+                                                                                value="{{ $product->images }}"> --}}
                                                                             <input type="hidden" name="product_name"
-                                                                                value="{{ $product->product_name }}">
+                                                                                value="{{ $product->product }}">
                                                                             <input type="hidden" name="price"
                                                                                 value="{{ $product->price }}">
                                                                             <button class="btn-add-to-cart"
@@ -553,7 +576,7 @@
                                     </div>
 
                                     <hr>
-                                    <div class="discount">
+                                    {{-- <div class="discount">
                                         <label for=""><strong>Diskon</strong></label>
                                         <div class="open-pay-method">
                                             <select class="form-control" name="payment_method" id="">
@@ -565,7 +588,7 @@
                                             </select>
                                         </div>
 
-                                    </div>
+                                    </div> --}}
 
                                     <hr>
                                     <div class="promo-code">

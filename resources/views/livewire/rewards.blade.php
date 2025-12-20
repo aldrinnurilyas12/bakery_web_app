@@ -52,12 +52,8 @@
                                             <a class="small text-black"
                                                 href="{{ route('rewards_update', $reward->rewards_code) }}">Edit</a>
 
-                                            <form method="POST"
-                                                action="{{ route('rewards_delete', $reward->rewards_code) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger" type="submit">Hapus</button>
-                                            </form>
+                                            <a class="btn btn-danger" href="#" data-toggle="modal"
+                                                data-target="#deleteModal{{ $reward->rewards_code }}">Hapus</a>
                                         </div>
                                     </div>
                                 @endforeach
@@ -84,27 +80,31 @@
         </div>
     </main>
 
-    {{-- <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus data produk</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" type="submit">Log Out</button>
-                    </form>
+    @foreach ($rewards as $reward)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $reward->rewards_code }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $reward->rewards_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data rewards</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Apakah anda yakin ingin menghapus data Rewards
+                        {{ $reward->rewards_code . '  - ' . $reward->rewards_name }}?
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('rewards_delete', $reward->rewards_code) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger" type="submit">Hapus</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div> --}}
+    @endforeach
 
     @if (Session::has('message_success'))
         <script>

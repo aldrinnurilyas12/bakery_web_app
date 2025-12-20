@@ -261,7 +261,7 @@
             setTimeout(() => {
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 500); // Menghapus elemen setelah fade out
-            }, 2000); // Waktu tampilan alert, dalam milidetik (3 detik)
+            }, 4000); // Waktu tampilan alert, dalam milidetik (3 detik)
         }
     });
 </script>

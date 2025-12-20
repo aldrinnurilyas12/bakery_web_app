@@ -27,6 +27,7 @@
                                             <th>No</th>
                                             <th>Aksi</th>
                                             <th>Kode Promo</th>
+                                            <th>Nama Promo</th>
                                             <th>Produk</th>
                                             <th>Kuota</th>
                                             <th>Status</th>
@@ -50,19 +51,17 @@
                                                 <td>{{ $no++ }}</td>
                                                 <td>
                                                     <div style="display: flex; gap:10px;" class="btn-action">
-                                                        <a class="btn btn-primary"
-                                                            href="{{ route('promo_update', $promo->promo_code) }}">Edit</a>
+                                                        <a href="{{ route('promo_update', $promo->promo_code) }}"><i
+                                                                class="fas fa-edit"></i></a>
 
+                                                        <a href="#" data-toggle="modal"
+                                                            data-target="#deleteModal{{ $promo->promo_code }}"><i
+                                                                class="fas fa-trash"></i></a>
 
-                                                        <form action="{{ route('promo_delete', $promo->promo_code) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger">Hapus</button>
-                                                        </form>
                                                     </div>
                                                 </td>
                                                 <td>{{ $promo->promo_code }}</td>
+                                                <td>{{ $promo->promo_name }}</td>
                                                 <td>{{ $promo->product }}</td>
                                                 <td>{{ $promo->quota }}</td>
                                                 <td>
@@ -74,9 +73,13 @@
                                                 </td>
                                                 <td>{{ $promo->min_transaction }}</td>
                                                 <td>
-                                                    <textarea cols="14" rows="2" readonly>
+                                                    @if ($promo->description)
+                                                        <textarea cols="14" rows="2" readonly>
                                                         {{ $promo->description }}
                                                     </textarea>
+                                                    @else
+                                                        -
+                                                    @endif
                                                 </td>
                                                 <td>{{ $promo->start_date }}</td>
                                                 <td>{{ $promo->end_date }}</td>
@@ -111,27 +114,29 @@
         </div>
     </main>
 
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus data produk</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-danger" type="submit">Log Out</button>
-                    </form>
+    @foreach ($promo_campaign as $promo)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $promo->promo_code }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $promo->promo_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data daily Promo Campaign</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Apakah anda yakin ingin menghapus Promo {{ $promo->promo_name }} ?</div>
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('promo_delete', $promo->promo_code) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-danger" type="submit">Hapus</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endforeach
 
     @if (Session::has('message_success'))
         <script>

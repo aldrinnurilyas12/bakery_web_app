@@ -5,106 +5,143 @@
 <body>
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+            <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
                         <a class="nav-link" style="font-size:14px;" href="{{ route('dashboard_main') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-tachometer" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-tachometer"
+                                    aria-hidden="true"></i>
                             </div>
                             Home
                         </a>
 
                         <div class="sb-sidenav-menu-heading">MASTER DATA</div>
                         <a class="nav-link" style="font-size:14px;" href="{{ route('products_data') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-cube" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-cube"
+                                    aria-hidden="true"></i>
                             </div>
                             Products
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('dailyproducts_data') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-list-alt" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-list-alt"
+                                    aria-hidden="true"></i>
                             </div>
                             Daily Products
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('master_category.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-cubes" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-cubes"
+                                    aria-hidden="true"></i>
                             </div>
                             Category
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('raw_material') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-shopping-basket"
+                                    aria-hidden="true"></i>
                             </div>
                             Raw Materials
                         </a>
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_category.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-random" aria-hidden="true"></i>
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('production_products') }}">
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-random"
+                                    aria-hidden="true"></i>
                             </div>
                             Production Product
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('rewards') }}">
-                            <div class="sb-nav-link-icon"><i class="fa-solid fa-gift"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa-solid fa-gift"></i>
                             </div>
                             Rewards
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('master_customers.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-id-card" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-id-card"
+                                    aria-hidden="true"></i>
                             </div>
                             Customers
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('master_employee.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-user" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-user"
+                                    aria-hidden="true"></i>
                             </div>
                             Karyawan
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('master_products.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-line-chart" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-line-chart"
+                                    aria-hidden="true"></i>
                             </div>
                             Reports
                         </a>
 
                         <div class="sb-sidenav-menu-heading">TRANSACTION</div>
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('transaction.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-exchange" aria-hidden="true"></i>
+
+                        <a class="nav-link" style="font-size:14px;align-items: baseline;"
+                            href="{{ route('transaction.index') }}">
+
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-exchange"
+                                    aria-hidden="true"></i>
                             </div>
-                            Transactions
+
+                            <div style="display: flex; gap:15px;justify-content: space-between;" class="dflex-content">
+                                <p style="margin:0;"> Transactions</p>
+                                <span
+                                    style="width: max-content; border-radius: 4px; background:rgb(255, 15, 15);color:white;padding:3px;text-align: center;"
+                                    class="notification-alert">
+                                    349
+                                </span>
+                            </div>
+
                         </a>
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('transaction.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                        <a class="nav-link" style="font-size:14px;align-items: baseline;"
+                            href="{{ route('transaction.index') }}">
+
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-shopping-basket"
+                                    aria-hidden="true"></i>
                             </div>
-                            Transactions Pick-up
+
+                            <div style="display: flex; gap:15px;justify-content: space-between;" class="dflex-content">
+                                <p style="margin:0;"> Orders Pick-up</p>
+                                <span
+                                    style="width: max-content; border-radius: 4px; background:rgb(255, 15, 15);color:white;padding:3px;text-align: center;"
+                                    class="notification-alert">
+                                    29
+                                </span>
+                            </div>
+
                         </a>
 
 
                         <div class="sb-sidenav-menu-heading">CRM</div>
                         <a class="nav-link" style="font-size:14px;" href="{{ route('promo_campaign') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-tags" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-tags"
+                                    aria-hidden="true"></i>
                             </div>
                             Promo Campaign
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('voucher') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-ticket" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-ticket"
+                                    aria-hidden="true"></i>
                             </div>
                             E-Voucher
                         </a>
 
                         <a class="nav-link" style="font-size:14px;" href="{{ route('discount.index') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-handshake"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-handshake"></i>
                             </div>
                             Redeem Rewards
                         </a>
 
                         <div class="sb-sidenav-menu-heading">LAINNYA</div>
                         <a class="nav-link" style="font-size:14px;" href="{{ route('users_data') }}">
-                            <div class="sb-nav-link-icon"><i class="fa fa-users" aria-hidden="true"></i>
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-users"
+                                    aria-hidden="true"></i>
                             </div>
                             Akun Pengguna
                         </a>
