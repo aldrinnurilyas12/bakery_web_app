@@ -300,7 +300,7 @@
                             </div>
 
                             <div class="category-scroll">
-                                <ul class="nav nav-tabs" id="nav-scroll" role="tablist" style="gap: 20px;">
+                                <ul class="nav nav-tabs" id="nav-scroll" role="tablist" style="gap: 10px;">
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link active" id="tab-all-tab" data-bs-toggle="tab"
                                             href="#tab-all" role="tab" aria-controls="tab-all"
@@ -928,6 +928,12 @@
     // Set initial total untuk setiap produk dan grand total saat halaman pertama dimuat
     quantityInputs.forEach((input, index) => {
         updateTotal(index); // Pastikan subtotal dan grand total sudah sesuai
+    });
+
+    // SCRIPT FOR ACTIVE NAVBAR :
+    $('#nav-scroll .nav-link').on('click', function() {
+        $('#nav-scroll .nav-link').removeClass('active');
+        $(this).addClass('active');
     });
 </script>
 

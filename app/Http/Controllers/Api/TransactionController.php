@@ -53,7 +53,10 @@ class TransactionController extends Controller
     public function transaction_create_layout(Request $request): View
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
-        $category_data = DB::table('product_category')->get();
+         $category_data = DB::table('product_category as c')->select('c.category_name')
+                ->join('products as p', 'c.id', '=', 'p.category_id')
+                ->join('products_daily as pd', 'p.product_code', '=', 'pd.product_code')
+                ->groupBy('c.category_name')->get();
         $all_products =  DB::table('v_daily_products')->paginate(8);
         // $products_images = DB::table('products_images')->get();
 
