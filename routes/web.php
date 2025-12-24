@@ -139,12 +139,14 @@ Route::middleware('auth')->group(function () {
     // Route for Transactions
     Route::apiResource('transaction', App\Http\Controllers\Api\TransactionController::class);
     Route::get('transaction_create', [TransactionController::class, 'transaction_create_layout'])->name('transaction_create');
-    Route::get('invoice_detail/{id}', [TransactionController::class, 'invoice'])->name('invoice_detail');
+    Route::get('invoice_detail/{transaction_code}', [TransactionController::class, 'invoice'])->name('invoice_detail');
+    Route::get('/show_promo_code', [TransactionController::class, 'show_promo_code'])->name('show_promo_code');
+    Route::get('/search_customer', [TransactionController::class,'show_customer'])->name('search_customer');
 
     // Route Shopping Cart 
     Route::post('/cart/add', [ShoppingCartController::class, 'add'])->name('cart_add');
     Route::post('clear_cart', [ShoppingCartController::class, 'clear_cart_session'])->name('clear_cart');
-    Route::post('delete_item_cart/{id}', [ShoppingCartController::class, 'delete_cart_product'])->name('delete_item_cart');
+    Route::delete('delete_item_cart/{product_code}', [ShoppingCartController::class, 'delete_cart_product'])->name('delete_item_cart');
 
     // Route Discount
     Route::apiResource('discount', App\Http\Controllers\Api\DiscountController::class);

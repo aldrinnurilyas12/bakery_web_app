@@ -28,11 +28,10 @@ class ShoppingCartController extends Controller
         $cart = Session::get('cart', []);
 
         $cart_product = [
-            'id' => $request->id,
+            'product_code' => $request->product_code,
             'product_name' => $request->product_name,
             'price' => $request->price,
             'quantity' => $request->quantity,
-            'images' => $request->images
 
         ];
 
@@ -51,7 +50,7 @@ class ShoppingCartController extends Controller
         // Simpan cart ke session
         Session::put('cart', $cart);
 
-        session()->flash('message_success', 'Produk berhasil ditambahkan!');
+        session()->flash('add_cart_success', 'Produk berhasil ditambahkan!');
         return redirect()->back();
     }
 
@@ -103,6 +102,7 @@ class ShoppingCartController extends Controller
         session()->flash('success_empty_cart', 'Keranjang berhasil dikosongkan!');
         return redirect()->route('transaction_create');
     }
+    
 
     public function delete_cart_product(Request $request): RedirectResponse
     {
@@ -110,13 +110,13 @@ class ShoppingCartController extends Controller
         $cart = Session::get('cart', []);
 
         // Get the product ID to delete from the request
-        $id = $request->id;
+        $prdCode = $request->product_code;
 
         // Check if the cart is not empty and the product ID exists
-        if ($id && !empty($cart)) {
+        if ($prdCode && !empty($cart)) {
             // Loop through the cart to find the item with the matching ID and remove it
             foreach ($cart as $key => $cartItem) {
-                if ($cartItem['id'] == $id) {
+                if ($cartItem['product_code'] == $prdCode) {
                     unset($cart[$key]); // Remove the product from the cart
                     break;
                 }
@@ -124,12 +124,9 @@ class ShoppingCartController extends Controller
 
             // Update the session with the new cart data
             Session::put('cart', $cart);
-
-            // Flash success message
-            session()->flash('success_empty_cart', 'Berhasil hapus produk!');
         }
 
-        // Redirect to the transaction creation route
-        return redirect()->route('transaction_create');
+         session()->flash('success_empty_cart', 'Berhasil hapus produk!');
+        return redirect()->back();
     }
 }

@@ -11,11 +11,18 @@ class TransactionModel extends Model
 
     protected $table = 'transactions';
     protected $fillable = [
-        'shop_id',
-        'product_id',
-        'invoice',
+        'transaction_code',
         'quantity',
-        'total',
+        'total_amount',
+        'grand_total',
+        'casheer',
+        'customer',
+        'status',
+        'payment_type',
+        'payment_changes',
+        'promo_code',
+        'reward_transaction_used',
+        'transaction_date',
         'created_by',
         'updated_by'
     ];

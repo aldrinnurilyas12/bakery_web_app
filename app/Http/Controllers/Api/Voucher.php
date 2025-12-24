@@ -45,7 +45,8 @@ class Voucher extends Controller
             'quota'=> 'required',
             'min_transaction'=> 'required',
             'start_date'=> 'required',
-            'end_date'=> 'required'
+            'end_date'=> 'required',
+            'voucher_type' => 'required'
         ]);
         
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -81,10 +82,12 @@ class Voucher extends Controller
             'voucher_code'=> $voucher_code,
             'voucher_name'=> $request->voucher_name,
             'quota'=> $request->quota,
+            'total_quota_used' =>$request->quota,
             'nominal'=> $request->nominal,
             'discount'=> $request->discount,
             'min_transaction'=> $request->min_transaction,
             'status'=> 7,
+            'voucher_type' => $request->voucher_type,
             'qr_code' => $qrCodePath,
             'start_date'=> $request->start_date,
             'end_date'=> $request->end_date,
@@ -128,10 +131,12 @@ class Voucher extends Controller
         VoucherModel::where('voucher_code', $request->voucher_code)->update([
             'voucher_name'=> $request->voucher_name,
             'quota'=> $request->quota,
+            'total_quota_used' =>$request->quota,
             'nominal'=> $request->nominal,
             'discount'=> $request->discount,
             'min_transaction'=> $request->min_transaction,
             'status'=> $request->status,
+            'voucher_type' => $request->voucher_type,
             'start_date'=> $request->start_date,
             'end_date'=> $request->end_date,
             'updated_by' => $updated_by,
