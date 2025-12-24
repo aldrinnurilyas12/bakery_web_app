@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery - Data Master Karyawan</title>
+    <title>Kencana Bakery - Master Data Karyawan</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>

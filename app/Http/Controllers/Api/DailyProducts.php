@@ -86,6 +86,7 @@ class DailyProducts extends Controller
         DailyProductsModel::where('product_code', $request->product_code)->update([
             'status' => $request->status,
             'point' => $request->point,
+            'stock_available' => $request->stock_available,
             'updated_at' => now(),
             'updated_by' => $updated_by
         ]);

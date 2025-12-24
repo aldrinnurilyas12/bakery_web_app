@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Data Kategori</title>
+    <title>Kencana Bakery - Master Data Kategori</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
@@ -54,19 +54,13 @@
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
                                                         <div style="display: flex;gap:10px;" class="btn-action">
-                                                            <a class="btn btn-primary"
-                                                                href="{{ route('category_update', $category->id) }}">Edit</a>
-                                                            <div class="delete-action">
-                                                                <form
-                                                                    action="{{ route('master_category.destroy', $category->id) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit"
-                                                                        class="btn btn-danger">Hapus</button>
-                                                                </form>
-                                                            </div>
 
+                                                            <a href="{{ route('category_update', $category->id) }}"><i
+                                                                    class="fas fa-edit"></i></a>
+
+                                                            <a href="#" data-toggle="modal"
+                                                                data-target="#deleteModal{{ $category->id }}"><i
+                                                                    class="fas fa-trash"></i></a>
                                                         </div>
                                                     </td>
                                                     <td>{{ $category->category_name }}</td>
@@ -103,10 +97,36 @@
             </main>
         </div>
     </div>
-</body>
 
+    @foreach ($category_data as $category)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $category->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $category->id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data kategori produk</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Apakah anda yakin ingin menghapus Kategori
+                        {{ $category->category_name }} ?</div>
+                    <div class="modal-footer">
+                        <form action="{{ route('master_category.destroy', $category->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</body>
+<script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
 
 @if (Session::has('message_success'))

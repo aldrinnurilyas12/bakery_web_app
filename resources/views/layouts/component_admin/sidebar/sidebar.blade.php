@@ -89,11 +89,6 @@
 
                             <div style="display: flex; gap:15px;justify-content: space-between;" class="dflex-content">
                                 <p style="margin:0;"> Transactions</p>
-                                <span
-                                    style="width: max-content; border-radius: 4px; background:rgb(255, 15, 15);color:white;padding:3px;text-align: center;"
-                                    class="notification-alert">
-                                    349
-                                </span>
                             </div>
 
                         </a>

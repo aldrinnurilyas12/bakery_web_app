@@ -1,3 +1,4 @@
+<title>@yield('title', 'Kencana Bakery - Master Data Produk')</title>
 <div>
     <main>
         <div class="container-fluid px-4">

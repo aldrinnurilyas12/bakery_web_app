@@ -51,9 +51,18 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Kuota Reward</strong></label>
+                            <label><strong>Kuota Voucher</strong></label>
                             <input type="text" name="quota" class="form-control" value="{{ old('quota') }}"
                                 placeholder="Masukan kuota reward min : 2 " autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label for=""><strong>Jenis Vocuher</strong></label>
+                            <select name="voucher_type" id="" class="form-control">
+                                <option value="">=== Pilih Jenis Voucher ===</option>
+                                <option value="regular">Regular</option>
+                                <option value="birth_day">Ulang Tahun</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -62,7 +71,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Tanggal akhir berlaku reward</strong></label>
+                            <label><strong>Tanggal akhir berlaku voucher</strong></label>
                             <input type="date" name="end_date" class="form-control" autocomplete="off">
                         </div>
 

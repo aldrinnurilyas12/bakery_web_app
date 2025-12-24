@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery - Ubah data rewards</title>
+    <title>Kencana Bakery - Ubah Vouchers</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
@@ -18,7 +18,7 @@
             <main>
                 <br>
                 <div class="container-fluid px-4">
-                    <h4>Ubah Data Reward</h4>
+                    <h4>Ubah Data voucher</h4>
                     <hr>
                     <form action="{{ route('voucher_edit', $vouchers->voucher_code) }}" method="POST"
                         enctype="multipart/form-data">
@@ -60,9 +60,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Kuota Reward</strong></label>
+                            <label><strong>Kuota Voucher</strong></label>
                             <input type="text" name="quota" class="form-control" value="{{ $vouchers->quota }}"
-                                placeholder="Masukan kuota reward min : 2 " autocomplete="off">
+                                placeholder="Masukan kuota voucher min : 2 " autocomplete="off">
                         </div>
 
                         <div class="form-group">
@@ -77,6 +77,18 @@
                         </div>
 
                         <div class="form-group">
+                            <label for=""><strong>Jenis Vocuher</strong></label>
+                            <select name="voucher_type" id="" class="form-control">
+                                <option value="regular" {{ $vouchers->voucher_type == 'regular' ? 'selected' : '' }}>
+                                    Regular</option>
+
+                                <option value="birth_day"
+                                    {{ $vouchers->voucher_type == 'birth_day' ? 'selected' : '' }}>
+                                    Ulang Tahun</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label><strong>Tanggal awal berlaku voucher</strong></label>
                             <input type="date" name="start_date" class="form-control"
                                 value="{{ old('start_date', $vouchers->start_date ? $start_date->format('Y-m-d') : null) }}"
@@ -84,7 +96,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Tanggal akhir berlaku reward</strong></label>
+                            <label><strong>Tanggal akhir berlaku voucher</strong></label>
                             <input type="date" name="end_date" class="form-control"
                                 value="{{ old('end_date', $vouchers->end_date ? $end_date->format('Y-m-d') : null) }}"
                                 autocomplete="off">
