@@ -384,46 +384,6 @@
                                         @endif
                                     </div>
                                     @if ($cart_value)
-                                        <hr>
-                                        <div class="payment-method">
-                                            <label for=""><strong>Metode Bayar</strong></label>
-                                            <div class="open-pay-method">
-                                                <select class="form-control" name="payment_type" id=""
-                                                    required>
-                                                    <option value="">=== Pilih Metode Bayar ===</option>
-                                                    @foreach ($payment_type as $pay)
-                                                        <option value="{{ $pay->id }}">
-                                                            {{ $pay->payment_category }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                        </div>
-                                        <hr>
-
-                                        <div id="form-voucher">
-                                            <label for=""><strong>Masukan Kode Voucher</strong></label>
-                                            <small>*Hapus kode voucher jika ingin hapus E-Voucher</small>
-                                            <br>
-                                            <input style="margin:0;" type="text" class="form-control"
-                                                name="promo_code" placeholder="Masukan kode disini..."
-                                                value="{{ old('promo_code') }}" id="promo_code_input">
-                                            <br>
-
-                                            <div class="btn-submit">
-                                                <button id="btn-submit-check-result"
-                                                    style="background-color: #212529;" class="btn btn-dark"
-                                                    type="button">Pakai
-                                                </button>
-
-                                                <button id="btn-remove-voucher" class="btn btn-danger"
-                                                    type="button">Hapus Voucher
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <hr>
                                         <div class="category-scroll">
                                             <div class="customer-information">
 
@@ -447,8 +407,43 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <hr>
+                                        <div id="form-voucher">
+                                            <label for=""><strong>Masukan Kode Voucher</strong></label>
+                                            <small>*Hapus kode voucher jika ingin hapus E-Voucher</small>
+                                            <br>
+                                            <input style="margin:0;" type="text" class="form-control"
+                                                name="promo_code" placeholder="Masukan kode disini..."
+                                                value="{{ old('promo_code') }}" id="promo_code_input">
+                                            <br>
 
+                                            <div class="btn-submit">
+                                                <button id="btn-submit-check-result"
+                                                    style="background-color: #212529;" class="btn btn-dark"
+                                                    type="button">Pakai
+                                                </button>
 
+                                                <button id="btn-remove-voucher" class="btn btn-danger"
+                                                    type="button">Hapus Voucher
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <hr style="border: none; border-top: 3px dashed black;">
+                                        <div class="payment-method">
+                                            <label for=""><strong>Metode Bayar</strong></label>
+                                            <div class="open-pay-method">
+                                                <select class="form-control" name="payment_type" id=""
+                                                    required>
+                                                    <option value="">=== Pilih Metode Bayar ===</option>
+                                                    @foreach ($payment_type as $pay)
+                                                        <option value="{{ $pay->id }}">
+                                                            {{ $pay->payment_category }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                        </div>
                                         <hr>
                                         <div class="payment-amount">
                                             <div style="margin-bottom: 10px;" class="amount">

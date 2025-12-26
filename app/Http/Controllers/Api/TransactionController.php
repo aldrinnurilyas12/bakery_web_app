@@ -153,7 +153,8 @@ class TransactionController extends Controller
                 session()->flash('failed_voucher', 'Masa Berlaku Voucher sudah habis');
                 return redirect()->back(); 
         }
-         if($voucher_code){
+
+        if($voucher_code){
             if($voucherQuotaUsedTotal >= $voucher_quota){
                 session()->flash('failed_voucher', 'Kuota Voucher Sudah Digunakan semua');
                 return redirect()->back(); 
@@ -161,8 +162,9 @@ class TransactionController extends Controller
             }
         }
 
-            // JIKA MASA BERLAKU VOUCHER MASIH ADA DAN MASIH ADA QUOTA UNTUK DIPAKAI MAKA MASUK KE TABEL INI :
-        if($voucher_code){
+        // JIKA MASA BERLAKU VOUCHER MASIH ADA DAN MASIH ADA QUOTA UNTUK DIPAKAI MAKA MASUK KE TABEL INI :
+        if($voucher_code)
+        {
             VouchersUsages::create([
                 'voucher_code' => $voucher_code,
                 'customer' => $request->customer,
@@ -174,8 +176,8 @@ class TransactionController extends Controller
                 VoucherCustomer::where('voucher', $voucher_code)->update([
                 'voucher_used' => 'Y',
                 'updated_at' => now()
-                ]);
-            }
+            ]);
+        }
         
 
         $main_transaction = TransactionModel::create([
@@ -196,7 +198,7 @@ class TransactionController extends Controller
 
         foreach ($productCode as $index => $productId) {
 
-            TransactionDetail::create([
+         TransactionDetail::create([
                 'transaction_code' => $main_transaction->transaction_code,
                 'product' => $productId,
                 'quantity_per_product' => $qtyProducts[$index],
@@ -205,21 +207,47 @@ class TransactionController extends Controller
             ]);
         }
 
-        // PROSEDUR PEMBAGIAN  VOUCHER : [DONE]
+
+        // PROSEDUR GET POINT FOR CUSTOMERS WHEN DOING TRANSACTIONS :
+        $productCodes = DB::table('transactions_detail')
+        ->where('transaction_code', $main_transaction->transaction_code)
+        ->pluck('product');
+
+        $productPoints = DB::table('products_daily')
+        ->whereIn('product_code', $productCodes)->sum('point');
+
+        if($productPoints > 0 ) {
+
+            $customerTransaction = DB::table('customer as c')->where('customer_code', $main_transaction->customer)
+                    ->first();
+
+            if($customerTransaction->point == 0 || null){
+               DB::table('customer')->where('customer_code', $main_transaction->customer)->update([
+                'point' => $productPoints
+                ]); 
+            }elseif($customerTransaction->point > 0){
+                DB::table('customer')->where('customer_code', $main_transaction->customer)->update([
+                    'point' => $customerTransaction->point +  ($productPoints * $main_transaction->
+                ]);
+            }
+        }
+
+
+        // PROSEDUR PEMBAGIAN E-VOUCHER ke CUSTOMER 
         $getAmount = $main_transaction->grand_total;
-        $voucherShared = VoucherCustomer::where('customer', $customer)
-            ->where('voucher', $voucher_code)->exists();
         $get_voucher = DB::table('voucher')
             ->where('min_transaction','<=' , $getAmount)
             ->where('status', 7)
             ->orderBy('min_transaction', 'desc')->first();
+        $voucherShared = VoucherCustomer::where('customer', $customer)
+            ->where('voucher', $get_voucher->voucher_code)->exists();
         $voucherCustomer = DB::table('customer_vouchers as cv')
             ->where('voucher', $get_voucher->voucher_code)
             ->count();
         $voucher_quota =  $get_voucher->quota;
         $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
 
-        if(!$voucherShared && $get_voucher) {
+        if(!$voucherShared) {
             if($getAmount >= $get_voucher->min_transaction) {
                 if(!$checkingQuotaVoucher && $get_voucher){
                     VoucherCustomer::create([
