@@ -34,6 +34,7 @@
                                                 <th>Target Produksi Produk</th>
                                                 <th>Tipe Produksi</th>
                                                 <th>Status</th>
+                                                <th>Deskripsi</th>
                                                 <th>Tanggal Produksi</th>
                                                 <th>Created at</th>
                                                 <th>Created by</th>
@@ -109,6 +110,13 @@
                                                             <span class="text-success">{{ $raw->status }}</span>
                                                         @elseif($raw->status == 'Cancelled')
                                                             <span class="text-danger">{{ $raw->status }}</span>
+                                                            @if ($raw->description)
+                                                            @else
+                                                                <a style="font-size:12px;" href="#"
+                                                                    data-toggle="modal"
+                                                                    data-target="#addDescriptionModal{{ $raw->production_code }}"><i
+                                                                        class="fas fa-edit"></i>Alasan</a>
+                                                            @endif
                                                         @else
                                                             <span class="text-black">{{ $raw->status }}</span>
                                                         @endif
@@ -116,10 +124,20 @@
 
                                                         @if ($raw->status == 'Completed')
                                                         @else
-                                                            <a style="font-size: 12px;color:black;" class="text-info"
-                                                                href="#" data-toggle="modal"
-                                                                data-target="#editStatusProduction{{ $raw->production_code }}">Ubah
-                                                                Status</a>
+                                                            @if ($raw->status == 'Cancelled')
+                                                            @else
+                                                                <a style="font-size: 12px;color:black;"
+                                                                    class="text-info" href="#" data-toggle="modal"
+                                                                    data-target="#editStatusProduction{{ $raw->production_code }}">Ubah
+                                                                    Status</a>
+                                                            @endif
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($raw->description)
+                                                            {{ $raw->description }}
+                                                        @else
+                                                            -
                                                         @endif
                                                     </td>
                                                     <td>{{ $raw->production_date }}</td>
@@ -182,7 +200,49 @@
         </div>
     @endforeach
 
+
+    {{-- modal show description --}}
+
+    @foreach ($production_products as $production)
+        <div wire:ignore class="modal fade" id="addDescriptionModal{{ $production->production_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $production->production_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Berikan alasan produksi di Batalkan</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('production_reason_cancelled', $production->production_code) }}"
+                            method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="form-group">
+                                <label for=""><strong>Kode Produksi</strong></label>
+                                <input type="text" value="{{ $production->production_code }}"
+                                    class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for=""><strong>Berikan alasan</strong></label>
+                                <textarea name="description" class="form-control" id="" cols="30" rows="4">
+                            </textarea>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    {{-- end --}}
+
     {{-- modal show raw materials --}}
+
     @php
 
         $raw_material = DB::table('raw_material_usages as r')

@@ -26,9 +26,7 @@ class DailyProducts extends Controller
 
         $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
 
-        $products = DB::table('v_products as vp')->select('vp.product_code', 'vp.product')
-            ->leftJoin('products_daily as dp', 'vp.product_code', '=', 'dp.product_code')
-            ->where('dp.product_code', null)->get();
+        $products = DB::table('v_show_available_products')->get();
         return view('layouts.main_pages.daily_products.create.products_create', compact('products', 'status'));
     }
 
@@ -45,15 +43,16 @@ class DailyProducts extends Controller
 
         DailyProductsModel::create([
             'product_code' => $request->product_code,
+            'variant_code' => $request->variant_code,
             'stock_available' => $request->stock_available,
-            'status' => $request->status,
+            'status' => 4,
             'point' => $request->point,
             'created_at' => now(),
             'created_by' => $created_by
         ]);
 
         session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
-        return redirect()->route('dailyproducts_data');
+        return redirect()->back();
     }
 
     /**
@@ -73,6 +72,14 @@ class DailyProducts extends Controller
         $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
         
         return view('layouts.main_pages.daily_products.edit.daily_products_edit', compact('product', 'status'));
+    }
+
+    public function edit_variant(string $id, Request $request) :View
+    {
+        $product = DB::table('v_daily_products')->where('variant_code', $request->variant_code)->first();
+        $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
+        
+        return view('layouts.main_pages.daily_products.edit.daily_products_edit_variant', compact('product', 'status'));
     }
 
     /**
@@ -95,6 +102,50 @@ class DailyProducts extends Controller
         return redirect()->route('dailyproducts_data');
     }
 
+
+     public function update_variant(Request $request, string $id)
+    {
+
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        
+        DailyProductsModel::where('variant_code', $request->variant_code)->update([
+            'status' => $request->status,
+            'point' => $request->point,
+            'stock_available' => $request->stock_available,
+            'updated_at' => now(),
+            'updated_by' => $updated_by
+        ]);
+
+        session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
+        return redirect()->route('dailyproducts_data');
+    }
+
+    public function nonactive_daily_product(Request $request)
+    {
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        DailyProductsModel::where('product_code', $request->product_code)->update([
+            'status' => $request->status,
+            'updated_at' => now(),
+            'updated_by' => $updated_by
+        ]);
+
+        session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
+        return redirect()->route('dailyproducts_data');
+    }
+
+    public function nonactive_daily_variant(Request $request)
+    {
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        DailyProductsModel::where('variant_code', $request->variant_code)->update([
+            'status' => $request->status,
+            'updated_at' => now(),
+            'updated_by' => $updated_by
+        ]);
+
+        session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
+        return redirect()->route('dailyproducts_data');
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -102,6 +153,21 @@ class DailyProducts extends Controller
     {
 
         $daily_product = DailyProductsModel::where('product_code', $request->product_code)->first();
+
+        if($daily_product){
+            $daily_product->delete();
+        }
+        session()->flash('message_success', 'Data Daily Produk berhasil dihapus!');
+        return redirect()->route('dailyproducts_data');
+
+
+    }
+
+
+    public function delete_variant(string $id, Request $request)
+    {
+
+        $daily_product = DailyProductsModel::where('variant_code', $request->variant_code)->first();
 
         if($daily_product){
             $daily_product->delete();

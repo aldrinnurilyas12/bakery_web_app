@@ -20,7 +20,6 @@ class TransactionModel extends Model
         'status',
         'payment_type',
         'payment_changes',
-        'promo_code',
         'reward_transaction_used',
         'transaction_date',
         'created_by',

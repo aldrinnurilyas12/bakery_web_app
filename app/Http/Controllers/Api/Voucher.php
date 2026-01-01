@@ -82,7 +82,6 @@ class Voucher extends Controller
             'voucher_code'=> $voucher_code,
             'voucher_name'=> $request->voucher_name,
             'quota'=> $request->quota,
-            'total_quota_used' =>$request->quota,
             'nominal'=> $request->nominal,
             'discount'=> $request->discount,
             'min_transaction'=> $request->min_transaction,
@@ -144,6 +143,19 @@ class Voucher extends Controller
         ]);
 
         session()->flash('message_success', 'Data Voucher berhasil disimpan!');
+        return redirect()->route('voucher');
+    }
+
+
+    
+    public function update_nonactive_voucher(Request $request) {
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        VoucherModel::where('voucher_code', $request->voucher_code)->update([
+            'status' => $request->status,
+            'updated_by' => $updated_by,
+            'updated_at' => now()
+        ]);
+        session()->flash('message_success', 'Data E-Voucher berhasil disimpan!');
         return redirect()->route('voucher');
     }
 

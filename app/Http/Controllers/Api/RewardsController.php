@@ -134,6 +134,19 @@ class RewardsController extends Controller
         return redirect()->route('rewards');
     }
 
+
+
+    public function update_nonactive_rewards(Request $request) {
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        RewardsModel::where('rewards_code', $request->rewards_code)->update([
+            'status' => $request->status,
+            'updated_by' => $updated_by,
+            'updated_at' => now()
+        ]);
+        session()->flash('message_success', 'Data reward berhasil disimpan!');
+        return redirect()->route('rewards');
+    }
+
     /**
      * Remove the specified resource from storage.
      */

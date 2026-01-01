@@ -26,7 +26,9 @@ class ProductionProductController extends Controller
      */
     public function create() : View
     {
-        $products = DB::table('v_products')->get();
+        $products = DB::table('v_products as vp')
+        ->leftJoin('products as p', 'vp.product_code', '=', 'p.product_code')
+        ->whereNotIn('category_id',['10', '11'])->get();
         $raw_materials = DB::table('raw_material')->get();
         return view('layouts.main_pages.production_products.create.production_create', compact('products', 'raw_materials'));
     }
@@ -143,9 +145,6 @@ class ProductionProductController extends Controller
             }
         });
         
-
-
-
         session()->flash('message_success', 'Data Produksi Produk berhasil disimpan!');
         return redirect()->route('production_products');
     }
@@ -167,6 +166,18 @@ class ProductionProductController extends Controller
         ]);
 
         session()->flash('message_success', 'Data Produksi Produk berhasil diperbarui!');
+        return redirect()->back();
+    }
+
+    public function update_production_reason(Request $request) {
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        ProductionProduct::where('production_code', $request->production_code)->update([
+            'description' =>$request->description,
+            'updated_by' =>$updated_by,
+            'updated_at' => now()
+        ]);
+
+        session()->flash('message_success', 'Alasan produksi dibatalkan sudah disimpan');
         return redirect()->back();
     }
 

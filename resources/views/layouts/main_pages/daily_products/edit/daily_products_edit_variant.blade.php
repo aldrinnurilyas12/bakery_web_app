@@ -19,8 +19,8 @@
             <main>
                 <br>
                 <div class="container-fluid px-4">
-                    <h4>Ubah Data Produk Daily</h4>
-                    <form action="{{ route('daily_product_edit', $product->product_code) }}" method="POST"
+                    <h4>Ubah Data Produk Variant Daily</h4>
+                    <form action="{{ route('daily_product_edit_variant', $product->variant_code) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -29,6 +29,10 @@
                         <div class="form-group">
                             <label><strong>Kode Produk</strong></label>
                             <input type="text" class="form-control" value="{{ $product->product_code }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Variant Produk</strong></label>
+                            <input type="text" class="form-control" value="{{ $product->variant_code }}" readonly>
                         </div>
                         <div class="form-group">
                             <label><strong>Nama Produk</strong></label>
@@ -63,25 +67,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label><strong>Diperbarui pada</strong></label>
-                            <input type="text" class="form-control" value="{{ $product->updated_at ?: '-' }}"
-                                readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Diperbarui oleh</strong></label>
-                            <input type="text" class="form-control" value="{{ $product->updated_by ?: '-' }}"
-                                readonly>
-                        </div>
-
-
                         <button type="submit" class="btn btn-primary">Simpan Data</button>
-                    </form>
-
-                    <form id="deleteImageForm" method="POST" style="display:none;">
-                        @csrf
-                        @method('DELETE')
                     </form>
 
 

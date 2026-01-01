@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Tambah Item</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -32,10 +33,12 @@
                         <div class="form-group">
                             <label><strong>Kategori Produk</strong></label>
                             @if ($product_category->isNotEmpty())
-                                <select class="form-control" name="category_id" id="">
+                                <select class="form-control" name="category_id">
                                     <option value="">==== Pilih Kategori Produk ====</option>
                                     @foreach ($product_category as $item)
-                                        <option value="{{ $item->id }}">{{ $item->category_name }}</option>
+                                        <option value="{{ $item->id }}"
+                                            data-name="{{ strtolower($item->category_name) }}">
+                                            {{ $item->category_name }}</option>
                                     @endforeach
                                 </select>
                             @else
@@ -43,31 +46,64 @@
                                         href="{{ route('category_create') }}">Buat kategori</a> </p>
                             @endif
                         </div>
+
+
                         <div class="form-group">
-                            <label><strong>Harga Produk</strong></label>
-                            <input type="text" name="price" class="form-control" value="{{ old('price') }}"
-                                placeholder="Masukan harga Produk" autocomplete="off">
+                            <label for=""><strong>Apakah Produk ini memiliki Variant? *(Minuman :Hot/Ice) atau
+                                    (Makanan :
+                                    Besar/Sedang/Kecil)</strong></label>
+                            <br>
+                            <div style="display: flex;gap:30px;" class="radio-variant">
+                                <div class="sub-radio-variant">
+                                    <input id="categorySelectYes" name="product_variant" value="Y" type="radio"
+                                        required>
+                                    <label for="variant_yes">Ya</label>
+                                </div>
+                                <div class="sub-radio-variant">
+                                    <input id="categorySelectNo" name="product_variant" value="N" type="radio"
+                                        checked>
+                                    <label for="variant_no">Tidak</label>
+                                </div>
+                            </div>
                         </div>
 
+                        <div id="normalPrice" class="price-form-group">
+                            <div class="form-group">
+                                <label><strong>Harga Produk</strong></label>
+                                <input type="text" name="price" class="form-control" value="{{ old('price') }}"
+                                    placeholder="Masukan harga Produk" autocomplete="off">
+                            </div>
 
-                        <div class="form-group">
-                            <label><strong>Diskon (%) (optional)</strong></label>
-                            <small class="text-danger">*Masukan 0 jika produk tidak diskon</small>
-                            <input type="text" name="discount" class="form-control" value="{{ old('discount') }}"
-                                autocomplete="off">
+                            <div class="form-group">
+                                <label><strong>Diskon (%) (optional)</strong></label>
+                                <small class="text-danger">*Masukan 0 jika produk tidak diskon</small>
+                                <input type="text" name="discount" class="form-control" value="{{ old('discount') }}"
+                                    autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Harga Setelah Diskon (optional)</strong></label>
+                                <input type="text" name="price_after_discount" class="form-control"
+                                    value="{{ old('price_after_discount') }}" autocomplete="off" readonly>
+                            </div>
                         </div>
-
                         <div class="form-group">
-                            <label><strong>Harga Setelah Diskon (optional)</strong></label>
-                            <input type="text" name="price_after_discount" class="form-control"
-                                value="{{ old('price_after_discount') }}" autocomplete="off" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Berat Produk (optional (Gram/Kg/MG))</strong></label>
-                            <input type="text" name="product_weight" class="form-control"
+                            <label><strong>Berat Produk</strong></label>
+                            <input type="number" name="product_weight" class="form-control"
                                 value="{{ old('product_weight') }}" placeholder="Masukan berat Produk (optional)"
                                 autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Massa Produk</strong></label>
+                            <select name="product_weight_type" class="form-control" id="">
+                                <option value="">=== Pilih Massa Produk ===</option>
+                                <option value="mg">Miligram</option>
+                                <option value="gr">Gram</option>
+                                <option value="kg">Kilogram</option>
+                                <option value="l">Liter</option>
+                                <option value="ml">Mililiter</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -106,11 +142,15 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const priceInput = document.querySelector('input[name="price"]');
+        const priceInputIce = document.querySelector('input[name="price_ice"]');
+        const priceInputHot = document.querySelector('input[name="price_hot"]');
         const discountInput = document.querySelector('input[name="discount"]');
         const priceAfterInput = document.querySelector('input[name="price_after_discount"]');
 
         function calculateDiscount() {
-            let price = parseFloat(priceInput.value) || 0;
+            let price = parseFloat(priceInput.value) || parseFloat(priceInputHot.value) || parseFloat(
+                priceInputIce.value) || 0;
+
             let discount = parseFloat(discountInput.value) || 0;
             if (discount > 0) {
                 fixPrice = price - (price * (discount / 100));
@@ -124,6 +164,25 @@
 
         priceInput.addEventListener('input', calculateDiscount);
         discountInput.addEventListener('input', calculateDiscount);
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const radioYes = document.getElementById("categorySelectYes");
+        const radioNo = document.getElementById("categorySelectNo");
+        const normalPrice = document.getElementById('normalPrice');
+
+        function togglePrice() {
+            if (radioYes.checked) {
+                normalPrice.style.display = 'none';
+            } else if (radioNo.checked) {
+                normalPrice.style.display = 'block';
+
+            }
+        }
+
+        radioYes.addEventListener("change", togglePrice);
+        radioNo.addEventListener("change", togglePrice);
     });
 </script>
 

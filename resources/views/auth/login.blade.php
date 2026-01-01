@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
     <title>Login Turre POS</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -15,15 +16,17 @@
 
         <div class="content-grettings">
 
-            <h1 style="margin-top:0; color:black;">Welcome to <span style=" color: #521a0b;">Kencana Bakery</span></h1>
-            <p class="title-content">Selamat datang di Website Admin</p>
-            <br>
-            <a class="link-href" href="">Dapatkan informasi lainnya</a>
+            <h1 style="margin-top:0; color:black;font-family:'Lucida Sans', Geneva, Verdana, sans-serif;">
+                Welcome to <span style=" color: #bb0239;">Kencana <span style="color: #4d4d4d;">Bakery</span></span>
+            </h1>
+            <p class="title-content">Selamat datang di Website Admin Kencana Bakery</p>
         </div>
 
         <div class="form-group">
             <div class="logo-turre">
-                <h2>Login</h2>
+
+                <img src="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}" width="200"
+                    height="100" alt="">
             </div>
 
 
@@ -184,7 +187,7 @@
     }
 
     .form-input-text:focus {
-        border-color: #521a0b;
+        border-color: #bb0239;
         ;
         outline: none;
     }
@@ -196,7 +199,7 @@
     /* Button */
     button {
         padding: 14px;
-        background-color: #521a0b;
+        background-color: #bb0239;
         ;
         color: white;
         border: none;

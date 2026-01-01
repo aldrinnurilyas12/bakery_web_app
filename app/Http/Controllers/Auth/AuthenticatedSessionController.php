@@ -37,8 +37,9 @@ class AuthenticatedSessionController extends Controller
     {
 
         $user = auth()->user();
-        $users_data = DB::table('users')
-                        ->where('users.id', $user?->id)->first();
+        $users_data = DB::table('users as u')
+                        ->leftJoin('employee as e','u.nik', '=', 'e.nik')
+                        ->where('u.id', $user?->id)->first();
         return $users_data;
     }
 

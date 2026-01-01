@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('employee_create', [EmployeeController::class, 'create'])->name('employee_create');
     Route::get('employee_edit/{nik}', [EmployeeController::class, 'employee_edit_layout'])->name('employee_edit');
     Route::put('update_employee/{nik}', [EmployeeController::class, 'update'])->name('update_employee');
+    Route::put('employee_update_status/{nik}', [EmployeeController::class, 'employee_nonactive'])->name('employee_update_status');
 
     // Products Route
     Route::apiResource('master_products', App\Http\Controllers\Api\ProductsController::class);
@@ -67,15 +68,28 @@ Route::middleware('auth')->group(function () {
         return view('pages.product-data');
     })->name('products_data');
 
+    Route::get('add_product_variant/{product_code}', [ProductsController::class, 'add_product_variant_layout'])->name('add_product_variant');
+    Route::get('update_variant/{variant_code}', [ProductsController::class, 'update_variant_layout'])->name('update_variant');
+    Route::post('save_product_variant', [ProductsController::class, 'save_product_variant'])->name('save_product_variant');
+    Route::put('edit_variant/{variant_code}', [ProductsController::class, 'edit_variant'])->name('edit_variant');
+    Route::delete('delete_variant/{variant_code}', [ProductsController::class, 'delete_variant'])->name('delete_variant');
+    Route::put('delete_variant_product/{product_code}', [ProductsController::class, 'update_product_variant'])->name('delete_variant_product');
+
     // DailyProducts Route
     Route::apiResource('master_daily_products', App\Http\Controllers\Api\DailyProducts::class);
     Route::put('daily_product_edit/{product_code}', [DailyProducts::class, 'update'])->name('daily_product_edit');
+    Route::put('nonactive_daily_product/{product_code}', [DailyProducts::class, 'nonactive_daily_product'])->name('nonactive_daily_product');
+    Route::put('nonactive_daily_variant/{variant_code}', [DailyProducts::class, 'nonactive_daily_variant'])->name('nonactive_daily_variant');
     Route::get('dailyproduct_create', [DailyProducts::class, 'create'])->name('daily_product_create');
     Route::get('dailyproduct_update/{product_code}', [DailyProducts::class, 'edit'])->name('dailyproduct_update');
     Route::delete('dailyproduct_delete/{product_code}', [DailyProducts::class, 'destroy'])->name('dailyproduct_delete');
     Route::get('/dailyproducts_data', function () {
         return view('pages.dailyproduct-data');
     })->name('dailyproducts_data');
+
+    Route::put('daily_product_edit_variant/{variant_code}', [DailyProducts::class, 'update_variant'])->name('daily_product_edit_variant');
+    Route::get('dailyproduct_update_variant/{variant_code}', [DailyProducts::class, 'edit_variant'])->name('dailyproduct_update_variant');
+    Route::delete('dailyproduct_delete_variant/{variant_code}', [DailyProducts::class, 'delete_variant'])->name('dailyproduct_delete_variant');
 
     // Route Promo Campign
     Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class);
@@ -92,6 +106,7 @@ Route::middleware('auth')->group(function () {
     Route::get('rewards_create', [RewardsController::class, 'create'])->name('rewards_create');
     Route::get('rewards_update/{rewards_code}', [RewardsController::class, 'edit'])->name('rewards_update');
     Route::put('rewards_edit/{rewards_code}', [RewardsController::class, 'update'])->name('rewards_edit');
+    Route::put('rewards_nonactive/{rewards_code}', [RewardsController::class, 'update_nonactive_rewards'])->name('rewards_nonactive');
     Route::delete('rewards_delete/{rewards_code}', [RewardsController::class, 'destroy'])->name('rewards_delete');
     Route::get('/rewards', function () {
         return view('pages.rewards');
@@ -102,6 +117,7 @@ Route::middleware('auth')->group(function () {
     Route::get('voucher_create', [Voucher::class, 'create'])->name('voucher_create');
     Route::get('voucher_update/{voucher_code}', [Voucher::class, 'edit'])->name('voucher_update');
     Route::put('voucher_edit/{voucher_code}', [Voucher::class, 'update'])->name('voucher_edit');
+    Route::put('nonactive_voucher/{voucher_code}', [Voucher::class, 'update_nonactive_voucher'])->name('nonactive_voucher');
     Route::delete('voucher_delete/{voucher_code}', [Voucher::class, 'destroy'])->name('voucher_delete');
     Route::get('/voucher_data', function () {
         return view('pages.voucher');
@@ -125,6 +141,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('production_delete/{production_code}', [ProductionProductController::class, 'destroy'])->name('production_delete');
     Route::put('update_target_production/{production_code}', [ProductionProductController::class, 'update_target_production'])->name('update_target_production');
     Route::put('update_production_status/{production_code}', [ProductionProductController::class, 'update_production_status'])->name('update_production_status');
+    Route::put('production_reason_cancelled/{production_code}', [ProductionProductController::class, 'update_production_reason'])->name('production_reason_cancelled');
     Route::get('/production_products', function () {
         return view('pages.production_product');
     })->name('production_products');

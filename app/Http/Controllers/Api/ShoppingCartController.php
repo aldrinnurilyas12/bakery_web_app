@@ -29,6 +29,8 @@ class ShoppingCartController extends Controller
 
         $cart_product = [
             'product_code' => $request->product_code,
+            'variant_code' => $request->variant_code,
+            'variant_type' => $request->variant_type,
             'product_name' => $request->product_name,
             'price' => $request->price,
             'quantity' => $request->quantity,
@@ -37,11 +39,15 @@ class ShoppingCartController extends Controller
 
         $found = false;
         foreach ($cart as &$item) {
-            if ($item['product_name'] == $cart_product['product_name']) {
+            
+            if ($item['product_code'] === $cart_product['product_code'] &&
+                 $item['variant_code'] === $cart_product['variant_code']
+            ) {
                 $found = true;
                 break;
             }
         }
+
 
         // Jika produk belum ada, tambahkan ke cart
         if (!$found) {

@@ -11,30 +11,51 @@
     <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 
 <body class="sb-nav-fixed">
     @include('layouts.component_admin.navbar.navbar')
-    @include('layouts.component_admin.sidebar.sidebar')
+    {{-- @include('layouts.component_admin.sidebar.sidebar') --}}
     <div id="layoutSidenav">
-        <div id="layoutSidenav_content">
+        <div style="width: 100%; padding: 20px;margin-top: 30px;" id="adada">
             <main>
                 <br>
                 <div class="container">
-                    <h4><strong>Sale</strong></h4>
+                    <div class="information-detail-casheer">
+                        <div style="display: block;" class="back-btn-title">
+                            <h4><strong>Transaksi</strong></h4>
+                            <div class="btn-back">
+
+                                <a style="color:black;text-decoration:none;" href="{{ route('dashboard_main') }}"><i
+                                        class="fa fa-arrow-left"></i>&nbsp; kembali</a>
+                            </div>
+                        </div>
+                        <div style="display:block; font-size: 13px;" class="casheer-info">
+                            <div class="casheer">
+                                <i class="fa fa-user"></i> <span>{{ $casheer }} </span>
+                            </div>
+                            <div class="time">
+                                <i class="fa fa-clock"></i> <span
+                                    class="text-secondary">{{ now()->format('Y-m-d') }}</span>
+                            </div>
+                            <br>
+                            <div class="transaction-history">
+                                <a class="text-primary" href="{{ route('transaction.index') }}"><i
+                                        class="fa fa-list"></i>&nbsp;Riwayat
+                                    Transaksi</a>
+                            </div>
+                        </div>
+                    </div>
                     <hr>
 
                     @if ($category_data)
                         <div class="main-container-content">
                             <div class="container-content">
                                 <div class="tab-content" id="tab-content">
-                                    <div class="filter-content">
-                                        <div class="category-title">
-                                            <h6>Kategori Produk</h6>
-                                        </div>
-
+                                    <div style="width: 90%;" class="filter-content">
                                         <div class="category-scroll">
                                             <ul class="nav nav-tabs" id="nav-scroll" role="tablist" style="gap: 10px;">
                                                 <li class="nav-item" role="presentation">
@@ -44,9 +65,10 @@
                                                 </li>
                                                 @foreach ($category_data as $ctg)
                                                     <li class="nav-item" role="presentation">
-                                                        <a class="nav-link" id="tab-{{ $ctg->category_name }}-tab"
-                                                            data-bs-toggle="tab" href="#tab-{{ $ctg->category_name }}"
-                                                            role="tab" aria-controls="tab-{{ $ctg->category_name }}"
+                                                        <a style="color: #bb0239;" class="nav-link"
+                                                            id="tab-{{ $ctg->category_name }}-tab" data-bs-toggle="tab"
+                                                            href="#tab-{{ $ctg->category_name }}" role="tab"
+                                                            aria-controls="tab-{{ $ctg->category_name }}"
                                                             aria-selected="false">
                                                             {{ $ctg->category_name }}
                                                         </a>
@@ -58,15 +80,8 @@
                                     </div>
 
                                     {{-- @php
-                                        $voucherCustomer = DB::table('customer_vouchers as cv')
-                                            ->where('voucher', $voucher_code)
-                                            ->count();
-                                        $voucher_quota = DB::table('voucher')
-                                            ->where('voucher_code', $voucher_code)
-                                            ->value('quota');
-
-                                        $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
-                                        dd($checkingQuotaVoucher);
+                                        $voucherExpired = DB::table('voucher')->where('end_date', '>=', now())->first();
+                                        dd($voucherExpired);
                                     @endphp --}}
 
                                     <hr>
@@ -98,46 +113,97 @@
                                                                         <strong>{{ $product->product }}</strong>
                                                                     </p>
                                                                     @if ($product->category)
-                                                                        <small
-                                                                            class="category">{{ $product->category }}</small>
+                                                                        <div style="display: flex; gap:6px;"
+                                                                            class="category-class">
+                                                                            <small
+                                                                                class="text-secondary">{{ $product->category }}</small>
+                                                                            @if ($product->variant_type)
+                                                                                &dot;
+                                                                                <small
+                                                                                    class="text-info">{{ $product->variant_type }}</small>
+                                                                            @endif
+                                                                        </div>
                                                                     @else
                                                                     @endif
 
-                                                                    @if ($product->price_after_discount)
-                                                                        <div class="price">
-                                                                            <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                    @if ($product->variant_code == null)
+                                                                        @if ($product->price_after_discount)
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                                </p>
+                                                                                <small
+                                                                                    class="discount">{{ '-' . $product->discount . '%' }}</small>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->price) }}
+                                                                                </p>
+                                                                            </div>
+                                                                        @endif
+                                                                        <div class="stok">
+                                                                            <p>Stok:
+                                                                                {{ $product->stock_available }}
                                                                             </p>
-                                                                            <small
-                                                                                class="discount">{{ '-' . $product->discount . '%' }}</small>
-                                                                        </div>
-                                                                    @else
-                                                                        <div class="price">
-                                                                            <p>{{ 'Rp.' . number_format($product->price) }}
-                                                                            </p>
-                                                                        </div>
-                                                                    @endif
-                                                                    <div class="stok">
-                                                                        <p>Stok:
-                                                                            {{ $product->stock_available }}
-                                                                        </p>
-                                                                        {{-- <p>Terjual:
+                                                                            {{-- <p>Terjual:
                                                                             {{ $product->sold }}
                                                                         </p> --}}
-                                                                    </div>
+                                                                        </div>
+                                                                    @else
+                                                                        @if ($product->variant_price_after_discount)
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->variant_price_after_discount) }}
+                                                                                </p>
+                                                                                <small
+                                                                                    class="discount">{{ '-' . $product->variant_discount . '%' }}</small>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->variant_price) }}
+                                                                                </p>
+                                                                            </div>
+                                                                        @endif
+                                                                        <div class="stok">
+                                                                            <p>Stok:
+                                                                                {{ $product->stock_available }}
+                                                                            </p>
+                                                                            {{-- <p>Terjual:
+                                                                            {{ $product->sold }}
+                                                                        </p> --}}
+                                                                        </div>
+                                                                    @endif
+
                                                                     <div class="btn-add-cart">
                                                                         <form action="{{ route('cart_add') }}"
                                                                             method="POST">
                                                                             @csrf
                                                                             <input type="hidden" name="product_code"
                                                                                 value="{{ $product->product_code }}">
+                                                                            <input type="hidden" name="variant_code"
+                                                                                value="{{ $product->variant_code }}">
+                                                                            <input type="hidden" name="variant_type"
+                                                                                value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
-                                                                            @if ($product->discount)
-                                                                                <input type="hidden" name="price"
-                                                                                    value="{{ $product->price_after_discount }}">
+                                                                            @if ($product->variant_code)
+                                                                                @if ($product->variant_discount)
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->variant_price_after_discount }}">
+                                                                                @else
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->variant_price }}">
+                                                                                @endif
                                                                             @else
-                                                                                <input type="hidden" name="price"
-                                                                                    value="{{ $product->price }}">
+                                                                                @if ($product->discount)
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->price_after_discount }}">
+                                                                                @else
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->price }}">
+                                                                                @endif
                                                                             @endif
                                                                             @if ($product->stock_available)
                                                                                 <button class="btn-add-to-cart"
@@ -161,6 +227,7 @@
 
                                         </div>
                                     </div>
+
 
                                     {{-- TAB PER CATEGORY --}}
 
@@ -194,10 +261,6 @@
                                                                     @endif
                                                                     <p><strong>{{ $product->product }}</strong>
                                                                     </p>
-                                                                    <div class="price">
-                                                                        <p>{{ 'Rp.' . number_format($product->price) }}
-                                                                        </p>
-                                                                    </div>
 
                                                                     @if ($product->category)
                                                                         <small
@@ -205,41 +268,86 @@
                                                                     @else
                                                                     @endif
 
-                                                                    @if ($product->price_after_discount)
-                                                                        <div class="price">
-                                                                            <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                    @if ($product->variant_code == null)
+                                                                        @if ($product->price_after_discount)
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                                </p>
+                                                                                <small
+                                                                                    class="discount">{{ '-' . $product->discount . '%' }}</small>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->price) }}
+                                                                                </p>
+                                                                            </div>
+                                                                        @endif
+                                                                        <div class="stok">
+                                                                            <p>Stok:
+                                                                                {{ $product->stock_available }}
                                                                             </p>
-                                                                            <small
-                                                                                class="discount">{{ '-' . $product->discount . '%' }}</small>
-                                                                        </div>
-                                                                    @else
-                                                                        <div class="price">
-                                                                            <p>{{ 'Rp.' . number_format($product->price) }}
-                                                                            </p>
-                                                                        </div>
-                                                                    @endif
-                                                                    <div class="stok">
-                                                                        <p>Stok:
-                                                                            {{ $product->stock_available }}
-                                                                        </p>
-                                                                        {{-- <p>Terjual:
+                                                                            {{-- <p>Terjual:
                                                                             {{ $product->sold }}
                                                                         </p> --}}
-                                                                    </div>
+                                                                        </div>
+                                                                    @else
+                                                                        @if ($product->variant_price_after_discount)
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->variant_price_after_discount) }}
+                                                                                </p>
+                                                                                <small
+                                                                                    class="discount">{{ '-' . $product->variant_discount . '%' }}</small>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="price">
+                                                                                <p>{{ 'Rp.' . number_format($product->variant_price) }}
+                                                                                </p>
+                                                                            </div>
+                                                                        @endif
+                                                                        <div class="stok">
+                                                                            <p>Stok:
+                                                                                {{ $product->stock_available }}
+                                                                            </p>
+                                                                            {{-- <p>Terjual:
+                                                                            {{ $product->sold }}
+                                                                        </p> --}}
+                                                                        </div>
+                                                                    @endif
+
+
+
                                                                     <div class="btn-add-cart">
                                                                         <form action="{{ route('cart_add') }}"
                                                                             method="POST">
                                                                             @csrf
                                                                             <input type="hidden" name="product_code"
                                                                                 value="{{ $product->product_code }}">
+                                                                            <input type="hidden" name="variant_code"
+                                                                                value="{{ $product->variant_code }}">
+                                                                            <input type="hidden" name="variant_type"
+                                                                                value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
-                                                                            @if ($product->discount)
-                                                                                <input type="hidden" name="price"
-                                                                                    value="{{ $product->price_after_discount }}">
+                                                                            @if ($product->variant_code)
+                                                                                @if ($product->discount)
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->variant_price_after_discount }}">
+                                                                                @else
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->variant_price }}">
+                                                                                @endif
                                                                             @else
-                                                                                <input type="hidden" name="price"
-                                                                                    value="{{ $product->price }}">
+                                                                                @if ($product->discount)
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->price_after_discount }}">
+                                                                                @else
+                                                                                    <input type="hidden"
+                                                                                        name="price"
+                                                                                        value="{{ $product->price }}">
+                                                                                @endif
                                                                             @endif
                                                                             @if ($product->stock_available)
                                                                                 <button class="btn-add-to-cart"
@@ -277,13 +385,12 @@
                                 <div class="title-action-close">
                                     <h6><strong>Keranjang Belanja</strong></h6>
                                     <div style="display: flex; gap:30px;" class="btn-action">
-                                        {{-- <a style="color:black;" id="openDialog" href="#">
-                                            <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                                        </a> --}}
-                                        <a style="color:black;" href="#" data-toggle="modal"
-                                            data-target="#showDeleteCart"><i class="fa fa-ellipsis-h"
-                                                aria-hidden="true"></i></a>
 
+                                        @if ($cart_value)
+                                            <a style="color:black;" href="#" data-toggle="modal"
+                                                data-target="#showDeleteCart"><i class="fa fa-trash"
+                                                    aria-hidden="true"></i></a>
+                                        @endif
                                         <a style="color:black;" id="closeBtn" href="#">
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </a>
@@ -333,9 +440,17 @@
 
                                                         <!-- Product Details -->
                                                         <div class="sub-container-product">
-                                                            <p class="item-name">{{ $cart['product_name'] }}</p>
+                                                            <p style="margin-bottom: 0;" class="item-name">
+                                                                {{ $cart['product_name'] }}</p>
                                                             <input name="product[]" type="hidden"
                                                                 value="{{ $cart['product_code'] }}">
+
+                                                            <input name="variant[]" type="hidden"
+                                                                value="{{ $cart['variant_code'] ?? '' }}">
+                                                            <small class="text-info" style="margin-bottom: 0;"
+                                                                class="item-price">
+                                                                {{ $cart['variant_type'] }}
+                                                            </small>
 
                                                             <!-- Product Price and Quantity -->
                                                             <div class="flex-content"
@@ -412,10 +527,13 @@
                                             <label for=""><strong>Masukan Kode Voucher</strong></label>
                                             <small>*Hapus kode voucher jika ingin hapus E-Voucher</small>
                                             <br>
+                                            <input type="text" name="customer" readonly hidden>
                                             <input style="margin:0;" type="text" class="form-control"
                                                 name="promo_code" placeholder="Masukan kode disini..."
                                                 value="{{ old('promo_code') }}" id="promo_code_input">
                                             <br>
+
+                                            {{-- TAMPILKAN JUGA DISINI --}}
 
                                             <div class="btn-submit">
                                                 <button id="btn-submit-check-result"
@@ -561,7 +679,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
         function formatCurrency(amount) {
             return "Rp. " + amount.toLocaleString('id-ID');
         }
@@ -581,15 +698,17 @@
         const displayPayChange = document.getElementById('display-paychange');
         const displayChange = document.getElementById('display-change');
         const payChangeInput = document.getElementById('paychange');
+        let voucher = {
+            type: null,
+            value: 0
+        }; // Global voucher object
 
-        const voucherCodeResult = document.getElementById('info-first');
-
+        // Function to get item price
         function getPrice(index) {
-            return parseFloat(
-                priceElements[index].textContent.replace(/\D/g, '')
-            ) || 0;
+            return parseFloat(priceElements[index].textContent.replace(/\D/g, '')) || 0;
         }
 
+        // Update quantity total
         function updateTotalQuantity() {
             let totalQty = 0;
             quantityInputs.forEach(input => {
@@ -599,21 +718,32 @@
             qtyResult.value = totalQty;
         }
 
+        // Update Grand Total calculation
         function updateGrandTotal() {
             let total = 0;
 
+            // Calculate total based on quantity and price
             quantityInputs.forEach((input, index) => {
-                const qty = parseInt(input.value) || 0;
-                const price = getPrice(index);
-                total += qty * price;
+                total += (parseInt(input.value) || 0) * getPrice(index);
             });
 
-            grandTotalSpan.textContent = formatCurrency(total);
-            totalResult.value = total;
+            let discount = 0;
+            if (voucher.type === 'percent') {
+                discount = total * (voucher.value / 100);
+            } else if (voucher.type === 'nominal') {
+                discount = voucher.value;
+            }
 
-            updateChange();
+            let grandTotal = Math.max(0, total - discount);
+
+            // Update the display
+            grandTotalSpan.innerText = formatCurrency(grandTotal);
+            totalResult.value = grandTotal;
+
+            updateChange(); // Update change display
         }
 
+        // Update change calculation
         function updateChange() {
             const paid = parseFloat(amountInput.value.replace(/\D/g, '')) || 0;
             const total = parseFloat(totalResult.value) || 0;
@@ -624,6 +754,7 @@
             payChangeInput.value = change >= 0 ? change : 0;
         }
 
+        // Handling quantity increase and decrease
         increaseButtons.forEach((btn, index) => {
             btn.addEventListener('click', () => {
                 quantityInputs[index].value = (parseInt(quantityInputs[index].value) || 0) + 1;
@@ -655,111 +786,79 @@
 
         amountInput.addEventListener('input', updateChange);
 
-        // INIT
-        updateTotalQuantity();
-        updateGrandTotal();
-    });
-
-    // JS FOR SHOW VOUCHER :
-    var btnCheckResult = document.getElementById('btn-submit-check');
-    var showResult = document.getElementById('show-nominal');
-    var inputPromoCode = document.getElementById('promo_code_input');
-    const infoFirst = document.getElementById('info-first');
-
-
-
-
-    // Meng-handle form submit
-    $(document).ready(function() {
-        var savedPromo = localStorage.getItem('promo_code');
-        if (savedPromo) {
-            $('#promo_code_input').val(savedPromo);
-            $('#show-nominal .info-first').text(savedPromo);
-        }
-        // Meng-handle form submit
+        // Function to handle applying voucher
         $('#btn-submit-check-result').on('click', function(e) {
-            e.preventDefault(); // Mencegah halaman reload
+            e.preventDefault();
 
-            // Ambil kode promo dari input form
-            var promo_code = $('#promo_code_input').val();
-            localStorage.setItem('promo_code', promo_code);
+            let promo_code = $('#promo_code_input').val();
+            let customer = $('input[name="customer"]').val();
 
-            var formData = $(this).serialize();
+            if (!promo_code) return alert('Masukkan kode voucher!');
+
             $.ajax({
-                url: '/show_promo_code', // URL untuk mengirim data
+                url: '/show_promo_code',
                 type: 'GET',
                 data: {
-                    promo_code: promo_code
+                    promo_code,
+                    customer
                 },
                 success: function(response) {
-                    console.log('Response:', response);
-
                     if (response.status === 'success' && response.data) {
-                        // Tampilkan div show-nominal
+
                         $('#show-nominal').show();
+                        $('#show-voucher-code').empty();
 
-                        // Kosongkan konten lama
-                        $('#show-nominal .info-first').empty();
-                        $('#show-nominal .info-second').empty();
+                        // Reset voucher object
+                        voucher.type = null;
+                        voucher.value = 0;
 
-                        // Tampilkan diskon jika ada
+                        // Set voucher based on response data
                         if (response.data.discount) {
-                            $('#show-nominal .info-first').append(
-                                '<span class="badge-success">' + response
-                                .data.voucher_code + '</span>'
-                            );
+                            voucher.type = 'percent';
+                            voucher.value = response.data.discount;
 
-                            $('#show-voucher-code .info-second').append(
-                                '<span class="text-danger">-' + response
-                                .data.discount + '%</span>'
+                            $('#show-voucher-code').html(
+                                `<span class="text-danger">-${response.data.discount}%</span>`
                             );
                         }
 
-                        // Tampilkan nominal jika ada
                         if (response.data.nominal) {
-                            $('#show-nominal .info-first').append(
-                                '<span class="badge-success">' + response
-                                .data.voucher_code + '</span>'
-                            );
+                            voucher.type = 'nominal';
+                            voucher.value = response.data.nominal;
 
-                            $('#show-voucher-code .info-second').append(
-                                '<span class="text-danger">' + response
-                                .data.nominal + '</span>'
+                            $('#show-voucher-code').html(
+                                `<span class="text-danger">-${formatCurrency(response.data.nominal)}</span>`
                             );
                         }
 
-                    } else {
-                        $('#show-nominal').hide();
-                        alert(response.message || 'Kode promo tidak valid');
+                        // Update grand total after applying voucher
+                        updateGrandTotal();
                     }
                 },
                 error: function(xhr, status, error) {
-                    // Menangani error
-                    $('#responseMessage').html('<p>Error: ' + error + '</p>');
+                    console.error(error);
                 }
             });
         });
 
-
-        // Tombol Hapus Voucher
+        // Function to handle removing voucher
         $('#btn-remove-voucher').on('click', function() {
-            // Kosongkan input
+            voucher.type = null;
+            voucher.value = 0;
+
             $('#promo_code_input').val('');
-
-            // Hapus localStorage
-            localStorage.removeItem('promo_code');
-
-            // Kosongkan tampilan voucher
-            $('#show-nominal .info-first').empty();
-            $('#show-voucher-code .info-second').empty();
-
-            // Sembunyikan section voucher (opsional)
+            $('#show-voucher-code').empty();
             $('#show-nominal').hide();
-        });
-    });
-    // end
 
-    // ==============
+            // Update grand total after removing voucher
+            updateGrandTotal();
+        });
+
+        // Initial call to update quantities and grand total
+        updateTotalQuantity();
+        updateGrandTotal();
+    });
+
     $(document).ready(function() {
         $('#search-customer').on('keyup', function() {
             let keyword = $(this).val();
@@ -783,7 +882,7 @@
                             if (customer.status == 7)
                                 html += `
                              <div>
-                            <strong>${customer.name} [${customer.customer_code}] &nbsp;  <input name="customer" value="${customer.customer_code}" type="checkbox">
+                            <strong>${customer.name} [${customer.customer_code}] &nbsp;  <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="checkbox">
                                 Pilih</strong><br>
                             <small>Aktif</small>
                             `;
@@ -806,8 +905,28 @@
                 }
             });
         });
+
+        $('#showCustomer').on('change', '.customer-checkbox', function() {
+            let selectedCustomerCode = $(this).val(); // Ambil nilai customer_code
+            let customerInput = $('input[name="customer"]'); // Pilih input dengan name "customer"
+
+            // Debugging: Cek apakah event change ter-trigger
+            console.log('Checkbox changed:', selectedCustomerCode);
+
+            // Jika checkbox dipilih, set nilai ke input customer
+            if ($(this).is(':checked')) {
+                customerInput.val(selectedCustomerCode);
+                console.log('Customer selected:', selectedCustomerCode); // Debugging
+            } else {
+                // Jika checkbox tidak dipilih, kosongkan input
+                customerInput.val('');
+                console.log('Customer deselected'); // Debugging
+            }
+        });
     });
 </script>
+
+
 
 
 @if (Session::has('message_success'))

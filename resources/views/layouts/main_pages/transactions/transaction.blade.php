@@ -11,6 +11,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">

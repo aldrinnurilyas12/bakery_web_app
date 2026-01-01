@@ -61,6 +61,17 @@
                                 </select>
                             </div>
 
+                            <div class="form-group">
+                                <label><strong>Diperbarui pada</strong></label>
+                                <input type="text" class="form-control" value="{{ $user->updated_at ?: '-' }}"
+                                    readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Diperbarui oleh</strong></label>
+                                <input type="text" class="form-control" value="{{ $user->updated_by ?: '-' }}"
+                                    readonly>
+                            </div>
 
                             <button type="submit" class="btn btn-primary">Simpan Data</button>
                         </form>

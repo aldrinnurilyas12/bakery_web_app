@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -63,8 +64,10 @@
                             <input class="form-control" type="password" name="password" placeholder="Masukan kata sandi"
                                 id="" autocomplete="off">
                         </div>
-
-                        <button type="submit" class="btn btn-primary">Buat Akun</button>
+                        <div style="display: flex; gap:20px;" class="btn-grouped">
+                            <button type="submit" class="btn btn-primary">Buat Akun</button>
+                            <a class="btn btn-info" href="{{ route('users_data') }}">Kembali</a>
+                        </div>
                     </form>
                     <br>
                     <br>

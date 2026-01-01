@@ -78,8 +78,7 @@ class ItemsCategoryController extends Controller
 
         $update_data = DB::table('product_category')->where('id', $id)->update([
             'category_name' => $request->category_name,
-            'updated_at' => now(),
-            'updated_by' => app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->shop_name
+            'updated_at' => now()
         ]);
 
         if ($update_data) {

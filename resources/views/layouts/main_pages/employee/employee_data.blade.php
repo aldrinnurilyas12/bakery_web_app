@@ -7,9 +7,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery - Master Data Karyawan</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
-    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -49,11 +54,15 @@
                                                 <th>Email</th>
                                                 <th>Posisi</th>
                                                 <th>Toko/Kantor</th>
+                                                <th>Status Karyawan</th>
+                                                <th>Status Akun</th>
                                                 <th>Tanggal Mulai Bekerja</th>
                                                 <th>Created at</th>
                                                 <th>Created by</th>
                                                 <th>Updated at</th>
                                                 <th>Updated by</th>
+                                                <th>Deleted at</th>
+                                                <th>Deleted by</th>
 
                                             </tr>
                                         </thead>
@@ -66,19 +75,14 @@
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
                                                         <div style="display: flex;gap:10px;" class="btn-action">
-                                                            <a class="btn btn-primary"
-                                                                href="{{ route('employee_edit', $employee->nik) }}">Edit</a>
-                                                            {{-- <div class="delete-action">
-                                                                <form
-                                                                    action="{{ route('master_products.destroy', $employee->id) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit"
-                                                                        class="btn btn-danger">Hapus</button>
-                                                                </form>
-                                                            </div> --}}
-
+                                                            @if ($employee->status == 'Inactive')
+                                                            @else
+                                                                <a href="{{ route('employee_edit', $employee->nik) }}"><i
+                                                                        class="fa fa-edit"></i></a>
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#deleteEmployee{{ $employee->nik }}"><i
+                                                                        class="fas fa-trash"></i></a>
+                                                            @endif
                                                         </div>
                                                     </td>
                                                     <td>{{ $employee->nik }}</td>
@@ -88,11 +92,27 @@
                                                     <td>{{ $employee->email }}</td>
                                                     <td>{{ $employee->position_name }}</td>
                                                     <td>{{ $employee->branch_name }}</td>
+                                                    <td>
+                                                        @if ($employee->status == 'Active')
+                                                            <span class="text-success">{{ $employee->status }}</span>
+                                                        @else
+                                                            <span class="text-danger">{{ $employee->status }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($employee->is_active == 'Y')
+                                                            <span class="text-success">Aktif</span>
+                                                        @else
+                                                            <span class="text-danger">Tidak</span>
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $employee->start_date }}</td>
                                                     <td>{{ $employee->created_at }}</td>
                                                     <td>{{ $employee->created_by }}</td>
                                                     <td>{{ $employee->updated_at }}</td>
                                                     <td>{{ $employee->updated_by }}</td>
+                                                    <td>{{ $employee->deleted_at }}</td>
+                                                    <td>{{ $employee->deleted_by }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -126,9 +146,38 @@
         </div>
     </div>
 
-    <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+    @foreach ($v_employee as $emp)
+        <div wire:ignore class="modal fade" id="deleteEmployee{{ $emp->nik }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $emp->nik }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Nonaktifkan karyawan</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @csrf
+                        <label for="">Anda yakin ingin nonaktifkan Karyawan
+                            {{ $emp->nik . ' - ' . $emp->name }}</label>
+                        <form action="{{ route('employee_update_status', $emp->nik) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <br>
+                            <div class="form-group">
+                                <input type="checkbox" value="8" name="status">
+                                <label for="">Ya, Nonaktifkan</label>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
 </body>
 

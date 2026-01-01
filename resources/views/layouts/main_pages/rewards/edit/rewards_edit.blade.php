@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Ubah data rewards</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -85,6 +86,17 @@
                                 <input type="file" name="images">
                             </div>
                         @endif
+                        <div class="form-group">
+                            <label><strong>Diperbarui pada</strong></label>
+                            <input type="text" class="form-control" value="{{ $rewards->updated_at ?: '-' }}"
+                                readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Diperbarui oleh</strong></label>
+                            <input type="text" class="form-control" value="{{ $rewards->updated_by ?: '-' }}"
+                                readonly>
+                        </div>
                         <button type="submit" class="btn btn-primary">Simpan Reward</button>
                     </form>
                     <br>

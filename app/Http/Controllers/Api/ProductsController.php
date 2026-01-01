@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ProductsModel;
 use App\Models\ProductImages;
+use App\Models\ProductsVariant;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Ramsey\Uuid\Uuid;
@@ -41,7 +42,8 @@ class ProductsController extends Controller
     {
         $request->validate([
             'product_name' => 'required',
-            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000'
+            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000',
+            'product_variant' => 'required'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -59,12 +61,14 @@ class ProductsController extends Controller
                 'discount' => $request->discount,
                 'price_after_discount' => $request->price_after_discount,
                 'product_weight' => $request->product_weight,
+                'product_weight_type' => $request->product_weight_type,
+                'product_variant'  => $request->product_variant,
                 'description' => $request->description,
                 'expired_date' => $request->expired_date,
                 'created_at' => now(),
                 'created_by' => $created_by
 
-                ]);
+        ]);
 
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
@@ -81,10 +85,74 @@ class ProductsController extends Controller
                 }
 
             }
+
+        if($request->product_variant == 'Y'){
+            session()->flash('message_success', 'Data produk berhasil disimpan!');
+            return redirect()->route('add_product_variant', $data->product_code);
+        }
         
             session()->flash('message_success', 'Data produk berhasil disimpan!');
             return redirect()->route('products_data');
       
+    }
+
+    public function save_product_variant(Request $request) {
+
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 8);
+        $variant_code = 'VARIANT' . $unique_code;
+
+            ProductsVariant::create([
+                'variant_code' => $variant_code,
+                'product' => $request->product,
+                'variant_price' => $request->variant_price,
+                'variant_discount' => $request->variant_discount,
+                'variant_price_after_discount' => $request->variant_price_after_discount,
+                'variant_type' => $request->variant_type,
+                'created_at' => now()
+            ]);
+
+
+            session()->flash('message_success', 'Data produk variant berhasil disimpan!');
+            return redirect()->back();
+    }
+
+    public function update_product_variant(Request $request) {
+        ProductsModel::where('product_code', $request->product_code)->update([
+            'product_variant' => null
+        ]);
+         session()->flash('message_success', 'Data produk variant berhasil dihapus!');
+        return redirect()->route('products_data');
+    }
+
+    public function update_variant_layout(Request $request) : View {
+
+        $variant = DB::table('product_variant as pv')
+                ->leftJoin('v_products as p', 'pv.product', '=', 'p.product_code')
+                ->where('variant_code', $request->variant_code)->first();
+        return view('layouts.main_pages.products.edit.edit_variant_product', compact('variant'));
+    }
+
+    public function edit_variant(Request $request) {
+        DB::table('product_variant')->where('variant_code', $request->variant_code)->update([
+            'variant_price' => $request->variant_price,
+            'variant_discount' => $request->variant_discount,
+            'variant_price_after_discount' => $request->variant_price_after_discount
+        ]);
+
+        session()->flash('message_success', 'Data produk variant berhasil disimpan!');
+        return redirect()->route('products_data');
+    }
+
+    public function delete_variant(Request $request) {
+       $variant_code = ProductsVariant::where('variant_code', $request->variant_code)->first();
+
+        if($variant_code){
+            $variant_code->delete();
+        }
+
+        session()->flash('message_success', 'Data produk variant berhasil dihapus!');
+        return redirect()->back();
     }
 
     /**
@@ -122,7 +190,7 @@ class ProductsController extends Controller
         'images.*' => 'image|mimes:jpg,png,jpeg|max:5000',
         'product_name' => 'required',
         'category_id' => 'required',
-        'price' => 'required',
+        'product_variant' => 'required'
         // tambahkan validasi lain sesuai kebutuhan
     ]);
 
@@ -138,6 +206,8 @@ class ProductsController extends Controller
             'discount' => $request->discount,
             'price_after_discount' => $request->price_after_discount,
             'product_weight' => $request->product_weight,
+            'product_weight_type' => $request->product_weight_type,
+            'product_variant'  => $request->product_variant,
             'description' => $request->description,
             'expired_date' => $request->expired_date,
             'updated_at' => now(),
@@ -159,11 +229,22 @@ class ProductsController extends Controller
                     ]);
                 }
 
-            }
+        }
+        
 
-    session()->flash('message_success', 'Data produk berhasil disimpan!');
-    return redirect()->route('products_data');
-}
+        if($request->product_variant == 'Y'){
+            session()->flash('message_success', 'Data produk berhasil disimpan!');
+        return redirect()->route('add_product_variant', $product_code);
+        }
+
+        session()->flash('message_success', 'Data produk berhasil disimpan!');
+        return redirect()->route('products_data');
+    }
+
+    public function add_product_variant_layout(Request $request) :View {
+        $products =DB::table('v_products')->where('product_code', $request->product_code)->first();
+        return view('layouts.main_pages.products.create.products_variant_create', compact('products'));
+    }
 
 
     /**

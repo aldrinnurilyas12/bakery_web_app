@@ -62,6 +62,12 @@ body {
   display: none;
 }
 
+.information-detail-casheer {
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+}
+
 .promo-code input {
   width: 180px;
   border-radius: 4px;
@@ -256,7 +262,7 @@ small.category {
 }
 
 .btn-add-to-cart {
-  background-color: #521a0b;
+  background-color: #bb0239;
   color: white;
   width: 100%;
   border: none;
@@ -400,6 +406,12 @@ button.deletebtn {
     overflow-y: scroll;
   }
 
+  .information-detail-casheer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
 
   .open-dialog-clear-cart {
     display: none;
@@ -436,11 +448,11 @@ button.deletebtn {
   }
 
   .transaction-card {
-    position: sticky;
     background: rgb(255, 255, 255);
     height: max-content;
     width: 100%;
     bottom: 0;
+    margin-top: 10%;
     z-index: 0;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
   }
@@ -502,9 +514,17 @@ button.deletebtn {
 
 @media (max-width: 1200px) {
   .transaction-card {
-    width: 300px;
-    right: 15px;
-    top: 50px;
+    width: 100%;
+    right: 15%;
+    top: 30px;
+    left: 1%;
+    /* center di layar kecil */
+  }
+
+  .information-detail-casheer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
 
   #tab-content {
@@ -515,8 +535,16 @@ button.deletebtn {
 @media (max-width: 768px) {
   .transaction-card {
     width: 100%;
-    right: 10px;
-    top: 40px;
+    right: 15%;
+    top: 30px;
+    left: 1%;
+    /* center di layar kecil */
+  }
+
+  .information-detail-casheer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
 
   #tab-content {
@@ -526,11 +554,17 @@ button.deletebtn {
 
 @media (max-width: 576px) {
   .transaction-card {
-    width: 576px;
-    right: 5%;
+    width: 100%;
+    right: 15%;
     top: 30px;
-    left: 5%;
+    left: 1%;
     /* center di layar kecil */
+  }
+
+  .information-detail-casheer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
 
   #tab-content {

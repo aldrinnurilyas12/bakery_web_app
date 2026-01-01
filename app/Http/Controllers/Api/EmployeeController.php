@@ -54,6 +54,7 @@ class EmployeeController extends Controller
             'email' => $request->email,
             'position' => $request->position,
             'branch' => $request->branch,
+            'status' => 7,
             'start_date' => $request->start_date,
             'created_at' => now(),
             'created_by' => $created_by
@@ -73,10 +74,11 @@ class EmployeeController extends Controller
     {
         $job_position = DB::table('job_position')->get();
         $branch = DB::table('branch')->get();
+        $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $employee = DB::table('v_employee')->where('nik', $request->nik)->first();
         $birth_date = Carbon::parse($employee->birth_date);
         $start_date = Carbon::parse($employee->start_date);
-        return view('layouts.main_pages.employee.edit.employee_edit', compact('employee', 'branch', 'job_position', 'birth_date', 'start_date'));
+        return view('layouts.main_pages.employee.edit.employee_edit', compact('employee', 'branch', 'job_position', 'birth_date', 'start_date', 'status'));
     }
 
     /**
@@ -102,6 +104,7 @@ class EmployeeController extends Controller
             'email' => $request->email,
             'position' => $request->position,
             'branch' => $request->branch,
+            'status' => $request->status,
             'start_date' => $request->start_date,
             'updated_at' => now(),
             'updated_by' => $updated_by
@@ -139,8 +142,16 @@ class EmployeeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function employee_nonactive(Request $request)
     {
-        //
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        EmployeeModel::where('nik', $request->nik)->update([
+            'status' => $request->status,
+            'deleted_at' => now(),
+            'deleted_by' => $updated_by
+        ]);
+
+        session()->flash('message_success', 'Data berhasil diperbarui!');
+        return redirect()->back();
     }
 }

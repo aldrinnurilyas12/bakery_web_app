@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Ubah Produksi Produk</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -140,6 +141,18 @@
                             <input
                                 value="{{ old('production_date', $production->production_date ? $production_date->format('Y-m-d') : null) }}"
                                 type="date" name="production_date" class="form-control" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Diperbarui pada</strong></label>
+                            <input type="text" class="form-control" value="{{ $production->updated_at ?: '-' }}"
+                                readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Diperbarui oleh</strong></label>
+                            <input type="text" class="form-control" value="{{ $production->updated_by ?: '-' }}"
+                                readonly>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Simpan Data</button>

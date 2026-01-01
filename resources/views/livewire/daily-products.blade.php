@@ -43,24 +43,47 @@
                                                  @endif
                                                  <div class="content-text">
                                                      <div style="width: 200px;" class="title-text">
-                                                         <h5 style="font-size:15px; margin:0;">{{ $product->product }}
+                                                         <h5 style="font-size:14px; margin:0;">
+                                                             {{ $product->product }}
                                                          </h5>
+
+
                                                          <p
                                                              style="font-size: 12px; font-style:oblique;font-weight:normal; color:gray; margin-bottom:4px;">
-                                                             {{ $product->category }}</p>
-                                                         @if ($product->price_after_discount == 0)
-                                                             <p class="price" style="margin: 0;">
-                                                                 {{ 'Rp' . number_format($product->price) }}</p>
+                                                             {{ $product->category }} </p>
+
+
+                                                         @if ($product->variant_code == null)
+                                                             @if ($product->price_after_discount == 0)
+                                                                 <p class="price" style="margin: 0;">
+                                                                     {{ 'Rp' . number_format($product->price) }}</p>
+                                                             @else
+                                                                 <p class="price" style="margin: 0;">
+                                                                     {{ 'Rp' . number_format($product->price_after_discount) }}
+                                                                 </p>
+                                                                 <div class="price-discount">
+                                                                     <small
+                                                                         style="font-size: 13px;color:gray; font-weight:normal;text-decoration: line-through;">{{ 'Rp' . number_format($product->price) }}</small>
+                                                                     <small
+                                                                         class="text-danger">-{{ $product->discount . '%' }}</small>
+                                                                 </div>
+                                                             @endif
                                                          @else
-                                                             <p class="price" style="margin: 0;">
-                                                                 {{ 'Rp' . number_format($product->price_after_discount) }}
-                                                             </p>
-                                                             <div class="price-discount">
-                                                                 <small
-                                                                     style="font-size: 13px;color:gray; font-weight:normal;text-decoration: line-through;">{{ 'Rp' . number_format($product->price) }}</small>
-                                                                 <small
-                                                                     class="text-danger">-{{ $product->discount . '%' }}</small>
-                                                             </div>
+                                                             @if ($product->variant_price_after_discount == 0)
+                                                                 <p class="price" style="margin: 0;">
+                                                                     {{ 'Rp' . number_format($product->variant_price) }}
+                                                                 </p>
+                                                             @else
+                                                                 <p class="price" style="margin: 0;">
+                                                                     {{ 'Rp' . number_format($product->variant_price_after_discount) }}
+                                                                 </p>
+                                                                 <div class="price-discount">
+                                                                     <small
+                                                                         style="font-size: 13px;color:gray; font-weight:normal;text-decoration: line-through;">{{ 'Rp' . number_format($product->price) }}</small>
+                                                                     <small
+                                                                         class="text-danger">-{{ $product->variant_discount . '%' }}</small>
+                                                                 </div>
+                                                             @endif
                                                          @endif
                                                      </div>
                                                      <p
@@ -68,9 +91,28 @@
                                                          Point:
                                                          {{ $product->point }} &nbsp;
                                                          <span>Stok:
-                                                             {{ $product->stock_available }}</span> &nbsp;
+
+                                                             @if ($product->stock_available == 0 || null)
+                                                                 <span class="text-danger">kosong</span>
+                                                             @else
+                                                                 {{ $product->stock_available }}
+                                                             @endif
+                                                         </span> &nbsp;
                                                          <span>Berat:
-                                                             {{ $product->product_weight }}</span>
+                                                             {{ $product->product_weight }}</span> &nbsp;
+                                                         @if ($product->variant_code)
+                                                             <span>Variant:
+                                                                 {{ $product->variant_type }}</span>
+                                                         @else
+                                                         @endif
+
+                                                         <span>Status :
+                                                             @if ($product->status == 'Inactive')
+                                                                 <small class="text-danger">Nonaktif</small>
+                                                             @else
+                                                                 <small class="text-success">Aktif</small>
+                                                             @endif
+                                                         </span>
                                                      </p>
                                                      <div style="font-size: 13px; font-weight: 500;" class="date">
 
@@ -80,11 +122,37 @@
                                              </div>
                                          </div>
                                          <div class="card-footer d-flex align-items-center justify-content-between">
-                                             <a class="small text-black"
-                                                 href="{{ route('dailyproduct_update', $product->product_code) }}">Edit</a>
 
-                                             <a class="btn btn-danger" href="#" data-toggle="modal"
-                                                 data-target="#deleteModal{{ $product->product_code }}">Hapus</a>
+                                             @if ($product->variant_code)
+                                                 <a class="small text-black"
+                                                     href="{{ route('dailyproduct_update_variant', $product->variant_code) }}">Edit
+                                                 </a>
+
+                                                 @if ($product->status == 'Inactive')
+                                                     <a class="btn btn-success" href="#" data-toggle="modal"
+                                                         data-target="#deleteModalVariant{{ $product->variant_code }}">Aktifkan
+                                                         Kembali
+                                                     </a>
+                                                 @else
+                                                     <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                         data-target="#deleteModalVariant{{ $product->variant_code }}">Nonaktif
+                                                     </a>
+                                                 @endif
+                                             @else
+                                                 <a class="small text-black"
+                                                     href="{{ route('dailyproduct_update', $product->product_code) }}">Edit</a>
+
+                                                 @if ($product->status == 'Inactive')
+                                                     <a class="btn btn-success" href="#" data-toggle="modal"
+                                                         data-target="#deleteModal{{ $product->product_code }}">Aktifkan
+                                                         Kembali
+                                                     </a>
+                                                 @else
+                                                     <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                         data-target="#deleteModal{{ $product->product_code }}">Nonaktif
+                                                     </a>
+                                                 @endif
+                                             @endif
                                          </div>
                                      </div>
                                  @endforeach
@@ -118,18 +186,103 @@
              <div class="modal-dialog" role="document">
                  <div class="modal-content">
                      <div class="modal-header">
-                         <h5 class="modal-title" id="exampleModalLabel">Hapus data daily produk</h5>
+                         <h5 class="modal-title" id="exampleModalLabel">Data daily produk</h5>
                          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                              <span aria-hidden="true">×</span>
                          </button>
                      </div>
-                     <div class="modal-body">Apakah anda yakin ingin menghapus produk {{ $product->product }} ?</div>
-                     <div class="modal-footer">
-                         <form method="POST" action="{{ route('dailyproduct_delete', $product->product_code) }}">
+                     <div class="modal-body">
+                         @if ($product->status == 'Inactive')
+                             Apakah anda yakin ingin aktifkan produk
+                             {{ $product->product }}
+                             ?
+                         @else
+                             Apakah anda yakin ingin men-Nonaktif produk
+                             {{ $product->product }}
+                             ?
+                         @endif
+                         <br>
+                         <br>
+                         <form method="POST" action="{{ route('nonactive_daily_product', $product->product_code) }}">
                              @csrf
-                             @method('DELETE')
-                             <button class="btn btn-danger" type="submit">Hapus</button>
+                             @method('PUT')
+                             <div class="form-group">
+                                 @if ($product->status == 'Inactive')
+                                     <input type="checkbox" name="status" value="4">
+                                     <label for="">Aktifkan</label>
+                                 @else
+                                     <input type="checkbox" name="status" value="8">
+                                     <label for="">Nonaktifkan</label>
+                                 @endif
+                             </div>
+                             <br>
+
+                             @if ($product->status == 'Inactive')
+                                 <button class="btn btn-primary" type="submit">Aktifkan</button>
+                             @else
+                                 <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                             @endif
+
                          </form>
+                     </div>
+                     <div class="modal-footer">
+                     </div>
+                 </div>
+             </div>
+         </div>
+     @endforeach
+
+
+     @foreach ($daily_products as $product)
+         <div wire:ignore class="modal fade" id="deleteModalVariant{{ $product->variant_code }}" tabindex="-1"
+             role="dialog" aria-labelledby="exampleModalLabel{{ $product->variant_code }}" aria-hidden="true">
+             <div class="modal-dialog" role="document">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h5 class="modal-title" id="exampleModalLabel">Data daily produk variant</h5>
+                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                             <span aria-hidden="true">×</span>
+                         </button>
+                     </div>
+                     <div class="modal-body">
+                         @if ($product->status == 'Inactive')
+                             Apakah anda yakin ingin aktifkan variant produk
+                             {{ $product->product }}
+                             ?
+                         @else
+                             Apakah anda yakin ingin men-Nonaktif variant produk
+                             {{ $product->product }}
+                             ?
+                         @endif
+                         <br>
+                         <br>
+                         @if (!empty($product->variant_code))
+                             <form method="POST"
+                                 action="{{ route('nonactive_daily_variant', $product->variant_code) }}">
+                                 @csrf
+                                 @method('PUT')
+                                 <div class="form-group">
+                                     @if ($product->status == 'Inactive')
+                                         <input type="checkbox" name="status" value="4">
+                                         <label for="">Aktifkan</label>
+                                     @else
+                                         <input type="checkbox" name="status" value="8">
+                                         <label for="">Nonaktifkan</label>
+                                     @endif
+                                 </div>
+                                 <br>
+
+                                 @if ($product->status == 'Inactive')
+                                     <button class="btn btn-primary" type="submit">Aktifkan</button>
+                                 @else
+                                     <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                                 @endif
+                             </form>
+                         @else
+                             <span class="text-muted">Variant tidak tersedia</span>
+                         @endif
+                     </div>
+                     <div class="modal-footer">
                      </div>
                  </div>
              </div>

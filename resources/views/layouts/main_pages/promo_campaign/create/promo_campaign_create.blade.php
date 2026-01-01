@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery - Tambah Promo</title>
+    <title>Kencana Bakery - Tambah Promo Campaign</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -18,8 +19,21 @@
             <main>
                 <br>
                 <div class="container-fluid px-4">
-                    <h4>Tambah Data Promo Campign</h4>
+                    <h4>Tambah Data Promo Campaign</h4>
                     <hr>
+                    <div style="font-size: 13px;" class="alert alert-info">
+                        <ul>
+                            <li>Promo dan voucher hanya dapat dibuat oleh user dengan role Admin atau Marketing.</li>
+                            <li>Setiap promo dan voucher wajib memiliki periode aktif yang jelas (tanggal mulai dan
+                                berakhir).</li>
+                            <li>Kode voucher harus unik dan tidak boleh sama dengan kode voucher lain yang masih aktif.
+                            </li>
+                            <li>Nilai promo atau voucher harus valid (memiliki nilai minimal transaksi).</li>
+                            <li>Promo dan voucher yang sudah digunakan dalam transaksi tidak boleh dihapus, hanya dapat
+                                dinonaktifkan.</li>
+
+                        </ul>
+                    </div>
                     <form action="{{ route('master_promo_campaign.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf

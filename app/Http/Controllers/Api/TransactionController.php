@@ -8,6 +8,7 @@ use App\Models\ProductsModel;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDetailInformationModel;
 use App\Models\TransactionModel;
+use App\Models\TransactionsVouchers;
 use App\Models\VoucherCustomer;
 use App\Models\VoucherModel;
 use App\Models\VouchersUsages;
@@ -47,15 +48,20 @@ class TransactionController extends Controller
     }
 
     public function show_promo_code(Request $request) {
-    $promo_code = $request->promo_code;
+    $voucher_code = $request->promo_code;
+    $customer = $request->customer;
 
-    $show_promo = VoucherModel::where('voucher_code', $promo_code)
-        ->select('voucher_code','discount', 'nominal') // pastikan kolom 'nominal' ada di tabel
-        ->first();
 
-    if ($promo_code) {
+    $show_voucher =DB::table('customer_vouchers as cv')
+                    ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
+                    ->select('v.voucher_code','v.discount', 'v.nominal')
+                    ->where('cv.voucher', $voucher_code)
+                    ->where('cv.customer', $customer)
+                    ->where('cv.voucher_used', 'N')->first();
+
+    if ($voucher_code) {
         return response()->json([
-            'data' => $show_promo,
+            'data' => $show_voucher,
             'message' => 'Data voucher ditemukan',
             'status' => 'success'
         ]);
@@ -69,11 +75,11 @@ class TransactionController extends Controller
     public function transaction_create_layout(Request $request): View
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
-         $category_data = DB::table('product_category as c')->select('c.category_name')
+         $category_data = DB::table('product_category as c')->select(DB::raw("REPLACE(c.category_name, ' ', '_') as 'category_name'"))
                 ->join('products as p', 'c.id', '=', 'p.category_id')
                 ->join('products_daily as pd', 'p.product_code', '=', 'pd.product_code')
                 ->groupBy('c.category_name')->get();
-        $all_products =  DB::table('v_daily_products')->paginate(8);
+        $all_products =  DB::table('v_daily_products')->where('status', 'Ready')->paginate(15);
         $payment_type = DB::table('payment_category')->get();
 
         $itemProducts = ProductsModel::with('category')->get();
@@ -81,7 +87,7 @@ class TransactionController extends Controller
 
         $show_promo = $this->show_promo_code($request);
 
-        // dd($itemProducts);
+        $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik .'-'. app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->name;
 
 
         // section cart:
@@ -115,7 +121,7 @@ class TransactionController extends Controller
         }
 
 
-        return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products','show_promo','grand_total', 'price_total', 'qty', 'cart_value', 'all_products', 'category_data', 'itemProducts', 'payment_type'));
+        return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products','show_promo','grand_total', 'price_total', 'qty', 'cart_value', 'all_products', 'category_data', 'itemProducts', 'payment_type', 'casheer'));
     }
 
     /**
@@ -123,11 +129,13 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'product' => 'required|array',
-            'product.*' => 'exists:products,product_code',
-            'quantity_per_product' => 'required|array',
-            'quantity_per_product.*' => 'required|integer|min:1'
+       $request->validate([
+        'product' => 'required|array',
+        'product.*' => 'required|exists:products,product_code',
+        'variant' => 'nullable|array',
+        'variant.*' => 'nullable|exists:product_variant,variant_code',
+        'quantity_per_product' => 'required|array',
+        'quantity_per_product.*' => 'required|integer|min:1',
         ]);
 
         $uuid = (string) Str::uuid();
@@ -136,6 +144,7 @@ class TransactionController extends Controller
         $transaction_code = 'INV' . $inv_date . $unique_code;
 
         $productCode = $request->product;
+        $variantCode = $request->variant ?? [];
         $qtyProducts = $request->quantity_per_product;
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $customer = $request->customer;
@@ -143,42 +152,35 @@ class TransactionController extends Controller
         $voucher_quota = DB::table('voucher')->where('voucher_code', $voucher_code)->value('quota');
         $voucherExpired = VoucherModel::where('voucher_code', $voucher_code)->where('status', 7)->value('end_date');
         
-        // HITUNG TOTAL VOUCHER YANG SUDAH DIGUNAKAN [ON PROGRESS]
-        $voucherQuotaUsedTotal = DB::table('vouchers_usages as vu')
+        // HITUNG TOTAL VOUCHER YANG SUDAH DIGUNAKAN
+        $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
                     ->leftJoin('voucher as v', 'v.voucher_code', '=', 'vu.voucher_code')
                     ->where('vu.voucher_code', $voucher_code)->where('vu.voucher_used', 'Y')->count('vu.voucher_code');
 
-        // VALIDASI MASA BERLAKU(expired) VOUCHER DAN VALIDASI VOUCHER SEPENUHNYA SUDAH DIGUNAKAN
-        if($voucherExpired && Carbon::now()->gt(Carbon::parse($voucherExpired)) ){
-                session()->flash('failed_voucher', 'Masa Berlaku Voucher sudah habis');
-                return redirect()->back(); 
-        }
+
+        $checkCustomerVoucherUsed =DB::table('transactions_voucher as tv')
+                    ->leftJoin('transactions as t', 'tv.transaction_code', '=', 't.transaction_code')
+                    ->where('tv.voucher_code', $voucher_code)
+                    ->where('t.customer', $customer)->first();
 
         if($voucher_code){
+            if($voucherExpired && Carbon::now()->gt(Carbon::parse($voucherExpired)) ){
+                session()->flash('failed_voucher', 'Masa Berlaku Voucher sudah habis');
+                return redirect()->back(); 
+            }
+
             if($voucherQuotaUsedTotal >= $voucher_quota){
                 session()->flash('failed_voucher', 'Kuota Voucher Sudah Digunakan semua');
                 return redirect()->back(); 
                 
             }
+
+            if($checkCustomerVoucherUsed){
+                session()->flash('failed_voucher', 'E-Voucher ini sudah digunakan');
+                return redirect()->back(); 
+            }
         }
 
-        // JIKA MASA BERLAKU VOUCHER MASIH ADA DAN MASIH ADA QUOTA UNTUK DIPAKAI MAKA MASUK KE TABEL INI :
-        if($voucher_code)
-        {
-            VouchersUsages::create([
-                'voucher_code' => $voucher_code,
-                'customer' => $request->customer,
-                'voucher_used' => 'Y',
-                'used_at' => now(),
-                'created_at' => now()
-                ]);
-
-                VoucherCustomer::where('voucher', $voucher_code)->update([
-                'voucher_used' => 'Y',
-                'updated_at' => now()
-            ]);
-        }
-        
 
         $main_transaction = TransactionModel::create([
             'transaction_code' => $transaction_code,
@@ -190,75 +192,126 @@ class TransactionController extends Controller
             'status' => 5,
             'payment_type' => $request->payment_type,
             'payment_changes' => $request->payment_changes,
-            'promo_code' => $request->promo_code,
             'transaction_date' => now(),
             'created_by' => $casheer,
             'created_at' => now()
         ]);
 
+     
         foreach ($productCode as $index => $productId) {
+                $variantCodeValue = $variantCode[$index] ?? null;
+               TransactionDetail::create([
+                    'transaction_code' => $main_transaction->transaction_code,
+                    'product' => $productId,
+                    'variant' => $variantCodeValue,
+                    'quantity_per_product' => $qtyProducts[$index],
+                    'created_by' => $casheer,
+                    'created_at' => now()
+                ]);
+        }
 
-         TransactionDetail::create([
+        if($voucher_code){
+
+            TransactionsVouchers::create([
                 'transaction_code' => $main_transaction->transaction_code,
-                'product' => $productId,
-                'quantity_per_product' => $qtyProducts[$index],
+                'voucher_code' => $voucher_code,
+                'status' => 7,
+                'voucher_used' => 'Y',
+                'used_at' => now(),
+                'created_at' => now(),
                 'created_by' => $casheer,
                 'created_at' => now()
             ]);
+
+            VoucherCustomer::where('voucher', $voucher_code)->where('customer', $customer)->update([
+                'voucher_used' => 'Y',
+                'updated_at' => now()
+            ]);
         }
+        
 
-
-        // PROSEDUR GET POINT FOR CUSTOMERS WHEN DOING TRANSACTIONS :
-        $productCodes = DB::table('transactions_detail')
+    // PROSEDUR GET POINT FOR CUSTOMERS WHEN TRANSACTIONS :
+    $transactionDetail = DB::table('transactions_detail')
         ->where('transaction_code', $main_transaction->transaction_code)
-        ->pluck('product');
+        ->get();
 
-        $productPoints = DB::table('products_daily')
-        ->whereIn('product_code', $productCodes)->sum('point');
+    $productPoints = DB::table('products_daily')
+        ->whereNotNull('product_code')
+        ->pluck('point', 'product_code');
 
-        if($productPoints > 0 ) {
+    $variantProductPoints = DB::table('products_daily')
+        ->whereNotNull('variant_code')
+        ->pluck('point', 'variant_code');
 
-            $customerTransaction = DB::table('customer as c')->where('customer_code', $main_transaction->customer)
-                    ->first();
+    $customerTransaction = DB::table('transactions')
+        ->where('customer', $main_transaction->customer)
+        ->first();
 
-            if($customerTransaction->point == 0 || null){
-               DB::table('customer')->where('customer_code', $main_transaction->customer)->update([
-                'point' => $productPoints
-                ]); 
-            }elseif($customerTransaction->point > 0){
-                DB::table('customer')->where('customer_code', $main_transaction->customer)->update([
-                    'point' => $customerTransaction->point +  ($productPoints * $main_transaction->
-                ]);
+    $customerPoint = DB::table('customer')
+        ->where('customer_code', $main_transaction->customer)
+        ->value('point') ?? 0;
+    
+    $totalPoints = 0;
+
+    if ($customerTransaction) {
+
+        foreach($transactionDetail as $detail) {
+
+             if (!empty($detail->variant) && isset($variantProductPoints[$detail->variant])) {
+                $totalPoints += $variantProductPoints[$detail->variant];
+                continue;
+            }
+
+            if (!empty($detail->product) && isset($productPoints[$detail->product])) {
+                $totalPoints += $productPoints[$detail->product];
             }
         }
 
+        DB::table('customer')
+            ->where('customer_code', $main_transaction->customer)
+            ->update(['point' => $totalPoints + $customerPoint
+        ]);
+    }
+
+            
 
         // PROSEDUR PEMBAGIAN E-VOUCHER ke CUSTOMER 
         $getAmount = $main_transaction->grand_total;
         $get_voucher = DB::table('voucher')
             ->where('min_transaction','<=' , $getAmount)
             ->where('status', 7)
+            ->where('voucher_type', 'regular')
             ->orderBy('min_transaction', 'desc')->first();
-        $voucherShared = VoucherCustomer::where('customer', $customer)
+        
+
+        if($get_voucher) {
+
+            $voucherShared = VoucherCustomer::where('customer', $customer)
             ->where('voucher', $get_voucher->voucher_code)->exists();
-        $voucherCustomer = DB::table('customer_vouchers as cv')
+            $voucherCustomer = DB::table('customer_vouchers as cv')
             ->where('voucher', $get_voucher->voucher_code)
             ->count();
-        $voucher_quota =  $get_voucher->quota;
-        $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
+            $voucher_quota =  $get_voucher->quota;
+            $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
+            $voucherExpired = now()->greaterThan($get_voucher->end_date);
 
-        if(!$voucherShared) {
-            if($getAmount >= $get_voucher->min_transaction) {
-                if(!$checkingQuotaVoucher && $get_voucher){
-                    VoucherCustomer::create([
-                        'customer' => $main_transaction->customer,
-                        'voucher' => $get_voucher->voucher_code,
-                        'transaction' => $main_transaction->transaction_code,
-                        'status' => 7,
-                        'voucher_used' => 'N',
-                        'created_by' => $casheer,
-                        'created_at' => now()
-                    ]);
+            if($customerTransaction){
+                if(!$voucherShared) {
+                    if($getAmount >= $get_voucher->min_transaction) {
+                        if(!$checkingQuotaVoucher && $get_voucher){
+                            if(!$voucherExpired) {
+                                VoucherCustomer::create([
+                                    'customer' => $main_transaction->customer,
+                                    'voucher' => $get_voucher->voucher_code,
+                                    'transaction' => $main_transaction->transaction_code,
+                                    'status' => 7,
+                                    'voucher_used' => 'N',
+                                    'created_by' => $casheer,
+                                    'created_at' => now()
+                                ]);
+                            }
+                        }
+                    }
                 }
             }
         }

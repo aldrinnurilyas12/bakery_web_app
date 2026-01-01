@@ -19,9 +19,11 @@ class EmployeeModel extends Model
         'email', 
         'position',
         'branch',
+        'status',
         'start_date',
         'end_date',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'deleted_by'
     ];
 }

@@ -18,6 +18,8 @@ class ProductsModel extends Model
         'discount',
         'price_after_discount',
         'product_weight',
+        'product_weight_type',
+        'product_variant',
         'description',
         'expired_date',
         'created_by',

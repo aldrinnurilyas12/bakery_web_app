@@ -50,6 +50,35 @@
                                                             @else
                                                         @endif
                                                     </p>
+
+                                                    <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
+                                                        class="status">
+                                                        @if ($voucher->status == 8)
+                                                            <div style="display: flex; gap:10px; margin-bottom: 5px;"
+                                                                class="text-info-status">
+                                                                <p style="margin-bottom: 0;">Status: <span
+                                                                        class="text-danger">Tidak aktif</span>
+
+                                                                </p>
+                                                                <p style="margin-bottom: 0;">Kategori : <span>
+                                                                        {{ $voucher->voucher_type }}</span>
+                                                                </p>
+                                                            </div>
+                                                        @else
+                                                            <div style="display: flex; gap:10px;margin-bottom: 5px;"
+                                                                class="text-info-status">
+                                                                <p style="margin-bottom: 0;">Status: <span
+                                                                        class="text-success">Aktif</span>
+                                                                    </span>
+                                                                </p>
+
+                                                                <p style="margin-bottom: 0;">Kategori : <span>
+                                                                        {{ $voucher->voucher_type }}</span>
+                                                                </p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
                                                     <div style="font-size: 13px; font-weight: 500;" class="date">
                                                         <label for="">Tanggal Berlaku</label>
                                                         <br>
@@ -65,8 +94,16 @@
                                             <a class="small text-black"
                                                 href="{{ route('voucher_update', $voucher->voucher_code) }}">Edit</a>
 
-                                            <a class="btn btn-danger" href="#" data-toggle="modal"
-                                                data-target="#deleteModal{{ $voucher->voucher_code }}">Hapus</a>
+                                            @if ($voucher->status == 8)
+                                                <a class="btn btn-success" href="#" data-toggle="modal"
+                                                    data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Aktifkan
+                                                    Kembali
+                                                </a>
+                                            @else
+                                                <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                    data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Nonaktif
+                                                </a>
+                                            @endif
 
                                         </div>
                                     </div>
@@ -95,24 +132,54 @@
     </main>
 
     @foreach ($vouchers as $voucher)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $voucher->voucher_code }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $voucher->voucher_code }}" aria-hidden="true">
+        <div wire:ignore class="modal fade" id="deleteModalVoucher{{ $voucher->voucher_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $voucher->voucher_code }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data E-Voucher</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Update E-Voucher</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">Apakah anda yakin ingin menghapus data E-Voucher
-                        {{ $voucher->voucher_code . ' - ' . $voucher->voucher_name }} ?</div>
-                    <div class="modal-footer">
-                        <form method="POST" action="{{ route('voucher_delete', $voucher->voucher_code) }}">
+
+                    <div class="modal-body">
+                        @if ($voucher->status == 8)
+                            Apakah anda yakin ingin aktifkan E-Voucher
+                            {{ $voucher->voucher_code . ' - ' . $voucher->voucher_name }}
+                            ?
+                        @else
+                            Apakah anda yakin ingin men-Nonaktif E-Voucher
+                            {{ $voucher->voucher_code . ' - ' . $voucher->voucher_name }}
+                            ?
+                        @endif
+                        <br>
+                        <br>
+                        <form method="POST" action="{{ route('nonactive_voucher', $voucher->voucher_code) }}">
                             @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger" type="submit">Hapus</button>
+                            @method('PUT')
+                            <div class="form-group">
+                                @if ($voucher->status == 8)
+                                    <input type="checkbox" name="status" value="7">
+                                    <label for="">Aktifkan</label>
+                                @else
+                                    <input type="checkbox" name="status" value="8">
+                                    <label for="">Nonaktifkan</label>
+                                @endif
+                            </div>
+                            <br>
+
+                            @if ($voucher->status == 8)
+                                <button class="btn btn-primary" type="submit">Aktifkan</button>
+                            @else
+                                <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                            @endif
+
                         </form>
+                    </div>
+
+
+                    <div class="modal-footer">
                     </div>
                 </div>
             </div>

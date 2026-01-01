@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Tambah Promo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -20,6 +21,18 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Rewards</h4>
                     <hr>
+                    <div style="font-size: 13px;" class="alert alert-info">
+                        <ul>
+                            <li>Rewards hanya dapat dibuat atau diubah oleh user dengan role Admin atau Marketing.</li>
+                            <li>Setiap reward wajib memiliki periode aktif (tanggal mulai dan berakhir) yang jelas.</li>
+                            <li>Point atau nilai reward harus valid, tidak boleh negatif, dan sesuai ketentuan program.
+                            </li>
+                            <li>Reward hanya dapat diklaim oleh customer yang memenuhi syarat (misal minimal transaksi
+                                atau jumlah point).</li>
+                            <li>Reward yang sudah diklaim atau digunakan tidak boleh dihapus, hanya dapat dinonaktifkan
+                                untuk mencegah kehilangan data transaksi.</li>
+                        </ul>
+                    </div>
                     <form action="{{ route('master_rewards.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">

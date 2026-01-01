@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Ubah Kategori</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -20,6 +21,13 @@
                 <div class="container-fluid px-4">
                     <h4>Ubah Data Kategori</h4>
                     <hr>
+                    <div style="font-size: 13px;" class="alert alert-info">
+                        <ul>
+                            <li>Hindari penggunaan karakter : #,&,@,?,/,=,-,+ dan lainnya</li>
+                            <li>Jika ingin menyambung jangan pakai '&' dan spasi, pakai underscore (_) contoh :
+                                Muffins_and_Cupcakes</li>
+                        </ul>
+                    </div>
 
                     @foreach ($category_data as $category)
                         <form action="{{ route('category_edit', $category->id) }}" method="POST"
@@ -32,6 +40,19 @@
                                 <label><strong>Nama Kategori</strong></label>
                                 <input type="text" class="form-control" name="category_name"
                                     value="{{ $category->category_name }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Diperbarui pada</strong></label>
+                                <input type="text" class="form-control" value="{{ $category->updated_at ?: '-' }}"
+                                    readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Diperbarui oleh</strong></label>
+
+                                <input type="text" class="form-control" value="{{ $category->updated_by ?: '-' }}"
+                                    readonly>
                             </div>
 
                             <button type="submit" class="btn btn-primary">Simpan Data</button>

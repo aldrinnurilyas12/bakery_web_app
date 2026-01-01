@@ -4,7 +4,8 @@
 <nav class="sb-topnav navbar navbar-expand navbar-light bg-light">
     <!-- Navbar Brand-->
     <div style="padding: 10px;" class="logo-content-turre">
-        <h5 style="color: rgb(0, 0, 0);">Kencana Bakery</h5>
+        <img src="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}" width="90" height="50"
+            alt="">
     </div>
     <!-- Sidebar Toggle-->
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i

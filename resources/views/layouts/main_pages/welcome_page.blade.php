@@ -8,6 +8,7 @@
     <title>Welcome to Kencana Bakery</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body>
@@ -51,7 +52,7 @@
 
 
                     <div style="display:flex; gap:20px;align-items:center;" class="btn-login-intro">
-                        <a style="background:#521a0b;" href="{{ route('login') }}" class="btn-login">Login</a>
+                        <a style="background:#bb0239;" href="{{ route('login') }}" class="btn-login">Login</a>
                         {{-- <a href="{{ route('login') }}" style="color: white;text-decoration:underline;"
                             href="">Lewati</a> --}}
                     </div>

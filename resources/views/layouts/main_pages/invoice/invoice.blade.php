@@ -12,6 +12,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 
 </head>
 
@@ -68,10 +69,11 @@
                                             Gagal</span></li>
                                 @endif
 
-                                @if ($invoice->promo_code)
+                                @if ($invoice->voucher_code_used)
                                     <li><i class="fas fa-circle" style="color:#84B0CA ;"></i> <span
                                             class="me-1 fw-bold">Kode Promo:</span><span
-                                            class="badge bg-success text-white">{{ $invoice->promo_code }}</span></li>
+                                            class="badge bg-success text-white">{{ $invoice->voucher_code_used }}</span>
+                                    </li>
                                 @endif
                             </ul>
                         </div>
@@ -85,6 +87,7 @@
                                     <th scope="col">Item</th>
                                     <th scope="col">Banyak</th>
                                     <th scope="col">Harga</th>
+                                    <th scope="col">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,7 +101,20 @@
                                         </td>
                                         <td>{{ $inv->product_name }}</td>
                                         <td>{{ $inv->quantity_per_product }}</td>
-                                        <td>{{ 'Rp.' . number_format($inv->price) }}</td>
+                                        <td>
+                                            @if ($inv->variant_price)
+                                                {{ 'Rp.' . number_format($inv->variant_price) }}
+                                            @else
+                                                {{ 'Rp.' . number_format($inv->price) }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($inv->variant_price)
+                                                {{ 'Rp.' . number_format($inv->variant_price * $inv->quantity_per_product) }}
+                                            @else
+                                                {{ 'Rp.' . number_format($inv->price * $inv->quantity_per_product) }}
+                                            @endif
+                                        </td>
 
                                     </tr>
                                 @endforeach
@@ -114,7 +130,7 @@
                                 <li class="text-muted ms-3"><span class="text-black me-4">Qty:</span>
                                     <br>{{ $invoice->quantity }} Item
                                 </li>
-                                @if ($invoice->promo_code)
+                                @if ($invoice->voucher_code_used)
                                     @if ($invoice->discount)
                                         <li class="text-muted ms-3"><span class="text-black me-4">Potongan:</span>
                                             <br><span class="text-danger">{{ $invoice->discount }} % </span>

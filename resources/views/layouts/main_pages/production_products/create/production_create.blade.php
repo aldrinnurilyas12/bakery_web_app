@@ -20,6 +20,23 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Produksi Produk</h4>
                     <hr>
+                    <div style="font-size: 13px;" class="alert alert-info">
+                        <ul>
+                            <li>Input data produksi produk hanya boleh dilakukan oleh user dengan role Admin atau Staff
+                                Produksi produk.</li>
+                            <li>Setiap data produksi produk wajib mencantumkan tanggal produksi produk dan shift
+                                produksi produk yang jelas.
+                            </li>
+                            <li>Jumlah produk yang diproduksi produk harus valid, tidak boleh negatif atau melebihi
+                                kapasitas
+                                produksi produk harian.</li>
+                            <li>Produk yang sudah dicatat produksi produk tidak boleh dihapus, hanya dapat diubah dengan
+                                alasan valid dan tercatat.</li>
+                            <li>Jika stok kosong segera melakukan input stok kembali pada modul Raw Material(Bahan
+                                Baku).</li>
+
+                        </ul>
+                    </div>
                     <form action="{{ route('master_production_product.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
@@ -64,6 +81,9 @@
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
                                                         @if ($raw->quantity == 0)
+                                                            <a
+                                                                href="{{ route('material_update', $raw->material_code) }}"><i
+                                                                    class="fa fa-edit"></i></a>
                                                         @else
                                                             <input class="allowed-checkbox" type="checkbox"
                                                                 name="raw_material[{{ $raw->material_code }}]"

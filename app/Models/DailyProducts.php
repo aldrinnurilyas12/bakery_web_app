@@ -12,6 +12,7 @@ class DailyProducts extends Model
     protected $table = 'products_daily';
     protected $fillable = [
         'product_code',
+        'variant_code',
         'stock_available',
         'status',
         'point',

@@ -33,11 +33,22 @@
                                                     <div style="width: 200px;" class="title-text">
                                                         <h5 style="font-size:15px;">{{ $reward->rewards_name }}</h5>
                                                     </div>
-                                                    <p style="font-size: 13px;color:gray; font-weight: normal;">
+                                                    <p
+                                                        style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
                                                         Point:
                                                         {{ $reward->point }} &nbsp; <span>Kuota:
                                                             {{ $reward->quota }}</span>
                                                     </p>
+                                                    <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
+                                                        class="status">
+                                                        @if ($reward->status == 8)
+                                                            <p style="margin-bottom: 0;">Status: <span
+                                                                    class="text-danger">Tidak aktif</span></p>
+                                                        @else
+                                                            <p style="margin-bottom: 0;">Status: <span
+                                                                    class="text-success">Aktif</span></p>
+                                                        @endif
+                                                    </div>
                                                     <div style="font-size: 13px; font-weight: 500;" class="date">
                                                         <label for="">Tanggal Berlaku</label>
                                                         <br>
@@ -53,8 +64,16 @@
                                             <a class="small text-black"
                                                 href="{{ route('rewards_update', $reward->rewards_code) }}">Edit</a>
 
-                                            <a class="btn btn-danger" href="#" data-toggle="modal"
-                                                data-target="#deleteModal{{ $reward->rewards_code }}">Hapus</a>
+                                            @if ($reward->status == 8)
+                                                <a class="btn btn-success" href="#" data-toggle="modal"
+                                                    data-target="#deleteModalRewards{{ $reward->rewards_code }}">Aktifkan
+                                                    Kembali
+                                                </a>
+                                            @else
+                                                <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                    data-target="#deleteModalRewards{{ $reward->rewards_code }}">Nonaktif
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -82,25 +101,53 @@
     </main>
 
     @foreach ($rewards as $reward)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $reward->rewards_code }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $reward->rewards_code }}" aria-hidden="true">
+        <div wire:ignore class="modal fade" id="deleteModalRewards{{ $reward->rewards_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $reward->rewards_code }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data rewards</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Update Rewards</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">Apakah anda yakin ingin menghapus data Rewards
-                        {{ $reward->rewards_code . '  - ' . $reward->rewards_name }}?
-                    </div>
-                    <div class="modal-footer">
-                        <form method="POST" action="{{ route('rewards_delete', $reward->rewards_code) }}">
+
+                    <div class="modal-body">
+                        @if ($reward->status == 8)
+                            Apakah anda yakin ingin aktifkan Reward
+                            {{ $reward->rewards_name }}
+                            ?
+                        @else
+                            Apakah anda yakin ingin men-Nonaktif Reward
+                            {{ $reward->rewards_name }}
+                            ?
+                        @endif
+                        <br>
+                        <br>
+                        <form method="POST" action="{{ route('rewards_nonactive', $reward->rewards_code) }}">
                             @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger" type="submit">Hapus</button>
+                            @method('PUT')
+                            <div class="form-group">
+                                @if ($reward->status == 8)
+                                    <input type="checkbox" name="status" value="7">
+                                    <label for="">Aktifkan</label>
+                                @else
+                                    <input type="checkbox" name="status" value="8">
+                                    <label for="">Nonaktifkan</label>
+                                @endif
+                            </div>
+                            <br>
+
+                            @if ($reward->status == 8)
+                                <button class="btn btn-primary" type="submit">Aktifkan</button>
+                            @else
+                                <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                            @endif
+
                         </form>
+                    </div>
+
+                    <div class="modal-footer">
                     </div>
                 </div>
             </div>

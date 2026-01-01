@@ -14,6 +14,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -52,7 +53,9 @@
                                                 <th>Role</th>
                                                 <th>Aktif</th>
                                                 <th>Created at</th>
+                                                <th>Created by</th>
                                                 <th>Updated at</th>
+                                                <th>Updated by</th>
 
                                             </tr>
                                         </thead>
@@ -65,17 +68,11 @@
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
                                                         <div style="display: flex;gap:10px;" class="btn-action">
-                                                            <a class="btn btn-primary"
-                                                                href="{{ route('users_edit', $user->nik) }}">Edit</a>
-                                                            <div class="delete-action">
-                                                                <form action="{{ route('users_delete', $user->id) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit"
-                                                                        class="btn btn-danger">Hapus</button>
-                                                                </form>
-                                                            </div>
+                                                            <a href="{{ route('users_edit', $user->nik) }}"><i
+                                                                    class="fa fa-edit"></i></a>
+                                                            <a href="#" data-toggle="modal"
+                                                                data-target="#deleteAccount{{ $user->nik }}"><i
+                                                                    class="fas fa-trash"></i></a>
 
                                                         </div>
                                                     </td>
@@ -99,6 +96,8 @@
                                                         </a>
                                                     </td>
                                                     <td>{{ $user->created_at }}</td>
+                                                    <td>{{ $user->created_by }}</td>
+                                                    <td>{{ $user->updated_at }}</td>
                                                     <td>{{ $user->updated_at }}</td>
                                                 </tr>
                                             @endforeach
@@ -159,6 +158,35 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-primary" type="submit">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+
+    @foreach ($v_users as $user)
+        <div wire:ignore class="modal fade" id="deleteAccount{{ $user->nik }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $user->nik }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus Akun Pengguna</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Hapus Akun Pengguna
+                        :{{ '[' . $user->nik . ']' . ' - ' . $user->username }}
+                        <br>
+                        <form action="{{ route('users_delete', $user->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Hapus Akun</button>
                         </form>
                     </div>
                 </div>
