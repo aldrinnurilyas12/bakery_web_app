@@ -1,17 +1,17 @@
 /.phpunit.cache
 /node_modules
-# Public artifacts
+# Ignore public build artifacts
 /public/build
 /public/hot
 /public/storage
 
-# Ignore all files inside storage
+# Ignore all files in storage
 /storage/*
 
 # Keep folder structure only
 !/storage/**/
 
-# Ignore sensitive files
+# Ignore sensitive keys
 /storage/*.key
 
 # Ignore specific folder
