@@ -11,7 +11,7 @@
     <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
@@ -37,9 +37,16 @@
                             <div class="casheer">
                                 <i class="fa fa-user"></i> <span>{{ $casheer }} </span>
                             </div>
-                            <div class="time">
-                                <i class="fa fa-clock"></i> <span
-                                    class="text-secondary">{{ now()->format('Y-m-d') }}</span>
+                            <div style="display:flex;gap:10px; justify-content: space-between;" class="group-store">
+                                <div class="time">
+                                    <i class="fa fa-clock"></i> <span
+                                        class="text-secondary">{{ now()->format('Y-m-d') }}</span>
+                                </div>
+
+                                <div class="store">
+                                    <i class="fa fa-shop"></i> <span
+                                        class="text-secondary">{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}</span>
+                                </div>
                             </div>
                             <br>
                             <div class="transaction-history">
@@ -177,9 +184,7 @@
                                                                             method="POST">
                                                                             @csrf
                                                                             <input type="hidden" name="product_code"
-                                                                                value="{{ $product->product_code }}">
-                                                                            <input type="hidden" name="variant_code"
-                                                                                value="{{ $product->variant_code }}">
+                                                                                value="{{ $product->daily_code }}">
                                                                             <input type="hidden" name="variant_type"
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
@@ -263,8 +268,16 @@
                                                                     </p>
 
                                                                     @if ($product->category)
-                                                                        <small
-                                                                            class="category">{{ $product->category }}</small>
+                                                                        <div style="display: flex; gap:6px;"
+                                                                            class="category-class">
+                                                                            <small
+                                                                                class="category">{{ $product->category }}</small>
+                                                                            @if ($product->variant_type)
+                                                                                &dot;
+                                                                                <small
+                                                                                    class="text-info">{{ $product->variant_type }}</small>
+                                                                            @endif
+                                                                        </div>
                                                                     @else
                                                                     @endif
 
@@ -321,9 +334,7 @@
                                                                             method="POST">
                                                                             @csrf
                                                                             <input type="hidden" name="product_code"
-                                                                                value="{{ $product->product_code }}">
-                                                                            <input type="hidden" name="variant_code"
-                                                                                value="{{ $product->variant_code }}">
+                                                                                value="{{ $product->daily_code }}">
                                                                             <input type="hidden" name="variant_type"
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
@@ -445,8 +456,6 @@
                                                             <input name="product[]" type="hidden"
                                                                 value="{{ $cart['product_code'] }}">
 
-                                                            <input name="variant[]" type="hidden"
-                                                                value="{{ $cart['variant_code'] ?? '' }}">
                                                             <small class="text-info" style="margin-bottom: 0;"
                                                                 class="item-price">
                                                                 {{ $cart['variant_type'] }}

@@ -8,7 +8,7 @@
     <title>Kencana Bakery - Ubah Kategori</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -26,6 +26,7 @@
                             <li>Hindari penggunaan karakter : #,&,@,?,/,=,-,+ dan lainnya</li>
                             <li>Jika ingin menyambung jangan pakai '&' dan spasi, pakai underscore (_) contoh :
                                 Muffins_and_Cupcakes</li>
+                            <li>Icon diambil dari situs web font-awesome dengan hanya input seperti : fa fa-users</li>
                         </ul>
                     </div>
 
@@ -40,6 +41,14 @@
                                 <label><strong>Nama Kategori</strong></label>
                                 <input type="text" class="form-control" name="category_name"
                                     value="{{ $category->category_name }}">
+                                <x-input-error :messages="$errors->get('category_name')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Icon</strong></label>
+                                <input type="text" name="icon" class="form-control" value="{{ $category->icon }}"
+                                    placeholder="Masukan icon contoh : fa fa-users" autocomplete="off">
+                                <x-input-error :messages="$errors->get('icon')" class="text-danger" />
                             </div>
 
                             <div class="form-group">

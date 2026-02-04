@@ -4,7 +4,7 @@
 <nav class="sb-topnav navbar navbar-expand navbar-light bg-light">
     <!-- Navbar Brand-->
     <div style="padding: 10px;" class="logo-content-turre">
-        <img src="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}" width="90" height="50"
+        <img src="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}" width="90" height="50"
             alt="">
     </div>
     <!-- Sidebar Toggle-->
@@ -33,7 +33,27 @@
                     {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
                 </a>
             @endif
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <ul class="dropdown-menu dropdown-menu-end px-4" style="width: 16rem;" aria-labelledby="navbarDropdown">
+
+                <div style="display:flex;gap:20px;" class="container-profile">
+                    <div style="padding: 15px; border-radius: 50%; background:#bb0239;color:white;height:max-content;"
+                        class="bg-info-profile">
+                        {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->inisial }}
+                    </div>
+                    <div style="display: block;" class="profile-info">
+                        <h4 style="font-size: 1rem;">
+                            {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
+                        </h4>
+                        <p style="margin-bottom: 0;font-size: 0.8rem; color:gray;">
+                            {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name }}
+                        </p>
+                        <p style="margin-bottom: 0;font-size: 0.8rem; color:rgb(0, 0, 0);">
+                            {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="hr-menu">
                 <li><a class="dropdown-item" href="{{ route('profile_information') }}">Akun</a></li>
                 <li><a class="dropdown-item" href="#!">Settings</a></li>
                 <li><a class="dropdown-item" href="#!"></a>

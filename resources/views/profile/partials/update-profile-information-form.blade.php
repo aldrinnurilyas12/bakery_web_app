@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -22,24 +22,20 @@
                 <section class="introduction-profil">
 
                     <div class="container-content">
-
-
-                        <div class="container-information">
-                            <div class="content-profil">
+                        <div style="display: flex; gap:20px;" class="container-information">
+                            <div style="padding: 25px; border-radius: 50%; background:#bb0239;color:white;height:max-content;"
+                                class="bg-info-profile">
+                                {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->inisial }}
+                            </div>
+                            <div style="display: block;" class="content-profil">
                                 <h4>{{ $employee->name }}</h4>
                                 <p class="text-secondary">{{ $employee->email }}</p>
                                 <p>{{ $employee->position_name }}</p>
                             </div>
-
-
-
                         </div>
                     </div>
                 </section>
 
-
-
-                <br>
                 <section class="update-profil">
                     <div class="container-fluid px-4">
                         <h4><strong>Profil Pengguna</strong></h4>
@@ -106,8 +102,8 @@
                             <div class="form-group">
                                 <label><strong>Kantor</strong></label>
                                 <input type="text" class="form-control" name="branch"
-                                    value="{{ $employee->branch_id }}" hidden>
-                                <input type="text" class="form-control" value="{{ $employee->branch_name }}"
+                                    value="{{ $employee->store_id }}" hidden>
+                                <input type="text" class="form-control" value="{{ $employee->store_name }}"
                                     readonly>
                             </div>
 

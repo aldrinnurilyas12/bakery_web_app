@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductionProduct;
+use App\Models\ProductWaste;
+use App\Models\ProductWasteDetail;
 use App\Models\RawMaterialUsages;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,8 +26,23 @@ class ProductionProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() : View
+    public function create()
     {
+        date_default_timezone_set('Asia/Jakarta');
+        $time = (int) date('H');
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+
+        if($time >=8){
+            session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
+            return redirect()->back();
+        }
+
+
         $products = DB::table('v_products as vp')
         ->leftJoin('products as p', 'vp.product_code', '=', 'p.product_code')
         ->whereNotIn('category_id',['10', '11'])->get();
@@ -48,6 +65,7 @@ class ProductionProductController extends Controller
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
         $production_code = 'PRODUCTION' . $unique_code;
@@ -60,6 +78,7 @@ class ProductionProductController extends Controller
             'product' =>$request->product,
             'target_total' =>$request->target_total,
             'status' => 10,
+            'store' => $store,
             'production_type' =>$request->production_type,
             'production_date' =>$request->production_date,
             'created_by' =>$created_by,
@@ -91,8 +110,21 @@ class ProductionProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id, Request $request) : View
-    {   
+    public function edit(string $id, Request $request)
+    {  
+        date_default_timezone_set('Asia/Jakarta');
+        $time = (int) date('H');
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        } 
+
+         if($time >=8){
+            session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
+            return redirect()->back();
+        }
         $production = DB::table('v_production_products')
         ->where('production_code', $request->production_code)->first();
         $products = DB::table('v_products')->get();
@@ -204,5 +236,227 @@ class ProductionProductController extends Controller
         }
         session()->flash('message_success', 'Data Produksi Produk berhasil dihapus!');
         return redirect()->route('production_products');
+    }
+
+    public function filter_production(Request $request)
+    {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer']);
+
+        if($filter_forbidden_access){
+            return redirect()->back();
+        }
+
+
+        $store = DB::table('store')->get();
+        $status = DB::table('status_category')->whereIn('id', ['2','3', '4', '5', '9', '10'])->get();
+        $filter = $request->filter;
+
+        $productionProduct = DB::table('v_production_products');
+
+
+        
+        if ($filter !== 'all' && !empty($filter)) {
+            $productionProduct->where('store_id', $filter);
+        }
+
+
+        $production_products = $productionProduct->get();
+        return view('pages.production_product',compact('production_products', 'store', 'status'));
+    }
+
+
+
+    // PRODUCT WASTE MODULE
+
+    public function product_waste(Request $request) 
+    {
+
+     $store_outlet = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+    $product_wastes = DB::table('product_wastes as pw')
+    // relasi ke production
+    ->leftJoin('production_products as pp', 'pw.production_code', '=', 'pp.production_code')
+    ->leftJoin('products as prod', 'pp.product', '=', 'prod.product_code')
+    ->leftJoin('store as st', 'pp.store', '=', 'st.id')
+
+    // relasi ke product daily
+    ->leftJoin('products_daily as pd', 'pw.product_daily', '=', 'pd.daily_code')
+    ->leftJoin('products as prod_daily', 'pd.product_code', '=', 'prod_daily.product_code')
+    ->leftJoin('store as sto', 'pd.store', '=', 'sto.id')
+
+    // relasi tambahan
+    ->leftJoin('status_category as sc', 'pw.status', '=', 'sc.id')
+    ->select([
+        'pw.*',
+
+        // production
+        'pp.production_code',
+        'prod.product_code as production_product_code',
+        'prod.product_name as product_name',
+        'st.store_name as production_store', 
+
+        // daily
+        'pd.daily_code',
+        'prod_daily.product_code as daily_product_code',
+        'prod_daily.product_name as daily_product_name',
+        'sto.store_name as daily_store', 
+
+        // status & store
+        'sc.status_name as status_name',
+        
+    ])->where('pd.store', $store_outlet)->orWhere('pp.store', $store_outlet)
+    ->get();
+
+        $store = DB::table('store')->get();
+        $product_wastes_detail = DB::table('v_product_wastes')->get();
+        return view('layouts.main_pages.product_wastes.product_waste', compact('product_wastes', 'product_wastes_detail', 'store'));
+    }
+
+    public function waste_create(Request $request)
+    {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $product_daily = DB::table('products_daily as pd')->leftJoin('products as p', 'pd.product_code', '=', 'p.product_code')->where('store', $store)->where('status', 4)->get();
+        $production = DB::table('production_products as pp')->leftJoin('products as p', 'pp.product', '=', 'p.product_code')
+        ->where('store', $store)
+        ->get();
+         return view('layouts.main_pages.product_wastes.create.product_waste_create', compact('production', 'product_daily'));
+    }
+
+    public function product_waste_save(Request $request)
+    {
+        $request->validate([
+            'waste_type'  => 'required|array',
+            'waste_type*'=> 'nullable|integer|min:0',
+        ]);
+
+        $production_code = $request->production_code;
+        $product_daily = $request->product_daily;
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 5);
+        $wasteCode = 'WASTE' . $unique_code;
+
+        $user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+
+
+        if($production_code && $product_daily){
+            session()->flash('failed_message', 'Hanya diperbolehkan satu kategori');
+            return redirect()->back();
+        }
+
+       $codeWastes = ProductWaste::create([
+                'production_code' => $production_code,
+                'product_daily' => $product_daily,
+                'waste_code' => $wasteCode,
+                'waste_date' => now(),
+                'status' => 13,
+                'approved_by' => null,
+                'created_by' => $user,
+        ]);
+
+        foreach($request->waste_type as $waste => $qty){
+
+            if (!$qty || $qty <= 0) {
+                 continue;
+            }
+            $waste_type = DB::table('waste_category')->select('waste_code')->where('waste_code', $waste)->first();
+
+            ProductWasteDetail::create([
+                'waste_code' => $codeWastes->waste_code,
+                'waste_type' => $waste_type->waste_code,
+                'quantity' => $qty,
+            ]);
+
+        }
+
+        session()->flash('message_success', 'Data Produk Waste berhasil disimpan!');
+        return redirect()->route('product-wastes');
+
+    }
+
+    public function filter_wastes(Request $request){
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer']);
+
+        if($filter_forbidden_access){
+            return redirect()->back();
+        }
+
+
+        $filter = $request->filter;
+
+        $product_wastes = DB::table('product_wastes as pw')
+            // relasi ke production
+            ->leftJoin('production_products as pp', 'pw.production_code', '=', 'pp.production_code')
+            ->leftJoin('products as prod', 'pp.product', '=', 'prod.product_code')
+            ->leftJoin('store as st', 'pp.store', '=', 'st.id')
+
+            // relasi ke product daily
+            ->leftJoin('products_daily as pd', 'pw.product_daily', '=', 'pd.daily_code')
+            ->leftJoin('products as prod_daily', 'pd.product_code', '=', 'prod_daily.product_code')
+            ->leftJoin('store as sto', 'pd.store', '=', 'sto.id')
+
+            // relasi tambahan
+            ->leftJoin('status_category as sc', 'pw.status', '=', 'sc.id')
+            ->select([
+                'pw.*',
+
+                // production
+                'pp.production_code',
+                'prod.product_code as production_product_code',
+                'prod.product_name as product_name',
+                'st.store_name as production_store', 
+                'pp.store as production_store_id',
+
+                // daily
+                'pd.daily_code',
+                'prod_daily.product_code as daily_product_code',
+                'prod_daily.product_name as daily_product_name',
+                'sto.store_name as daily_store', 
+                'pd.store as daily_store_id',
+
+                // status & store
+                'sc.status_name as status_name',
+                
+        ]);
+
+
+        $store = DB::table('store')->get();
+        $product_wastes_detail = DB::table('v_product_wastes')->get();
+
+        
+        if ($filter !== 'all' && !empty($filter)) {
+            $product_wastes->where('pp.store', $filter)->orWhere('pd.store', $filter);
+        }
+
+
+        $product_wastes = $product_wastes->get();
+
+         return view('layouts.main_pages.product_wastes.product_waste', compact('product_wastes', 'product_wastes_detail', 'store'));
+    }
+
+    public function product_waste_update(Request $request){
+        $product_wastes = DB::table('product_wastes_detail as pwd')
+        ->leftJoin('product_wastes as pw', 'pwd.waste_code', '=', 'pw.waste_code')
+        ->leftJoin('production_products as pp', 'pw.production_code', '=', 'pp.production_code')
+        ->leftJoin('products as p', 'pp.product', '=', 'p.product_code')
+        ->where('pwd.waste_code', $request->waste_code)->first();
+        return view('layouts.main_pages.product_wastes.edit.product_waste_update', compact('product_wastes'));
+    }
+
+    public function waste_delete(Request $request) 
+    {
+        $delete = ProductWaste::where('waste_code', $request->waste_code)->first();
+
+        if($delete){
+            $delete->delete();
+        }
+        session()->flash('message_success', 'Data Produk Waste berhasil dihapus!');
+        return redirect()->route('product-wastes');
     }
 }

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -65,34 +65,42 @@
                                     @endforeach
                                 </select>
                             @else
-                                <p class="text-secondary">Anda belum buat data Kategori, <a
-                                        href="{{ route('category_create') }}">Buat kategori</a> </p>
+                                <p class="text-secondary">Tidak ada Product, <a
+                                        href="{{ route('product_create') }}">Tambah Product</a> </p>
                             @endif
                         </div>
 
-                        <div class="form-group">
-                            <input type="text" id="variantCodeInput" name="variant_code" class="form-control"
-                                readonly hidden>
-                        </div>
+                        @if ($products->isNotEmpty())
+                            <div class="form-group">
+                                <input type="text" id="variantCodeInput" name="variant_code" class="form-control"
+                                    readonly hidden>
+                            </div>
 
-                        <div class="form-group">
-                            <label><strong>Masukan jumlah stok</strong></label>
-                            <input type="text" name="stock_available" class="form-control"
-                                value="{{ old('stock_available') }}" placeholder="Masukan jumlah stock"
-                                autocomplete="off">
-                        </div>
+                            <div class="form-group">
+                                <label><strong>Masukan jumlah stok</strong></label>
+                                <input type="text" name="stock_available" class="form-control"
+                                    value="{{ old('stock_available') }}" placeholder="Masukan jumlah stock"
+                                    autocomplete="off">
+                            </div>
 
-                        <div class="form-group">
-                            <label><strong>Masukan jumlah Point</strong></label>
-                            <input type="text" name="point" class="form-control" value="{{ old('point') }}"
-                                placeholder="Masukan jumlah point" autocomplete="off">
-                        </div>
+                            <div class="form-group">
+                                <label><strong>Masukan jumlah Point</strong></label>
+                                <input type="text" name="point" class="form-control" value="{{ old('point') }}"
+                                    placeholder="Masukan jumlah point" autocomplete="off">
+                            </div>
 
+                            <div class="form-group">
+                                <label><strong>Store</strong></label>
+                                <input type="text" class="form-control"
+                                    value="{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}"
+                                    readonly>
+                            </div>
 
-                        <div style="display:flex; gap:20px;" class="btn-groupe">
-                            <button type="submit" class="btn btn-primary">Tambah Item</button>
-                            <a class="btn btn-info" href="{{ route('dailyproducts_data') }}">Kembali</a>
-                        </div>
+                            <div style="display:flex; gap:20px;" class="btn-groupe">
+                                <button type="submit" class="btn btn-primary">Tambah Item</button>
+                                <a class="btn btn-info" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                            </div>
+                        @endif
 
                     </form>
                     <br>

@@ -23,8 +23,14 @@ class RawMaterialController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() : View
-    {   $material_category = DB::table('raw_material_category')->get();
+    public function create()
+    {   $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+        $material_category = DB::table('raw_material_category')->get();
         return view('layouts.main_pages.raw_material.create.raw_material_create', compact('material_category'));
     }
 
@@ -76,8 +82,14 @@ class RawMaterialController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id, Request $request) : View
+    public function edit(string $id, Request $request)
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $raw_material = DB::table('raw_material as rm')
                             ->leftJoin('status_category as s','rm.status', '=', 's.id')
                             ->leftJoin('raw_material_category as ctg', 'rm.material_category', '=', 'ctg.id')

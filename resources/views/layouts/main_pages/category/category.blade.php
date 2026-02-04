@@ -10,7 +10,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -19,6 +19,10 @@
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>
+                @php
+                    $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+                    $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+                @endphp
                 <div class="container-fluid px-4">
                     <br>
                     <div class="card mb-4">
@@ -28,9 +32,12 @@
                                 Master Data / <a href="{{ route('master_category.index') }}">Kategori</a>
                             </div>
                             @if ($category_data->isNotEmpty())
-                                <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('category_create') }}">Tambah Kategori</a>
-                                </div>
+                                @if (!$user_permission_forbidden)
+                                    <div class="button-add-product">
+                                        <a class="btn btn-primary" href="{{ route('category_create') }}">Tambah
+                                            Kategori</a>
+                                    </div>
+                                @endif
                             @endif
                         </div>
                         <div class="card-body">
@@ -40,8 +47,11 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Aksi</th>
+                                                @if (!$user_permission_forbidden)
+                                                    <th>Aksi</th>
+                                                @endif
                                                 <th>Kategori</th>
+                                                <th>Icon</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -53,18 +63,21 @@
                                             @foreach ($category_data as $key => $category)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td>
-                                                        <div style="display: flex;gap:10px;" class="btn-action">
+                                                    @if (!$user_permission_forbidden)
+                                                        <td>
+                                                            <div style="display: flex;gap:10px;" class="btn-action">
 
-                                                            <a href="{{ route('category_update', $category->id) }}"><i
-                                                                    class="fas fa-edit"></i></a>
+                                                                <a href="{{ route('category_update', $category->id) }}"><i
+                                                                        class="fas fa-edit"></i></a>
 
-                                                            <a href="#" data-toggle="modal"
-                                                                data-target="#deleteModal{{ $category->id }}"><i
-                                                                    class="fas fa-trash"></i></a>
-                                                        </div>
-                                                    </td>
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#deleteModal{{ $category->id }}"><i
+                                                                        class="fas fa-trash"></i></a>
+                                                            </div>
+                                                        </td>
+                                                    @endif
                                                     <td>{{ $category->category_name }}</td>
+                                                    <td> {{ $category->icon ?: '-' }} </td>
                                                     <td>{{ $category->created_at }}</td>
                                                     <td>{{ $category->updated_at }}</td>
                                                 </tr>
@@ -83,9 +96,11 @@
                                                 alt="">
                                             <div style="display: block;" class="text-content">
                                                 <h3>Belum ada transaksi</h3>
-                                                <p class="text-secondary">Tambah data kategori </p>
-                                                <a class="btn btn-primary" href="{{ 'category_create' }}">Tambah
-                                                    Kategori</a>
+                                                @if (!$user_permission_forbidden)
+                                                    <p class="text-secondary">Tambah data kategori </p>
+                                                    <a class="btn btn-primary" href="{{ 'category_create' }}">Tambah
+                                                        Kategori</a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -136,6 +151,16 @@
             title: 'Berhasil',
             text: "{{ Session::get('message_success') }}",
             icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
             timer: 2000,
             confirmButtonText: 'OK'
         });

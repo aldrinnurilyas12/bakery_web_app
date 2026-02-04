@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PromoCampaign;
+use App\Models\PromoCampaignImages;
+use App\Models\PromoCampaignProducts;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -23,8 +25,14 @@ class PromoCampaignController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() :View
+    public function create() 
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $products = DB::table('v_daily_products')->where('status', 'Ready')->get();
         $status  = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         return view('layouts.main_pages.promo_campaign.create.promo_campaign_create', compact('products', 'status'));
@@ -38,26 +46,64 @@ class PromoCampaignController extends Controller
         $request->validate([
             'promo_name' => 'required',
             'promo_code' => 'required',
-            'min_transaction' => 'required'
+            'min_transaction' => 'required',
+            'product' => 'required|array',
+            'product.*' => 'required|exists:products,product_code',
+            'variant' => 'nullable|array',
+            'variant.*' => 'nullable|exists:product_variant,variant_code',
+            'images' => 'required|image|mimes:jpg,png,jpeg,JPG,PNG'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
 
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0,8);
+        $products = $request->product ?? [];
+        $variants = $request->variant ?? [];
         
-        PromoCampaign::create([
-            'promo_name' => $request->promo_name,
-            'promo_code' => $request->promo_code,
-            'product' => $request->product,
-            'min_transaction' => $request->min_transaction,
-            'status' => $request->status,
-            'quota' => $request->quota,
-            'description' => $request->description,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'created_by' => $created_by
-        ]);
+        if($request->hasFile('images')){
+             $promo_image = $request->file('images');
+             $folderPath = 'promo_images';
+             $imagePath = $promo_image->storeAs($folderPath, uniqid() . '.' . $promo_image->getClientOriginalExtension(), 'public');
+            
+            $promo = PromoCampaign::create([
+                'promo_name' => $request->promo_name,
+                'promo_code' => $request->promo_code,
+                'min_transaction' => $request->min_transaction,
+                'status' => $request->status,
+                'quota' => $request->quota,
+                'description' => $request->description,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'created_by' => $created_by
+            ]);
+
+            PromoCampaignImages::create([
+                'promo_code' => $promo->promo_code,
+                'images' => $imagePath,
+                'created_at' => now()
+            ]);
+
+            foreach($products as $prd) {
+                PromoCampaignProducts::create([
+                    'promo_code' => $promo->promo_code,
+                    'product' => $prd,
+                    'variant' => null,
+                    'created_at' => now()
+                ]);
+            }
+
+            foreach ($variants as $index => $variantCode) {
+                PromoCampaignProducts::create([
+                    'promo_code' => $promo->promo_code,
+                    'product' => $products,
+                    'variant' => $variantCode,
+                    'created_at' => now()
+                ]);
+            }
+
+
+        }
         session()->flash('message_success', 'Data Promo berhasil disimpan!');
         return redirect()->route('promo_campaign');
     }
@@ -73,8 +119,14 @@ class PromoCampaignController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id, Request $request) :View
+    public function edit(string $id, Request $request) 
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $products = DB::table('v_daily_products')->where('status', 'Ready')->get();
         $promo = DB::table('v_promos')->where('promo_code', $request->promo_code)->first();
         $status  = DB::table('status_category')->whereIn('id', ['7', '8'])->get();

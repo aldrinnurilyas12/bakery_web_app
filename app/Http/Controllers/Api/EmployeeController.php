@@ -24,11 +24,16 @@ class EmployeeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() : View
+    public function create() 
     {
-
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $job_position = DB::table('job_position')->get();
-        $branch = DB::table('branch')->get();
+        $branch = DB::table('store')->get();
         return view('layouts.main_pages.employee.create.employee_create', compact('job_position', 'branch'));
     }
 
@@ -41,7 +46,7 @@ class EmployeeController extends Controller
             'nik' => 'required',
             'name' => 'required',
             'position' => 'required',
-            'branch' => 'required'
+            'store' => 'required'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -53,7 +58,7 @@ class EmployeeController extends Controller
             'birth_date'=> $request->birth_date,
             'email' => $request->email,
             'position' => $request->position,
-            'branch' => $request->branch,
+            'store' => $request->store,
             'status' => 7,
             'start_date' => $request->start_date,
             'created_at' => now(),
@@ -70,10 +75,18 @@ class EmployeeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function employee_edit_layout(Request $request) : View
+    public function employee_edit_layout(Request $request)
     {
+
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+        
         $job_position = DB::table('job_position')->get();
-        $branch = DB::table('branch')->get();
+        $branch = DB::table('store')->get();
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $employee = DB::table('v_employee')->where('nik', $request->nik)->first();
         $birth_date = Carbon::parse($employee->birth_date);
@@ -103,7 +116,7 @@ class EmployeeController extends Controller
             'birth_date'=> $request->birth_date,
             'email' => $request->email,
             'position' => $request->position,
-            'branch' => $request->branch,
+            'store' => $request->store,
             'status' => $request->status,
             'start_date' => $request->start_date,
             'updated_at' => now(),

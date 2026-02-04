@@ -51,6 +51,12 @@
                             Production Product
                         </a>
 
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('product-wastes') }}">
+                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                            Product Wastes
+                        </a>
+
                         <a class="nav-link" style="font-size:14px;" href="{{ route('rewards') }}">
                             <div class="sb-nav-link-icon"><i style="color:black;" class="fa-solid fa-gift"></i>
                             </div>
@@ -100,7 +106,8 @@
                                     aria-hidden="true"></i>
                             </div>
 
-                            <div style="display: flex; gap:15px;justify-content: space-between;" class="dflex-content">
+                            <div style="display: flex; gap:15px;justify-content: space-between;"
+                                class="dflex-content">
                                 <p style="margin:0;"> Orders Pick-up</p>
                                 <span
                                     style="width: max-content; border-radius: 4px; background:rgb(255, 15, 15);color:white;padding:3px;text-align: center;"
@@ -127,19 +134,21 @@
                             E-Voucher
                         </a>
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('discount.index') }}">
+                        <a class="nav-link" style="font-size:14px;" href="{{ route('claim-reward') }}">
                             <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-handshake"></i>
                             </div>
                             Redeem Rewards
                         </a>
 
                         <div class="sb-sidenav-menu-heading">LAINNYA</div>
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('users_data') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-users"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Akun Pengguna
-                        </a>
+                        @if (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer')
+                            <a class="nav-link" style="font-size:14px;" href="{{ route('users_data') }}">
+                                <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-users"
+                                        aria-hidden="true"></i>
+                                </div>
+                                Akun Pengguna
+                            </a>
+                        @endif
 
                         <div class="sb-sidenav-menu-heading">
                             <form method="POST" action="{{ route('logout') }}">

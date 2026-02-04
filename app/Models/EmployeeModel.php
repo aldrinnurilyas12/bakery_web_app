@@ -18,7 +18,7 @@ class EmployeeModel extends Model
         'phone_number',
         'email', 
         'position',
-        'branch',
+        'store',
         'status',
         'start_date',
         'end_date',

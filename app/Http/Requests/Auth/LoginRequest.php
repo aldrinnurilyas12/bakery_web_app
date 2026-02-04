@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\CustomerModel;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -87,6 +88,39 @@ class LoginRequest extends FormRequest
         session()->flash('message_success', 'Berhasil login!');
         return redirect()->intended('dashboard_main');
     }
+
+    public function customer_login_request(): RedirectResponse
+    {
+        $this->ensureIsNotRateLimited();
+
+        $login = $this->input('login');
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
+
+        $user = CustomerModel::where($field, $login)->first();
+
+        if (!$user) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'login' => 'Email atau nomor telepon tidak sesuai'
+            ]);
+        } elseif ($user->status == 8) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'login' => 'Akun anda sudah tidak aktif'
+            ]);
+
+        } elseif (!Auth::guard('customer')->attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'password' => 'Password salah, coba lagi.'
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+        session()->flash('message_success', 'Berhasil login!');
+        return redirect()->intended(route('home'));
+    }
+
 
     /**
      * Ensure the login request is not rate limited.

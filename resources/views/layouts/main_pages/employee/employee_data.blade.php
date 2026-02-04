@@ -14,7 +14,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -23,6 +23,10 @@
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>
+                @php
+                    $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+                    $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+                @endphp
                 <div class="container-fluid px-4">
                     <br>
                     <div class="card mb-4">
@@ -33,10 +37,12 @@
                             </div>
 
                             @if ($v_employee->isNotEmpty())
-                                <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('employee_create') }}">Tambah
-                                        Karyawan</a>
-                                </div>
+                                @if (!$user_permission_forbidden)
+                                    <div class="button-add-product">
+                                        <a class="btn btn-primary" href="{{ route('employee_create') }}">Tambah
+                                            Karyawan</a>
+                                    </div>
+                                @endif
                             @endif
                         </div>
                         <div class="card-body">
@@ -46,14 +52,16 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Aksi</th>
+                                                @if (!$user_permission_forbidden)
+                                                    <th>Aksi</th>
+                                                @endif
                                                 <th>NIK</th>
                                                 <th>Karyawan</th>
                                                 <th>Alamat</th>
                                                 <th>No. Handphone</th>
                                                 <th>Email</th>
                                                 <th>Posisi</th>
-                                                <th>Toko/Kantor</th>
+                                                <th>Store</th>
                                                 <th>Status Karyawan</th>
                                                 <th>Status Akun</th>
                                                 <th>Tanggal Mulai Bekerja</th>
@@ -73,25 +81,28 @@
                                             @foreach ($v_employee as $employee)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td>
-                                                        <div style="display: flex;gap:10px;" class="btn-action">
-                                                            @if ($employee->status == 'Inactive')
-                                                            @else
-                                                                <a href="{{ route('employee_edit', $employee->nik) }}"><i
-                                                                        class="fa fa-edit"></i></a>
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteEmployee{{ $employee->nik }}"><i
-                                                                        class="fas fa-trash"></i></a>
-                                                            @endif
-                                                        </div>
-                                                    </td>
+                                                    @if (!$user_permission_forbidden)
+                                                        <td>
+                                                            <div style="display: flex;gap:10px;" class="btn-action">
+                                                                @if ($employee->status == 'Inactive')
+                                                                @else
+                                                                    <a
+                                                                        href="{{ route('employee_edit', $employee->nik) }}"><i
+                                                                            class="fa fa-edit"></i></a>
+                                                                    <a href="#" data-toggle="modal"
+                                                                        data-target="#deleteEmployee{{ $employee->nik }}"><i
+                                                                            class="fas fa-trash"></i></a>
+                                                                @endif
+                                                            </div>
+                                                        </td>
+                                                    @endif
                                                     <td>{{ $employee->nik }}</td>
                                                     <td>{{ $employee->name }}</td>
                                                     <td>{{ $employee->address }}</td>
                                                     <td>{{ $employee->phone_number }}</td>
                                                     <td>{{ $employee->email }}</td>
                                                     <td>{{ $employee->position_name }}</td>
-                                                    <td>{{ $employee->branch_name }}</td>
+                                                    <td>{{ $employee->store_name }}</td>
                                                     <td>
                                                         @if ($employee->status == 'Active')
                                                             <span class="text-success">{{ $employee->status }}</span>
@@ -129,9 +140,11 @@
                                                 alt="">
                                             <div style="display: block;" class="text-content">
                                                 <h3>Belum ada data karyawan</h3>
-                                                <p class="text-secondary">Tambah data karyawan</p>
-                                                <a class="btn btn-primary" href="{{ 'employee_create' }}">Tambah
-                                                    Data</a>
+                                                @if (!$user_permission_forbidden)
+                                                    <p class="text-secondary">Tambah data karyawan</p>
+                                                    <a class="btn btn-primary" href="{{ 'employee_create' }}">Tambah
+                                                        Data</a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -187,6 +200,16 @@
             title: 'Berhasil',
             text: "{{ Session::get('message_success') }}",
             icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
             timer: 2000,
             confirmButtonText: 'OK'
         });

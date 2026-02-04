@@ -1,6 +1,10 @@
 <title>@yield('title', 'Kencana Bakery - Master Data Promo Campaign')</title>
 <div>
     <main>
+        @php
+            $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+            $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+        @endphp
         <div class="container-fluid px-4">
             <br>
 
@@ -11,9 +15,11 @@
                     </div>
 
                     @if ($promo_campaign->isNotEmpty())
-                        <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('promo_create') }}">Tambah Promo</a>
-                        </div>
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn btn-primary" href="{{ route('promo_create') }}">Tambah Promo</a>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -26,7 +32,9 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
-                                            <th>Aksi</th>
+                                            @if (!$user_permission_forbidden)
+                                                <th>Aksi</th>
+                                            @endif
                                             <th>Kode Promo</th>
                                             <th>Nama Promo</th>
                                             <th>Produk</th>
@@ -50,17 +58,19 @@
                                         @foreach ($promo_campaign as $promo)
                                             <tr>
                                                 <td>{{ $no++ }}</td>
-                                                <td>
-                                                    <div style="display: flex; gap:10px;" class="btn-action">
-                                                        <a href="{{ route('promo_update', $promo->promo_code) }}"><i
-                                                                class="fas fa-edit"></i></a>
+                                                @if (!$user_permission_forbidden)
+                                                    <td>
+                                                        <div style="display: flex; gap:10px;" class="btn-action">
+                                                            <a href="{{ route('promo_update', $promo->promo_code) }}"><i
+                                                                    class="fas fa-edit"></i></a>
 
-                                                        <a href="#" data-toggle="modal"
-                                                            data-target="#deleteModal{{ $promo->promo_code }}"><i
-                                                                class="fas fa-trash"></i></a>
+                                                            <a href="#" data-toggle="modal"
+                                                                data-target="#deleteModal{{ $promo->promo_code }}"><i
+                                                                    class="fas fa-trash"></i></a>
 
-                                                    </div>
-                                                </td>
+                                                        </div>
+                                                    </td>
+                                                @endif
                                                 <td>{{ $promo->promo_code }}</td>
                                                 <td>{{ $promo->promo_name }}</td>
                                                 <td>{{ $promo->product }}</td>
@@ -101,8 +111,10 @@
                                         src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
                                     <div>
                                         <h3>Belum ada data Promo Campaign</h3>
-                                        <p class="text-secondary">Tambah data promo</p>
-                                        <a class="btn btn-primary" href="{{ 'promo_create' }}">Tambah Promo</a>
+                                        @if (!$user_permission_forbidden)
+                                            <p class="text-secondary">Tambah data promo</p>
+                                            <a class="btn btn-primary" href="{{ 'promo_create' }}">Tambah Promo</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -145,6 +157,16 @@
                 title: 'Berhasil',
                 text: "{{ Session::get('message_success') }}",
                 icon: 'success',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif (Session::has('failed_message'))
+        <script>
+            Swal.fire({
+                title: 'Gagal',
+                text: "{{ Session::get('failed_message') }}",
+                icon: 'error',
                 timer: 2000,
                 confirmButtonText: 'OK'
             });

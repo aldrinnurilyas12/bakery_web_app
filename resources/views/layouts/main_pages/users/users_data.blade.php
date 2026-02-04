@@ -14,7 +14,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -48,10 +48,9 @@
                                                 <th>No</th>
                                                 <th>Aksi</th>
                                                 <th>Karyawan</th>
-                                                <th>Nama Pengguna</th>
-                                                <th>Email</th>
                                                 <th>Role</th>
                                                 <th>Aktif</th>
+                                                <th>Store</th>
                                                 <th>Created at</th>
                                                 <th>Created by</th>
                                                 <th>Updated at</th>
@@ -63,7 +62,7 @@
                                             <?php
                                             $no = 1;
                                             ?>
-                                            @foreach ($v_users as $user)
+                                            @foreach ($master_users as $user)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
@@ -77,17 +76,20 @@
                                                         </div>
                                                     </td>
                                                     <td>{{ $user->nik . ' - ' . $user->name }}</td>
-                                                    <td>{{ $user->username }}</td>
-                                                    <td>{{ $user->email }}</td>
                                                     <td>
-                                                        @if ($user->role == '1')
-                                                            Super Admin
-                                                        @else
-                                                            Admin
-                                                        @endif
+                                                        <a href="#" data-toggle="modal"
+                                                            data-target="#showRole{{ $user->nik }}">
+                                                            <i class="fas fa-external-link-alt"></i>
+                                                        </a>
+
                                                     </td>
                                                     <td>
-                                                        {{ $user->is_active }}
+                                                        @if ($user->is_active == 'Y')
+                                                            Ya
+                                                        @else
+                                                            Tidak
+                                                        @endif
+
                                                         &nbsp;
                                                         <a href="#" data-toggle="modal"
                                                             data-target="#changeStatus{{ $user->nik }}">
@@ -95,10 +97,11 @@
                                                             <i class="fa fa-edit"></i>
                                                         </a>
                                                     </td>
+                                                    <td>{{ $user->store_name }}</td>
                                                     <td>{{ $user->created_at }}</td>
                                                     <td>{{ $user->created_by }}</td>
                                                     <td>{{ $user->updated_at }}</td>
-                                                    <td>{{ $user->updated_at }}</td>
+                                                    <td>{{ $user->updated_by }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -165,7 +168,7 @@
         </div>
     @endforeach
 
-
+    {{-- Modal delete account --}}
     @foreach ($v_users as $user)
         <div wire:ignore class="modal fade" id="deleteAccount{{ $user->nik }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel{{ $user->nik }}" aria-hidden="true">
@@ -194,6 +197,78 @@
         </div>
     @endforeach
 
+    {{-- @php
+        dd(app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers());
+    @endphp --}}
+
+    {{-- Modal Show Role --}}
+    @foreach ($master_users as $user)
+        <div wire:ignore class="modal fade" id="showRole{{ $user->nik }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $user->nik }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Role Akun Pengguna
+                            {{ $user->nik . ' - ' . $user->name }}</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        @if (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer')
+                                            <th>Aksi</th>
+                                        @endif
+                                        <th>Role</th>
+                                        <th>Tanggal buat</th>
+                                    </tr>
+                                </thead>
+                                <?php
+                                $no = 1;
+                                ?>
+                                <tbody>
+                                    @foreach ($role as $item)
+                                        @if ($user->nik == $item->user)
+                                            <tr>
+                                                <td><?php echo $no++; ?></td>
+                                                @if (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer')
+                                                    <td>
+                                                        <form action="{{ route('delete_role', $item->user_role_id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <input type="text" name="user_role_id"
+                                                                value="{{ $item->user_role_id }}" hidden
+                                                                id="">
+                                                            <button type="submit"
+                                                                style="background:none;color:red; border:none;"><i
+                                                                    class="fa fa-trash"></i></button>
+                                                        </form>
+                                                    </td>
+                                                @endif
+                                                <td>{{ $item->role_name }}</td>
+                                                <td>{{ $item->created_at }}</td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal" aria-label="Close"
+                            type="button">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
 
 </body>
 
@@ -203,6 +278,16 @@
             title: 'Berhasil',
             text: "{{ Session::get('message_success') }}",
             icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif(Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
             timer: 2000,
             confirmButtonText: 'OK'
         });

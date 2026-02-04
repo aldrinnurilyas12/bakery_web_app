@@ -1,6 +1,10 @@
 <title>@yield('title', 'Kencana Bakery - Master Data Bahan Baku')</title>
 <div>
     <main>
+        @php
+            $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+            $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+        @endphp
         <div class="container-fluid px-4">
             <br>
 
@@ -11,9 +15,11 @@
                     </div>
 
                     @if ($raw_material->isNotEmpty())
-                        <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('material_create') }}">Tambah Bahan Baku</a>
-                        </div>
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn btn-primary" href="{{ route('material_create') }}">Tambah Bahan Baku</a>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -26,7 +32,9 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
-                                            <th>Aksi</th>
+                                            @if (!$user_permission_forbidden)
+                                                <th>Aksi</th>
+                                            @endif
                                             <th>Kode Bahan Baku</th>
                                             <th>Bahan Baku</th>
                                             <th>Stok</th>
@@ -49,16 +57,19 @@
                                         @foreach ($raw_material as $raw)
                                             <tr>
                                                 <td>{{ $no++ }}</td>
-                                                <td>
-                                                    <div style="display: flex; gap:10px;" class="btn-action">
-                                                        <a href="{{ route('material_update', $raw->material_code) }}"><i
-                                                                class="fa fa-edit"></i></a>
+                                                @if (!$user_permission_forbidden)
+                                                    <td>
+                                                        <div style="display: flex; gap:10px;" class="btn-action">
+                                                            <a
+                                                                href="{{ route('material_update', $raw->material_code) }}"><i
+                                                                    class="fa fa-edit"></i></a>
 
-                                                        <a href="#" data-toggle="modal"
-                                                            data-target="#deleteModal{{ $raw->material_code }}"><i
-                                                                class="fa fa-trash"></i></a>
-                                                    </div>
-                                                </td>
+                                                            <a href="#" data-toggle="modal"
+                                                                data-target="#deleteModal{{ $raw->material_code }}"><i
+                                                                    class="fa fa-trash"></i></a>
+                                                        </div>
+                                                    </td>
+                                                @endif
                                                 <td>{{ $raw->material_code }}</td>
                                                 <td>{{ $raw->material_name }}</td>
                                                 <td>{{ $raw->quantity }}</td>
@@ -90,9 +101,11 @@
                                         src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
                                     <div>
                                         <h3>Belum ada Bahan Baku</h3>
-                                        <p class="text-secondary">Tambah data Bahan Baku</p>
-                                        <a class="btn btn-primary" href="{{ 'material_create' }}">Tambah Bahan
-                                            Baku</a>
+                                        @if (!$user_permission_forbidden)
+                                            <p class="text-secondary">Tambah data Bahan Baku</p>
+                                            <a class="btn btn-primary" href="{{ 'material_create' }}">Tambah Bahan
+                                                Baku</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -137,6 +150,16 @@
                 title: 'Berhasil',
                 text: "{{ Session::get('message_success') }}",
                 icon: 'success',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif (Session::has('failed_message'))
+        <script>
+            Swal.fire({
+                title: 'Gagal',
+                text: "{{ Session::get('failed_message') }}",
+                icon: 'error',
                 timer: 2000,
                 confirmButtonText: 'OK'
             });

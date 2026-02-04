@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
-    <title>Login Turre POS</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <title>Login Admin Kencana Bakery</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -25,7 +25,7 @@
         <div class="form-group">
             <div class="logo-turre">
 
-                <img src="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}" width="200"
+                <img src="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}" width="200"
                     height="100" alt="">
             </div>
 

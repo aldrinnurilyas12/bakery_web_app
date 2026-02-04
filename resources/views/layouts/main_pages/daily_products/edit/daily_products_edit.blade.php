@@ -8,7 +8,7 @@
     <title>Kencana Bakery - Ubah Produk Daily</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -20,12 +20,16 @@
                 <br>
                 <div class="container-fluid px-4">
                     <h4>Ubah Data Produk Daily</h4>
-                    <form action="{{ route('daily_product_edit', $product->product_code) }}" method="POST"
+                    <form action="{{ route('daily_product_edit', $product->daily_code) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
                         <hr>
+                        <div class="form-group">
+                            <label><strong>Kode Daily Produk</strong></label>
+                            <input type="text" class="form-control" value="{{ $product->daily_code }}" readonly>
+                        </div>
                         <div class="form-group">
                             <label><strong>Kode Produk</strong></label>
                             <input type="text" class="form-control" value="{{ $product->product_code }}" readonly>
@@ -61,6 +65,11 @@
                                         {{ $sts->status_name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Store</strong></label>
+                            <input type="text" class="form-control" value="{{ $product->store_name }}" readonly>
                         </div>
 
                         <div class="form-group">

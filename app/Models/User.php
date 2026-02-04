@@ -23,7 +23,6 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
-        'role',
         'created_by',
         'updated_by'
     ];

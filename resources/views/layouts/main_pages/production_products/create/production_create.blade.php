@@ -34,12 +34,19 @@
                                 alasan valid dan tercatat.</li>
                             <li>Jika stok kosong segera melakukan input stok kembali pada modul Raw Material(Bahan
                                 Baku).</li>
-
+                            <li>Jadwal untuk melakukan input data Produksi Produk pada jam 05.00 s.d 07.30</li>
                         </ul>
                     </div>
                     <form action="{{ route('master_production_product.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
+                        <div class="form-group">
+                            <label><strong>Store</strong></label>
+                            <input type="text"
+                                value="{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}"
+                                class="form-control" autocomplete="off" readonly>
+                        </div>
+                        <hr class="hr-menu">
 
                         <div class="form-group">
                             <label><strong>Produk</strong></label>

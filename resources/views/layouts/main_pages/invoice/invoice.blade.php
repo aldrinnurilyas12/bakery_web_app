@@ -12,7 +12,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 
 </head>
 
@@ -22,9 +22,15 @@
             <div class="container mb-5 mt-3">
                 <div class="row d-flex align-items-baseline">
                     <div class="col-xl-9">
-                        <p class="fw-bold">Invoice :
-                            <span class="text-primary">{{ $invoice->transaction_code }}</span>
-                        </p>
+                        <div style="display: block;" class="group-store">
+                            <p class="fw-bold"> Invoice :
+                                <span class="text-primary">{{ $invoice->transaction_code }}</span>
+                            </p>
+
+                            <p class="fw-bold">Store/Outlet :
+                                <span style="font-weight:normal;">{{ $invoice->store_name }}</span>
+                            </p>
+                        </div>
                     </div>
                     <hr>
                 </div>
@@ -78,49 +84,50 @@
                             </ul>
                         </div>
                     </div>
-
-                    <div class="row my-2 mx-1 justify-content-center">
-                        <table class="table table-striped table-borderless">
-                            <thead style="background-color:#84B0CA ;" class="text-white">
-                                <tr>
-                                    <th scope="col">No</th>
-                                    <th scope="col">Item</th>
-                                    <th scope="col">Banyak</th>
-                                    <th scope="col">Harga</th>
-                                    <th scope="col">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $no = 1;
-                                ?>
-                                @foreach ($invoices as $inv)
+                    <div style="overflow: auto;" class="scroll-table">
+                        <div class="justify-content-center">
+                            <table class="table table-striped table-borderless">
+                                <thead style="background-color:#84B0CA ;" class="text-white">
                                     <tr>
-                                        <td>
-                                            <?php echo $no++; ?>
-                                        </td>
-                                        <td>{{ $inv->product_name }}</td>
-                                        <td>{{ $inv->quantity_per_product }}</td>
-                                        <td>
-                                            @if ($inv->variant_price)
-                                                {{ 'Rp.' . number_format($inv->variant_price) }}
-                                            @else
-                                                {{ 'Rp.' . number_format($inv->price) }}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($inv->variant_price)
-                                                {{ 'Rp.' . number_format($inv->variant_price * $inv->quantity_per_product) }}
-                                            @else
-                                                {{ 'Rp.' . number_format($inv->price * $inv->quantity_per_product) }}
-                                            @endif
-                                        </td>
-
+                                        <th scope="col">No</th>
+                                        <th scope="col">Item</th>
+                                        <th scope="col">Banyak</th>
+                                        <th scope="col">Harga</th>
+                                        <th scope="col">Subtotal</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $no = 1;
+                                    ?>
+                                    @foreach ($invoices as $inv)
+                                        <tr>
+                                            <td>
+                                                <?php echo $no++; ?>
+                                            </td>
+                                            <td>{{ $inv->product_name }}</td>
+                                            <td>{{ $inv->quantity_per_product }}</td>
+                                            <td>
+                                                @if ($inv->variant_price)
+                                                    {{ 'Rp.' . number_format($inv->variant_price) }}
+                                                @else
+                                                    {{ 'Rp.' . number_format($inv->price) }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($inv->variant_price)
+                                                    {{ 'Rp.' . number_format($inv->variant_price * $inv->quantity_per_product) }}
+                                                @else
+                                                    {{ 'Rp.' . number_format($inv->price * $inv->quantity_per_product) }}
+                                                @endif
+                                            </td>
 
-                        </table>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+
+                            </table>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-xl-8">
@@ -143,8 +150,11 @@
                                     @endif
                                 @endif
                                 @if ($invoice->total_amount)
-                                    <li class="text-muted ms-3"><span class="text-black me-4">Total Amount:</span>
+                                    <li class="text-muted ms-3"><span class="text-black me-4">Subtotal:</span>
                                         <br>{{ 'Rp.' . number_format($invoice->grand_total) }}
+                                    </li>
+                                    <li class="text-muted ms-3"><span class="text-black me-4">Total Amount:</span>
+                                        <br>{{ 'Rp.' . number_format($invoice->total_amount) }}
                                     </li>
 
                                     @if ($invoice->payment_changes == 0)

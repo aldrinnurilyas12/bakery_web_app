@@ -1,6 +1,23 @@
-<title>@yield('title', 'Kencana Bakery - Master Data Produksi Produk')</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Kencana Bakery - Master Data Production</title>
+    <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+</head>
+
+
 <div>
     <main>
+        @php
+            $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+            $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+            $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer']);
+        @endphp
         <div class="container-fluid px-4">
             <br>
 
@@ -11,12 +28,57 @@
                     </div>
 
                     @if ($production_products->isNotEmpty())
-                        <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('production_create') }}">Tambah Produksi Produk</a>
-                        </div>
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn btn-primary" href="{{ route('production_create') }}">Tambah Produksi
+                                    Produk</a>
+                            </div>
+                        @endif
                     @endif
                 </div>
+                @if (!$filter_forbidden_access)
+                    <div class="card-header">
+                        <div class="title">
+                            <div class="filter-data">
+                                <label for=""><strong>Pilih Store</strong></label>
+                                <br>
+                                <div style="display: flex; gap:10px;margin-top:5px;" class="d-flex-container-filter">
+                                    <form action="{{ route('filter_production') }}" method="GET">
+                                        <div style="display:flex;gap:20px;" class="d-flex-content">
+                                            <select style="width:max-content;" name="filter" id=""
+                                                class="form-control">
+                                                <option value="">=== Pilih Data ===</option>
+                                                <option value="all"
+                                                    {{ request('filter') == 'all' ? 'selected' : '' }}>
+                                                    Semua Store
+                                                </option>
+                                                @foreach ($store as $shop)
+                                                    <option value="{{ $shop->id }}"
+                                                        {{ request('filter') == $shop->id ? 'selected' : '' }}>
+                                                        {{ $shop->store_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button class="btn btn-primary">Pilih</button>
+                                        </div>
+                                    </form>
 
+                                    {{-- <div class="excel-file">
+                                     <form action="{{ route('export_transaction_excel') }}" method="POST">
+                                         @csrf
+                                         <input type="hidden" name="filter_transaction"
+                                             value="{{ request('filter_transaction') }}">
+                                         <button type="submit" class="btn btn-success">
+                                             <i class="fas fa-file-excel"></i>
+                                             &nbsp; Excel
+                                         </button>
+                                     </form>
+                                 </div> --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 <div class="card-body">
                     <div wire:poll.keep.alive.2s>
 
@@ -27,13 +89,16 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Aksi</th>
+                                                @if (!$user_permission_forbidden)
+                                                    <th>Aksi</th>
+                                                @endif
                                                 <th>Bahan Baku</th>
                                                 <th>Kode Produksi</th>
                                                 <th>Produk</th>
                                                 <th>Target Produksi Produk</th>
                                                 <th>Tipe Produksi</th>
                                                 <th>Status</th>
+                                                <th>Store</th>
                                                 <th>Deskripsi</th>
                                                 <th>Tanggal Produksi</th>
                                                 <th>Created at</th>
@@ -50,17 +115,19 @@
                                             @foreach ($production_products as $raw)
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
-                                                    <td>
-                                                        <div style="display: flex; gap:10px;" class="btn-action">
-                                                            <a
-                                                                href="{{ route('production_update', $raw->production_code) }}"><i
-                                                                    class="fas fa-edit"></i></a>
+                                                    @if (!$user_permission_forbidden)
+                                                        <td>
+                                                            <div style="display: flex; gap:10px;" class="btn-action">
+                                                                <a
+                                                                    href="{{ route('production_update', $raw->production_code) }}"><i
+                                                                        class="fas fa-edit"></i></a>
 
-                                                            <a href="#" data-toggle="modal"
-                                                                data-target="#deleteModal{{ $raw->production_code }}"><i
-                                                                    class="fas fa-trash"></i></a>
-                                                        </div>
-                                                    </td>
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#deleteModal{{ $raw->production_code }}"><i
+                                                                        class="fas fa-trash"></i></a>
+                                                            </div>
+                                                        </td>
+                                                    @endif
                                                     <td>
                                                         <a href="#" data-toggle="modal"
                                                             data-target="#showRaw{{ $raw->production_code }}"><i
@@ -89,9 +156,12 @@
                                                             </tr>
 
                                                         </table>
-                                                        <a class="text-info" href="#" data-toggle="modal"
-                                                            data-target="#editStatus{{ $raw->production_code }}">Ubah
-                                                            Target</a>
+                                                        @if ($raw->status == 'Completed')
+                                                        @else
+                                                            <a class="text-info" href="#" data-toggle="modal"
+                                                                data-target="#editStatus{{ $raw->production_code }}">Ubah
+                                                                Target</a>
+                                                        @endif
 
                                                     </td>
                                                     <td>
@@ -134,6 +204,13 @@
                                                         @endif
                                                     </td>
                                                     <td>
+                                                        @if ($raw->store_name)
+                                                            {{ $raw->store_name }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
                                                         @if ($raw->description)
                                                             {{ $raw->description }}
                                                         @else
@@ -159,9 +236,11 @@
                                         src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
                                     <div>
                                         <h3>Belum ada data Produksi Produk</h3>
-                                        <p class="text-secondary">Tambah data Produksi Produk</p>
-                                        <a class="btn btn-primary" href="{{ 'production_create' }}">Tambah Produksi
-                                            Produk</a>
+                                        @if (!$user_permission_forbidden)
+                                            <p class="text-secondary">Tambah data Produksi Produk</p>
+                                            <a class="btn btn-primary" href="{{ 'production_create' }}">Tambah Produksi
+                                                Produk</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -204,8 +283,9 @@
     {{-- modal show description --}}
 
     @foreach ($production_products as $production)
-        <div wire:ignore class="modal fade" id="addDescriptionModal{{ $production->production_code }}" tabindex="-1"
-            role="dialog" aria-labelledby="exampleModalLabel{{ $production->production_code }}" aria-hidden="true">
+        <div wire:ignore class="modal fade" id="addDescriptionModal{{ $production->production_code }}"
+            tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{ $production->production_code }}"
+            aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -422,6 +502,16 @@
                 title: 'Berhasil',
                 text: "{{ Session::get('message_success') }}",
                 icon: 'success',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif (Session::has('failed_message'))
+        <script>
+            Swal.fire({
+                title: 'Gagal',
+                text: "{{ Session::get('failed_message') }}",
+                icon: 'error',
                 timer: 2000,
                 confirmButtonText: 'OK'
             });

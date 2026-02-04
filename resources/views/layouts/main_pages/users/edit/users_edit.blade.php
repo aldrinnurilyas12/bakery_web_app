@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery - Ubah Pengguna</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
@@ -46,18 +47,19 @@
                             </div>
 
                             <div class="form-group">
-                                <label><strong>Role saat ini</strong></label>
-                                <input class="form-control" type="email" name="role"
-                                    value="{{ $user->role == '1' ? 'Super Admin' : 'Admin' }}" autocomplete="off"
-                                    readonly>
+                                <label><strong>Role Saat ini</strong></label>
+                                <input class="form-control" type="text" value="{{ $user->role }}"
+                                    autocomplete="off" readonly>
                             </div>
 
                             <div class="form-group">
                                 <label><strong>Pilih Role Pengguna</strong></label>
                                 <select class="form-control" name="role" id="">
-                                    <option value="">=== Pilih Role ===</option>
-                                    <option value="1">Super Admin</option>
-                                    <option value="2">Admin</option>
+                                    @foreach ($role as $r)
+                                        <option value="{{ $r->id }}"
+                                            {{ $user->role_id == $r->id ? 'selected' : '' }}>
+                                            {{ $r->role }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -79,6 +81,29 @@
                 </div>
             </main>
 </body>
+
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif(Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
+
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');

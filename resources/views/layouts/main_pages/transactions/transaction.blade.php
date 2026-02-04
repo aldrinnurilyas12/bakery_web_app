@@ -11,7 +11,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -29,64 +29,161 @@
                                 Transaksi / <a href="{{ route('transaction.index') }}">Transaksi</a>
                             </div>
 
-                            @if ($show_transaction_array_data->isNotEmpty())
+                            @if ($main_transaction->isNotEmpty())
                                 <div class="button-add-product">
                                     <a class="btn btn-primary" href="{{ route('transaction_create') }}">Tambah
                                         Transaksi</a>
                                 </div>
                             @endif
 
+                            @php
+                                $show_items = DB::table('transactions_detail as td')
+                                    ->join('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+                                    ->leftJoin('v_products as p', 'td.product', '=', 'p.product_code')
+                                    ->get();
+
+                                $transaction_with_items = DB::table('transactions_detail as td')
+                                    ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+                                    ->leftJoin('v_products as p', 'td.product', '=', 'p.product_code')
+                                    ->select('td.transaction_code')
+                                    ->distinct()
+                                    ->pluck('td.transaction_code')
+                                    ->toArray();
+
+                                $session_user = app(
+                                    'App\Http\Controllers\Auth\AuthenticatedSessionController',
+                                )->getUsers();
+                                $user_permission_forbidden = in_array($session_user->role_name, [
+                                    'Supervisor',
+                                    'Manager',
+                                ]);
+
+                            @endphp
+
+                        </div>
+                        <hr>
+                        <div class="card-header">
+                            <div class="title">
+                                <div class="filter-data">
+                                    <label for=""><strong>Filter Transaksi</strong></label>
+                                    <br>
+                                    <div style="display: flex; gap:10px;" class="d-flex-container-filter">
+                                        <form action="{{ route('filter_transaction') }}" method="GET">
+                                            <div style="display:flex;gap:20px;" class="d-flex-content">
+                                                <select style="width:max-content;" name="filter_transaction"
+                                                    id="" class="form-control">
+                                                    <option value="">=== Pilih Data ===</option>
+                                                    <option value="today"
+                                                        {{ request('filter_transaction') == 'today' ? 'selected' : '' }}>
+                                                        Hari ini</option>
+                                                    <option value="week"
+                                                        {{ request('filter_transaction') == 'week' ? 'selected' : '' }}>
+                                                        Minggu ini</option>
+                                                    <option value="month"
+                                                        {{ request('filter_transaction') == 'month' ? 'selected' : '' }}>
+                                                        Bulan ini</option>
+                                                </select>
+                                                <button class="btn btn-primary">Pilih</button>
+                                            </div>
+                                        </form>
+
+                                        <div class="excel-file">
+                                            <form action="{{ route('export_transaction_excel') }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="filter_transaction"
+                                                    value="{{ request('filter_transaction') }}">
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-file-excel"></i>
+                                                    &nbsp; Excel
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
+                            @if ($main_transaction->isNotEmpty())
+                                <div class="table-responsive">
+                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Detail Item</th>
+                                                <th>Invoice</th>
+                                                <th>Tanggal</th>
+                                                <th>Quantity</th>
+                                                <th>Total Bayar</th>
+                                                <th>Kembalian</th>
+                                                <th>Grand Total</th>
+                                                <th>Pelanggan</th>
+                                                <th>Pakai Reward</th>
+                                                <th>Store</th>
+                                                <th>Kasir</th>
+                                                <th>Created at</th>
+                                                <th>Updated at</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $no = 1;
+                                            ?>
+                                            @foreach ($main_transaction as $transaction)
+                                                <tr>
+                                                    <td><?php echo $no++; ?></td>
+                                                    <td>
+                                                        <div style="display: flex;gap:10px;" class="btn-action">
 
-                            @if ($show_transaction_array_data->isNotEmpty())
-                                @foreach ($show_transaction_array_data as $transaction)
-                                    <div class="card-header">
-                                        <h5>#Invoice : {{ $transaction->transaction_code }}</h5>
-                                        @if ($transaction->customer_code && $transaction->name && $transaction->email)
-                                            <p>#Pelanggan : {{ $transaction->name }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="container-transaction">
+                                                            {{-- <a href="{{ route('category_update', $transaction->transaction_code) }}"><i
+                                                                    class="fas fa-edit"></i></a> --}}
+                                                            @if (in_array($transaction->transaction_code, $transaction_with_items))
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#showItems{{ $transaction->transaction_code }}"><i
+                                                                        class="fas fa-eye"></i></a>
+                                                            @else
+                                                            @endif
 
-                                        <div class="container-orders">
-                                            <div style="align-content: center;" class="img-icon">
-                                                <i class="fa-solid fa-money-bill"></i>
-                                            </div>
-
-                                            <div class="detail-orders">
-                                                <div style="display: flex; gap:20px;align-items:baseline;"
-                                                    class="total-date-orders">
-                                                    <p
-                                                        style="width:max-content;margin-bottom: 10px; color:blue;font-weight:bold;margin-bottom: 0;">
-                                                        Rp.{{ number_format($transaction->grand_total) }}</p>
-                                                </div>
-                                                <div style="display: flex;gap:10px;padding:0;" class="content-products">
-                                                    <p style="margin-bottom: 10px;">
-                                                        {{ implode(', ', $transaction->product_name) }}</p>
-                                                </div>
-                                                <div style="display: flex; gap:10px;" class="info-detail">
-                                                    <p style="color: gray;margin-bottom: 0; font-size:13px;">
-                                                        <i class="fa fa-clock"></i>
-                                                        {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d-m-Y h:i a') }}
-                                                    </p>
-                                                    <span>&dot;</span>
-                                                    <p style="color: gray;margin-bottom: 0; font-size:13px;">
-                                                        <i class="fa fa-user"></i> {{ $transaction->casheer }}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                    <div style="display:flex;justify-content:center;margin-bottom:30px;"
-                                        class="detail-order">
-                                        <a class="btn btn-primary"
-                                            href="{{ route('invoice_detail', $transaction->transaction_code) }}">Detail</a>
-                                    </div>
-                                    <hr>
-                                @endforeach
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <a class="text-black"
+                                                            href="{{ route('invoice_detail', $transaction->transaction_code) }}">
+                                                            {{ $transaction->transaction_code }}</a>
+                                                    </td>
+                                                    <td>{{ $transaction->transaction_date }}</td>
+                                                    <td>{{ $transaction->quantity }}</td>
+                                                    <td>{{ 'Rp' . number_format($transaction->total_amount) }}</td>
+                                                    <td>{{ 'Rp' . number_format($transaction->payment_changes) }}</td>
+                                                    <td>{{ 'Rp' . number_format($transaction->grand_total) }}</td>
+                                                    <td>
+                                                        @if ($transaction->customer)
+                                                            {{ $transaction->customer . ' - ' . $transaction->name }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($transaction->reward_transaction_used)
+                                                            {{ $transaction->reward_transaction_used }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($transaction->store_name)
+                                                            {{ $transaction->store_name }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $transaction->casheer }}</td>
+                                                    <td>{{ $transaction->created_at }}</td>
+                                                    <td>{{ $transaction->updated_at }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             @else
                                 <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
                                     class="empty-transaction">
@@ -98,9 +195,11 @@
                                                 alt="">
                                             <div style="display: block;" class="text-content">
                                                 <h3>Belum ada transaksi</h3>
-                                                <p class="text-secondary">Buat transaksi pertama anda</p>
-                                                <a class="btn btn-primary" href="{{ 'transaction_create' }}">Buat
-                                                    Transaksi</a>
+                                                @if (!$user_permission_forbidden)
+                                                    <p class="text-secondary">Buat transaksi pertama anda</p>
+                                                    <a class="btn btn-primary" href="{{ 'transaction_create' }}">Buat
+                                                        Transaksi</a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -116,51 +215,58 @@
         </div>
     </div>
 
-
-
     {{-- modal show detail --}}
-    {{-- @foreach ($transaction_data as $transaction) 
-    <div  class="modal fade" id="showDetail{{$transaction->id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{$transaction->id}}" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div style="position: sticky;" class="modal-header">
-                    <h5 style="font-size: 13px;width:500px;" class="modal-title" id="exampleModalLabel{{$transaction->id}}">Invoice #{{$transaction->invoice}}</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                
-                <div style="overflow-y: scroll;height:300px;" class="container-content">
-                    
-                    <div style="padding: 20px; display:flex;flex-wrap:wrap; gap:20px;font-size:13px;" class="content-card">
-                        <div class="img-content">
-                            <img width="60" height="60" src="{{asset('storage/' . $transaction->images)}}" alt="">
-                        </div>
-
-                        <div class="transaction-data">
-                            <h5 style="font-size: 14px;">{{$transaction->product_name}}</h5>
-                            <p>x{{$transaction->quantity}}</p>
-                        </div>
+    @foreach ($main_transaction as $transaction)
+        <div class="modal fade" id="showItems{{ $transaction->transaction_code }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $transaction->transaction_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div style="position: sticky;" class="modal-header">
+                        <h5 style="font-size: 13px;width:500px;" class="modal-title"
+                            id="exampleModalLabel{{ $transaction->transaction_code }}">Invoice
+                            #{{ $transaction->transaction_code }}</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                     </div>
-                    <hr>
 
-                    
-                </div>
-                    <div style="display: flex; flex-wrap:wrap; justify-content:space-between;padding:10px;position:sticky;" class="total-transaction">
-                        <h5 style="font-size: 15px;"><strong>Total</strong></h5>
-
-                        <p>{{"Rp.".number_format($transaction->total)}}</p>
+                    <div style="overflow-y: scroll;height:300px;" class="container-content">
+                        <div style="padding: 20px; display:flex;flex-wrap:wrap; gap:20px;font-size:13px;"
+                            class="content-card">
+                            <div class="table-responsive">
+                                <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Kode Produk</th>
+                                            <th>Nama Produk</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $no = 1;
+                                        ?>
+                                        @foreach ($show_items as $items)
+                                            @if ($transaction->transaction_code == $items->transaction_code)
+                                                <tr>
+                                                    <td><?php echo $no++; ?></td>
+                                                    <td>{{ $items->product_code }}</td>
+                                                    <td>{{ $items->product }}</td>
+                                                    <td>{{ $items->quantity_per_product }}</td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <hr>
                     </div>
-                
-
-               
+                </div>
             </div>
         </div>
-    </div>
-
-  
-    
-    @endforeach --}}
+    @endforeach
 
     <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
@@ -177,6 +283,16 @@
             title: 'Berhasil',
             text: "{{ Session::get('message_success') }}",
             icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
             timer: 2000,
             confirmButtonText: 'OK'
         });

@@ -29,7 +29,6 @@ class ShoppingCartController extends Controller
 
         $cart_product = [
             'product_code' => $request->product_code,
-            'variant_code' => $request->variant_code,
             'variant_type' => $request->variant_type,
             'product_name' => $request->product_name,
             'price' => $request->price,
@@ -40,9 +39,7 @@ class ShoppingCartController extends Controller
         $found = false;
         foreach ($cart as &$item) {
             
-            if ($item['product_code'] === $cart_product['product_code'] &&
-                 $item['variant_code'] === $cart_product['variant_code']
-            ) {
+            if ($item['product_code'] === $cart_product['product_code']) {
                 $found = true;
                 break;
             }

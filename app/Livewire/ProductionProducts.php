@@ -7,11 +7,41 @@ use Illuminate\Support\Facades\DB;
 
 class ProductionProducts extends Component
 {
-    public function render()
+    public $filter;
+    public $daily_products;
+    public $store;
+
+    public function mount()
     {
+        // Inisialisasi data store
+        $this->filter = request()->query('filter', '');
+        $this->store = DB::table('store')->get();
+        
+    }
+
+    public function render()
+    
+    {
+        $filteredProduction = DB::table('v_production_products');
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+
+        if(empty($this->filter)){
+             $filteredProduction->where('store_id',$store);
+        }
+        elseif (!empty($this->filter) && $this->filter !== 'all') {
+            $filteredProduction->where('store_id', $this->filter);
+        } 
+
+        $this->production_product = $filteredProduction->get();
+
         return view('livewire.production-products', [
-            'production_products' => DB::table('v_production_products')->get(),
-            'status' => DB::table('status_category')->whereIn('id', ['2','3', '4', '5', '9', '10'])->get()
-        ]);
+            'production_products' => $this->production_product,
+            'status' => DB::table('status_category')->whereIn('id', ['2','3', '4', '5', '9', '10'])->get(),
+            'store' => DB::table('store')->get()]);
+    }
+
+    public function updateFilter() 
+    {
+        $this->render();
     }
 }

@@ -30,8 +30,14 @@ class Voucher extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() : View
+    public function create() 
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         return view('layouts.main_pages.voucher.create.voucher_create');
     }
 
@@ -111,8 +117,14 @@ class Voucher extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id, Request $request) : View
+    public function edit(string $id, Request $request)
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $vouchers = DB::table('voucher')->where('voucher_code',$request->voucher_code )->first();
         $start_date = Carbon::parse($vouchers->start_date);

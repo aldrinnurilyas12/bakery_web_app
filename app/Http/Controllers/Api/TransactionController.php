@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\TransactionExport;
 use App\Http\Controllers\Controller;
 use App\Models\ItemsCategoryModel;
 use App\Models\ProductsModel;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
@@ -32,20 +34,102 @@ class TransactionController extends Controller
         ->select('transaction_code', DB::raw('GROUP_CONCAT(product_name) as product_name'),'customer_code','name','email', 'casheer' , 'quantity','grand_total', 'transaction_date')
         ->groupBy('transaction_code', 'customer_code','name','email','casheer','quantity','grand_total', 'transaction_date')
         ->orderBy('transaction_date', 'DESC')->get();
+        $main_transaction = DB::table('v_main_transactions')->orderBy('transaction_date', 'DESC')
+        ->whereDate('transaction_date', now()->format('Y-m-d'))->paginate(500);
 
-        $show_transaction_array_data =  $show_transaction->map(function ($transaction) {
-            $product_names = explode(',', $transaction->product_name);
-            if (count($product_names) > 2) {
-                $transaction->product_name = array_slice($product_names, 0, 2);
-                $transaction->product_name[] = 'dan lainnya';
-            } else {
-                $transaction->product_name = $product_names;
+        
+
+        // $show_transaction_array_data =  $show_transaction->map(function ($transaction) {
+        //     $product_names = explode(',', $transaction->product_name);
+        //     if (count($product_names) > 2) {
+        //         $transaction->product_name = array_slice($product_names, 0, 2);
+        //         $transaction->product_name[] = 'dan lainnya';
+        //     } else {
+        //         $transaction->product_name = $product_names;
+        //     }
+
+        //     return $transaction;
+        // });
+
+        return view('layouts.main_pages.transactions.transaction', compact('show_transaction', 'main_transaction'));
+    }
+
+    public function filter_transaction(Request $request) {
+
+
+        if($request->filter_transaction){
+           $query = DB::table('v_main_transactions')
+            ->orderBy('transaction_date', 'DESC');
+
+            if ($request->filter_transaction) {
+
+                if ($request->filter_transaction == 'today') {
+                    $query->whereDate('transaction_date', Carbon::today());
+                }
+
+                if ($request->filter_transaction == 'week') {
+                    $query->whereBetween('transaction_date', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek()
+                    ]);
+                }
+
+                if ($request->filter_transaction == 'month') {
+                    $query->whereMonth('transaction_date', Carbon::now()->month)
+                        ->whereYear('transaction_date', Carbon::now()->year);
+                }
             }
 
-            return $transaction;
-        });
-        return view('layouts.main_pages.transactions.transaction', compact('show_transaction', 'show_transaction_array_data'));
+             if ($request->filter_transaction == 'month') {
+                    $main_transaction = $query->paginate(400);
+             }else {
+
+                 $main_transaction = $query->get();
+             }
+
+
+            return view('layouts.main_pages.transactions.transaction', compact('main_transaction'));
+        }
+
+
+
+
     }
+
+
+    public function download_excel(Request $request)
+    {
+    $filter = $request->filter_transaction;
+
+    $query = DB::table('v_main_transactions')
+        ->orderBy('transaction_date', 'DESC');
+
+    if ($filter === 'today') {
+        $query->whereDate('transaction_date', Carbon::today());
+        $date = Carbon::today()->format('d-m-Y');
+    }
+
+    if ($filter === 'week') {
+        $query->whereBetween('transaction_date', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ]);
+
+        $start = Carbon::now()->startOfWeek();
+        $end   = Carbon::now()->endOfWeek();
+        $date = $start->format('d-m-Y') . '_sd_' . $end->format('d-m-Y');
+    }
+
+    if ($filter === 'month') {
+        $query->whereMonth('transaction_date', Carbon::now()->month)
+              ->whereYear('transaction_date', Carbon::now()->year);
+        $date = Carbon::now()->format('F_Y');
+    }
+      $filename = 'Data_transaksi_'.$date. '.xlsx';
+
+     return Excel::download(new TransactionExport($filter), $filename);
+}
+
 
     public function show_promo_code(Request $request) {
     $voucher_code = $request->promo_code;
@@ -72,14 +156,21 @@ class TransactionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function transaction_create_layout(Request $request): View
+    public function transaction_create_layout(Request $request)
     {
-        $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
          $category_data = DB::table('product_category as c')->select(DB::raw("REPLACE(c.category_name, ' ', '_') as 'category_name'"))
                 ->join('products as p', 'c.id', '=', 'p.category_id')
                 ->join('products_daily as pd', 'p.product_code', '=', 'pd.product_code')
                 ->groupBy('c.category_name')->get();
-        $all_products =  DB::table('v_daily_products')->where('status', 'Ready')->paginate(15);
+        $all_products =  DB::table('v_daily_products')->where('status', 'Ready')->where('store_id', $store )->paginate(15);
         $payment_type = DB::table('payment_category')->get();
 
         $itemProducts = ProductsModel::with('category')->get();
@@ -131,9 +222,7 @@ class TransactionController extends Controller
     {
        $request->validate([
         'product' => 'required|array',
-        'product.*' => 'required|exists:products,product_code',
-        'variant' => 'nullable|array',
-        'variant.*' => 'nullable|exists:product_variant,variant_code',
+        'product.*' => 'required|exists:products_daily,daily_code',
         'quantity_per_product' => 'required|array',
         'quantity_per_product.*' => 'required|integer|min:1',
         ]);
@@ -144,9 +233,9 @@ class TransactionController extends Controller
         $transaction_code = 'INV' . $inv_date . $unique_code;
 
         $productCode = $request->product;
-        $variantCode = $request->variant ?? [];
         $qtyProducts = $request->quantity_per_product;
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
         $customer = $request->customer;
         $voucher_code = $request->promo_code;
         $voucher_quota = DB::table('voucher')->where('voucher_code', $voucher_code)->value('quota');
@@ -190,6 +279,7 @@ class TransactionController extends Controller
             'casheer' => $casheer,
             'customer' => $request->customer,
             'status' => 5,
+            'store' => $store,
             'payment_type' => $request->payment_type,
             'payment_changes' => $request->payment_changes,
             'transaction_date' => now(),
@@ -199,11 +289,9 @@ class TransactionController extends Controller
 
      
         foreach ($productCode as $index => $productId) {
-                $variantCodeValue = $variantCode[$index] ?? null;
                TransactionDetail::create([
                     'transaction_code' => $main_transaction->transaction_code,
                     'product' => $productId,
-                    'variant' => $variantCodeValue,
                     'quantity_per_product' => $qtyProducts[$index],
                     'created_by' => $casheer,
                     'created_at' => now()

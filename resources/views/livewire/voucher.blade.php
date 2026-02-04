@@ -1,6 +1,10 @@
 <title>@yield('title', 'Kencana Bakery - Master Data E-Voucher')</title>
 <div>
     <main>
+        @php
+            $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+            $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+        @endphp
         <div class="container-fluid px-4">
             <br>
 
@@ -11,9 +15,11 @@
                     </div>
 
                     @if ($vouchers->isNotEmpty())
-                        <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('voucher_create') }}">Tambah Voucher</a>
-                        </div>
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn btn-primary" href="{{ route('voucher_create') }}">Tambah Voucher</a>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -90,22 +96,24 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="card-footer d-flex align-items-center justify-content-between">
-                                            <a class="small text-black"
-                                                href="{{ route('voucher_update', $voucher->voucher_code) }}">Edit</a>
+                                        @if (!$user_permission_forbidden)
+                                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                                <a class="small text-black"
+                                                    href="{{ route('voucher_update', $voucher->voucher_code) }}">Edit</a>
 
-                                            @if ($voucher->status == 8)
-                                                <a class="btn btn-success" href="#" data-toggle="modal"
-                                                    data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Aktifkan
-                                                    Kembali
-                                                </a>
-                                            @else
-                                                <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                    data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Nonaktif
-                                                </a>
-                                            @endif
+                                                @if ($voucher->status == 8)
+                                                    <a class="btn btn-success" href="#" data-toggle="modal"
+                                                        data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Aktifkan
+                                                        Kembali
+                                                    </a>
+                                                @else
+                                                    <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                        data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Nonaktif
+                                                    </a>
+                                                @endif
 
-                                        </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -117,8 +125,10 @@
                                         src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
                                     <div>
                                         <h3>Belum ada Voucher</h3>
-                                        <p class="text-secondary">Tambah data Voucher</p>
-                                        <a class="btn btn-primary" href="{{ 'voucher_create' }}">Tambah Voucher</a>
+                                        @if (!$user_permission_forbidden)
+                                            <p class="text-secondary">Tambah data Voucher</p>
+                                            <a class="btn btn-primary" href="{{ 'voucher_create' }}">Tambah Voucher</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -192,6 +202,16 @@
                 title: 'Berhasil',
                 text: "{{ Session::get('message_success') }}",
                 icon: 'success',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif (Session::has('failed_message'))
+        <script>
+            Swal.fire({
+                title: 'Gagal',
+                text: "{{ Session::get('failed_message') }}",
+                icon: 'error',
                 timer: 2000,
                 confirmButtonText: 'OK'
             });

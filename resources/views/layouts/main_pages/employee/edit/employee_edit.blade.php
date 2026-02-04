@@ -8,7 +8,7 @@
     <title>Kencana Bakery - Ubah Karyawan</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -79,12 +79,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Toko</strong></label>
-                            <select class="form-control" name="branch" id="">
-                                @foreach ($branch as $toko)
-                                    <option value="{{ $toko->id }}"
-                                        {{ $toko->id == $employee->branch_id ? 'selected' : '' }}>
-                                        {{ $toko->branch_name }}</option>
+                            <label><strong>Store</strong></label>
+                            <select class="form-control" name="store" id="">
+                                @foreach ($branch as $store)
+                                    <option value="{{ $store->id }}"
+                                        {{ $store->id == $employee->store_id ? 'selected' : '' }}>
+                                        {{ $store->store_name }}</option>
                                 @endforeach
 
                             </select>

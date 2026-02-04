@@ -8,7 +8,7 @@
     <title>Kencana Bakery - Tambah Promo Campaign</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakerylogo.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -37,18 +37,57 @@
                     <form action="{{ route('master_promo_campaign.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
-
                         <div class="form-group">
-                            <label><strong>Produk</strong></label>
-                            <select class="form-control" name="product" id="">
-                                <option value="">==== Pilih Produk ====</option>
-                                @foreach ($products as $item)
-                                    <option value="{{ $item->product_code }}">
-                                        {{ $item->product }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label><strong>Pilih Produk</strong></label>
+                            <div style="color: black; height: 300px;background: white;overflow: auto;"
+                                class="modal-body">
+                                <div class="table-responsive">
+                                    <table style="font-size: 14px; color:black;" class="table" id="dataTable"
+                                        width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Pilih</th>
+                                                <th>Nama Product</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
 
+                                        <tbody>
+                                            <?php $no = 1; ?>
+                                            @foreach ($products as $prd)
+                                                <tr>
+                                                    <td><?php echo $no++; ?></td>
+                                                    <td>
+
+                                                        {{-- PERBAIKI BAGIAN INI --}}
+                                                        @if ($prd->variant_code)
+                                                            <input class="allowed-checkbox" type="checkbox"
+                                                                name="product[]" value="{{ $prd->product_code }}"
+                                                                hidden>
+                                                            <input class="allowed-checkbox" type="checkbox"
+                                                                name="variant[]" value="{{ $prd->variant_code }}">
+                                                        @else
+                                                            <input class="allowed-checkbox" type="checkbox"
+                                                                name="product[]" value="{{ $prd->product_code }}">
+                                                        @endif
+
+                                                    </td>
+                                                    <td>
+                                                        @if ($prd->variant_code)
+                                                            {{ '[' . $prd->variant_code . '] ' . ' - ' . $prd->product }}
+                                                        @else
+                                                            {{ '[' . $prd->product_code . '] ' . ' - ' . $prd->product }}
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $prd->status }}</td>
+                                                </tr>
+                                            @endforeach
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -101,6 +140,11 @@
                         <div class="form-group">
                             <label><strong>Tanggal akhir promo</strong></label>
                             <input type="date" name="end_date" class="form-control" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Foto/Gambar (opsional)</strong></label>
+                            <input type="file" name="images" class="form-control" autocomplete="off" required>
                         </div>
                         <button type="submit" class="btn btn-primary">Tambah Promo</button>
                     </form>

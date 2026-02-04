@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\RedeemRewardModel;
 use App\Models\RewardsModel;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,8 +25,14 @@ class RewardsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() : View
+    public function create()
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         return view('layouts.main_pages.rewards.create.rewards_create');
     }
 
@@ -83,8 +90,14 @@ class RewardsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id, Request $request) : View
+    public function edit(string $id, Request $request)
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $rewards = DB::table('rewards')->where('rewards_code',$request->rewards_code )->first();
         $start_date = Carbon::parse($rewards->start_date);
@@ -145,6 +158,34 @@ class RewardsController extends Controller
         ]);
         session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->route('rewards');
+    }
+
+    public function claim_reward_layouts(Request $request)
+    {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+        $reward_data = DB::table('redeem_reward as rr')
+                    ->leftJoin('rewards as r','rr.reward', '=', 'r.rewards_code')
+                    ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
+                    ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')->get();
+
+        return view('layouts.main_pages.rewards.claim.claim-reward', compact('reward_data'));
+    }
+
+    public function claimed_reward(Request $request)
+    {
+        $redeem_code = $request->redeem_code;
+
+        RedeemRewardModel::where('redeem_code', $redeem_code)->update([
+            'status' => 11,
+            'claimed_at' => now(),
+        ]);
+        session()->flash('message_success', 'Reward berhasil diklaim!');
+        return redirect()->back();
     }
 
     /**

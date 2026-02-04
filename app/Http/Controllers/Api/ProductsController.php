@@ -15,20 +15,17 @@ use Illuminate\Support\Facades\DB;
 
 class ProductsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index(): View
-    // {
-    //     // $products = DB::table('v_products')->get();
-    //     // return view('livewire.products', compact('products'));
-    // }
+   
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
+    public function create()
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
         $product_category = DB::table('product_category')->get();
         return view('layouts.main_pages.products.create.products_create', compact('product_category'));
@@ -125,7 +122,14 @@ class ProductsController extends Controller
         return redirect()->route('products_data');
     }
 
-    public function update_variant_layout(Request $request) : View {
+    public function update_variant_layout(Request $request) {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+
 
         $variant = DB::table('product_variant as pv')
                 ->leftJoin('v_products as p', 'pv.product', '=', 'p.product_code')
@@ -167,7 +171,14 @@ class ProductsController extends Controller
      * Show the form for editing the specified resource.
      */
     public function product_update_layout(Request $request, $product_code)
+    
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $authenticatedUser = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
         $products = DB::table('v_products')->where('product_code', $request->product_code)->first();
 
@@ -241,7 +252,15 @@ class ProductsController extends Controller
         return redirect()->route('products_data');
     }
 
-    public function add_product_variant_layout(Request $request) :View {
+    public function add_product_variant_layout(Request $request)  {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+
+
         $products =DB::table('v_products')->where('product_code', $request->product_code)->first();
         return view('layouts.main_pages.products.create.products_variant_create', compact('products'));
     }

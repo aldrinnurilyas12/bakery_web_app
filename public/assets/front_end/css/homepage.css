@@ -1,0 +1,1144 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
+* {
+    font-family: "DM Sans", sans-serif;
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background-color: #fffbfb;
+    overflow-x: hidden;
+    /* cegah scroll horizontal berlebih */
+}
+
+p {
+    margin-bottom: 0;
+}
+
+.main-container {
+    background-color: #fff;
+    width: 28%;
+    /* lebih fleksibel */
+    max-width: 75rem;
+    /* batasi maksimal di desktop */
+    box-sizing: border-box;
+    margin-bottom: 4%;
+
+}
+
+.product-category-show {
+    width: max-content;
+    height: max-content;
+    padding: 0.3125rem;
+
+}
+
+.card-category {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    padding: 0.25rem;
+    border-radius: 0.3125rem;
+    background: #f3f3f3;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.card-category.active {
+    background: #bb0239;
+    color: #fff;
+    font-weight: normal;
+}
+
+.product-category-show {
+    font-size: 0.875rem;
+}
+
+p.product-category-show {
+    margin: 0;
+    width: max-content;
+    font-size: 1rem;
+
+}
+
+
+.card-category.active {
+    background: #bb0239;
+    color: #fff;
+    font-weight: normal;
+}
+
+a.card-category {
+    color: black;
+    text-decoration: none;
+}
+
+.card-body-category {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.products-content {
+    margin-bottom: 0rem;
+}
+
+.container-fluid {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    background: white;
+    box-sizing: border-box;
+}
+
+.container-products {
+    width: 90%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    background: white;
+    box-sizing: border-box;
+
+}
+
+.title-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.625rem;
+}
+
+p.hello {
+    position: absolute;
+    justify-content: left;
+    color: white;
+    margin-bottom: 1.25rem;
+}
+
+p.hello span.session-name {
+    font-weight: bold;
+}
+
+.center-element {
+    display: flex;
+    justify-content: center;
+}
+
+/* Customer Segment */
+.customer-segment {
+    width: 100%;
+    height: max-content;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    /* supaya teks di atas card */
+    align-items: center;
+    /* card tetap di tengah horizontal */
+    box-sizing: border-box;
+}
+
+.delete-account {
+    border: 1px solid #f2c2c2;
+    background: #fff5f5;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.delete-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #bb0239;
+    margin-bottom: 0.5rem;
+}
+
+.delete-desc {
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.btn-delete {
+    display: inline-block;
+    padding: 0.625rem 1.25rem;
+    background: #bb0239;
+    color: #fff;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+}
+
+a.btn-delete {
+    text-decoration: none;
+}
+
+
+
+.main-customer {
+    width: 100%;
+    height: 12rem;
+    background: #bb0239;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0rem 0rem 3.75rem 3.75rem;
+    /* supaya teks di atas card */
+    align-items: center;
+    /* card tetap di tengah horizontal */
+    box-sizing: border-box;
+}
+
+.grettings-customer {
+    width: 100%;
+    text-align: left;
+    /* teks di kiri */
+    padding-left: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.hello {
+    color: #fff;
+    font-size: 0.8125rem;
+}
+
+.image-wrapper {
+    position: relative;
+    margin: -0.9375rem -0.9375rem 0.625rem -0.9375rem;
+    /* full kiri-kanan */
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.promo-badge {
+    background: #bb0239;
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+}
+
+.container-content-promo {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* icon favorite */
+.favorite-icon {
+    background: rgba(255, 255, 255, 0.9);
+    color: #bb0239;
+    font-size: 1rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.input-search {
+    position: relative;
+    width: 100%;
+}
+
+.input-search i {
+    position: absolute;
+    left: 0.75rem;
+    /* jarak icon dari kiri */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+    /* supaya klik fokus ke input */
+    font-size: 1rem;
+}
+
+.input-search input {
+    width: 100%;
+    padding-left: 2.25rem;
+    /* beri ruang untuk icon */
+}
+
+/* card-segment tetap di tengah */
+.card-segment {
+    width: max-content;
+    position: absolute;
+    max-width: 37.5rem;
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    color: #bb0239;
+    border-radius: 0.625rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0rem 0.375rem 1.5rem 0rem,
+        rgba(0, 0, 0, 0.08) 0rem 0rem 0rem 0.0625rem;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 0.625rem;
+    box-sizing: border-box;
+    margin-top: 3.1em;
+}
+
+.card-segment-profile {
+    width: 20%;
+    position: absolute;
+    max-width: 37.5rem;
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    color: #bb0239;
+    border-radius: 0.625rem;
+    box-shadow: rgba(0, 0, 0, 0.05) 0rem 0.375rem 1.5rem 0rem,
+        rgba(0, 0, 0, 0.08) 0rem 0rem 0rem 0.0625rem;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 0.625rem;
+    box-sizing: border-box;
+    margin-top: 4.6rem;
+}
+
+.location-map {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    color: white;
+    margin-top: 5px;
+
+}
+
+/* Default select */
+.select-location {
+    background: transparent;
+    color: white;
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-size: 15px;
+}
+
+/* Saat sudah ada value terpilih */
+.select-location:not(:has(option:checked[value=""])) {
+    background: white;
+    color: black;
+}
+
+/* Option list (dropdown) */
+.select-location option {
+    background: white;
+    color: black;
+}
+
+
+.show-qrcode {
+    width: 250px;
+    height: max-content;
+    padding: 5px;
+}
+
+.grand-total p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.qr-code {
+    display: flex;
+    justify-content: center;
+    margin: 0rem 0px 20px 0px;
+    text-align: center
+}
+
+.show-qrcode img {
+    width: 150px;
+    height: 150px;
+}
+
+h1.title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.grid-products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 0.625rem 0;
+}
+
+.grid-products-favorite {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 0.625rem 0;
+}
+
+/* Grid produk/promo */
+.grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.9375rem;
+    width: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0.625rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.grid::-webkit-scrollbar,
+.grid-products::-webkit-scrollbar {
+    display: none;
+}
+
+.img-logo {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    /* logo di tengah */
+    align-items: center;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.img-logo .logo {
+    display: block;
+    height: auto;
+}
+
+.notification-customer {
+    position: absolute;
+    right: 1rem;
+    /* pojok kanan */
+    top: 50%;
+    transform: translateY(-50%);
+    background: #bb0239;
+    /* warna notifikasi */
+    color: #fff;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.notification-customer i {
+    font-size: 1rem;
+}
+
+img.logo {
+    width: 3.125rem;
+    height: 3.125rem;
+}
+
+.btn-detail {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-detail-product {
+    width: 12.5rem;
+    text-align: center;
+}
+
+a.btn-detail-info {
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 5px;
+    background: none;
+    color: #ffffff;
+    background-color: #bb0239;
+    text-decoration: none;
+}
+
+a.btn-detail-product {
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 3.125rem;
+    background: none;
+    color: #bb0239;
+    border: 0.0625rem solid #bb0239;
+    text-decoration: none;
+}
+
+.card-promo {
+    padding: 10px;
+    border-radius: 10px;
+    border: 0.5px solid rgb(170, 170, 170);
+}
+
+/* Card */
+.card {
+    flex: 0 0 auto;
+    /* jangan shrink */
+    width: 11rem;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.card-search {
+    flex: 0 0 auto;
+    /* jangan shrink */
+    width: 10rem;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.card-favorite {
+    flex: 0 0 auto;
+    /* jangan shrink */
+    width: 11rem;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Card image */
+.card-image {
+    width: 100%;
+    height: 11.25rem;
+    object-fit: cover;
+}
+
+/* Card body */
+.card-body {
+    padding: 0.9375rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.products-img {
+    width: 100%;
+    height: 6.25rem;
+    object-fit: cover;
+    display: block;
+    border-radius: 0.5rem 0.5rem 0 0;
+    /* opsional */
+}
+
+/* Product name/category/price */
+.product-name {
+    font-weight: bold;
+    font-size: 0.875rem;
+    margin-bottom: 0.3125rem;
+}
+
+.product-category {
+    color: #666;
+    font-size: 0.875rem;
+    margin-bottom: auto;
+}
+
+.product-price {
+    font-weight: normal;
+    color: black;
+    margin-top: 0.625rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.75rem;
+}
+
+.center {
+    text-align: center;
+    padding: 1.25rem;
+}
+
+.group-menu {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.group-icon-list i {
+    padding: 0.625rem;
+    border-radius: 50%;
+    background: #bb0239;
+    color: white;
+}
+
+.redeem {
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+/* .btn-redeem-point {
+
+    border-radius: 0.5rem;
+    text-decoration: none;
+    background-color: #bb0239;
+    color: white;
+    text-align: center;
+} */
+
+.date {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+
+a.btn_redeem {
+    padding: 0.5rem;
+    font-size: 1.25rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    background-color: #bb0239;
+    color: white;
+}
+
+.hr-menu {
+    border-top: 0.0625rem solid rgb(0, 0, 0);
+}
+
+.error {
+    color: red;
+}
+
+p.text-invoice a {
+    text-decoration: underline;
+    color: #bb0239;
+    font-size: 16px;
+}
+
+p.text-date {
+    font-size: 16px;
+    color: gray;
+}
+
+a.menu {
+    color: black;
+    text-decoration: none;
+    font-size: 1.25rem;
+}
+
+.btn-order {
+    width: 100%;
+    text-align: center;
+    padding: 0.375rem;
+    border-radius: 3.125rem;
+    color: #bb0239;
+    text-decoration: none;
+    border: 0.0625rem solid #bb0239;
+    margin-top: 0;
+}
+
+a.btn-order-product {
+    color: #bb0239;
+    text-decoration: none;
+}
+
+.custom-carousel-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    background: #e0e0e0;
+    border-radius: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    position: absolute;
+    opacity: 1;
+    z-index: 10;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* POSITION PREV / NEXT */
+.carousel-control-prev.custom-carousel-btn {
+    left: 0.625rem;
+    /* jarak dari kiri card */
+}
+
+.carousel-control-next.custom-carousel-btn {
+    right: 0.625rem;
+    /* jarak dari kanan card */
+}
+
+/* ICON SIZE */
+.custom-carousel-btn .carousel-control-prev-icon,
+.custom-carousel-btn .carousel-control-next-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    filter: invert(1);
+    /* supaya terlihat di card warna terang */
+}
+
+.navbar {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 -0.0625rem 0.375rem rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.icon-text {
+    font-size: 0.75rem;
+}
+
+.flex-price {
+    font-size: 0.9375rem;
+    display: flex;
+    gap: 0.625rem;
+}
+
+.flex-price-item {
+    font-size: 0.9375rem;
+    display: flex;
+    gap: 0.625rem;
+}
+
+.navbar-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    justify-content: center;
+    /* center horizontal */
+    transform: translateX(-50%);
+    width: calc(100% - 2.5rem);
+    /* mengikuti padding .main-container */
+    max-width: 45%;
+    /* sama dengan main-container */
+    z-index: 1000;
+}
+
+
+
+.product-card {
+    width: 100%;
+    margin: 1.25rem auto;
+    overflow: hidden;
+}
+
+
+
+/* Image */
+.product-image {
+    width: 100%;
+    height: 13.75rem;
+    background: #f4f4f4;
+    margin-bottom: 1.25rem;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Product Info */
+.container-product-info {
+    padding: 0.625rem 0rem 0.625rem 0rem;
+}
+
+.container-product-info h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: black;
+    /* Starbucks green */
+    margin-bottom: 1rem;
+}
+
+.container-product-info .price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #bb0239;
+    margin-bottom: 0.625rem;
+}
+
+.container-product-info .description {
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 62.5rem) {
+    .custom-carousel-btn {
+        width: 1.875rem;
+        height: 1.875rem;
+
+    }
+
+    .container-products {
+        width: 100%;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        background: white;
+        box-sizing: border-box;
+
+    }
+
+    .hello {
+        color: #fff;
+        font-size: 0.75rem;
+    }
+
+    .custom-carousel-btn .carousel-control-prev-icon,
+    .custom-carousel-btn .carousel-control-next-icon {
+        width: 0.75rem;
+        height: 0.75rem;
+    }
+
+    h1.title {
+        font-size: 1rem;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+
+    .show-qrcode img {
+        width: 250px;
+        height: 250px;
+    }
+
+    .main-container {
+        width: 100%;
+        margin-bottom: 4%;
+    }
+
+    h5.card-title {
+        font-size: 1rem;
+    }
+
+    .user-point {
+        font-size: 1rem;
+    }
+
+    p.info-point {
+        font-size: 1.4rem;
+    }
+
+
+    a.menu {
+        color: black;
+        text-decoration: none;
+        font-size: 1.25rem;
+    }
+
+    .card-segment {
+        width: 50%;
+        gap: 1rem;
+    }
+
+    .card-segment-profile {
+        width: 65%;
+        gap: 1rem;
+        font-size: 14px;
+    }
+
+    .customer-segment {
+        width: 100%;
+    }
+
+    .card {
+        flex: 0 0 auto;
+        /* jangan shrink */
+        width: 11rem;
+        border: 0.0625rem solid #ddd;
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+    .card-search {
+        flex: 0 0 auto;
+        /* jangan shrink */
+        width: 10rem;
+        border: 0.0625rem solid #ddd;
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+    .card-favorite {
+        flex: 0 0 auto;
+        /* jangan shrink */
+        width: 11rem;
+        border: 0.0625rem solid #ddd;
+        border-radius: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+    .card-body {
+        padding: 0.9375rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+
+    .products-img {
+        width: 100%;
+        height: 6.25rem;
+        object-fit: cover;
+        display: block;
+        border-radius: 0.5rem 0.5rem 0 0;
+        /* opsional */
+    }
+
+
+    .product-category {
+        margin: 0;
+    }
+
+    .product-name {
+        font-weight: bold;
+        font-size: 1rem;
+        margin-bottom: 0.3125rem;
+    }
+
+    .grid-products {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .location-map {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        color: white;
+        margin-top: 10px;
+
+    }
+
+    .navbar-wrapper {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        justify-content: center;
+        /* center horizontal */
+        transform: translateX(-50%);
+        width: calc(100% - 2.5rem);
+        /* mengikuti padding .main-container */
+        max-width: 100%;
+        /* sama dengan main-container */
+        z-index: 1000;
+    }
+
+
+    body {
+        font-size: 1.25rem;
+    }
+
+    .grid-products {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .main-container {
+        width: 100%;
+        margin-bottom: 15%;
+    }
+
+    .container {
+        font-size: 0.9375rem;
+    }
+
+
+    .flex-price {
+        font-size: 1.125rem;
+        display: flex;
+        gap: 0.625rem;
+    }
+
+    .flex-price-item {
+        font-size: 1.25rem;
+        display: flex;
+        gap: 0.625rem;
+    }
+
+    .btn-detail {
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-detail-product {
+        width: 12.5rem;
+        text-align: center;
+    }
+
+    a.btn-detail-product {
+        padding: 6px;
+        font-size: 14px;
+        border-radius: 3.125rem;
+        background: none;
+        color: #bb0239;
+        border: 0.0625rem solid #bb0239;
+        text-decoration: none;
+    }
+
+    h4.history-transaction {
+        font-size: 1.6px;
+    }
+
+    p.text-invoice a {
+        text-decoration: underline;
+        color: #bb0239;
+        font-size: 16px;
+    }
+
+    .grand-total p {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .products-img {
+        width: 100%;
+        height: 8rem;
+        object-fit: cover;
+        display: block;
+        border-radius: 0.5rem 0.5rem 0 0;
+        /* opsional */
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.9375rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .qr-code {
+        display: flex;
+        justify-content: center;
+        margin: 0px 0px 20px 0px;
+        text-align: center
+    }
+
+
+
+    p.text-date {
+        font-size: 16px;
+        color: gray;
+    }
+
+
+    .card-category {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        padding: 0.25rem;
+        border-radius: 0.3125rem;
+        background: #f3f3f3;
+        cursor: pointer;
+        font-size: 1.25rem;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+
+    .card-category.active {
+        background: #bb0239;
+        color: #fff;
+        font-weight: normal;
+    }
+
+    a.card-category {
+        color: black;
+        font-size: 2.25rem;
+        text-decoration: none;
+    }
+
+    .card-category i {
+        font-size: 14px;
+        padding-left: 3px;
+    }
+
+    .group-icon-list i {
+        padding: 0.625rem;
+        border-radius: 50%;
+        background: #bb0239;
+        color: white;
+    }
+
+    p.hello {
+        margin-bottom: 0;
+    }
+
+    .hello {
+        color: #fff;
+        font-size: 1.125rem;
+    }
+
+    p.product-category-show {
+        margin: 0;
+        width: max-content;
+        font-size: 1rem;
+
+    }
+
+    .container-content-promo {
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .container-product-info p {
+        font-size: 1rem;
+    }
+
+    .container-product-info h4 {
+        font-size: 1.5625rem;
+    }
+
+    .container-product-info .description {
+        font-size: 1rem;
+    }
+
+    .container-product-info .price {
+        font-size: 1.25rem;
+    }
+
+}

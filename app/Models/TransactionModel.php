@@ -18,6 +18,7 @@ class TransactionModel extends Model
         'casheer',
         'customer',
         'status',
+        'store',
         'payment_type',
         'payment_changes',
         'reward_transaction_used',

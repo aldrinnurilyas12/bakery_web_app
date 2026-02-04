@@ -20,6 +20,14 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Kategori</h4>
                     <hr>
+                    <div style="font-size: 13px;" class="alert alert-info">
+                        <ul>
+                            <li>Hindari penggunaan karakter : #,&,@,?,/,=,-,+ dan lainnya</li>
+                            <li>Jika ingin menyambung jangan pakai '&' dan spasi, pakai underscore (_) contoh :
+                                Muffins_and_Cupcakes</li>
+                            <li>Icon diambil dari situs web font-awesome dengan hanya input seperti : fa fa-users</li>
+                        </ul>
+                    </div>
                     <form action="{{ route('master_category.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
@@ -27,6 +35,14 @@
                             <input type="text" name="category_name" class="form-control"
                                 value="{{ old('category_name') }}" placeholder="Masukan nama produk" id="inputEmail4"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('category_name')" class="text-danger" />
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Icon</strong></label>
+                            <input type="text" name="icon" class="form-control" value="{{ old('icon') }}"
+                                placeholder="Masukan icon contoh : fa fa-users" id="inputEmail4" autocomplete="off">
+                            <x-input-error :messages="$errors->get('icon')" class="text-danger" />
                         </div>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </form>

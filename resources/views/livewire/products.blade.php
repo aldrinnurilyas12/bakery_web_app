@@ -2,7 +2,10 @@
     @yield('title', 'Kencana Bakery - Master Data Produk')</title>
 <div>
     <main>
-
+        @php
+            $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+            $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+        @endphp
         <div style="font-size: 14px;" class="alert alert-info">
             <ul>
                 <li>Data Master Produk hanya bisa dihapus jika Product belum masuk ke Master Data Product Daily & Produk
@@ -19,9 +22,11 @@
                     </div>
 
                     @if ($products->isNotEmpty())
-                        <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('product_create') }}">Tambah Item</a>
-                        </div>
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn btn-primary" href="{{ route('product_create') }}">Tambah Item</a>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -34,7 +39,9 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
-                                            <th>Aksi</th>
+                                            @if (!$user_permission_forbidden)
+                                                <th>Aksi</th>
+                                            @endif
                                             <th>Foto</th>
                                             <th>Kode Produk</th>
                                             <th>Produk</th>
@@ -61,32 +68,34 @@
                                         @foreach ($products as $product)
                                             <tr>
                                                 <td>{{ $no++ }}</td>
-                                                <td>
-                                                    <div style="display: block;" class="btn-action">
-                                                        <div style="display: flex; gap:10px; margin-bottom: 20px;"
-                                                            class="flex-btn-add">
-                                                            <a
-                                                                href="{{ route('product_update', $product->product_code) }}"><i
-                                                                    class="fas fa-edit"></i></a>
+                                                @if (!$user_permission_forbidden)
+                                                    <td>
+                                                        <div style="display: block;" class="btn-action">
+                                                            <div style="display: flex; gap:10px; margin-bottom: 20px;"
+                                                                class="flex-btn-add">
+                                                                <a
+                                                                    href="{{ route('product_update', $product->product_code) }}"><i
+                                                                        class="fas fa-edit"></i></a>
 
-                                                            @if ($product->status == 'Ready')
-                                                            @else
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteModal{{ $product->product_code }}"><i
-                                                                        class="fas fa-trash"></i></a>
-                                                            @endif
-                                                        </div>
-                                                        @if ($product->product_variant == 'Y')
-                                                            <div class="text-primary">
-                                                                <a style="font-size:13px; color:rgb(49, 0, 243);width: 100%;"
-                                                                    href="{{ route('add_product_variant', $product->product_code) }}">
-                                                                    <i class="fa fa-plus"></i>variant
-                                                                </a>
+                                                                @if ($product->status == 'Ready')
+                                                                @else
+                                                                    <a href="#" data-toggle="modal"
+                                                                        data-target="#deleteModal{{ $product->product_code }}"><i
+                                                                            class="fas fa-trash"></i></a>
+                                                                @endif
                                                             </div>
-                                                        @endif
+                                                            @if ($product->product_variant == 'Y')
+                                                                <div class="text-primary">
+                                                                    <a style="font-size:13px; color:rgb(49, 0, 243);width: 100%;"
+                                                                        href="{{ route('add_product_variant', $product->product_code) }}">
+                                                                        <i class="fa fa-plus"></i>variant
+                                                                    </a>
+                                                                </div>
+                                                            @endif
 
-                                                    </div>
-                                                </td>
+                                                        </div>
+                                                    </td>
+                                                @endif
                                                 <td>
                                                     @php
                                                         $product_image = DB::table('product_images')
@@ -126,7 +135,9 @@
                                                             cellspacing="0">
 
                                                             <tr>
-                                                                <th>Aksi</th>
+                                                                @if (!$user_permission_forbidden)
+                                                                    <th>Aksi</th>
+                                                                @endif
                                                                 <th>Tipe Variant</th>
                                                                 <th>Harga Variant </th>
                                                                 <th>Discount</th>
@@ -136,20 +147,22 @@
                                                             @foreach ($product_variants as $prd)
                                                                 @if ($product->product_code == $prd->product)
                                                                     <tr>
-                                                                        <td>
+                                                                        @if (!$user_permission_forbidden)
+                                                                            <td>
 
 
-                                                                            <a
-                                                                                href="{{ route('update_variant', $prd->variant_code) }}">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
+                                                                                <a
+                                                                                    href="{{ route('update_variant', $prd->variant_code) }}">
+                                                                                    <i class="fas fa-edit"></i>
+                                                                                </a>
 
 
-                                                                            <a href="#"
-                                                                                onclick="openDeleteModal('{{ $prd->variant_code }}', '{{ $product->product }}', '{{ $prd->variant_type }}')">
-                                                                                <i class="fas fa-trash"></i>
-                                                                            </a>
-                                                                        </td>
+                                                                                <a href="#"
+                                                                                    onclick="openDeleteModal('{{ $prd->variant_code }}', '{{ $product->product }}', '{{ $prd->variant_type }}')">
+                                                                                    <i class="fas fa-trash"></i>
+                                                                                </a>
+                                                                            </td>
+                                                                        @endif
                                                                         <td>{{ $prd->variant_type }}</td>
                                                                         <td>{{ 'Rp.' . number_format($prd->variant_price) }}
                                                                         </td>
@@ -257,8 +270,10 @@
                                         src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
                                     <div>
                                         <h3>Belum ada produk</h3>
-                                        <p class="text-secondary">Tambah data produk anda</p>
-                                        <a class="btn btn-primary" href="{{ 'product_create' }}">Tambah Item</a>
+                                        @if (!$user_permission_forbidden)
+                                            <p class="text-secondary">Tambah data produk anda</p>
+                                            <a class="btn btn-primary" href="{{ 'product_create' }}">Tambah Item</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -337,6 +352,16 @@
             title: 'Berhasil',
             text: "{{ Session::get('message_success') }}",
             icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
             timer: 2000,
             confirmButtonText: 'OK'
         });

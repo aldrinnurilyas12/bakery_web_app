@@ -25,9 +25,14 @@ class ItemsCategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function category_create(): View
+    public function category_create()
     {
-
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         return view('layouts.main_pages.category.create.category_create');
     }
 
@@ -36,10 +41,20 @@ class ItemsCategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'category_name' => 'required',
+            'icon' => 'required'
+        ],
+        [
+            'category_name.required' => 'Nama kategori harus diisi',
+            'icon.required' => 'Icon harus diisi'
+        ]);
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
+
         ItemsCategoryModel::create([
-            'category_name' => $request->category_name
+            'category_name' => $request->category_name,
+            'icon' => $request->icon
         ]);
 
         session()->flash('message_success', 'Data kategori berhasil disimpan!');
@@ -57,8 +72,14 @@ class ItemsCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function category_update(string $id, Request $request): View
+    public function category_update(string $id, Request $request)
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
         $ctgid = $request->id;
         $checking_category = ItemsCategoryModel::find($id);
 
@@ -75,9 +96,18 @@ class ItemsCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'category_name' => 'required',
+            'icon' => 'required'
+        ],
+        [
+            'category_name.required' => 'Nama kategori harus diisi',
+            'icon.required' => 'Icon harus diisi'
+        ]);
 
         $update_data = DB::table('product_category')->where('id', $id)->update([
             'category_name' => $request->category_name,
+            'icon' => $request->icon,
             'updated_at' => now()
         ]);
 
