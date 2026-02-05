@@ -1,35 +1,50 @@
-/.phpunit.cache
-/node_modules
-# Ignore public build artifacts
-/public/build
-/public/hot
-/public/storage
+# -------------------------
+# System / editor files
+# -------------------------
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
+/.fleet
+/.zed
 
-# Ignore all files in storage
-/storage/*
-
-# Keep folder structure only
-!/storage/**/
-
-# Ignore sensitive keys
-/storage/*.key
-
-# Ignore specific folder
-/storage/pail
-
-/vendor
+# -------------------------
+# Environment / sensitive
+# -------------------------
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
+/auth.json
 Homestead.json
 Homestead.yaml
+
+# -------------------------
+# Node / PHP dependencies
+# -------------------------
+/node_modules
+/vendor
+
+# -------------------------
+# Build artifacts / caches
+# -------------------------
+/public/build
+/public/hot
+/public/storage
+.phpunit.cache
+.phpunit.result.cache
+.phpactor.json
 npm-debug.log
 yarn-error.log
-/auth.json
-/.fleet
-/.idea
-/.nova
-/.vscode
-/.zed
+
+# -------------------------
+# Storage folder
+# -------------------------
+# Ignore all files in storage
+/storage/*
+
+# Keep folder structure only (empty folders with .gitkeep)
+/storage/**/
+
+# Ignore sensitive keys and specific folder
+/storage/*.key
+/storage/pail
