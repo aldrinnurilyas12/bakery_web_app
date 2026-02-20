@@ -42,8 +42,8 @@ yarn-error.log
 # Ignore all files in storage
 /storage/*
 
-# Keep folder structure only (empty folders with .gitkeep)
-/storage/**/
+# Except .gitkeep (keep folder structure)
+/storage/**/.gitkeep
 
 # Ignore sensitive keys and specific folder
 /storage/*.key
