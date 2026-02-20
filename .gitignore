@@ -29,7 +29,11 @@ Homestead.yaml
 # -------------------------
 /public/build
 /public/hot
+<<<<<<< HEAD
 
+=======
+/public/storage
+>>>>>>> 36f50d840a34023170ea0da9e5477beff9db5c2f
 .phpunit.cache
 .phpunit.result.cache
 .phpactor.json
@@ -42,9 +46,18 @@ yarn-error.log
 # Ignore all files in storage
 /storage/*
 
+<<<<<<< HEAD
 # Except .gitkeep (keep folder structure)
 /storage/**/.gitkeep
 
 # Ignore sensitive keys and specific folder
 /storage/*.key
 /storage/pail
+=======
+# Keep folder structure only (empty folders with .gitkeep)
+/storage/**/
+
+# Ignore sensitive keys and specific folder
+/storage/*.key
+/storage/pail
+>>>>>>> 36f50d840a34023170ea0da9e5477beff9db5c2f
