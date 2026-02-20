@@ -96,12 +96,14 @@
                             <small style="color:gray;margin:0;">*Tidak pakai spasi (contoh : PROMO25DES)</small>
                             <input type="text" name="promo_code" class="form-control" value="{{ old('promo_code') }}"
                                 placeholder="Masukan kode promo" autocomplete="off">
+                            <x-input-error :messages="$errors->get('promo_code')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Masukan nama promo</strong></label>
                             <input type="text" name="promo_name" class="form-control" value="{{ old('promo_name') }}"
                                 placeholder="Masukan nama promo" autocomplete="off">
+                            <x-input-error :messages="$errors->get('promo_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -109,17 +111,20 @@
                             <input type="text" name="min_transaction" class="form-control"
                                 value="{{ old('min_transaction') }}" placeholder="Masukan jumlah minimal transaksi"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('min_transaction')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Deskripsi </strong></label>
                             <textarea class="form-control" name="description" id="" cols="30" rows="4"></textarea>
+                            <x-input-error :messages="$errors->get('description')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Kuota Promo</strong></label>
                             <input type="text" name="quota" class="form-control" value="{{ old('quota') }}"
                                 placeholder="Masukan kuota promo min : 2 " autocomplete="off">
+                            <x-input-error :messages="$errors->get('quota')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -130,21 +135,25 @@
                                     <option value="{{ $sts->id }}">{{ $sts->status_name }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('status')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal awal promo</strong></label>
                             <input type="date" name="start_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal akhir promo</strong></label>
                             <input type="date" name="end_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Foto/Gambar (opsional)</strong></label>
-                            <input type="file" name="images" class="form-control" autocomplete="off" required>
+                            <input type="file" name="images" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('images')" class="text-danger" />
                         </div>
                         <button type="submit" class="btn btn-primary">Tambah Promo</button>
                     </form>

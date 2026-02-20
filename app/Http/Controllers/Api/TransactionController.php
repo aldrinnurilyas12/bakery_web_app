@@ -31,8 +31,8 @@ class TransactionController extends Controller
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
         $show_transaction = DB::table('v_transaction')
-        ->select('transaction_code', DB::raw('GROUP_CONCAT(product_name) as product_name'),'customer_code','name','email', 'casheer' , 'quantity','grand_total', 'transaction_date')
-        ->groupBy('transaction_code', 'customer_code','name','email','casheer','quantity','grand_total', 'transaction_date')
+        ->select('transaction_code', DB::raw('GROUP_CONCAT(product_name) as product_name'),'customer_code','name','email', 'casheer' , 'quantity_per_product','grand_total', 'transaction_date')
+        ->groupBy('transaction_code', 'customer_code','name','email','casheer','quantity_per_product','grand_total', 'transaction_date')
         ->orderBy('transaction_date', 'DESC')->get();
         $main_transaction = DB::table('v_main_transactions')->orderBy('transaction_date', 'DESC')
         ->whereDate('transaction_date', now()->format('Y-m-d'))->paginate(500);
@@ -168,7 +168,8 @@ class TransactionController extends Controller
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
          $category_data = DB::table('product_category as c')->select(DB::raw("REPLACE(c.category_name, ' ', '_') as 'category_name'"))
                 ->join('products as p', 'c.id', '=', 'p.category_id')
-                ->join('products_daily as pd', 'p.product_code', '=', 'pd.product_code')
+                ->join('production_products as pp', 'p.product_code', '=', 'pp.product')
+                ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
                 ->groupBy('c.category_name')->get();
         $all_products =  DB::table('v_daily_products')->where('status', 'Ready')->where('store_id', $store )->paginate(15);
         $payment_type = DB::table('payment_category')->get();
@@ -273,7 +274,6 @@ class TransactionController extends Controller
 
         $main_transaction = TransactionModel::create([
             'transaction_code' => $transaction_code,
-            'quantity' => $request->quantity,
             'total_amount' => $request->total_amount,
             'grand_total' => $request->grand_total,
             'casheer' => $casheer,
@@ -319,17 +319,16 @@ class TransactionController extends Controller
         
 
     // PROSEDUR GET POINT FOR CUSTOMERS WHEN TRANSACTIONS :
-    $transactionDetail = DB::table('transactions_detail')
+    $transactionDetail = DB::table('transactions_detail as td')
+        ->join('products_daily as pd', 'td.product', '=', 'pd.daily_code')
+        ->join('production_products as pp', 'pd.production', '=', 'pp.production_code')
         ->where('transaction_code', $main_transaction->transaction_code)
         ->get();
 
-    $productPoints = DB::table('products_daily')
-        ->whereNotNull('product_code')
-        ->pluck('point', 'product_code');
-
-    $variantProductPoints = DB::table('products_daily')
-        ->whereNotNull('variant_code')
-        ->pluck('point', 'variant_code');
+    // FIX THIS CHANGE TO TABLE PRODUCTS_POINT
+    $productPoints = DB::table('products_point')
+        ->whereNotNull('product')->where('status', 7)
+        ->pluck('point', 'product');
 
     $customerTransaction = DB::table('transactions')
         ->where('customer', $main_transaction->customer)
@@ -344,11 +343,6 @@ class TransactionController extends Controller
     if ($customerTransaction) {
 
         foreach($transactionDetail as $detail) {
-
-             if (!empty($detail->variant) && isset($variantProductPoints[$detail->variant])) {
-                $totalPoints += $variantProductPoints[$detail->variant];
-                continue;
-            }
 
             if (!empty($detail->product) && isset($productPoints[$detail->product])) {
                 $totalPoints += $productPoints[$detail->product];
@@ -424,7 +418,7 @@ class TransactionController extends Controller
         $keyword = $request->keyword;
         $search = DB::table('customer as c')
         ->leftJoin('status_category as s', 'c.status', '=', 's.id')->where('customer_code','LIKE', "%{$keyword}%")
-                                        ->orWhere('phone_number','LIKE', "%{$keyword}%")->orWhere('name', 'LIKE', "%{$keyword}%")->limit(3)->get();
+                                        ->orWhere('phone_number','LIKE', "%{$keyword}%")->orWhere('name', 'LIKE', "%{$keyword}%")->limit(5)->get();
 
         return response()->json($search);
     }

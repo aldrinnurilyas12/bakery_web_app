@@ -27,35 +27,41 @@
 
                         <div class="form-group">
                             <label><strong>NIK Karyawan</strong></label>
-                            <input class="form-control" type="text" name="nik" value="{{ old('nik') }}"
+                            <input class="form-control" type="number" name="nik" value="{{ old('nik') }}"
                                 placeholder="Masukan NIK Karyawan" id="" autocomplete="off">
+                            <x-input-error :messages="$errors->get('nik')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Nama Karyawan</strong></label>
                             <input class="form-control" type="text" name="name" value="{{ old('name') }}"
                                 placeholder="Masukan nama karyawan" id="" autocomplete="off">
+                            <x-input-error :messages="$errors->get('name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal Lahir</strong></label>
                             <input class="form-control" type="date" name="birth_date" autocomplete="off">
+                            <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Alamat</strong></label>
                             <textarea class="form-control" name="address" id="" cols="30" rows="4"></textarea>
+                            <x-input-error :messages="$errors->get('address')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>No. Telepon/Handphone</strong></label>
                             <input class="form-control" type="text" name="phone_number" autocomplete="off">
+                            <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Email</strong></label>
                             <input class="form-control" type="email" name="email" value="{{ old('email') }}"
                                 placeholder="Masukan email anda" id="" autocomplete="off">
+                            <x-input-error :messages="$errors->get('email')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -65,8 +71,8 @@
                                 @foreach ($job_position as $job)
                                     <option value="{{ $job->position_code }}">{{ $job->position_name }}</option>
                                 @endforeach
-
                             </select>
+                            <x-input-error :messages="$errors->get('position')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -76,18 +82,15 @@
                                 @foreach ($branch as $store)
                                     <option value="{{ $store->id }}">{{ $store->store_name }}</option>
                                 @endforeach
-
                             </select>
+                            <x-input-error :messages="$errors->get('store')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal Mulai Bekerja</strong></label>
                             <input class="form-control" type="date" name="start_date" autocomplete="off">
+                            <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
-
-
-
-
                         <button type="submit" class="btn btn-primary">Tambah Data</button>
                     </form>
                     <br>

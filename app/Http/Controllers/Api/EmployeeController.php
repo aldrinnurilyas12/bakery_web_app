@@ -43,10 +43,27 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nik' => 'required',
+            'nik' => 'required|max:16',
             'name' => 'required',
+            'address' =>'required',
+            'phone_number' => 'required',
+            'birth_date' => 'required',
+            'email' => 'required',
             'position' => 'required',
-            'store' => 'required'
+            'store' => 'required',
+            'start_date' => 'required'
+        ], 
+        [
+            'nik.required' => 'NIK Harus diisi',
+            'nik.max' => 'NIK Harus 16 digit',
+            'name.required' => 'Nama harus diisi',
+            'address.required' =>'Alamat harus diisi',
+            'phone_number.required' => 'No.Telepon harus diisi',
+            'birth_date.required' => 'Tanggal Lahir harus diisi',
+            'email.required' => 'Email harus diisi',
+            'position.required' => 'Posisi pekerjaan harus diisi',
+            'store.required' => 'Store harus diisi',
+            'start_date.required' => 'Tanggal masuk harus diisi'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -107,6 +124,31 @@ class EmployeeController extends Controller
      */
     public function update(Request $request)
     {
+         $request->validate([
+            'nik' => 'required|max:16',
+            'name' => 'required',
+            'address' =>'required',
+            'phone_number' => 'required',
+            'birth_date' => 'required',
+            'email' => 'required',
+            'position' => 'required',
+            'store' => 'required',
+            'start_date' => 'required'
+        ], 
+        [
+            'nik.required' => 'NIK Harus diisi',
+            'nik.max' => 'NIK Harus 16 digit',
+            'name.required' => 'Nama harus diisi',
+            'address.required' =>'Alamat harus diisi',
+            'phone_number.required' => 'No.Telepon harus diisi',
+            'birth_date.required' => 'Tanggal Lahir harus diisi',
+            'email.required' => 'Email harus diisi',
+            'position.required' => 'Posisi pekerjaan harus diisi',
+            'store.required' => 'Store harus diisi',
+            'start_date.required' => 'Tanggal masuk harus diisi'
+        ]);
+
+        
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
         $update_data = DB::table('employee')->where('nik', $request->nik)->update([
             'nik' => $request->nik,

@@ -46,12 +46,28 @@ class PromoCampaignController extends Controller
         $request->validate([
             'promo_name' => 'required',
             'promo_code' => 'required',
+            'quota' => 'required',
+            'status' => 'required',
+            'description' => 'required',
             'min_transaction' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
             'product' => 'required|array',
             'product.*' => 'required|exists:products,product_code',
             'variant' => 'nullable|array',
             'variant.*' => 'nullable|exists:product_variant,variant_code',
             'images' => 'required|image|mimes:jpg,png,jpeg,JPG,PNG'
+        ],
+        [
+            'promo_name.required' => 'Masukan nama promo',
+            'promo_code.required' => 'Masukan kode promo',
+            'min_transaction.required' => 'Masukan minimal transaksi',
+            'quota.required' => 'Kuota promo harus diisi',
+            'status.required' => 'Pilih status',
+            'description.required' => 'Deskripsi harus diisi',
+            'start_date.required' => 'Tanggal awal promo harus diisi',
+            'end_date.required' => 'Tanggal akhir promo harus diisi',
+            'images.required' => 'Gambah harus diupload'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -140,10 +156,25 @@ class PromoCampaignController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
+         $request->validate([
             'promo_name' => 'required',
             'promo_code' => 'required',
-            'min_transaction' => 'required'
+            'quota' => 'required',
+            'status' => 'required',
+            'description' => 'required',
+            'min_transaction' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+        ],
+        [
+            'promo_name.required' => 'Masukan nama promo',
+            'promo_code.required' => 'Masukan kode promo',
+            'min_transaction.required' => 'Masukan minimal transaksi',
+            'quota.required' => 'Kuota promo harus diisi',
+            'status.required' => 'Pilih status',
+            'description.required' => 'Deskripsi harus diisi',
+            'start_date.required' => 'Tanggal awal promo harus diisi',
+            'end_date.required' => 'Tanggal akhir promo harus diisi',
         ]);
 
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;

@@ -1,0 +1,220 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\MasterMainMenuModel;
+use App\Models\MasterSubMenuModel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\DB;
+
+class MasterMainMenu extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+        $main_menu = DB::table('main_menu')->get();
+        return view('layouts.main_pages.master_menu.main_menu', compact('main_menu'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+        return view('layouts.main_pages.master_menu.create.main_menu_create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'menu_name' => 'required',
+            'location' => 'required',
+            'location' => 'required'
+        ]);
+
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+
+        MasterMainMenuModel::create([
+            'menu_name' => $request->menu_name,
+            'location' => $request->location,
+            'icon' => $request->icon,
+            'status' => 7
+        ]);
+
+        session()->flash('message_success', 'Berhasil menambahkan Menu Utama!');
+        return redirect()->route('master_main_menu.index');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function main_menu_edit(string $id, Request $request)
+    {
+        $request->validate([
+            'menu_name' => 'required',
+            'location' => 'required'
+        ]);
+
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+
+        MasterMainMenuModel::where('id', $request->id)->update([
+            'menu_name' => $request->menu_name,
+            'location' => $request->location,
+            'icon' => $request->icon,
+            'status' => $request->status
+        ]);
+
+        session()->flash('message_success', 'Berhasil perbarui data Menu Utama!');
+        return redirect()->route('master_main_menu.index');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+
+        $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
+        $main_menu = MasterMainMenuModel::where('id', $request->id)->first();
+        return view('layouts.main_pages.master_menu.edit.main_menu_edit', compact('main_menu','status'));
+    }
+
+    public function submenu_list(Request $request)
+    {
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+
+       $submenu = DB::table('submenu as s')->select('mm.id','mm.menu_name','s.id as submenu_id', 's.submenu_name','s.submenu_link', 's.icon','s.status', 's.created_at','s.updated_at')
+                ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
+                ->where('s.main_menu', $request->id)->get();
+        $main_menu_id = DB::table('main_menu')->where('id', $request->id)->first();
+        return view('layouts.main_pages.master_menu.submenu',compact('submenu', 'main_menu_id'));
+    }
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+
+
+    public function submenu_create(Request $request)
+    {
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+
+        $main_menu = DB::table('main_menu as m')->where('m.id', $request->id)->first();
+        return view('layouts.main_pages.master_menu.create.submenu_create',compact('main_menu'));
+    }
+
+    public function submenu_save(Request $request)
+    {
+        $request->validate([
+            'submenu_name' => 'required'
+        ]);
+
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+
+        MasterSubMenuModel::create([
+            'submenu_name' => $request->submenu_name,
+            'submenu_link' => $request->submenu_link,
+            'main_menu' => $request->main_menu,
+            'icon' => $request->icon,
+            'status' => 7
+        ]);
+
+        session()->flash('message_success', 'Berhasil menambahkan Submenu');
+        return redirect()->route('submenu_list', ['id' => $request->main_menu]);
+    }
+
+    public function submenu_update(Request $request)
+    {
+        $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
+
+        if(!$authSession){
+             session()->flash('failed_message', 'Anda tidak bisa akses ini!');
+            return redirect()->back();
+        }
+        $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
+        $submenu = DB::table('submenu as s')
+        ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
+        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link', 's.icon','s.status', 'mm.id', 'mm.menu_name', 's.updated_at')
+        ->where('s.id', $request->submenu_id)
+        ->first();
+        return view('layouts.main_pages.master_menu.edit.submenu_edit', compact('submenu', 'status'));
+    }
+    public function submenu_edit(Request $request)
+    {
+        $request->validate([
+            'submenu_name' => 'required',
+            'submenu_link' => 'required',
+            'icon' => 'required'
+        ]);
+
+        MasterSubMenuModel::where('id', $request->id)->update([
+            'submenu_name' => $request->submenu_name,
+            'submenu_link' => $request->submenu_link,
+            'icon' => $request->icon,
+            'status' => $request->status
+        ]);
+          session()->flash('message_success', 'Berhasil perbarui Submenu');
+         return redirect()->route('submenu_list', ['id' => $request->main_menu]);
+    }
+}

@@ -36,12 +36,14 @@
                             <label><strong>Bahan Baku</strong></label>
                             <input type="text" name="material_name" class="form-control"
                                 value="{{ $raw_material->material_name }}" autocomplete="off">
+                            <x-input-error :messages="$errors->get('material_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Harga Bahan Baku</strong></label>
                             <input type="text" name="price" class="form-control" value="{{ $raw_material->price }}"
                                 placeholder="Masukan harga" autocomplete="off">
+                            <x-input-error :messages="$errors->get('price')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -49,6 +51,7 @@
                             <input type="text" name="quantity" class="form-control"
                                 value="{{ $raw_material->quantity }}" placeholder="Masukan stok bahan baku"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
                         </div>
 
 
@@ -73,7 +76,13 @@
                                     Pack</option>
                                 <option value="box" {{ $raw_material->material_type == 'box' ? 'selected' : '' }}>
                                     Box</option>
+                                <option value="liter" {{ $raw_material->material_type == 'liter' ? 'selected' : '' }}>
+                                    Liter</option>
+                                <option value="mililiter"
+                                    {{ $raw_material->material_type == 'mililiter' ? 'selected' : '' }}>
+                                    Mililiter</option>
                             </select>
+                            <x-input-error :messages="$errors->get('material_type')" class="text-danger" />
                         </div>
 
 
@@ -86,6 +95,7 @@
                                         {{ $ctg->category_name . ' => ' . $ctg->description }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('material_category')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -97,6 +107,7 @@
                                         {{ $sts->status_name }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('status')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -104,6 +115,7 @@
                             <input type="date" name="expired_date"
                                 value="{{ old('expired_date', $raw_material->expired_date ? $expired_date->format('Y-m-d') : null) }}"
                                 class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -118,7 +130,7 @@
                                 readonly>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Tambah material</button>
+                        <button type="submit" class="btn btn-primary">Perbarui material</button>
                     </form>
                     <br>
                     <br>

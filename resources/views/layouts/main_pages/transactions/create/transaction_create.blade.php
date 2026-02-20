@@ -133,7 +133,7 @@
                                                                     @else
                                                                     @endif
 
-                                                                    @if ($product->variant_code == null)
+                                                                    @if ($product->variant == null)
                                                                         @if ($product->price_after_discount)
                                                                             <div class="price">
                                                                                 <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
@@ -189,7 +189,7 @@
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
-                                                                            @if ($product->variant_code)
+                                                                            @if ($product->variant)
                                                                                 @if ($product->variant_discount)
                                                                                     <input type="hidden"
                                                                                         name="price"
@@ -281,7 +281,7 @@
                                                                     @else
                                                                     @endif
 
-                                                                    @if ($product->variant_code == null)
+                                                                    @if ($product->variant == null)
                                                                         @if ($product->price_after_discount)
                                                                             <div class="price">
                                                                                 <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
@@ -339,7 +339,7 @@
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
-                                                                            @if ($product->variant_code)
+                                                                            @if ($product->variant)
                                                                                 @if ($product->discount)
                                                                                     <input type="hidden"
                                                                                         name="price"
@@ -608,8 +608,8 @@
                                             <div class="content-total">
                                                 <span class="title-total">Total items : </span>
                                                 <span id="total-quantity">0</span>
-                                                <input value="0" type="text" name="quantity"
-                                                    id="total-quantity-result" hidden>
+                                                <input value="0" type="text" id="total-quantity-result"
+                                                    hidden>
 
                                             </div>
 
@@ -891,14 +891,14 @@
                             if (customer.status == 7)
                                 html += `
                              <div>
-                            <strong>${customer.name} [${customer.customer_code}] &nbsp;  <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="checkbox">
+                            <strong>${customer.name} [${customer.email}] &nbsp;  <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="checkbox">
                                 Pilih</strong><br>
                             <small>Aktif</small>
                             `;
                             else
                                 html += `
                              <div>
-                            <strong>${customer.name} [${customer.customer_code}] &nbsp;
+                            <strong>${customer.name} [${customer.email}] &nbsp;
                                <span class="text-danger"> Tidak aktif</span></strong><br>
                             `;
 
@@ -916,7 +916,7 @@
         });
 
         $('#showCustomer').on('change', '.customer-checkbox', function() {
-            let selectedCustomerCode = $(this).val(); // Ambil nilai customer_code
+            let selectedCustomerCode = $(this).val(); // Ambil nilai email
             let customerInput = $('input[name="customer"]'); // Pilih input dengan name "customer"
 
             // Debugging: Cek apakah event change ter-trigger

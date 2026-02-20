@@ -50,15 +50,30 @@
 
                         <div class="form-group">
                             <label><strong>Produk</strong></label>
-                            <select name="product" class="form-control" id="">
+                            <select name="product" class="form-control" id="products">
                                 <option value="">=== Pilih Produk ===</option>
                                 @foreach ($products as $item)
                                     <option value="{{ $item->product_code }}">
-                                        {{ $item->product_code . ' - ' . $item->product }}</option>
+                                        {{ $item->product }}
+                                    </option>
                                 @endforeach
-
                             </select>
+                            <x-input-error :messages="$errors->get('product')" class="text-danger" />
                         </div>
+
+                        {{-- HIDE THIS --}}
+                        <div class="form-group" id="showSelectVariant" style="display: none;">
+                            <label><strong>Variant</strong></label>
+                            <select name="variant" class="form-control" id="variantSelect">
+                                <option value="">=== Pilih Variant Produk ===</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('product')" class="text-danger" />
+                        </div>
+
+                        <div class="form-group">
+                            <input hidden type="text" name="variant" id="showVariantCode">
+                        </div>
+
 
 
 
@@ -110,7 +125,12 @@
                                                             <input class="form-control"
                                                                 name="quantity_used[{{ $raw->material_code }}]"
                                                                 type="number">
+
+                                                            <x-input-error :messages="$errors->get(
+                                                                'quantity_used.' . $raw->material_code,
+                                                            )" class="text-danger" />
                                                         @endif
+
                                                     </td>
 
                                                     {{-- <td>
@@ -125,6 +145,8 @@
                                     </table>
                                 </div>
                             </div>
+                            <x-input-error :messages="$errors->get('raw_material')" class="text-danger" />
+                            <x-input-error :messages="$errors->get('quantity_used')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -135,18 +157,21 @@
                                 <option value="per_week">Per Minggu</option>
                                 <option value="per_month">Per Bulan</option>
                             </select>
+                            <x-input-error :messages="$errors->get('production_type')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Total Target Produksi Produk</strong></label>
-                            <input type="text" name="target_total" class="form-control"
+                            <input type="number" name="target_total" class="form-control"
                                 value="{{ old('target_total') }}" placeholder="Masukan jumlah target total produk"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('target_total')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal Produksi Produk</strong></label>
                             <input type="date" name="production_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('production_date')" class="text-danger" />
                         </div>
 
                         <button type="submit" class="btn btn-primary">Tambah Data</button>
@@ -164,7 +189,73 @@
     }
 </style>
 
+<script>
+    document.getElementById('products').addEventListener('change', function() {
+        var products = this.value;
+        const showVariant = document.getElementById('showSelectVariant');
+        const variantSelect = document.getElementById('variantSelect');
+        const showVariantCode = document.getElementById('showVariantCode');
 
+        // // ✅ RESET DULU
+        variantSelect.innerHTML = '<option value="">=== Pilih Variant Produk ===</option>';
+        showVariantCode.value = '';
+
+        if (!products) {
+            document.getElementById('showVariant').value = '';
+            return;
+        }
+
+        fetch('/get_variant/' + products)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Variant not found');
+                }
+                return response.json();
+            }).then(res => {
+                variantSelect.innerHTML = '<option value="">=== Pilih Variant Produk ===</option>';
+                if (res.data && res.data.length > 0) {
+
+                    res.data.forEach(function(item) {
+                        variantSelect.innerHTML +=
+                            `<option value="${item.name}">${item.name}</option>`;
+                    })
+                    showVariant.style.display = "block";
+
+                } else {
+                    showVariant.style.display = "none";
+                }
+            })
+    });
+
+
+    document.getElementById('variantSelect').addEventListener('change', function() {
+        let variantSelect = this.value;
+        let products = document.getElementById('products').value;
+
+        const showVariantCode = document.getElementById('showVariantCode');
+
+        showVariantCode.value = '';
+        if (!variantSelect || !products) return;
+
+        fetch('/get_variant_code/' + products + '/' + variantSelect)
+            .then(response => {
+                if (!response.ok) {
+                    showVariantCode.value = '';
+                }
+                return response.json();
+            }).then(res => {
+
+                // kosongkan dulu untuk safety
+                showVariantCode.value = '';
+
+                if (res.data && res.data.variant_code !== null && res.data.variant_code !== '') {
+                    showVariantCode.value = res.data.variant_code;
+                }
+            }).catch(() => {
+                showVariantCode.value = '';
+            });
+    })
+</script>
 
 
 </html>

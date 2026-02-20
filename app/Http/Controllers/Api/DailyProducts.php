@@ -25,16 +25,26 @@ class DailyProducts extends Controller
      */
     public function create()
     {
+
+        date_default_timezone_set('Asia/Jakarta');
+        $time = (int) date('H');
+
+        // if($time <=6  || $time>=8){
+        //      session()->flash('failed_message', 'Waktu sudah lewat');
+        //     return redirect()->back();
+        // }
+
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
         $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
         if($user_permission_forbidden){
             session()->flash('failed_message', 'Tidak bisa akses');
             return redirect()->back();
         }
-
         $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
 
-        $products = DB::table('v_show_available_products')->get();
+
+        $products = DB::table('v_production_products_main')->where('store', $store)->get();
         return view('layouts.main_pages.daily_products.create.products_create', compact('products', 'status'));
     }
 
@@ -44,7 +54,12 @@ class DailyProducts extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'production' => 'required',
             'stock_available' => 'required'
+        ],
+        [
+            'production.required' => 'Pilih produk dahulu',
+            'stock_available.required' => 'Stok Produk harus diisi'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -53,15 +68,13 @@ class DailyProducts extends Controller
         $unique_code = substr($uuid, 0, 5);
         $daily_code = 'DAILY' . $unique_code;
 
-
+        $production = $request->production;
         DailyProductsModel::create([
             'daily_code' => $daily_code,
-            'product_code' => $request->product_code,
-            'variant_code' => $request->variant_code,
+            'production' => $production,
             'stock_available' => $request->stock_available,
             'status' => 4,
             'store' => $store,
-            'point' => $request->point,
             'created_at' => now(),
             'created_by' => $created_by
         ]);
@@ -128,7 +141,6 @@ class DailyProducts extends Controller
         
         DailyProductsModel::where('daily_code', $request->daily_code)->update([
             'status' => $request->status,
-            'point' => $request->point,
             'stock_available' => $request->stock_available,
             'updated_at' => now(),
             'updated_by' => $updated_by
@@ -179,19 +191,29 @@ class DailyProducts extends Controller
             return redirect()->back();
         }
 
-
         $store = DB::table('store')->get();
         $filter = $request->filter;
-
         $daily_products = DB::table('v_daily_products');
 
-        
         if ($filter !== 'all' && !empty($filter)) {
-            $daily_products->where('store_id', $filter);
+            $daily_products->where('store_code', $filter);
         }
 
-
         $daily_products = $daily_products->get();
+
+        // dd($daily_products);
         return view('pages.dailyproduct-data', compact('daily_products', 'store'));
+    }
+
+    public function get_stock(Request $rq){
+        $data = DB::table('production_products')
+        ->select('actual_quantity', 'product', 'variant')
+        ->where('status', 5)
+        ->where('production_code', $rq->production_code)->first();
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Stock product'
+        ]);
     }
 }

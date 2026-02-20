@@ -13,10 +13,12 @@ class ProductionProduct extends Model
     protected $fillable = [
         'production_code',
         'product',
+        'variant',
         'target_total',
         'reject_quantity',
         'actual_quantity',
         'status',
+        'store',
         'production_type',
         'production_date',
         'created_by',

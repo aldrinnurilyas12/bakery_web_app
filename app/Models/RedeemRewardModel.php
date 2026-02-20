@@ -15,6 +15,7 @@ class RedeemRewardModel extends Model
         'reward',
         'customer',
         'status',
+        'pickup_schedule',
         'redeem_date',
         'claimed_at'
     ];

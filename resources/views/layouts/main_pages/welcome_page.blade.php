@@ -52,7 +52,8 @@
 
 
                     <div style="display:flex; gap:20px;align-items:center;" class="btn-login-intro">
-                        <a style="background:#bb0239;" href="{{ route('login') }}" class="btn-login">Login</a>
+                        <a style="background:#bb0239;" href="{{ route('login_kencana_bakery') }}"
+                            class="btn-login">Login</a>
                         {{-- <a href="{{ route('login') }}" style="color: white;text-decoration:underline;"
                             href="">Lewati</a> --}}
                     </div>

@@ -66,6 +66,7 @@
                                             {{ $item->production_code . ' - ' . $item->product_name }}</option>
                                     @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('production_code')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
@@ -77,6 +78,7 @@
                                             {{ $item->daily_code . ' - ' . $item->product_name }}</option>
                                     @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('product_daily')" class="text-danger" />
                             </div>
                         </div>
 
@@ -129,7 +131,8 @@
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Distribusi</strong></label>
-                            <input type="number" class="form-control" name="waste_type[WASTE10010]" placeholder="0">
+                            <input type="number" class="form-control" name="waste_type[WASTE10010]"
+                                placeholder="0">
                         </div>
 
                         <div class="form-group">

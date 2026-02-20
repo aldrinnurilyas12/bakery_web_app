@@ -95,10 +95,11 @@
                                                 src="{{ asset('assets/front_end/assets/img/null.png') }}"
                                                 alt="">
                                             <div style="display: block;" class="text-content">
-                                                <h3>Belum ada transaksi</h3>
+                                                <h3>Belum ada Kategori</h3>
                                                 @if (!$user_permission_forbidden)
                                                     <p class="text-secondary">Tambah data kategori </p>
-                                                    <a class="btn btn-primary" href="{{ 'category_create' }}">Tambah
+                                                    <a class="btn btn-primary"
+                                                        href="{{ route('category_create') }}">Tambah
                                                         Kategori</a>
                                                 @endif
                                             </div>

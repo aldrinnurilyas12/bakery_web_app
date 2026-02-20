@@ -20,22 +20,23 @@ class TransactionSeeder extends Seeder
         $data = [];
 
         // id mulai dari 4
-        $startId = 5007;
-
-        // tanggal hari ini
-        // $today = Carbon::now();
-        // $dateCode = $today->format('Ymd');
-
+        $startId = 0;
         // ambil semua customer id
         $customerIds = DB::table('customer')->pluck('customer_code')->toArray();
+        $emp_code = DB::table('employee')->where('position', 'CSR')->pluck('nik')->toArray();
+        $startDate = Carbon::create(2025, 1, 1);
+        $endDate = Carbon::create(2026, 1, 1);
 
-        for ($i = 0; $i < 2000; $i++) {
+        for ($i = 0; $i < 800; $i++) {
 
-            $quantity = $faker->numberBetween(1, 10);
-            $price = $faker->numberBetween(10000, 500000);
+            $quantity = $faker->numberBetween(1, 5);
+            $price = $faker->numberBetween(10000, 50000);
 
             $year  = 2026;
-            $month = rand(1, 8);
+            $month = rand(1, 2);
+            $hour = rand(8, 21); // jam 08 - 21
+            $minute = rand(0, 59);
+            $second = rand(0, 59);
 
             // ambil jumlah hari valid dalam bulan tsb
             $day = rand(1, Carbon::create($year, $month)->daysInMonth);
@@ -46,22 +47,34 @@ class TransactionSeeder extends Seeder
             $totalAmount = $quantity * $price;
             $grandTotal = $totalAmount;
             $paymentChanges = $faker->numberBetween(0, 50000);
-            
+
+            $randomTimestamp = rand($startDate->timestamp, $endDate->timestamp);
+            $transactionDate = Carbon::create(
+                $year,
+                $month,
+                $day,
+                $hour,
+                $minute,
+                $second
+            );
+            $store_code = DB::table('store')->pluck('id')->toArray();
+            $casheer = DB::table('employee')->where('position', 'CSR')->pluck('nik')->toArray();
+             $paymenttype = DB::table('payment_category')->where('id', '<>', '6')->pluck('id')->toArray();
 
             $data[] = [
-                'id' => $startId + $i,
                 'transaction_code' => 'INV' . $dateCode . Str::random(6),
                 'quantity' => $quantity,
                 'total_amount' => $totalAmount,
                 'payment_changes' => $paymentChanges,
                 'grand_total' => $grandTotal,
-                'casheer' => '3671121201010001',
+                'casheer' => $faker->randomElement($casheer),
                 'customer' => $faker->randomElement($customerIds),
                 'status' => 5,
-                'payment_type' => 1,
-                'transaction_date' => $today,
-                'created_at' => $today,
-                'updated_at' => $today,
+                'payment_type' => $faker->randomElement($paymenttype),
+                'store'=> $faker->randomElement($store_code),
+                'transaction_date' => $transactionDate,
+                'created_at' =>$transactionDate,
+                'created_by' => $faker->randomElement($casheer)
             ];
         }
 

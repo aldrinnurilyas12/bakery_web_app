@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class MasterMainMenuModel extends Model
+{
+    use HasFactory;
+    protected $table = 'main_menu';
+    protected $fillable = [
+        'menu_name',
+        'status',
+        'location',
+        'icon'
+    ];
+}

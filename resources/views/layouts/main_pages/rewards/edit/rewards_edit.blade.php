@@ -21,84 +21,137 @@
                 <div class="container-fluid px-4">
                     <h4>Ubah Data Reward</h4>
                     <hr>
-                    <form action="{{ route('rewards_edit', $rewards->rewards_code) }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
-                        @METHOD('PUT')
 
-                        <div class="form-group">
-                            <label><strong>Kode reward</strong></label>
-                            <input type="text" name="rewards_code" class="form-control"
-                                value="{{ $rewards->rewards_code }}" autocomplete="off" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Nama reward</strong></label>
-                            <input type="text" name="rewards_name" class="form-control"
-                                value="{{ $rewards->rewards_name }}" autocomplete="off">
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Jumlah point</strong></label>
-                            <input type="text" name="point" class="form-control" value="{{ $rewards->point }}"
-                                autocomplete="off">
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Kuota Reward</strong></label>
-                            <input type="text" name="quota" class="form-control" value="{{ $rewards->quota }}"
-                                autocomplete="off">
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Status Reward</strong></label>
-                            <select name="status" class="form-control" id="">
-                                @foreach ($status as $sts)
-                                    <option value="{{ $sts->id }}"
-                                        {{ $sts->id == $rewards->status ? 'selected' : '' }}>
-                                        {{ $sts->status_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Tanggal awal berlaku rewards</strong></label>
-                            <input type="date" name="start_date"
-                                value="{{ old('start_date', $rewards->start_date ? $start_date->format('Y-m-d') : null) }}"
-                                class="form-control" autocomplete="off">
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Tanggal akhir berlaku rewards</strong></label>
-                            <input type="date" name="end_date"
-                                value="{{ old('end_date', $rewards->end_date ? $end_date->format('Y-m-d') : null) }}"
-                                class="form-control" autocomplete="off">
-                        </div>
-                        @if ($rewards->images == null)
-                            <p>anda belum upload gambar</p>
-                            <input type="file" name="images">
-                        @else
+                    @if (request()->routeIs('rewards_master_update'))
+                        <form action="{{ route('rewards_edit', $rewards->rewards_code) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @METHOD('PUT')
                             <div class="form-group">
-                                <label for=""><strong>Ubah Gambar/Foto</strong></label>
-                                <br>
-                                <img width="90" height="90" src="{{ url('storage/' . $rewards->images) }}"
-                                    alt="">
-                                <input type="file" name="images">
+                                <label><strong>Kode Reward</strong></label>
+                                <input type="text" name="rewards_code" class="form-control"
+                                    value="{{ $rewards->rewards_code }}" autocomplete="off" readonly>
                             </div>
-                        @endif
-                        <div class="form-group">
-                            <label><strong>Diperbarui pada</strong></label>
-                            <input type="text" class="form-control" value="{{ $rewards->updated_at ?: '-' }}"
-                                readonly>
-                        </div>
 
-                        <div class="form-group">
-                            <label><strong>Diperbarui oleh</strong></label>
-                            <input type="text" class="form-control" value="{{ $rewards->updated_by ?: '-' }}"
-                                readonly>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Simpan Reward</button>
-                    </form>
+                            <div class="form-group">
+                                <label><strong>Nama Reward</strong></label>
+                                <input type="text" class="form-control" name="rewards_name"
+                                    value="{{ $rewards->rewards_name }}" autocomplete="off">
+                                <x-input-error :messages="$errors->get('rewards_name')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Jumlah point</strong></label>
+                                <input type="number" name="point" class="form-control" value="{{ $rewards->point }}"
+                                    autocomplete="off">
+                                <x-input-error :messages="$errors->get('point')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Tanggal awal berlaku rewards</strong></label>
+                                <input type="date" name="start_date"
+                                    value="{{ old('start_date', $rewards->start_date ? $start_date->format('Y-m-d') : null) }}"
+                                    class="form-control" autocomplete="off">
+                                <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Tanggal akhir berlaku rewards</strong></label>
+                                <input type="date" name="end_date"
+                                    value="{{ old('end_date', $rewards->end_date ? $end_date->format('Y-m-d') : null) }}"
+                                    class="form-control" autocomplete="off">
+                                <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
+                            </div>
+                            @if ($rewards->images == null)
+                                <p>anda belum upload gambar</p>
+                                <input type="file" name="images">
+                            @else
+                                <div class="form-group">
+                                    <label for=""><strong>Ubah Gambar/Foto</strong></label>
+                                    <br>
+                                    <img width="90" height="90" src="{{ url('storage/' . $rewards->images) }}"
+                                        alt="">
+                                    <input type="file" name="images">
+                                </div>
+                            @endif
+                            <div class="form-group">
+                                <label><strong>Diperbarui pada</strong></label>
+                                <input type="text" class="form-control" value="{{ $rewards->updated_at ?: '-' }}"
+                                    readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Diperbarui oleh</strong></label>
+                                <input type="text" class="form-control" value="{{ $rewards->updated_by ?: '-' }}"
+                                    readonly>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Simpan Reward</button>
+                        </form>
+                    @else
+                        <form action="{{ route('rewards_update_store', $rewards->reward_store_code) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @METHOD('PUT')
+
+                            <div class="form-group">
+                                <label><strong>Kode Store Reward</strong></label>
+                                <input type="text" class="form-control" value="{{ $rewards->reward_store_code }}"
+                                    autocomplete="off" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Kode Reward</strong></label>
+                                <input type="text" name="rewards_code" class="form-control"
+                                    value="{{ $rewards->rewards_code }}" autocomplete="off" readonly>
+                                <x-input-error :messages="$errors->get('rewards_code')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Nama Reward</strong></label>
+                                <input type="text" class="form-control" value="{{ $rewards->rewards_name }}"
+                                    autocomplete="off" readonly>
+                                <x-input-error :messages="$errors->get('rewards_name')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Jumlah point</strong></label>
+                                <input type="number" name="point" class="form-control" value="{{ $rewards->point }}"
+                                    autocomplete="off" readonly>
+                                <x-input-error :messages="$errors->get('point')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Kuota Reward</strong></label>
+                                <input type="number" name="stock" class="form-control"
+                                    value="{{ $rewards->stock }}" autocomplete="off">
+                                <x-input-error :messages="$errors->get('stock')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Status Reward</strong></label>
+                                <select name="status" class="form-control" id="">
+                                    @foreach ($status as $sts)
+                                        <option value="{{ $sts->id }}"
+                                            {{ $sts->id == $rewards->status ? 'selected' : '' }}>
+                                            {{ $sts->status_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Diperbarui pada</strong></label>
+                                <input type="text" class="form-control" value="{{ $rewards->updated_at ?: '-' }}"
+                                    readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Diperbarui oleh</strong></label>
+                                <input type="text" class="form-control" value="{{ $rewards->updated_by ?: '-' }}"
+                                    readonly>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Simpan Reward</button>
+                        </form>
+                    @endif
                     <br>
                     <br>
                 </div>

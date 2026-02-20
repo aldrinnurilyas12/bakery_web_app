@@ -39,116 +39,117 @@
                         </ul>
                     </div>
 
-                    <form action="{{ route('product_waste_edit', $product_wastes->waste_code) }}" method="POST"
+
+                    <form action="{{ route('product_waste_edit', $main_product_wastes->waste_code) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
                             <label><strong>Kode Produk Waste</strong></label>
-                            <input type="text" class="form-control" value="{{ $product_wastes->waste_code }}"
+                            <input type="text" class="form-control" value="{{ $main_product_wastes->waste_code }}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label><strong>Produksi</strong></label>
                             <input type="text" class="form-control"
-                                value="{{ $product_wastes->production_code . ' - ' . $product_wastes->product_name }}"
+                                value="{{ $main_product_wastes->production_code . ' - ' . $main_product_wastes->product_name }}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Kerusakan</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1001']->waste_code }}" name="waste_type[WASTE1001]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1001']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1001]" placeholder="0">
                         </div>
                         <div class="form-group">
                             <label for=""><strong>Expired</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1002']->waste_code }}" name="waste_type[WASTE1002]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1002']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1002]" placeholder="0">
                         </div>
                         <div class="form-group">
                             <label for=""><strong>Kelebihan Produksi</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1003']->waste_code }}" name="waste_type[WASTE1003]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1003']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1003]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Operasional</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1004']->waste_code }}" name="waste_type[WASTE1004]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1004']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1004]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Keamanan Produk</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1005']->waste_code }}" name="waste_type[WASTE1005]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1005']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1005]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Pengemasan Produk</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1006']->waste_code }}" name="waste_type[WASTE1006]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1006']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1006]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Tampilan & Penanganan Masalah</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1007']->waste_code }}" name="waste_type[WASTE1007]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1007']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1007]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Produk Tidak Terjual</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1008']->waste_code }}" name="waste_type[WASTE1008]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1008']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1008]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Komplain/Pengembalian Produk oleh Pelanggan</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1009']->waste_code }}" name="waste_type[WASTE1009]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1009']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1009]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Distribusi</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1010']->waste_code }}" name="waste_type[WASTE10010]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1010']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE10010]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Mesin Produksi</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1011']->waste_code }}" name="waste_type[WASTE1011]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1011']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1011]" placeholder="0">
                         </div>
                         <div class="form-group">
                             <label for=""><strong>Kesalahan Manusia (Human Error)</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1012']->waste_code }}" name="waste_type[WASTE1012]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1012']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1012]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Major</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1013']->waste_code }}" name="waste_type[WASTE1013]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1013']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1013]" placeholder="0">
                         </div>
 
                         <div class="form-group">
                             <label for=""><strong>Masalah Lainnya</strong></label>
                             <input type="number" class="form-control"
-                                value="{{ $product_wastes['WASTE1014']->waste_code }}" name="waste_type[WASTE1014]"
-                                placeholder="0">
+                                value="{{ $product_wastes['WASTE1014']?->waste_code ?? 0 }}"
+                                name="waste_type[WASTE1014]" placeholder="0">
                         </div>
 
                         <button type="submit" class="btn btn-primary">Tambah Data</button>

@@ -12,7 +12,6 @@ class TransactionModel extends Model
     protected $table = 'transactions';
     protected $fillable = [
         'transaction_code',
-        'quantity',
         'total_amount',
         'grand_total',
         'casheer',

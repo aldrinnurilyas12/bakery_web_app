@@ -28,6 +28,7 @@
                             <label><strong>Nama Produk</strong></label>
                             <input type="text" name="product_name" class="form-control"
                                 value="{{ old('product_name') }}" placeholder="Masukan nama Produk" autocomplete="off">
+                            <x-input-error :messages="$errors->get('product_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -45,6 +46,7 @@
                                 <p class="text-secondary">Anda belum buat data Kategori, <a
                                         href="{{ route('category_create') }}">Buat kategori</a> </p>
                             @endif
+                            <x-input-error :messages="$errors->get('category_id')" class="text-danger" />
                         </div>
 
 
@@ -65,6 +67,7 @@
                                     <label for="variant_no">Tidak</label>
                                 </div>
                             </div>
+                            <x-input-error :messages="$errors->get('product_variant')" class="text-danger" />
                         </div>
 
                         <div id="normalPrice" class="price-form-group">
@@ -72,6 +75,7 @@
                                 <label><strong>Harga Produk</strong></label>
                                 <input type="text" name="price" class="form-control" value="{{ old('price') }}"
                                     placeholder="Masukan harga Produk" autocomplete="off">
+                                <x-input-error :messages="$errors->get('price')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
@@ -92,6 +96,7 @@
                             <input type="number" name="product_weight" class="form-control"
                                 value="{{ old('product_weight') }}" placeholder="Masukan berat Produk (optional)"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -104,11 +109,13 @@
                                 <option value="l">Liter</option>
                                 <option value="ml">Mililiter</option>
                             </select>
+                            <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Tanggal Kadaluasa</strong></label>
+                            <label><strong>Estimasi Tanggal Kadaluarsa</strong></label>
                             <input type="date" name="expired_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -118,8 +125,32 @@
 
 
                         <div class="form-group">
-                            <label><strong>Gambar/Foto Produk (Max 4 Foto)</strong></label>
-                            <input type="file" name="images[]" multiple required class="form-control" required>
+                            <label><strong>Gambar/Foto Produk</strong></label>
+                            <input type="file" name="images[]" multiple class="form-control">
+                            <x-input-error :messages="$errors->get('images')" class="text-danger" />
+                        </div>
+
+
+                        <hr class="hr-menu">
+                        <h4>Reward Point Rule</h4>
+                        <hr>
+
+                        <div class="form-group">
+                            <label><strong>Masukan jumlah Point</strong></label>
+                            <input type="text" name="point" class="form-control" value="{{ old('point') }}"
+                                placeholder="Masukan jumlah point" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Tanggal awal</strong></label>
+                            <input type="date" name="start_date" class="form-control"
+                                value="{{ old('point') }}" autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Tanggal akhir</strong></label>
+                            <input type="date" name="end_date" class="form-control" value="{{ old('point') }}"
+                                autocomplete="off">
                         </div>
 
 

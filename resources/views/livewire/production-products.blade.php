@@ -43,9 +43,9 @@
                                 <label for=""><strong>Pilih Store</strong></label>
                                 <br>
                                 <div style="display: flex; gap:10px;margin-top:5px;" class="d-flex-container-filter">
-                                    <form action="{{ route('filter_production') }}" method="GET">
+                                    <form action="{{ route('production_store') }}" method="GET">
                                         <div style="display:flex;gap:20px;" class="d-flex-content">
-                                            <select style="width:max-content;" name="filter" id=""
+                                            <select style="width:max-content;" name="fstore" id=""
                                                 class="form-control">
                                                 <option value="">=== Pilih Data ===</option>
                                                 <option value="all"
@@ -53,7 +53,7 @@
                                                     Semua Store
                                                 </option>
                                                 @foreach ($store as $shop)
-                                                    <option value="{{ $shop->id }}"
+                                                    <option value="{{ $shop->store_code }}"
                                                         {{ request('filter') == $shop->id ? 'selected' : '' }}>
                                                         {{ $shop->store_name }}
                                                     </option>

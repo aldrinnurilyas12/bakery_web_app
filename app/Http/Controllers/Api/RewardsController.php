@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\OutletStoreModel;
 use App\Models\RedeemRewardModel;
 use App\Models\RewardsModel;
+use App\Models\RewardsStoreModel;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
@@ -19,7 +21,11 @@ class RewardsController extends Controller
      */
     public function index()
     {
-        //
+        $store = OutletStoreModel::where('status', 7)->get();
+        $rewards = DB::table('rewards')->get();
+        $store_reward = DB::table('v_rewards')->get();
+
+        return view('layouts.main_pages.rewards.rewards', compact('rewards', 'store', 'store_reward'));
     }
 
     /**
@@ -29,11 +35,12 @@ class RewardsController extends Controller
     {
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
         $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        $store = OutletStoreModel::where('status', 7)->get();
         if($user_permission_forbidden){
             session()->flash('failed_message', 'Tidak bisa akses');
             return redirect()->back();
         }
-        return view('layouts.main_pages.rewards.create.rewards_create');
+        return view('layouts.main_pages.rewards.create.rewards_create', compact('store'));
     }
 
     /**
@@ -44,38 +51,72 @@ class RewardsController extends Controller
         $request->validate([
             'rewards_name' => 'required',
             'point' => 'required', 
-            'quota' => 'required',
-            'images' => 'image|mimes:jpg,png,jpeg,JPG,PNG',
+            'images' => 'required|image|mimes:jpg,png,jpeg,JPG,PNG',
             'start_date' => 'required',
-            'end_date' => 'required'
+            'end_date' => 'required',
+            'store' => 'required|array',
+            'store.*' => 'required|exists:store,store_code',
+            'stock' => 'required|array',
+            'stock.*' => 'required|numeric|min:1'
+
+        ], 
+        [
+            'rewards_name.required' => 'Nama reward harus diisi',
+            'point.required' => 'Point harus diisi', 
+            'images.required' => 'Gambar harus diisi',
+            'start_date.required' => 'Tanggal awal berlaku harus diisi',
+            'end_date.required' => 'Tanggal akhir berlaku harus diisi',
+            'store.required' => 'Store harus diisi',
+            'stock.required' => 'Stock tidak boleh kosong'
+
         ]);
 
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 8);
         $rewards_code = 'REWARD' . $unique_code;
-
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+
+        $store_code = $request->store;
+        $stock = $request->stock;
+
+
+        if($store_code == null && $stock == null){
+            session()->flash('message_success', 'Store dan Stok wajib diisi!');
+            return redirect()->back();
+        }
 
         if($request->hasFile('images')){
              $rewards_image = $request->file('images');
              $folderPath = 'rewards';
              $imagePath = $rewards_image->storeAs($folderPath, uniqid() . '.' . $rewards_image->getClientOriginalExtension(), 'public');
         
-            RewardsModel::create([
+           $main_reward = RewardsModel::create([
                 'rewards_code' => $rewards_code,
                 'rewards_name' => $request->rewards_name,
                 'point' => $request->point, 
-                'quota' => $request->quota,
                 'images' => $imagePath,
-                'status' => 7,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
                 'created_by' => $created_by,
                 'created_at' => now()
             ]);
+
+            foreach($store_code as $arrayStore){
+                $reward_store_code = 'RWST-' . substr((string) Str::uuid(), 0, 8);
+                RewardsStoreModel::create([
+                    'reward_store_code' => $reward_store_code,
+                    'reward' => $main_reward->rewards_code,
+                    'store' => $arrayStore,
+                    'stock' => (int) ($stock[$arrayStore] ?? 0),
+                    'status' => 7,
+                    'created_at' => now(),
+                    'created_by' => $created_by,
+                    'updated_at' => null
+                ]);
+            }
         }
 
-         session()->flash('message_success', 'Data reward berhasil disimpan!');
+        session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->route('rewards');
     }
 
@@ -99,7 +140,25 @@ class RewardsController extends Controller
             return redirect()->back();
         }
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
-        $rewards = DB::table('rewards')->where('rewards_code',$request->rewards_code )->first();
+        $rewards = DB::table('rewards_store as rs')
+        ->leftJoin('rewards as r', 'rs.reward', '=', 'r.rewards_code')
+        ->where('reward_store_code',$request->reward_store_code)
+        ->first();
+        return view('layouts.main_pages.rewards.edit.rewards_edit', compact('rewards','status'));
+    }
+
+    public function edit_master_reward(string $id, Request $request)
+    {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+        $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
+        $rewards = DB::table('rewards')
+        ->where('rewards_code',$request->rewards_code)
+        ->first();
         $start_date = Carbon::parse($rewards->start_date);
         $end_date = Carbon::parse($rewards->end_date);
         return view('layouts.main_pages.rewards.edit.rewards_edit', compact('rewards','status', 'start_date', 'end_date'));
@@ -113,8 +172,23 @@ class RewardsController extends Controller
         $request->validate([
             'rewards_name' => 'required',
             'point' => 'required', 
-            'quota' => 'required',
-            'images' => 'image|mimes:jpg,png,jpeg,JPG,PNG'
+            'images' => 'image|mimes:jpg,png,jpeg,JPG,PNG',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'store' => 'required|array',
+            'store.*' => 'required|exists:store,store_code',
+            'stock' => 'required|array'
+
+        ], 
+        [
+            'rewards_name.required' => 'Nama reward harus diisi',
+            'point.required' => 'Point harus diisi', 
+            'images.required' => 'Gambar harus diisi',
+            'start_date.required' => 'Tanggal awal berlaku harus diisi',
+            'end_date.required' => 'Tanggal akhir berlaku harus diisi',
+            'store.required' => 'Store harus diisi',
+            'stock.required' => 'Stock tidak boleh kosong'
+
         ]);
 
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -128,9 +202,7 @@ class RewardsController extends Controller
             RewardsModel::where('rewards_code', $request->rewards_code)->update([
                 'rewards_name' => $request->rewards_name,
                 'point' => $request->point, 
-                'quota' => $request->quota,
                 'images' => $imagePath,
-                'status' => $request->status,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
                 'updated_by' => $updated_by,
@@ -142,22 +214,56 @@ class RewardsController extends Controller
                 unlink($dropPicture);
             }
         }
-
         session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->route('rewards');
     }
 
 
+    // Function untuk update Reward per store
+    public function update_reward_store(Request $request){
+        
+        $request->validate([
+            'stock' => 'required'
+        ], 
+        [
+            'stock.required' => 'Stock tidak boleh kosong'
+
+        ]);
+
+        RewardsStoreModel::where('reward_store_code', $request->reward_store_code)->update([
+                'stock' => $request->stock,
+                'status' => $request->status
+        ]);
+
+        session()->flash('message_success', 'Data reward berhasil disimpan!');
+        return redirect()->route('rewards');
+
+    }
+
+
 
     public function update_nonactive_rewards(Request $request) {
+         $request->validate([
+            'status' => 'required'
+        ], 
+        [
+            'status.required' => 'Centang status dahulu'
+
+        ]);
+
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
-        RewardsModel::where('rewards_code', $request->rewards_code)->update([
+        if(!$request->status){
+            session()->flash('failed_message', 'Centang status dahulu!');
+            return redirect()->back();
+        }
+        RewardsStoreModel::where('reward', $request->reward)->where('store', $request->store)->update([
             'status' => $request->status,
             'updated_by' => $updated_by,
             'updated_at' => now()
         ]);
+
         session()->flash('message_success', 'Data reward berhasil disimpan!');
-        return redirect()->route('rewards');
+        return redirect()->back();
     }
 
     public function claim_reward_layouts(Request $request)
@@ -169,23 +275,56 @@ class RewardsController extends Controller
             return redirect()->back();
         }
         $reward_data = DB::table('redeem_reward as rr')
-                    ->leftJoin('rewards as r','rr.reward', '=', 'r.rewards_code')
+                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
+                    ->leftJoin('rewards_store as rws', 'rr.reward', '=', 'rws.reward_store_code')
+                    ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
                     ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
+                    ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
                     ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')->get();
-
+   
         return view('layouts.main_pages.rewards.claim.claim-reward', compact('reward_data'));
     }
 
+    // APPROVAL REDEEM REWARD BY CASHEER
     public function claimed_reward(Request $request)
     {
         $redeem_code = $request->redeem_code;
-
+        $redeem_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         RedeemRewardModel::where('redeem_code', $redeem_code)->update([
             'status' => 11,
             'claimed_at' => now(),
+            'redeem_by' => $redeem_by,
+            'updated_at' => now()
         ]);
         session()->flash('message_success', 'Reward berhasil diklaim!');
         return redirect()->back();
+    }
+
+    public function filter_rewards(Request $request)
+    {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer']);
+
+        if($filter_forbidden_access){
+            return redirect()->back();
+        }
+
+
+        $store = DB::table('store')->get();
+        $status = DB::table('status_category')->whereIn('id', ['2','3', '4', '5', '9', '10'])->get();
+        $filter = $request->filter;
+
+        $rewards = DB::table('v_rewards');
+
+
+        
+        if ($filter !== 'all' && !empty($filter)) {
+            $rewards->where('store_id', $filter);
+        }
+
+
+        $rewards = $rewards->get();
+         return view('pages.rewards',compact('rewards','store', 'status'));
     }
 
     /**

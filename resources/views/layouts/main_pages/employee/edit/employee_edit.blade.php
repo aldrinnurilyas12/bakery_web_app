@@ -30,14 +30,16 @@
 
                         <div class="form-group">
                             <label><strong>NIK Karyawan</strong></label>
-                            <input class="form-control" type="text" name="nik" value="{{ $employee->nik }}"
+                            <input class="form-control" type="number" name="nik" value="{{ $employee->nik }}"
                                 placeholder="Masukan NIK Karyawan" id="" autocomplete="off">
+                            <x-input-error :messages="$errors->get('nik')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Nama Karyawan</strong></label>
                             <input class="form-control" type="text" name="name" value="{{ $employee->name }}"
                                 placeholder="Masukan nama karyawan" id="" autocomplete="off">
+                            <x-input-error :messages="$errors->get('name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -45,6 +47,7 @@
                             <input class="form-control"
                                 value="{{ old('birth_date', $employee->birth_date ? $birth_date->format('Y-m-d') : null) }}"
                                 type="date" name="birth_date" autocomplete="off">
+                            <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -52,18 +55,21 @@
                             <textarea class="form-control" name="address" id="" cols="30" rows="4">
                                     {{ $employee->address }}
                                 </textarea>
+                            <x-input-error :messages="$errors->get('address')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>No. Telepon/Handphone</strong></label>
                             <input class="form-control" type="text" value="{{ $employee->phone_number }}"
                                 name="phone_number" autocomplete="off">
+                            <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Email</strong></label>
                             <input class="form-control" type="email" name="email" value="{{ $employee->email }}"
                                 placeholder="Masukan email anda" id="" autocomplete="off">
+                            <x-input-error :messages="$errors->get('email')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -74,8 +80,8 @@
                                         {{ $job->position_code == $employee->position_code ? 'selected' : '' }}>
                                         {{ $job->position_name }}</option>
                                 @endforeach
-
                             </select>
+                            <x-input-error :messages="$errors->get('position')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -86,8 +92,8 @@
                                         {{ $store->id == $employee->store_id ? 'selected' : '' }}>
                                         {{ $store->store_name }}</option>
                                 @endforeach
-
                             </select>
+                            <x-input-error :messages="$errors->get('store')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -98,7 +104,6 @@
                                         {{ $st->id == $employee->status ? 'selected' : '' }}>
                                         {{ $st->status_name }}</option>
                                 @endforeach
-
                             </select>
                         </div>
 
@@ -108,6 +113,7 @@
                             <input class="form-control" type="date"
                                 value="{{ old('start_date', $employee->start_date ? $start_date->format('Y-m-d') : null) }}"
                                 name="start_date" autocomplete="off">
+                            <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">

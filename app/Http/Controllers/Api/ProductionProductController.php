@@ -37,17 +37,17 @@ class ProductionProductController extends Controller
             return redirect()->back();
         }
 
-        if($time >=8){
-            session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
-            return redirect()->back();
-        }
+        // if($time >=8  && $time <=5){
+        //     session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
+        //     return redirect()->back();
+        // }
 
 
         $products = DB::table('v_products as vp')
-        ->leftJoin('products as p', 'vp.product_code', '=', 'p.product_code')
-        ->whereNotIn('category_id',['10', '11'])->get();
+        ->whereNotIn('category',['Coffee', 'Soft_Drinks'])->get();
+        $variant_category = DB::table('variant_category')->get();
         $raw_materials = DB::table('raw_material')->get();
-        return view('layouts.main_pages.production_products.create.production_create', compact('products', 'raw_materials'));
+        return view('layouts.main_pages.production_products.create.production_create', compact('products', 'raw_materials', 'variant_category'));
     }
 
     /**
@@ -61,7 +61,15 @@ class ProductionProductController extends Controller
             'raw_material.*' => 'exists:raw_material,material_code',
             'target_total' => 'required',
             'production_type' => 'required',
-            'quantity_used' => 'required|array'
+            'quantity_used' => 'array',
+            'production_date' => 'required'
+        ],
+        [
+            'product.required' => 'Pilih produk dahulu',
+            'raw_material.required' => 'Bahan baku harus diisi',
+            'target_total.required' => 'Target total harus diisi',
+            'production_type.required' => 'Tipe produksi harus diisi',
+            'production_date.required' => 'Tanggal produksi produk harus diisi'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -73,9 +81,12 @@ class ProductionProductController extends Controller
         $rawMaterials = $request->raw_material;
         $quantities   = $request->quantity_used;
 
+
+
         $production = ProductionProduct::create([
             'production_code' =>$production_code,
             'product' =>$request->product,
+            'variant' =>$request->variant,
             'target_total' =>$request->target_total,
             'status' => 10,
             'store' => $store,
@@ -97,6 +108,36 @@ class ProductionProductController extends Controller
 
         session()->flash('message_success', 'Data Produksi Produk berhasil disimpan!');
         return redirect()->route('production_products');
+    }
+
+    public function get_variant(Request $request)
+    {
+        $product = $request->product;
+        $getData = DB::table('product_variant as pv')
+                ->join('variant_category as vc', 'pv.variant_type', '=', 'vc.id')
+                ->select('pv.id', 'vc.name')->distinct()
+                ->where('pv.product', $product)
+                ->get();
+
+        return response()->json([
+            'data' => $getData,
+            'message' => 'Data variant type'
+        ]);
+    }
+
+    public function get_variant_code(Request $request)
+    {
+        $product = $request->product;
+        $variant_type = $request->variant;
+        $getData = DB::table('product_variant as pv')->select('pv.id', 'vc.name', 'pv.variant_code')
+                ->leftJoin('variant_category as vc', 'pv.variant_type', '=', 'vc.id')
+                ->where('pv.product', $product)->where('vc.name', $variant_type)
+                ->first();
+
+        return response()->json([
+            'data' => $getData,
+            'message' => 'Data variant code'
+        ]);
     }
 
     /**
@@ -121,10 +162,10 @@ class ProductionProductController extends Controller
             return redirect()->back();
         } 
 
-         if($time >=8){
-            session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
-            return redirect()->back();
-        }
+        //  if($time >=8){
+        //     session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
+        //     return redirect()->back();
+        // }
         $production = DB::table('v_production_products')
         ->where('production_code', $request->production_code)->first();
         $products = DB::table('v_products')->get();
@@ -139,13 +180,26 @@ class ProductionProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-           $request->validate([
+        $request->validate([
             'product' => 'required',
-            'raw_material.*' => 'required|string',
+            'raw_material' => 'required|array',
+            'raw_material.*' => 'exists:raw_material,material_code',
             'target_total' => 'required',
-            'quantity_used' => 'required|array'
+            'production_type' => 'required',
+            'quantity_used' => 'required|array',
+            'quantity_used.*' => 'required|numeric|min:1',
+            'production_date' => 'required'
+        ],
+        [
+            'product.required' => 'Pilih produk dahulu',
+            'raw_material.required' => 'Bahan baku harus diisi',
+            'target_total.required' => 'Target total harus diisi',
+            'production_type.required' => 'Tipe produksi harus diisi',
+            'production_date.required' => 'Tanggal produksi produk harus diisi',
+            'quantity_used.*.required' => 'Jumlah bahan baku tidak boleh kosong',
+            'quantity_used.*.numeric' => 'Jumlah bahan baku harus berupa angka',
+            'quantity_used.*.min' => 'Jumlah bahan baku minimal 1',
         ]);
-
         
 
         DB::transaction(function() use ($request){
@@ -250,17 +304,12 @@ class ProductionProductController extends Controller
 
         $store = DB::table('store')->get();
         $status = DB::table('status_category')->whereIn('id', ['2','3', '4', '5', '9', '10'])->get();
-        $filter = $request->filter;
+        $filter = $request->fstore;
 
         $productionProduct = DB::table('v_production_products');
-
-
-        
         if ($filter !== 'all' && !empty($filter)) {
-            $productionProduct->where('store_id', $filter);
+            $productionProduct->where('store_code', $filter);
         }
-
-
         $production_products = $productionProduct->get();
         return view('pages.production_product',compact('production_products', 'store', 'status'));
     }
@@ -332,7 +381,7 @@ class ProductionProductController extends Controller
     {
         $request->validate([
             'waste_type'  => 'required|array',
-            'waste_type*'=> 'nullable|integer|min:0',
+            'waste_type*'=> 'nullable|integer|min:0'
         ]);
 
         $production_code = $request->production_code;
@@ -445,8 +494,14 @@ class ProductionProductController extends Controller
         ->leftJoin('product_wastes as pw', 'pwd.waste_code', '=', 'pw.waste_code')
         ->leftJoin('production_products as pp', 'pw.production_code', '=', 'pp.production_code')
         ->leftJoin('products as p', 'pp.product', '=', 'p.product_code')
+        ->where('pwd.waste_code', $request->waste_code)->get()->keyBy('waste_code');
+
+        $main_product_wastes = DB::table('product_wastes_detail as pwd')
+        ->leftJoin('product_wastes as pw', 'pwd.waste_code', '=', 'pw.waste_code')
+        ->leftJoin('production_products as pp', 'pw.production_code', '=', 'pp.production_code')
+        ->leftJoin('products as p', 'pp.product', '=', 'p.product_code')
         ->where('pwd.waste_code', $request->waste_code)->first();
-        return view('layouts.main_pages.product_wastes.edit.product_waste_update', compact('product_wastes'));
+        return view('layouts.main_pages.product_wastes.edit.product_waste_update', compact('product_wastes', 'main_product_wastes'));
     }
 
     public function waste_delete(Request $request) 

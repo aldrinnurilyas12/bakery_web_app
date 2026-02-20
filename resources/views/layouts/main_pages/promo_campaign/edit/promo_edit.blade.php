@@ -42,18 +42,21 @@
                             <label><strong>Kode promo</strong></label>
                             <input type="text" name="promo_code" class="form-control"
                                 value="{{ $promo->promo_code }}" autocomplete="off">
+                            <x-input-error :messages="$errors->get('promo_code')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Nama promo</strong></label>
                             <input type="text" name="promo_name" class="form-control"
                                 value="{{ $promo->promo_name }}" autocomplete="off">
+                            <x-input-error :messages="$errors->get('promo_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Jumlah minimal transaksi</strong></label>
                             <input type="text" name="min_transaction" class="form-control"
                                 value="{{ $promo->min_transaction }}" autocomplete="off">
+                            <x-input-error :messages="$errors->get('min_transaction')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -61,12 +64,14 @@
                             <textarea class="form-control" name="description" id="" cols="30" rows="4">
                                 {{ $promo->description }}
                             </textarea>
+                            <x-input-error :messages="$errors->get('description')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Kuota Promo</strong></label>
-                            <input type="text" name="quota" class="form-control" value="{{ $promo->quota }}"
+                            <input type="number" name="quota" class="form-control" value="{{ $promo->quota }}"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('quota')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -78,6 +83,7 @@
                                         {{ $sts->status_name }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('status')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -85,6 +91,7 @@
                             <input type="date" name="start_date"
                                 value="{{ old('start_date', $promo->start_date ? $start_date->format('Y-m-d') : null) }}"
                                 class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -92,6 +99,7 @@
                             <input type="date" name="end_date"
                                 value="{{ old('end_date', $promo->end_date ? $end_date->format('Y-m-d') : null) }}"
                                 class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label><strong>Diperbarui pada</strong></label>

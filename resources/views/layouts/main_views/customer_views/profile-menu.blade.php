@@ -17,6 +17,11 @@
 </head>
 
 <body>
+    @php
+        $main_menu = DB::table('main_menu')->where('location', 'main_web')->get();
+        $submenu = DB::table('submenu')->where('status', 7)->get();
+
+    @endphp
     <div class="main-container">
 
         <div class="container-fluid">
@@ -31,66 +36,24 @@
                 </div>
 
                 <div class="menu-list">
-                    <hr class="hr-menu">
-                    <div class="group-menu">
-                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-user"></i>
-                            <a class="menu" href="{{ route('profile') }}">Profil</a>
-                        </div>
-                        <div class="arrow-right">
-                            <i class="fa fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    <hr class="hr-menu">
-                    <div class="group-menu">
-                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-history"></i>
-                            <a class="menu" href="{{ route('history-transaction') }}">History Transaksi</a>
-                        </div>
-                        <div class="arrow-right">
-                            <i class="fa fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    <hr class="hr-menu">
-                    <div class="group-menu">
-                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-bell"></i>
-                            <a class="menu" href="{{ route('notification') }}">Notifikasi</a>
-                        </div>
-                        <div class="arrow-right">
-                            <i class="fa fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    <hr class="hr-menu">
-                    <div class="group-menu">
-                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-gift"></i>
-                            <a class="menu" href="{{ route('rewards-history') }}">Rewards</a>
-                        </div>
-                        <div class="arrow-right">
-                            <i class="fa fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    <hr class="hr-menu">
-                    <div class="group-menu">
-                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-tag"></i>
-                            <a class="menu" href="{{ route('your-voucher') }}">E-Voucher</a>
-                        </div>
-                        <div class="arrow-right">
-                            <i class="fa fa-arrow-right"></i>
-                        </div>
-                    </div>
-                    <hr class="hr-menu">
-                    <div class="group-menu">
-                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-lock"></i>
-                            <a class="menu" href="{{ route('change-password') }}">Ubah Password</a>
-                        </div>
-                        <div class="arrow-right">
-                            <i class="fa fa-arrow-right"></i>
-                        </div>
-                    </div>
+                    @foreach ($main_menu as $main)
+                        @foreach ($submenu as $sub)
+                            @if ($main->id == $sub->main_menu)
+                                <hr class="hr-menu">
+                                <div class="group-menu">
+                                    <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
+                                        <i class="{{ $sub->icon }}"></i>
+                                        <a class="menu"
+                                            href="../{{ $sub->submenu_link }}">{{ $sub->submenu_name }}</a>
+                                    </div>
+                                    <div class="arrow-right">
+                                        <i class="fa fa-arrow-right"></i>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    @endforeach
+
                     <hr class="hr-menu">
                     <div class="group-menu">
                         <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
@@ -151,8 +114,8 @@
             @endphp
 
             @if ($customer)
-                <div class="modal fade" id="openqr" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="openqr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div style="display: flex; justify-content: space-between;" class="modal-header">

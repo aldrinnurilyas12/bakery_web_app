@@ -148,9 +148,7 @@
 
                     <div class="form-group">
                         <label><strong>Tanggal Buat Akun</strong></label>
-                        <input type="text" class="form-control"
-                            value="{{ \Carbon\Carbon::parse($customer->member_date)->format('d F Y h:i:s') }}"
-                            readonly>
+                        <input type="text" class="form-control" value="{{ $customer->created_at }}" readonly>
                     </div>
 
 

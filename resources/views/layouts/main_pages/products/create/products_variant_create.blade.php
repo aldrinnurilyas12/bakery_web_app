@@ -41,24 +41,27 @@
                             <input type="text" class="form-control" value="{{ $products->category }}" readonly>
                         </div>
 
-                        @if ($products->category == 'Coffee')
+                        @if ($products->category == 'Coffee' || $products->category == 'Soft_Drinks')
                             <div class="form-group">
                                 <label><strong>Tipe Variant</strong></label>
                                 <select name="variant_type" class="form-control">
                                     <option value="">=== Pilih tipe variant ===</option>
-                                    <option value="ice">Ice</option>
-                                    <option value="hot">Hot</option>
+                                    @foreach ($variant_category_drinks as $ctg_drinks)
+                                        <option value="{{ $ctg_drinks->id }}">{{ $ctg_drinks->name }}</option>
+                                    @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('variant_type')" class="text-danger" />
                             </div>
                         @else
                             <div class="form-group">
                                 <label><strong>Tipe Variant</strong></label>
                                 <select name="variant_type" class="form-control">
                                     <option value="">=== Pilih tipe variant ===</option>
-                                    <option value="small">Kecil</option>
-                                    <option value="medium">Sedang</option>
-                                    <option value="large">Besar</option>
+                                    @foreach ($variant_category_bakery as $ctg)
+                                        <option value="{{ $ctg->id }}">{{ $ctg->name }}</option>
+                                    @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('variant_type')" class="text-danger" />
                             </div>
                         @endif
 
@@ -66,10 +69,12 @@
                             <label><strong>Harga Variant Produk</strong></label>
                             <input type="text" inputmode="numeric" name="variant_price" class="form-control"
                                 value="{{ old('variant_price') }}">
+                            <x-input-error :messages="$errors->get('variant_price')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Diskon</strong></label>
+                            <small class="text-danger">*Masukan 0 jika tidak discount</small>
                             <input type="text" inputmode="numeric" name="variant_discount" class="form-control"
                                 value="{{ old('variant_discount') }}">
                         </div>

@@ -45,11 +45,12 @@
                                             <th>Foto</th>
                                             <th>Kode Produk</th>
                                             <th>Produk</th>
-                                            <th>Product Daily</th>
+                                            {{-- <th>Product Daily</th> --}}
                                             <th>Kategori</th>
                                             @if ($products->first()->product_variant)
                                                 <th>Harga Variant</th>
                                             @endif
+                                            <th>Point</th>
                                             <th>Harga</th>
                                             <th>Diskon</th>
                                             <th>Harga Setelah Diskon</th>
@@ -77,12 +78,12 @@
                                                                     href="{{ route('product_update', $product->product_code) }}"><i
                                                                         class="fas fa-edit"></i></a>
 
-                                                                @if ($product->status == 'Ready')
+                                                                {{-- @if ($product->status == 'Ready')
                                                                 @else
                                                                     <a href="#" data-toggle="modal"
                                                                         data-target="#deleteModal{{ $product->product_code }}"><i
                                                                             class="fas fa-trash"></i></a>
-                                                                @endif
+                                                                @endif --}}
                                                             </div>
                                                             @if ($product->product_variant == 'Y')
                                                                 <div class="text-primary">
@@ -103,8 +104,28 @@
                                                             ->first();
 
                                                         $product_variants = DB::table('product_variant as pv')
-                                                            ->join('products as p', 'pv.product', '=', 'p.product_code')
-                                                            ->where('product', $product->product_code)
+                                                            ->leftjoin(
+                                                                'products as p',
+                                                                'pv.product',
+                                                                '=',
+                                                                'p.product_code',
+                                                            )
+                                                            ->leftjoin(
+                                                                'variant_category as vc',
+                                                                'pv.variant_type',
+                                                                '=',
+                                                                'vc.id',
+                                                            )
+                                                            ->select(
+                                                                'p.product_name',
+                                                                'pv.product as product',
+                                                                'pv.variant_code',
+                                                                'pv.variant_price',
+                                                                'pv.variant_discount',
+                                                                'pv.variant_price_after_discount',
+                                                                'vc.name as variant_type',
+                                                            )
+                                                            ->where('pv.product', $product->product_code)
                                                             ->get();
 
                                                     @endphp
@@ -118,14 +139,47 @@
                                                 </td>
                                                 <td>{{ $product->product_code }}</td>
                                                 <td>{{ $product->product }}</td>
-                                                <td>
+                                                {{-- <td>
                                                     @if ($product->status == null)
                                                         <span class="text-danger">Tidak</span>
                                                     @else
                                                         <span class="text-success">Ya</span>
                                                     @endif
-                                                </td>
+                                                </td> --}}
                                                 <td>{{ $product->category }}</td>
+                                                @if ($product->point)
+                                                    <td>
+
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+
+                                                                <th>Point</th>
+                                                                <th>Status </th>
+                                                                <th>Tanggal Mulai</th>
+                                                                <th>Tanggal Akhir</th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td>{{ $product->point }}</td>
+                                                                <td>{{ $product->point_status }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($product->point_start_date)->format('Y-m-d') }}
+                                                                </td>
+                                                                <td>{{ \Carbon\Carbon::parse($product->point_end_date)->format('Y-m-d') }}
+                                                                </td>
+
+                                                            </tr>
+                                                        </table>
+                                                        {{-- <a class="text-info" href="#" data-toggle="modal"
+                                                            data-target="#editStatus{{ $product->production_code }}">Ubah
+                                                            Target</a> --}}
+
+                                                    </td>
+                                                @else
+                                                    <td>-</td>
+                                                @endif
 
                                                 @if ($product_variants->isNotEmpty())
                                                     <td>

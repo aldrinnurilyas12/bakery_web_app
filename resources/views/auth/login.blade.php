@@ -30,7 +30,7 @@
             </div>
 
 
-            <form action="{{ route('login') }}" method="POST">
+            <form action="{{ route('login_exe') }}" method="POST">
                 @csrf
                 <div class="input-group">
                     <label for="">Masukan Email atau Nama Pengguna</label>

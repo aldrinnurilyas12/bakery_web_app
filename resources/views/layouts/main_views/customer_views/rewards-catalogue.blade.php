@@ -54,7 +54,7 @@
                                                 style="font-size: 1rem;color:rgb(0, 0, 0); font-weight: normal;margin-bottom:5px;">
                                                 Point:
                                                 {{ $reward->point }} &nbsp; <span>Kuota:
-                                                    {{ $reward->quota ?: 'habis' }}</span>
+                                                    {{ $reward->total_stock ?: 'habis' }}</span>
                                             </p>
                                             <div class="date">
                                                 <small>{{ \Carbon\Carbon::parse($reward->start_date)->format('Y-m-d') }}</small>
@@ -63,16 +63,17 @@
                                                     {{ \Carbon\Carbon::parse($reward->end_date)->format('Y-m-d') }}</small>
                                             </div>
 
-                                            @if ($reward->quota == null || $reward->quota == 0)
+                                            @if ($reward->total_stock == null || $reward->total_stock == 0)
                                                 <div class="btn-redeem-point">
                                                     <a style="color:white;" class="btn btn-secondary">Kuota habis</a>
                                                 </div>
                                             @else
                                                 <div class="btn-redeem-point">
-                                                    <a style="background:#bb0239;color:white; border:none;"
+                                                    <a style="background:#bb0239;color:white; border:none;width:100%;"
                                                         class="btn btn-primary"
                                                         href="{{ route('reward-detail', $reward->rewards_code) }}">Redeem
-                                                        Point</a>
+                                                        &nbsp; <i class="fa-solid fa-chevron-right"></i>
+                                                    </a>
                                                 </div>
                                             @endif
                                         </div>

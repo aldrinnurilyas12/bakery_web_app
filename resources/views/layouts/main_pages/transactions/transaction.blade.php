@@ -38,13 +38,13 @@
 
                             @php
                                 $show_items = DB::table('transactions_detail as td')
-                                    ->join('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
-                                    ->leftJoin('v_products as p', 'td.product', '=', 'p.product_code')
+                                    ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+                                    ->leftJoin('v_daily_products as vdp', 'td.product', '=', 'vdp.daily_code')
                                     ->get();
 
                                 $transaction_with_items = DB::table('transactions_detail as td')
                                     ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
-                                    ->leftJoin('v_products as p', 'td.product', '=', 'p.product_code')
+                                    ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
                                     ->select('td.transaction_code')
                                     ->distinct()
                                     ->pluck('td.transaction_code')
@@ -113,6 +113,7 @@
                                                 <th>Invoice</th>
                                                 <th>Tanggal</th>
                                                 <th>Quantity</th>
+                                                <th>Payment</th>
                                                 <th>Total Bayar</th>
                                                 <th>Kembalian</th>
                                                 <th>Grand Total</th>
@@ -151,7 +152,8 @@
                                                             {{ $transaction->transaction_code }}</a>
                                                     </td>
                                                     <td>{{ $transaction->transaction_date }}</td>
-                                                    <td>{{ $transaction->quantity }}</td>
+                                                    <td>{{ $transaction->quantity_per_product }}</td>
+                                                    <td>{{ $transaction->payment_type }}</td>
                                                     <td>{{ 'Rp' . number_format($transaction->total_amount) }}</td>
                                                     <td>{{ 'Rp' . number_format($transaction->payment_changes) }}</td>
                                                     <td>{{ 'Rp' . number_format($transaction->grand_total) }}</td>

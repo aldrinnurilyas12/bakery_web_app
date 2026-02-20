@@ -22,13 +22,13 @@ class DailyProducts extends Component
       public function render()
     {
         $filteredProducts = DB::table('v_daily_products');
-        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
 
         if(empty($this->filter)){
-             $filteredProducts->where('store_id',$store);
+             $filteredProducts->where('store_code',$store);
         }
         elseif (!empty($this->filter) && $this->filter !== 'all') {
-            $filteredProducts->where('store_id', $this->filter);
+            $filteredProducts->where('store_code', $this->filter);
         } 
 
         $this->daily_products = $filteredProducts->get();

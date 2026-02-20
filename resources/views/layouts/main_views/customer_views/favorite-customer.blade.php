@@ -99,9 +99,9 @@
                                             @endif
                                         </div>
                                         <div class="btn-detail">
-                                            @if ($item->variant_code)
+                                            @if ($item->variant)
                                                 <a class="btn-detail-product"
-                                                    href="{{ route('product', $item->variant_code) }}">detail</a>
+                                                    href="{{ route('product', $item->variant) }}">detail</a>
                                             @else
                                                 <a class="btn-detail-product"
                                                     href="{{ route('product', $item->product_code) }}">detail</a>

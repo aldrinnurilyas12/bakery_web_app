@@ -1,9 +1,18 @@
-<title>@yield('title', 'Kencana Bakery - Master Data Rewards')</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Kencana Bakery - Master Data Rewards</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+</head>
+
 <div>
     <main>
         @php
             $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
             $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+            $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer']);
         @endphp
         <div class="container-fluid px-4">
             <br>
@@ -11,17 +20,62 @@
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('master_products.index') }}">Rewards Data</a>
+                        Master Data / <a href="{{ route('master_products.index') }}">Rewards Data Store</a>
                     </div>
 
                     @if ($rewards->isNotEmpty())
                         @if (!$user_permission_forbidden)
-                            <div class="button-add-product">
+                            <div style="display: flex;gap:10px;" class="button-add-product">
+                                <a class="btn btn-info" href="{{ route('master_rewards.index') }}">Master Data
+                                    Rewards</a>
                                 <a class="btn btn-primary" href="{{ route('rewards_create') }}">Tambah Rewards</a>
                             </div>
                         @endif
                     @endif
                 </div>
+                @if (!$filter_forbidden_access)
+                    <div class="card-header">
+                        <div class="title">
+                            <div class="filter-data">
+                                <label for=""><strong>Pilih Store</strong></label>
+                                <br>
+                                <div style="display: flex; gap:10px;margin-top:5px;" class="d-flex-container-filter">
+                                    <form action="{{ route('filter_rewards') }}" method="GET">
+                                        <div style="display:flex;gap:20px;" class="d-flex-content">
+                                            <select style="width:max-content;" name="filter" id=""
+                                                class="form-control">
+                                                <option value="">=== Pilih Data ===</option>
+                                                <option value="all"
+                                                    {{ request('filter') == 'all' ? 'selected' : '' }}>
+                                                    Semua Store
+                                                </option>
+                                                @foreach ($store as $shop)
+                                                    <option value="{{ $shop->id }}"
+                                                        {{ request('filter') == $shop->id ? 'selected' : '' }}>
+                                                        {{ $shop->store_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button class="btn btn-primary">Pilih</button>
+                                        </div>
+                                    </form>
+
+                                    {{-- <div class="excel-file">
+                                     <form action="{{ route('export_transaction_excel') }}" method="POST">
+                                         @csrf
+                                         <input type="hidden" name="filter_transaction"
+                                             value="{{ request('filter_transaction') }}">
+                                         <button type="submit" class="btn btn-success">
+                                             <i class="fas fa-file-excel"></i>
+                                             &nbsp; Excel
+                                         </button>
+                                     </form>
+                                 </div> --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <div class="card-body">
                     <div wire:poll.keep.alive.2s>
@@ -42,17 +96,30 @@
                                                     <p
                                                         style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
                                                         Point:
-                                                        {{ $reward->point }} &nbsp; <span>Kuota:
-                                                            {{ $reward->quota }}</span>
+                                                        {{ $reward->point }} &nbsp;
+                                                        <span>Kuota:
+                                                            {{ $reward->stock }}</span>
                                                     </p>
                                                     <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
                                                         class="status">
-                                                        @if ($reward->status == 8)
-                                                            <p style="margin-bottom: 0;">Status: <span
-                                                                    class="text-danger">Tidak aktif</span></p>
-                                                        @else
+                                                        @if ($reward->status_name == 'Active')
                                                             <p style="margin-bottom: 0;">Status: <span
                                                                     class="text-success">Aktif</span></p>
+                                                        @else
+                                                            <p style="margin-bottom: 0;">Status: <span
+                                                                    class="text-danger">Tidak aktif</span></p>
+                                                        @endif
+                                                    </div>
+
+                                                    <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
+                                                        class="status">
+                                                        @if ($reward->store_name)
+                                                            <p style="margin-bottom: 0;">Store: <span
+                                                                    class="text">{{ $reward->store_name }}</span>
+                                                            </p>
+                                                        @else
+                                                            <p style="margin-bottom: 0;">Store: <span
+                                                                    class="text-danger">-</span></p>
                                                         @endif
                                                     </div>
                                                     <div style="font-size: 13px; font-weight: 500;" class="date">
@@ -69,18 +136,26 @@
                                         @if (!$user_permission_forbidden)
                                             <div class="card-footer d-flex align-items-center justify-content-between">
                                                 <a class="small text-black"
-                                                    href="{{ route('rewards_update', $reward->rewards_code) }}">Edit</a>
+                                                    href="{{ route('rewards_update', $reward->reward_store_code) }}">Edit
+                                                    in store</a>
 
-                                                @if ($reward->status == 8)
-                                                    <a class="btn btn-success" href="#" data-toggle="modal"
-                                                        data-target="#deleteModalRewards{{ $reward->rewards_code }}">Aktifkan
-                                                        Kembali
+                                                @if ($reward->status_name == 'Active')
+                                                    <a class="btn btn-danger" data-toggle="modal"
+                                                        data-target="#deleteModalRewards-{{ $reward->rewards_code }}-{{ $reward->store_code }}">
+                                                        Nonaktifkan
                                                     </a>
                                                 @else
-                                                    <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                        data-target="#deleteModalRewards{{ $reward->rewards_code }}">Nonaktif
+                                                    <a class="btn btn-primary" data-toggle="modal"
+                                                        data-target="#deleteModalRewards-{{ $reward->rewards_code }}-{{ $reward->store_code }}">
+                                                        Aktifkan
                                                     </a>
                                                 @endif
+                                            </div>
+
+                                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                                <a class="small text-black"
+                                                    href="{{ route('rewards_master_update', $reward->rewards_code) }}">Edit
+                                                    Master Data</a>
                                             </div>
                                         @endif
                                     </div>
@@ -111,8 +186,10 @@
     </main>
 
     @foreach ($rewards as $reward)
-        <div wire:ignore class="modal fade" id="deleteModalRewards{{ $reward->rewards_code }}" tabindex="-1"
-            role="dialog" aria-labelledby="exampleModalLabel{{ $reward->rewards_code }}" aria-hidden="true">
+        <div wire:ignore class="modal fade"
+            id="deleteModalRewards-{{ $reward->rewards_code }}-{{ $reward->store_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel-{{ $reward->rewards_code }}-{{ $reward->store_code }}"
+            aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -123,35 +200,43 @@
                     </div>
 
                     <div class="modal-body">
-                        @if ($reward->status == 8)
-                            Apakah anda yakin ingin aktifkan Reward
-                            {{ $reward->rewards_name }}
+                        @if ($reward->status_name == 'Active')
+                            Apakah anda yakin ingin men-Nonaktif Reward
+                            {{ $reward->rewards_name }} - {{ $reward->store_name }}
                             ?
                         @else
-                            Apakah anda yakin ingin men-Nonaktif Reward
-                            {{ $reward->rewards_name }}
+                            Apakah anda yakin ingin aktifkan Reward
+                            {{ $reward->rewards_name }} - {{ $reward->store_name }}
                             ?
                         @endif
                         <br>
                         <br>
-                        <form method="POST" action="{{ route('rewards_nonactive', $reward->rewards_code) }}">
+                        <form method="POST"
+                            action="{{ route('rewards_nonactive', [
+                                'reward' => $reward->rewards_code,
+                                'store' => $reward->store_code,
+                            ]) }}">
                             @csrf
                             @method('PUT')
                             <div class="form-group">
-                                @if ($reward->status == 8)
-                                    <input type="checkbox" name="status" value="7">
-                                    <label for="">Aktifkan</label>
-                                @else
+                                @if ($reward->status_name == 'Active')
                                     <input type="checkbox" name="status" value="8">
+                                    <x-input-error :messages="$errors->get('status')" class="text-danger" />
+                                    <input type="text" name="store" value="{{ $reward->store_code }}" hidden>
                                     <label for="">Nonaktifkan</label>
+                                @else
+                                    <input type="checkbox" name="status" value="7">
+                                    <x-input-error :messages="$errors->get('status')" class="text-danger" />
+                                    <input type="text" name="store" value="{{ $reward->store_code }}" hidden>
+                                    <label for="">Aktifkan</label>
                                 @endif
                             </div>
                             <br>
 
-                            @if ($reward->status == 8)
-                                <button class="btn btn-primary" type="submit">Aktifkan</button>
-                            @else
+                            @if ($reward->status_name == 'Active')
                                 <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                            @else
+                                <button class="btn btn-primary" type="submit">Aktifkan</button>
                             @endif
 
                         </form>

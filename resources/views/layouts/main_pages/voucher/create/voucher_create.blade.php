@@ -42,6 +42,7 @@
                             <label><strong>Masukan nama voucher</strong></label>
                             <input type="text" name="voucher_name" class="form-control"
                                 value="{{ old('voucher_name') }}" placeholder="Masukan nama voucher" autocomplete="off">
+                            <x-input-error :messages="$errors->get('voucher_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -64,12 +65,14 @@
                             <input type="text" name="min_transaction" class="form-control"
                                 value="{{ old('min_transaction') }}" placeholder="Masukan minimal transaksi"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('min_transaction')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Kuota Voucher</strong></label>
                             <input type="text" name="quota" class="form-control" value="{{ old('quota') }}"
                                 placeholder="Masukan kuota voucher min : 1 " autocomplete="off">
+                            <x-input-error :messages="$errors->get('quota')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -79,16 +82,19 @@
                                 <option value="regular">Regular</option>
                                 <option value="birth_day">Ulang Tahun</option>
                             </select>
+                            <x-input-error :messages="$errors->get('voucher_type')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal awal berlaku voucher</strong></label>
                             <input type="date" name="start_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal akhir berlaku voucher</strong></label>
                             <input type="date" name="end_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
                         </div>
 
                         <button type="submit" class="btn btn-primary">Tambah voucher</button>

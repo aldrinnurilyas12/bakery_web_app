@@ -56,7 +56,7 @@ class RegisteredCustomer extends Controller
             'email' => 'required|unique:customer,email',
             'birth_date' => 'required',
             'password' => 'required',
-            'phone_number' => 'required|unique:customer,phone_number'
+            'phone_number' => 'required|numeric|unique:customer,phone_number'
         ],
         [
             'phone_number.unique' => 'Nomor telepon sudah digunakan.',
@@ -72,7 +72,7 @@ class RegisteredCustomer extends Controller
 
         $date = Carbon::now()->format('ymd');
         $uuid = (string) Str::uuid();
-        $unique_code = substr($uuid, 0, 5);
+        $unique_code = substr($uuid, 0, 6);
         $customer_code = 'cust'. $date . $unique_code;
 
         // QR CODE CUSTOMER:

@@ -14,7 +14,6 @@ class RewardsModel extends Model
         'rewards_code',
         'rewards_name',
         'point', 
-        'quota',
         'images',
         'status',
         'start_date',

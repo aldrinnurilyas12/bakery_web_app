@@ -18,16 +18,6 @@
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>
-                {{-- @php
-                    $products = DB::table('v_products as vp')
-                        ->select('vp.product_code', 'vp.product')
-                        ->leftJoin('products_daily as dp', 'vp.product_code', '=', 'dp.product_code')
-                        ->leftJoin('product_variant as pv', 'vp.product_code', '=', 'pv.product')
-
-                        ->get();
-
-                    dd($products);
-                @endphp --}}
                 <br>
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Daily Produk</h4>
@@ -49,21 +39,24 @@
                         @csrf
 
                         <div class="form-group">
+                            <label><strong>Store</strong></label>
+                            <input type="text" class="form-control"
+                                value="{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}"
+                                readonly>
+                        </div>
+
+                        <div class="form-group">
                             <label><strong>Produk</strong></label>
                             @if ($products->isNotEmpty())
-                                <select id="productSelect" class="form-control" name="product_code">
+                                <select id="productSelect" class="form-control" name="production">
                                     <option value="">==== Pilih Produk ====</option>
                                     @foreach ($products as $item)
-                                        <option value="{{ $item->product_code }}"
-                                            data-variant="{{ $item->variant_code }}">
-                                            @if ($item->variant_code)
-                                                {{ $item->product . ' - ' . $item->variant_type }}
-                                            @else
-                                                {{ $item->product }}
-                                            @endif
+                                        <option value="{{ $item->production_code }}">
+                                            {{ $item->production_code . ' - ' . '[' . $item->product_code . ' - ' . $item->product . ($item->variant_type ? ' - ' . $item->variant_type : '') . ']' }}
                                         </option>
                                     @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('production')" class="text-danger" />
                             @else
                                 <p class="text-secondary">Tidak ada Product, <a
                                         href="{{ route('product_create') }}">Tambah Product</a> </p>
@@ -78,22 +71,10 @@
 
                             <div class="form-group">
                                 <label><strong>Masukan jumlah stok</strong></label>
-                                <input type="text" name="stock_available" class="form-control"
-                                    value="{{ old('stock_available') }}" placeholder="Masukan jumlah stock"
-                                    autocomplete="off">
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Masukan jumlah Point</strong></label>
-                                <input type="text" name="point" class="form-control" value="{{ old('point') }}"
-                                    placeholder="Masukan jumlah point" autocomplete="off">
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Store</strong></label>
-                                <input type="text" class="form-control"
-                                    value="{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}"
-                                    readonly>
+                                <input type="text" name="stock_available" class="form-control" id="showStock"
+                                    value="{{ old('stock_available') }}" placeholder="Stok produk akan muncul"
+                                    autocomplete="off" readonly>
+                                <x-input-error :messages="$errors->get('stock_available')" class="text-danger" />
                             </div>
 
                             <div style="display:flex; gap:20px;" class="btn-groupe">
@@ -149,6 +130,26 @@
             }
         });
     });
+
+    document.getElementById('productSelect').addEventListener('change', function() {
+        var productSelect = this.value;
+
+        if (!productSelect) {
+            document.getElementById('showStock').value = '';
+            return;
+        }
+
+        fetch('/get_stock_product/' + productSelect).then(response => {
+            if (!response.ok) {
+                throw new Error('Stock not found');
+            }
+            return response.json();
+        }).then(data => {
+            if (data.data.actual_quantity) {
+                document.getElementById('showStock').value = data.data.actual_quantity;
+            }
+        })
+    })
 </script>
 
 

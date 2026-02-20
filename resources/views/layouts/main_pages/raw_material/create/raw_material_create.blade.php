@@ -27,18 +27,21 @@
                             <input type="text" name="material_name" class="form-control"
                                 value="{{ old('material_name') }}" placeholder="Masukan nama bahan baku"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('material_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Masukan Harga Bahan Baku</strong></label>
                             <input type="text" name="price" class="form-control" value="{{ old('price') }}"
                                 placeholder="Masukan harga" autocomplete="off">
+                            <x-input-error :messages="$errors->get('price')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Masukan Stok</strong></label>
                             <input type="text" name="quantity" class="form-control" value="{{ old('quantity') }}"
                                 placeholder="Masukan stok bahan baku" autocomplete="off">
+                            <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
                         </div>
 
 
@@ -54,7 +57,10 @@
                                 <option value="ton">Ton</option>
                                 <option value="sachet">Sachet</option>
                                 <option value="pack">Pack</option>
+                                <option value="liter">Liter</option>
+                                <option value="mililiter">Mililiter</option>
                             </select>
+                            <x-input-error :messages="$errors->get('material_type')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -65,13 +71,14 @@
                                     <option value="{{ $cat->id }}">
                                         {{ $cat->category_name . ' => ' . $cat->description }}</option>
                                 @endforeach
-
                             </select>
+                            <x-input-error :messages="$errors->get('material_category')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal Expired Bahan Baku</strong></label>
                             <input type="date" name="expired_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>
 
                         <button type="submit" class="btn btn-primary">Tambah material</button>

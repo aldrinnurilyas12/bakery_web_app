@@ -7,6 +7,7 @@ use App\Models\CustomerModel;
 use App\Models\ProductFavorite;
 use App\Models\RedeemRewardModel;
 use App\Models\RewardsModel;
+use App\Models\RewardsStoreModel;
 use App\Models\TransactionModel;
 use App\Models\VoucherCustomer;
 use Illuminate\Http\Request;
@@ -106,7 +107,12 @@ class CustomerController extends Controller
     {
         // $CUSTOMER_LOGIN_SESSION = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         // $customer = DB::table('v_customers')->where('customer_code', $CUSTOMER_LOGIN_SESSION)->first();
-        $rewards = DB::table('rewards')->where('status','7')->orderBy('created_at', 'DESC')->get();
+        $rewards = DB::table('rewards as r')
+            ->join('rewards_store as rs', 'r.rewards_code', '=', 'rs.reward')
+            ->select('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date',DB::raw('SUM(rs.stock) as total_stock'), 'r.created_at')
+            ->where('rs.status', 7)
+            ->groupBy('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date', 'r.created_at')
+            ->orderBy('r.created_at', 'DESC')->get();
         return view('layouts.main_views.customer_views.rewards-catalogue', compact('rewards'));
     }
    
@@ -121,14 +127,24 @@ class CustomerController extends Controller
 
     public function reward_detail(Request $request)
     {
-        $reward = DB::table('rewards')->where('status','7')->where('rewards_code', $request->rewards_code)->first();
+        $reward = DB::table('rewards as r')
+            ->join('rewards_store as rs', 'r.rewards_code', '=', 'rs.reward')
+            ->select('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date',DB::raw('SUM(rs.stock) as total_stock'), 'r.created_at')
+            ->where('rs.status', 7)
+            ->where('r.rewards_code', $request->rewards_code)
+            ->groupBy('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date', 'r.created_at')
+            ->orderBy('r.created_at', 'DESC')->first();
+
+        $reward_store = DB::table('rewards_store as rs')
+        ->leftJoin('store as s', 'rs.store', '=','s.store_code')->select('s.store_code','s.store_name')
+        ->where('rs.reward', $reward->rewards_code)->get();
 
         if(!$reward){
              session()->flash('failed_message', 'Tidak ada Reward!');
             return redirect()->back();
         }
 
-        return view('layouts.main_views.customer_views.reward-detail', compact('reward'));
+        return view('layouts.main_views.customer_views.reward-detail', compact('reward', 'reward_store'));
     }
 
 
@@ -235,9 +251,10 @@ class CustomerController extends Controller
         //     });
 
         $product_favorite = DB::table('products_favorite as pf')
-        ->select('pf.product_daily', 'vp.product_code', 'vp.variant_code','vp.product', 
+        ->select('pf.product_daily', 'vp.product_code', 'vp.variant','vp.product', 
         'vp.price','vp.discount', 'vp.price_after_discount', 'vp.variant_price','vp.variant_discount','vp.variant_price_after_discount')
-        ->leftJoin('v_daily_products as vp', 'pf.product_daily', '=', 'vp.daily_code')->where('pf.customer_code', '=', $customer_code)->orderBy('pf.created_at', 'DESC')->get();
+        ->leftJoin('v_daily_products as vp', 'pf.product_daily', '=', 'vp.daily_code')
+        ->where('pf.customer_code', '=', $customer_code)->orderBy('pf.created_at', 'DESC')->get();
 
 
 
@@ -291,7 +308,8 @@ class CustomerController extends Controller
      public function rewards_customer_history(Request $request) {
         $customer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         $rewards = DB::table('redeem_reward as rr')
-            ->leftJoin('rewards as r', 'rr.reward', '=', 'r.rewards_code')
+            ->leftJoin('rewards_store as rs','rr.reward', '=', 'rs.reward_store_code')
+            ->leftJoin('rewards as r', 'rs.reward', '=', 'r.rewards_code')
             ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
             ->where('customer', $customer)->orderBy('redeem_date', 'DESC')->get();
         return view('layouts.main_views.customer_views.rewards', compact('rewards'));
@@ -301,20 +319,25 @@ class CustomerController extends Controller
 
     public function redeem_reward(Request $request)
     {
+        $request->validate([
+            'pickup_schedule' => 'required'
+        ]);
+
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
     
         $reward_point = $request->point;
         $reward_code = $request->reward_code;
+        $reward_code_store = $request->reward;
         $customer_point = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->point;
-
         $result_point = $customer_point - $reward_point;
         
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
         $redeem_code = 'REDEEM' . $unique_code;
 
-        $reward_exists = DB::table('rewards')->where('rewards_code', $reward_code)->first();
-        if($reward_exists->quota == null || $reward_exists->quota == 0)
+        $reward_exists = DB::table('rewards_store')->where('reward_store_code', $reward_code_store)->first();
+       
+        if($reward_exists->stock == null || $reward_exists->stock == 0)
         {
            session()->flash('failed_message', 'Maaf, Kuota Reward ini sudah habis!');
             return redirect()->back(); 
@@ -326,14 +349,16 @@ class CustomerController extends Controller
         }else{
            RedeemRewardModel::create([
                 'redeem_code' => $redeem_code,
-                'reward' => $reward_code,
+                'reward' => $reward_code_store,
                 'customer' => $customer_code,
                 'status' => 12,
+                'pickup_schedule' => $request->pickup_schedule,
                 'redeem_date' => now(),
                 'created_at' => now()
             ]);
 
-            RewardsModel::where('rewards_code', $reward_code)->decrement('quota', 1);
+            
+            RewardsStoreModel::where('reward_store_code', $reward_code_store)->decrement('stock', 1);
         
             CustomerModel::where('customer_code', $customer_code)->update([
                 'point' => $result_point
@@ -344,6 +369,20 @@ class CustomerController extends Controller
         }
 
 
+    }
+
+    public function get_stock(Request $request)
+    {
+        $data = DB::table('rewards_store')
+        ->select('stock', 'reward_store_code')
+        ->where('reward', $request->rewards_code)
+        ->where('store', $request->store)->first();
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Data Rewards Store'
+
+        ]);
     }
 
 

@@ -30,7 +30,7 @@
                     @if (!$user_permission_forbidden)
                         <div class="button-add-product">
                             <a class="btn btn-primary" href="{{ route('daily_product_create') }}">Tambah
-                                Produk</a>
+                                Daily Produk</a>
                         </div>
                     @endif
                 @endif
@@ -51,8 +51,8 @@
                                                 Semua Store
                                             </option>
                                             @foreach ($store as $shop)
-                                                <option value="{{ $shop->id }}"
-                                                    {{ request('filter') == $shop->id ? 'selected' : '' }}>
+                                                <option value="{{ $shop->store_code }}"
+                                                    {{ request('filter') == $shop->store_code ? 'selected' : '' }}>
                                                     {{ $shop->store_name }}
                                                 </option>
                                             @endforeach
@@ -116,7 +116,7 @@
                                                         {{ $product->category }} </p>
 
 
-                                                    @if ($product->variant_code == null)
+                                                    @if ($product->variant == null)
                                                         @if ($product->price_after_discount == 0)
                                                             <p class="price" style="margin: 0;">
                                                                 {{ 'Rp' . number_format($product->price) }}
@@ -164,7 +164,7 @@
                                                     </span> &nbsp;
                                                     <span>Berat:
                                                         {{ $product->product_weight }}</span> &nbsp;
-                                                    @if ($product->variant_code)
+                                                    @if ($product->variant)
                                                         <span>Variant:
                                                             {{ $product->variant_type }}</span>
                                                     @else

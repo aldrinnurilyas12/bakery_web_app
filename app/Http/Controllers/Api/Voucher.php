@@ -53,7 +53,16 @@ class Voucher extends Controller
             'start_date'=> 'required',
             'end_date'=> 'required',
             'voucher_type' => 'required'
-        ]);
+        ],
+        [
+            'voucher_name.required' => 'Nama E-Voucher harus diisi',
+            'quota.required' => 'Kuota E-Voucher harus diisi',
+            'min_transaction.required' => 'masukan minimal transaksi',
+            'start_date.required' => 'Tanggal awal Voucher harus diisi',
+            'end_date.required' => 'Tanggal akhir Voucher harus diisi',
+            'voucher_type.required' => 'Tipe Voucher harus dipilih'
+        ]
+        );
         
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
         $uuid = (string) Str::uuid();
@@ -137,6 +146,23 @@ class Voucher extends Controller
      */
     public function update(Request $request, string $id)
     {
+         $request->validate([
+            'voucher_name'=> 'required',
+            'quota'=> 'required',
+            'min_transaction'=> 'required',
+            'start_date'=> 'required',
+            'end_date'=> 'required',
+            'voucher_type' => 'required'
+        ],
+        [
+            'voucher_name.required' => 'Nama E-Voucher harus diisi',
+            'quota.required' => 'Kuota E-Voucher harus diisi',
+            'min_transaction.required' => 'masukan minimal transaksi',
+            'start_date.required' => 'Tanggal awal Voucher harus diisi',
+            'end_date.required' => 'Tanggal akhir Voucher harus diisi',
+            'voucher_type.required' => 'Tipe Voucher harus dipilih'
+        ]
+        );
 
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
         VoucherModel::where('voucher_code', $request->voucher_code)->update([

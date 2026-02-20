@@ -14,7 +14,7 @@ class ProductionProducts extends Component
     public function mount()
     {
         // Inisialisasi data store
-        $this->filter = request()->query('filter', '');
+        $this->filter = request()->query('fstore', '');
         $this->store = DB::table('store')->get();
         
     }
@@ -23,13 +23,13 @@ class ProductionProducts extends Component
     
     {
         $filteredProduction = DB::table('v_production_products');
-        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
 
         if(empty($this->filter)){
-             $filteredProduction->where('store_id',$store);
+             $filteredProduction->where('store_code',$store);
         }
         elseif (!empty($this->filter) && $this->filter !== 'all') {
-            $filteredProduction->where('store_id', $this->filter);
+            $filteredProduction->where('store_code', $this->filter);
         } 
 
         $this->production_product = $filteredProduction->get();

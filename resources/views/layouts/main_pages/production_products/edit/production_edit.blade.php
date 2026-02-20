@@ -33,14 +33,8 @@
 
                         <div class="form-group">
                             <label><strong>Produk</strong></label>
-                            <select name="product" class="form-control" id="">
-                                @foreach ($products as $item)
-                                    <option value="{{ $item->product_code }}"
-                                        {{ $item->product_code == $production->product_code ? 'selected' : '' }}>
-                                        {{ $item->product_code . ' - ' . $item->product }}</option>
-                                @endforeach
-
-                            </select>
+                            <input class="form-control" type="text" name="product" value="{{ $production->product }}"
+                                readonly>
                         </div>
 
                         <div class="form-group">
@@ -103,6 +97,7 @@
                                                             name="quantity_used[{{ $raw->material_code }}]"
                                                             value="{{ $quantity_usages[$raw->material_code]->quantity_used ?? 0 }}"
                                                             {{ !$raw_material_usages->contains(trim(strtolower($raw->material_code))) ? 'disabled' : '' }}>
+                                                        <x-input-error :messages="$errors->get('quantity_used.' . $raw->material_code)" class="text-danger" />
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -126,6 +121,7 @@
                                     {{ $production->production_type == 'per_month' ? 'selected' : '' }}>
                                     Per Bulan</option>
                             </select>
+                            <x-input-error :messages="$errors->get('production_type')" class="text-danger" />
                         </div>
 
 
@@ -134,6 +130,7 @@
                             <input type="text" name="target_total" class="form-control"
                                 value="{{ $production->target_total }}"
                                 placeholder="Masukan jumlah target total produk" autocomplete="off">
+                            <x-input-error :messages="$errors->get('target_total')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -141,6 +138,7 @@
                             <input
                                 value="{{ old('production_date', $production->production_date ? $production_date->format('Y-m-d') : null) }}"
                                 type="date" name="production_date" class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('production_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">

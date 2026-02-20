@@ -34,6 +34,7 @@
                             <label><strong>Nama Produk</strong></label>
                             <input type="text" name="product_name" class="form-control"
                                 value="{{ $products->product }}">
+                            <x-input-error :messages="$errors->get('product_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -46,6 +47,7 @@
                                         {{ $Produk->category_name }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('category_id')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -75,6 +77,7 @@
                                 <label><strong>Harga Produk</strong></label>
                                 <input id="priceProduct" type="text" inputmode="numeric" name="price"
                                     class="form-control" value="{{ $products->price }}">
+                                <x-input-error :messages="$errors->get('price')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
@@ -95,6 +98,7 @@
                                 <label><strong>Berat Produk (optional)</strong></label>
                                 <input type="text" inputmode="numeric" name="product_weight" class="form-control"
                                     value="{{ $products->product_weight }}">
+                                <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
                             </div>
                         </div>
 
@@ -117,6 +121,7 @@
                                     Liter
                                 </option>
                             </select>
+                            <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />
                         </div>
 
 
@@ -124,6 +129,7 @@
                             <label><strong>Tanggal Kadaluarsa</strong></label>
                             <input type="date" name="expired_date" class="form-control"
                                 value="{{ old('expired_date', $products->expired_date ? $expired_date->format('Y-m-d') : null) }}">
+                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -157,11 +163,53 @@
 
                         </div>
                         <br>
-
-
                         <div class="form-group">
                             <label><strong>Upload Gambar/Foto Produk </strong></label>
                             <input type="file" name="images[]" multiple class="form-control">
+
+                        </div>
+
+                        <hr class="hr-menu">
+                        <h4>Reward Point Rule</h4>
+                        <hr>
+
+
+                        <div class="form-group">
+                            <label><strong>Masukan jumlah Point</strong></label>
+                            @if ($products->point == null)
+                                <small class="text-danger">*Tidak ada Point untuk produk ini</small>
+                            @endif
+                            <input type="text" name="point" class="form-control"
+                                value="{{ $products->point }}" autocomplete="off">
+                        </div>
+
+                        @if ($point)
+                            <div class="form-group">
+                                <label><strong>Status Point</strong></label>
+                                <select class="form-control" name="status" id="">
+                                    @foreach ($status as $sts)
+                                        <option value="{{ $sts->id }}"
+                                            {{ $sts->status_name == $products->point_status ? 'selected' : '' }}>
+                                            {{ $sts->status_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                            </div>
+                        @endif
+
+                        <div class="form-group">
+                            <label><strong>Tanggal awal</strong></label>
+                            <input type="date" name="start_date" class="form-control"
+                                value="{{ old('point_start_date', $products->point_start_date ? $point_start_date->format('Y-m-d') : null) }}"
+                                autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Tanggal akhir</strong></label>
+                            <input type="date" name="end_date" class="form-control"
+                                value="{{ old('point_end_date', $products->point_end_date ? $point_end_date->format('Y-m-d') : null) }}"
+                                autocomplete="off">
                         </div>
 
                         <div class="form-group">

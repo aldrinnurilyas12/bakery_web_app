@@ -26,6 +26,14 @@
         }
     @endphp
     <div class="main-container">
+        <br>
+        <div style="display: flex; gap:10px;align-items:center;padding-left: 10px;" class="title-content-head">
+            <a style="color:black;" href="{{ route('home') }}">
+                <i class="fa fa-arrow-left"></i>
+            </a>
+            <h4 style="font-size: 20px;"><strong>Redeem Rewards</strong></h4>
+        </div>
+        <br>
         <div class="product-image">
             <img src="{{ url('storage/' . $reward->images) }}" alt="Product Image">
         </div>
@@ -35,52 +43,86 @@
 
                     <div class="container-product-info">
                         <div style="display: flex; justify-content:space-between;" class="info-detail">
-                            <div style="display: flex; justify-content:space-between; gap:10px;font-size: 14px;"
-                                class="group-like">
-                                <p style="margin-bottom: 10px;">Point: {{ $reward->point }}</p>
-                                &middot;
-                                <p>Kuota: {{ $reward->quota ?: 'Habis' }}</p>
+                            <div style="display: block;" class="-display-block-title">
+                                <div style="display: flex; gap:10px;font-size: 14px;" class="group-like">
+                                    <p style="margin-bottom: 10px;">Point: {{ $reward->point }}</p>
+                                    &middot;
+
+                                    <div style="display:flex; gap:2px;" class="flex-show-stock">
+                                        <p>Kuota:</p>
+                                        <p id="showStock"></p>
+                                        <p id="hiddenAllStock">{{ $reward->total_stock ?: 'Habis' }}</p>
+                                    </div>
+
+                                </div>
+                                <div class="d-block-content">
+                                    <h4>{{ $reward->rewards_name }}</h4>
+                                    <div style="margin-bottom: 0.6em; display:flex; justify-content: space-between;"
+                                        class="date">
+                                        <div style="font-size: 14px;" class="p-date">
+                                            <p style="margin-bottom: 0;">Tanggal berlaku:</p>
+                                            {{ \Carbon\Carbon::parse($reward->start_date)->format('Y-m-d') }} s.d
+                                            {{ \Carbon\Carbon::parse($reward->end_date)->format('Y-m-d') }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <h4>{{ $reward->rewards_name }}</h4>
-                        <div style="margin-bottom: 1.5em;" class="date">
-                            <p style="margin-bottom: 0;">Tanggal berlaku:</p>
-                            {{ \Carbon\Carbon::parse($reward->start_date)->format('Y-m-d') }} s.d
-                            {{ \Carbon\Carbon::parse($reward->end_date)->format('Y-m-d') }}
-                        </div>
 
-
-
-                        @if ($auth)
-                            <hr class="hr-menu">
-                            <div class="redeem">
-                                <div style="text-align: center;" class="group-point-customer">
+                            @if (auth()->user())
+                                <div style="text-align: center;padding:4px; border-radius: 5px; border: 1px solid #d8d8d8;height:max-content;"
+                                    class="group-point-customer">
                                     <p style="margin: 0;">Point Anda</p>
                                     <p style="color:#bb0239;margin:0;">
                                         {{ $customer_point }}
                                     </p>
 
                                     @if ($reward->point > $customer_point)
-                                        <small class="text-danger">*Point anda tidak cukup</small>
+                                        <small class="text-danger">*Point tidak cukup</small>
                                     @endif
                                 </div>
+                            @endif
+                        </div>
+
+
+
+                        @if ($auth)
+                            <hr style="margin-top: 4px;" class="hr-menu">
+                            <div class="redeem">
                                 @if ($reward->point > $customer_point)
-                                    <a class="btn btn-secondary" href="">Redeem</a>
+                                    <a style="width: 100%;border-radius:6px;padding:10px;" class="btn btn-secondary"
+                                        href="">Redeem</a>
                                 @else
-                                    @if ($reward->quota == null || $reward->quota == 0)
+                                    @if ($reward->total_stock == null || $reward->total_stock == 0)
                                         <div class="btn-redeem-point">
                                             <a style="color:white;" class="btn btn-secondary">Kuota habis</a>
                                         </div>
                                     @else
-                                        <div class="form-redeem">
+                                        <div style="display: block;width:100%;" class="form-redeem">
+                                            <div class="form-group">
+                                                <label for=""><strong>Pilih Store</strong></label>
+                                                <select class="form-control" name="store" id="code_store">
+                                                    <option value="">=== Pilih Store ===</option>
+                                                    @foreach ($reward_store as $store)
+                                                        <option value="{{ $store->store_code }}">
+                                                            {{ $store->store_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+
                                             <form action="{{ route('redeem-reward') }}" method="POST">
                                                 @csrf
+                                                <div class="form-group">
+                                                    <label for=""><strong>Jadwalkan pengambilan
+                                                            Reward</strong></label>
+                                                    <input class="form-control" type="date" name="pickup_schedule"
+                                                        required>
+                                                </div>
                                                 <input name="point" type="text" value="{{ $reward->point }}"
                                                     hidden>
-                                                <input name="reward_code" type="text"
-                                                    value="{{ $reward->rewards_code }}" hidden>
+                                                <input type="text" name="reward" hidden id="showRewardCodeStore">
                                                 <button type="submit" class="btn-redeem"
-                                                    style="background: #bb0239;color:white; border-radius:6px;padding:10px;text-decoration: none;border:none;"
+                                                    style="width:100%;background: #bb0239;color:white; border-radius:6px;padding:10px;text-decoration: none;border:none;"
                                                     href="">Redeem</button>
                                             </form>
                                         </div>
@@ -88,12 +130,15 @@
                                 @endif
                             </div>
                         @else
-                            <div style="display: flex; justify-content: center;" class="btn-login-auth">
-                                <div class="btn-login">
-                                    <a class="btn-redeem"
-                                        style="background: #bb0239;color:white; border-radius:6px;padding:10px;text-decoration: none;border:none;"
-                                        href="{{ route('login_app') }}">Login untuk klaim reward</a>
-                                </div>
+                            <br>
+                            <br>
+                            <div style="display: flex; justify-content: center;text-align: center;"
+                                class="btn-login-auth">
+
+                                <a class="btn-redeem"
+                                    style="background: #bb0239;color:white; border-radius:6px;padding:10px;text-decoration: none;border:none;width:100%;"
+                                    href="{{ route('login_app') }}">Login untuk klaim reward</a>
+
                             </div>
                         @endif
                     </div>
@@ -104,10 +149,6 @@
 
         <br>
     </div>
-
-
-
-
 
     @include('layouts.main_views.components.bottom_nav')
 
@@ -177,6 +218,41 @@
     @endif
 
 </body>
+
+<script>
+    document.getElementById('code_store').addEventListener('change', function() {
+        var code_store = this.value;
+        const code_rewards = "{{ $reward->rewards_code }}";
+
+        const showStock = document.getElementById('showStock');
+        const hiddenAllStock = document.getElementById('hiddenAllStock');
+        const showRewardCodeStore = document.getElementById('showRewardCodeStore');
+
+
+        if (!code_rewards) {
+            document.getElementById('showStock').value = '';
+            return;
+
+        }
+
+        fetch(`/get_stock/${code_rewards}?store=${code_store}`).then(response => {
+            if (!response.ok) {
+                throw new Error('Stock not found');
+            }
+            return response.json();
+        }).then(data => {
+            if (data.data && data.data.stock !== null && data.data.reward_store_code) {
+                showStock.innerText = data.data.stock;
+                document.getElementById('showRewardCodeStore').value = data.data.reward_store_code;
+                hiddenAllStock.hidden = true;
+            } else {
+                showStock.innerText = 'Habis';
+                hiddenAllStock.hidden = true;
+            }
+
+        })
+    })
+</script>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

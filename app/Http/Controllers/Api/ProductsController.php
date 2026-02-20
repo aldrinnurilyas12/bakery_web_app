@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Livewire\Products;
 use App\Models\ProductsModel;
 use App\Models\ProductImages;
+use App\Models\ProductPointModel;
 use App\Models\ProductsVariant;
+use App\Models\VariantCategoryModel;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Ramsey\Uuid\Uuid;
@@ -38,9 +41,22 @@ class ProductsController extends Controller
       public function store(Request $request)
     {
         $request->validate([
-            'product_name' => 'required',
-            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000',
-            'product_variant' => 'required'
+            'product_name' =>'required',
+            'category_id' =>'required',
+            'product_weight' =>'required',
+            'product_weight_type' =>'required',
+            'product_variant' => 'required',
+            'expired_date' =>'required',
+            'images' => 'required',
+            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000'
+        ],
+        [
+            'product_name.required' => 'Nama Produk harus diisi',
+            'category_id.required' => 'Kategori Produk harus diisi',
+            'product_weight.required' => 'Berat Produk harus diisi',
+            'product_weight_type.required' => 'Massa Produk harus diisi',
+            'expired_date.required' => 'Tanggal Kadaluarsa Produk harus diisi',
+            'images.required' => 'Gambar/Foto Produk harus ada'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -67,33 +83,50 @@ class ProductsController extends Controller
 
         ]);
 
-            if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $folderPath = 'product/' . $data->latest()->first()->id;
-                    $imagePath = $image->storeAs($folderPath, uniqid() . '.' . $image->getClientOriginalExtension(), 'public');
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $folderPath = 'product/' . $data->latest()->first()->id;
+                $imagePath = $image->storeAs($folderPath, uniqid() . '.' . $image->getClientOriginalExtension(), 'public');
 
-                    ProductImages::create([
-                        'product_code' => $product_code,
-                        'images' => $imagePath,
-                        'created_at' => now(),
-                        'created_by' => $created_by
+                ProductImages::create([
+                    'product_code' => $product_code,
+                    'images' => $imagePath,
+                    'created_at' => now(),
+                    'created_by' => $created_by
                             
-                    ]);
-                }
-
+                ]);
             }
+
+        }
+
+        ProductPointModel::create([
+            'product' =>$data->product_code,
+            'point' => $request->point,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'status' => 7
+        ]);
 
         if($request->product_variant == 'Y'){
             session()->flash('message_success', 'Data produk berhasil disimpan!');
             return redirect()->route('add_product_variant', $data->product_code);
         }
         
-            session()->flash('message_success', 'Data produk berhasil disimpan!');
-            return redirect()->route('products_data');
+        session()->flash('message_success', 'Data produk berhasil disimpan!');
+        return redirect()->route('products_data');
       
     }
 
     public function save_product_variant(Request $request) {
+
+        $request->validate([
+            'variant_type' => 'required',
+            'variant_price' => 'required'
+        ], 
+        [
+            'variant_type.required' => 'Tipe Variant harus diisi',
+            'variant_price.required' => 'Harga Produk Variant harus diisi'
+        ]);
 
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 8);
@@ -181,12 +214,14 @@ class ProductsController extends Controller
         }
         $authenticatedUser = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
         $products = DB::table('v_products')->where('product_code', $request->product_code)->first();
-
+        $point = ProductPointModel::where('product', $product_code)->select('point')->first();
+        $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $product_images = DB::table('product_images')->where('product_code', $request->product_code)->select('id','images' )->get();
         $products_category = DB::table('product_category')->get();
-        $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
         $expired_date = Carbon::parse($products->expired_date);
-        return view('layouts.main_pages.products.edit.products_edit', compact('products', 'products_category', 'status', 'expired_date', 'product_images'));
+        $point_start_date = Carbon::parse($products->point_start_date);
+        $point_end_date = Carbon::parse($products->point_end_date);
+        return view('layouts.main_pages.products.edit.products_edit', compact('products','point', 'products_category', 'status', 'expired_date', 'product_images', 'point_start_date', 'point_end_date'));
         
     }
 
@@ -196,17 +231,29 @@ class ProductsController extends Controller
    
 
     public function update(Request $request, $product_code)
-{
-    $request->validate([
-        'images.*' => 'image|mimes:jpg,png,jpeg|max:5000',
-        'product_name' => 'required',
-        'category_id' => 'required',
-        'product_variant' => 'required'
-        // tambahkan validasi lain sesuai kebutuhan
-    ]);
+    {
+     $request->validate([
+            'product_name' =>'required',
+            'category_id' =>'required',
+            'price' =>'required',
+            'product_weight' =>'required',
+            'product_weight_type' =>'required',
+            'expired_date' =>'required',
+            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000'
+        ],
+        [
+            'product_name.required' => 'Nama Produk harus diisi',
+            'category_id.required' => 'Kategori Produk harus diisi',
+            'price.required' => 'Harga Produk harus diisi',
+            'product_weight.required' => 'Berat Produk harus diisi',
+            'product_weight_type.required' => 'Massa Produk harus diisi',
+            'expired_date.required' => 'Tanggal Kadaluarsa Produk harus diisi',
+        ]);
 
     $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
     $product_id = DB::table('v_products')->select('id')->where('product_code', $request->product_code)->first();
+    $point = ProductPointModel::where('product', $product_code)->select('point')->first();
+
     // Update data produk utama
     $data =  DB::table('products')
         ->where('product_code', $product_code)
@@ -241,6 +288,24 @@ class ProductsController extends Controller
                 }
 
         }
+
+        if($point == null)
+        {
+            ProductPointModel::create([
+                'product' => $product_code,
+                'point' => $request->point,
+                'status' => 7,
+                'start_date' => $request->start_date,
+                'end_date' =>$request->end_date
+            ]);
+        }else{
+            ProductPointModel::where('product', $product_code)->update([
+                'point' => $request->point,
+                'status' => $request->status,
+                'start_date' => $request->start_date,
+                'end_date' =>$request->end_date
+            ]);
+        }
         
 
         if($request->product_variant == 'Y'){
@@ -260,9 +325,11 @@ class ProductsController extends Controller
             return redirect()->back();
         }
 
+        $variant_category_bakery = VariantCategoryModel::whereNotIn('id' , ['4', '5'])->get();
+        $variant_category_drinks = VariantCategoryModel::whereIn('id' , ['4', '5'])->get();
 
         $products =DB::table('v_products')->where('product_code', $request->product_code)->first();
-        return view('layouts.main_pages.products.create.products_variant_create', compact('products'));
+        return view('layouts.main_pages.products.create.products_variant_create', compact('products', 'variant_category_bakery', 'variant_category_drinks'));
     }
 
 

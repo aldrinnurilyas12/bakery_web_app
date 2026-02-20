@@ -38,9 +38,12 @@
                                                 <th>Aksi</th>
                                                 <th>Kode Redeem</th>
                                                 <th>Reward</th>
+                                                <th>Barang</th>
                                                 <th>Pelanggan</th>
                                                 <th>Status</th>
+                                                <th>Tanggal Pick Up</th>
                                                 <th>Tanggal Redeem</th>
+                                                <th>Approval</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -67,7 +70,8 @@
                                                     </td>
                                                     <td>{{ $reward->redeem_code }}</td>
                                                     <td> {{ $reward->reward }} </td>
-                                                    <td> {{ $reward->name }} </td>
+                                                    <td>{{ $reward->rewards_name }}</td>
+                                                    <td> {{ $reward->customer }} </td>
                                                     <td>
                                                         @if ($reward->status_name == 'Claimed')
                                                             <span class="text-success">
@@ -79,7 +83,10 @@
                                                             </span>
                                                         @endif
                                                     </td>
+                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}
+                                                    </td>
                                                     <td> {{ $reward->redeem_date }} </td>
+                                                    <td>{{ $reward->approval_by }}</td>
                                                     <td>{{ $reward->created_at }}</td>
                                                     <td>{{ $reward->updated_at }}</td>
                                                 </tr>

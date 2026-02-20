@@ -30,11 +30,12 @@ class HomePageController extends Controller
         $activeCategory = $request->query('category', null);
         $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
         $productsPromo = DB::table('v_daily_products')
-            ->where(function($query){
-                $query->whereNotNull('discount')->where('discount', '<>', 0);
-            })->orWhere(function($query){
-                $query->whereNotNull('variant_discount')->where('variant_discount', '<>', 0);
-            })->where('status', 'Ready');
+            ->where(function ($query) {
+                $query->where('discount', '<>', 0)
+                    ->orWhere('variant_discount', '<>', 0);
+            })
+            ->where('status', 'Ready')
+            ->where('store_id', 1);
 
         // Filter berdasarkan kategori jika ada
         if ($activeCategory) {
@@ -43,27 +44,84 @@ class HomePageController extends Controller
             $productsPromo->where('vp.category', $activeCategory);
         }
 
-        $products_promo= $productsPromo->get();
-        $products = $productsQuery->get();
+        $products_promo= $productsPromo->where('store_id', 1)->get();
+        $products = $productsQuery->where('store_id', 1)->get();
 
     
         $category_products = DB::table('product_category as c')
             ->select('c.id','c.icon', DB::raw("REPLACE(c.category_name, ' ', '_') as category_name",))
             ->join('products as p', 'c.id', '=', 'p.category_id')
-            ->join('products_daily as pd', 'p.product_code', '=', 'pd.product_code')
+            ->join('production_products as pp', 'p.product_code', '=', 'pp.product')
+            ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
             ->groupBy('c.id', 'c.category_name')
             ->get();
 
-        // 4️⃣ Ambil promo (limit 3)
         $promos = DB::table('v_promos')
             ->where('status', 'Active')
             ->limit(3)
             ->get();
 
-        $store = DB::table('store')->get();
+        $store =  DB::table('store')->get();
+        
+        return view('layouts.main_views.home.home', compact(
+            'products',
+            'products_promo',
+            'category_products',
+            'promos',
+            'store',
+            'activeCategory'
+        ));
+    }
 
-       
-        // 5️⃣ Kirim ke view
+    public function filter_store(Request $request)
+    {
+        $store_id = $request->store;
+        $activeCategory = $request->query('category', null);
+        $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
+        $productsPromo = DB::table('v_daily_products')
+            ->where(function ($query) {
+                $query->where('discount', '<>', 0)
+                    ->orWhere('variant_discount', '<>', 0);
+            })
+            ->where('status', 'Ready');
+
+        // Filter berdasarkan kategori jika ada
+        if ($activeCategory) {
+            // pastikan kolom 'category' ada di v_daily_products
+            $productsQuery->where('vp.category', $activeCategory);
+            $productsPromo->where('vp.category', $activeCategory);
+        }
+
+        $store =  DB::table('store')->get();
+
+        $category_products = DB::table('product_category as c')
+            ->select('c.id','c.icon', DB::raw("REPLACE(c.category_name, ' ', '_') as category_name",))
+            ->join('products as p', 'c.id', '=', 'p.category_id')
+            ->join('production_products as pp', 'p.product_code', '=', 'pp.product')
+            ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
+            ->groupBy('c.id', 'c.category_name')
+            ->get();
+
+        $promos = DB::table('v_promos')
+            ->where('status', 'Active')
+            ->limit(3)
+            ->get();
+
+
+        if($store_id){
+            $products = $productsQuery->where('store_code', $store_id)->get();
+            $products_promo= $productsPromo->where('store_code', $store_id)->get();
+            if($products->isEmpty()){
+                 session()->flash('product_not_found', 'Tidak ada Produk di Store ini');
+                 return redirect()->back();
+            }
+        }else{
+            $products = $productsQuery->get();
+            $products_promo= $productsPromo->get();
+        }
+
+   
+        
         return view('layouts.main_views.home.home', compact(
             'products',
             'products_promo',
@@ -86,7 +144,7 @@ class HomePageController extends Controller
         // kalau tidak ketemu, anggap variant_code
         if (!$product) {
             $product = DB::table('v_daily_products')
-                ->where('variant_code', $code)
+                ->where('variant', $code)
                 ->first();
         }
 

@@ -46,6 +46,14 @@ class RawMaterialController extends Controller
             'material_type'=> 'required',
             'material_category'=> 'required',
             'expired_date'=> 'required'
+        ],
+        [
+            'material_name.required' => 'Nama bahan baku harus diisi',
+            'quantity.required' => 'Stok harus diisi',
+            'price.required' => 'Harga bahan baku harus diisi',
+            'material_type.required' => 'Tipe bahan baku harus diisi',
+            'material_category.required' => 'Kategori bahan baku harus diisi',
+            'expired_date.required' => 'Tanggal kadaluarsa harus diisi'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
@@ -109,7 +117,17 @@ class RawMaterialController extends Controller
             'material_name'=> 'required',
             'quantity' => 'required',
             'price'=> 'required',
+            'material_type'=> 'required',
+            'material_category'=> 'required',
             'expired_date'=> 'required'
+        ],
+        [
+            'material_name.required' => 'Nama bahan baku harus diisi',
+            'quantity.required' => 'Stok harus diisi',
+            'price.required' => 'Harga bahan baku harus diisi',
+            'material_type.required' => 'Tipe bahan baku harus diisi',
+            'material_category.required' => 'Kategori bahan baku harus diisi',
+            'expired_date.required' => 'Tanggal kadaluarsa harus diisi'
         ]);
 
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;

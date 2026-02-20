@@ -319,6 +319,18 @@ a.btn-delete {
     margin-top: 4.6rem;
 }
 
+form.filter-store {
+    display: flex;
+
+}
+
+button.btn-filter-store {
+    background: none;
+    border: none;
+    color: white;
+
+}
+
 .location-map {
     display: flex;
     gap: 5px;

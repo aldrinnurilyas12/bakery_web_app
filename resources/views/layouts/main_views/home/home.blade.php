@@ -41,7 +41,7 @@
                                 class="session-name">{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->name }}</span>
                         </p>
                     @else
-                        <p class="hello">Selamat datang </p>
+                        <p class="hello">Selamat Datang </p>
                     @endif
                 </div>
 
@@ -49,12 +49,18 @@
                 <div class="center-element">
                     <div class="location-map">
                         <i class="fa fa-location-dot"></i>
-                        <select style="background: none;color:white; border:none;" class="select-location form-control"
-                            name="" id="">
-                            @foreach ($store as $st)
-                                <option value="">{{ $st->store_name }}</option>
-                            @endforeach
-                        </select>
+                        <form class="filter-store" action="{{ route('fstore') }}" method="GET">
+                            <select style="background: none;color:white; border:none;"
+                                class="select-location form-control" name="store" id="">
+                                @foreach ($store as $st)
+                                    <option style="text-decoration: underline;" value="{{ $st->store_code }}"
+                                        {{ request('store') == $st->store_code ? 'selected' : '' }}>
+                                        {{ $st->store_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button class="btn-filter-store" type="submit">pilih</button>
+                        </form>
                     </div>
                     <div class="card-segment">
                         <form action="{{ route('product-search') }}" method="GET">
@@ -264,9 +270,9 @@
                                                 @endif
                                             </div>
                                             <div class="btn-detail">
-                                                @if ($item->variant_code)
+                                                @if ($item->variant)
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
+                                                        href="{{ route('product', $item->variant) }}">detail</a>
                                                 @else
                                                     <a class="btn-detail-product"
                                                         href="{{ route('product', $item->product_code) }}">detail</a>
@@ -359,9 +365,9 @@
                                                 @endif
                                             </div>
                                             <div class="btn-detail">
-                                                @if ($item->variant_code)
+                                                @if ($item->variant)
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
+                                                        href="{{ route('product', $item->variant) }}">detail</a>
                                                 @else
                                                     <a class="btn-detail-product"
                                                         href="{{ route('product', $item->product_code) }}">detail</a>
@@ -545,8 +551,16 @@
                 title: 'Gagal',
                 text: "{{ Session::get('failed_message') }}",
                 icon: 'error',
-                timer: 4000,
+                timer: 2000,
                 confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif(Session::has('product_not_found'))
+        <script>
+            Swal.fire({
+                text: "{{ Session::get('product_not_found') }}",
+                icon: 'error',
+                timer: 1000
             });
         </script>
     @endif

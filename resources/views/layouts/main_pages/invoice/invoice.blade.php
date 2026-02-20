@@ -134,9 +134,17 @@
                         </div>
                         <div class="col-xl-3">
                             <ul style="color: black;" class="list-unstyled">
-                                <li class="text-muted ms-3"><span class="text-black me-4">Qty:</span>
-                                    <br>{{ $invoice->quantity }} Item
+                                @php
+                                    $total_qty = DB::table('transactions_detail')
+                                        ->where('transaction_code', $invoice->transaction_code)
+                                        ->sum('quantity_per_product');
+                                @endphp
+
+
+                                <li class="text-muted ms-3"><span class="text-black me-4">Total Item:</span>
+                                    <br>{{ $total_qty }} Item
                                 </li>
+
                                 @if ($invoice->voucher_code_used)
                                     @if ($invoice->discount)
                                         <li class="text-muted ms-3"><span class="text-black me-4">Potongan:</span>

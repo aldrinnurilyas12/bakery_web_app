@@ -3,6 +3,11 @@
 
 
 <body>
+    @php
+        $main_menu = DB::table('main_menu')->where('location', 'admin')->get();
+        $submenu = DB::table('submenu')->where('status', 7)->get();
+
+    @endphp
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
@@ -15,140 +20,37 @@
                             Home
                         </a>
 
-                        <div class="sb-sidenav-menu-heading">MASTER DATA</div>
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('products_data') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-cube"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Products
-                        </a>
+                        @foreach ($main_menu as $main)
+                            @php
+                                $hasSubmenu = $submenu->where('main_menu', $main->id)->count();
+                            @endphp
+                            @if ($hasSubmenu == 0)
+                                @continue
+                            @endif
+                            <div class="sb-sidenav-menu-heading">{{ $main->menu_name }}</div>
+                            @foreach ($submenu as $sub)
+                                @if ($main->id == $sub->main_menu)
+                                    @if (
+                                        $main->menu_name == 'Others' &&
+                                            app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name != 'IT Developer')
+                                        @continue
+                                    @endif
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('dailyproducts_data') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-list-alt"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Daily Products
-                        </a>
+                                    <a class="nav-link {{ request()->is($sub->submenu_link . '*') ? 'active' : '' }}"
+                                        style="font-size:14px;" href="{{ url($sub->submenu_link) }}">
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_category.index') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-cubes"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Category
-                        </a>
+                                        <div class="sb-nav-link-icon">
+                                            <i class="{{ $sub->icon }}"></i>
+                                        </div>
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('raw_material') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-shopping-basket"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Raw Materials
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('production_products') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-random"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Production Product
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('product-wastes') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa-solid fa-boxes-stacked"></i>
-                            </div>
-                            Product Wastes
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('rewards') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa-solid fa-gift"></i>
-                            </div>
-                            Rewards
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_customers.index') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-id-card"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Customers
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_employee.index') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-user"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Karyawan
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('master_products.index') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-line-chart"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Reports
-                        </a>
-
-                        <div class="sb-sidenav-menu-heading">TRANSACTION</div>
-
-                        <a class="nav-link" style="font-size:14px;align-items: baseline;"
-                            href="{{ route('transaction.index') }}">
-
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-exchange"
-                                    aria-hidden="true"></i>
-                            </div>
-
-                            <div style="display: flex; gap:15px;justify-content: space-between;" class="dflex-content">
-                                <p style="margin:0;"> Transactions</p>
-                            </div>
-
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;align-items: baseline;"
-                            href="{{ route('transaction.index') }}">
-
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-shopping-basket"
-                                    aria-hidden="true"></i>
-                            </div>
-
-                            <div style="display: flex; gap:15px;justify-content: space-between;"
-                                class="dflex-content">
-                                <p style="margin:0;"> Orders Pick-up</p>
-                                <span
-                                    style="width: max-content; border-radius: 4px; background:rgb(255, 15, 15);color:white;padding:3px;text-align: center;"
-                                    class="notification-alert">
-                                    29
-                                </span>
-                            </div>
-
-                        </a>
+                                        {{ $sub->submenu_name }}
+                                    </a>
+                                @endif
+                            @endforeach
+                        @endforeach
 
 
-                        <div class="sb-sidenav-menu-heading">CRM</div>
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('promo_campaign') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-tags"
-                                    aria-hidden="true"></i>
-                            </div>
-                            Promo Campaign
-                        </a>
 
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('voucher') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-ticket"
-                                    aria-hidden="true"></i>
-                            </div>
-                            E-Voucher
-                        </a>
-
-                        <a class="nav-link" style="font-size:14px;" href="{{ route('claim-reward') }}">
-                            <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-handshake"></i>
-                            </div>
-                            Redeem Rewards
-                        </a>
-
-                        <div class="sb-sidenav-menu-heading">LAINNYA</div>
-                        @if (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer')
-                            <a class="nav-link" style="font-size:14px;" href="{{ route('users_data') }}">
-                                <div class="sb-nav-link-icon"><i style="color:black;" class="fa fa-users"
-                                        aria-hidden="true"></i>
-                                </div>
-                                Akun Pengguna
-                            </a>
-                        @endif
 
                         <div class="sb-sidenav-menu-heading">
                             <form method="POST" action="{{ route('logout') }}">
@@ -172,8 +74,70 @@
         body {
             font-family: "DM Sans", serif;
         }
+
+        /* DEFAULT (belum diklik) */
+        .sidebar-link {
+            color: #212529;
+            border-radius: 6px;
+            margin: 2px 8px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .sidebar-link .sb-nav-link-icon i {
+            color: #000000;
+            /* HITAM saat belum active */
+        }
+
+        /* HOVER */
+        .sidebar-link:hover {
+            background-color: #bb0239;
+            color: #ffffff;
+        }
+
+        .sidebar-link:hover .sb-nav-link-icon i {
+            color: #ffffff;
+        }
+
+        /* ACTIVE (text + bg) */
+
+        /* ICON DEFAULT (hitam sebelum klik) */
+        .sb-sidenav-light .sb-sidenav-menu .nav-link .sb-nav-link-icon,
+        .sb-sidenav-light .sb-sidenav-menu .nav-link .sb-nav-link-icon i {
+            color: #000000;
+        }
+
+        /* ICON ACTIVE (PUTIH SAAT KLIK) */
+        .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-nav-link-icon,
+        .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-nav-link-icon i {
+            color: #ffffff !important;
+        }
+
+        /* BACKGROUND + TEXT ACTIVE */
+        .sb-sidenav-light .sb-sidenav-menu .nav-link.active {
+            background-color: #bb0239;
+            color: #ffffff;
+            font-weight: 600;
+            border-radius: 5px;
+            padding: 5px;
+        }
     </style>
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const activeLink = document.querySelector(
+            '.sb-sidenav-menu .nav-link.active'
+        );
+
+        if (activeLink) {
+            activeLink.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    });
+</script>
+
 
 
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>

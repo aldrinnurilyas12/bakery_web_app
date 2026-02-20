@@ -32,7 +32,7 @@
 
         <div class="form-group">
             <label>No. Telepon</label>
-            <input type="text" name="phone_number" value="{{ old('phone_number') }}" autocomplete="off"
+            <input type="number" name="phone_number" value="{{ old('phone_number') }}" autocomplete="off"
                 placeholder="Masukan No.Hp anda awali dengan (62) contoh 6289678998789">
             <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
         </div>

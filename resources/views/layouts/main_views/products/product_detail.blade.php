@@ -26,7 +26,7 @@
 
             // kalau tidak ketemu, berarti variant_code
             if (!$productCode) {
-                $productCode = DB::table('v_daily_products')->where('variant_code', $code)->value('product_code');
+                $productCode = DB::table('v_daily_products')->where('variant', $code)->value('product_code');
             }
 
             $image_product = null;
@@ -60,9 +60,9 @@
                             <div class="form-favorite">
                                 <form action="{{ route('add_favorite') }}" method="POST">
                                     @csrf
-                                    @if ($product->variant_code)
+                                    @if ($product->variant)
                                         <input hidden type="text" name="variant_code"
-                                            value="{{ $product->variant_code }}">
+                                            value="{{ $product->variant }}">
                                         <input hidden type="text" name="product_code"
                                             value="{{ $product->product_code }}">
                                     @else

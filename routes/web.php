@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BusinessIntelligence;
 use App\Http\Controllers\Api\DailyProducts;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\EmployeeController;
@@ -18,32 +19,29 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Api\ProductionProductController;
+use App\Http\Controllers\Api\StoreOutletController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Api\MasterMainMenu;
+use App\Http\Controllers\Api\VariantCategory;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\Cors;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProductsController as ControllersProductsController;
 use App\Http\Controllers\ShowProducts;
 
-Route::get('/', function () {
-    return view('layouts.main_pages.welcome_page');
-});
+
+
 
 Route::get('dashboard', function () {
     return view('layouts.main_pages.home_page');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-
-
 Route::get('products', [ShowProducts::class, 'show_products']);
-
 Route::get('promos', [ShowProducts::class, 'show_promos']);
 Route::get('product_detail/{product_code}', [ShowProducts::class, 'product_detail']);
 
 // ROUTE FOR MAIN APP:
 Route::get('login_app', [RegisteredCustomer::class, 'login_layouts'])->name('login_app');
 Route::get('register_account', [RegisteredCustomer::class, 'register_layouts'])->name('register_account');
-
 Route::get('home', [MainAppHomePageController::class, 'homepage'])->name('home');
 Route::get('product/{code}', [MainAppHomePageController::class, 'product_detail'])->name('product');
 Route::get('rewards-catalogue', [CustomerController::class, 'rewards_catalogue'])->name('rewards-catalogue');
@@ -53,6 +51,7 @@ Route::get('product-search/', [MainAppHomePageController::class, 'product_search
 Route::get('promo-campaign', [MainAppHomePageController::class, 'promo_campaign'])->name('promo-campaign');
 Route::get('promo-detail/{promo_code}', [MainAppHomePageController::class, 'promo_campaign_detail'])->name('promo-detail');
 Route::get('reward-detail/{rewards_code}', [CustomerController::class, 'reward_detail'])->name('reward-detail');
+Route::get('fstore/', [MainAppHomePageController::class, 'filter_store'])->name('fstore');
 
 Route::middleware('customer')->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile');
@@ -71,10 +70,19 @@ Route::middleware('customer')->group(function () {
     Route::delete('remove-favorite/{product_daily}', [CustomerController::class, 'remove_favorite'])->name('remove-favorite');
     Route::post('redeem-reward', [CustomerController::class, 'redeem_reward'])->name('redeem-reward');
     Route::get('rewards-history', [CustomerController::class,'rewards_customer_history'])->name('rewards-history');
-    });
+    Route::get('get_stock/{rewards_code}', [CustomerController::class,'get_stock'])->name('get_stock');
+});
 
 
-// ROUTE FOR WEB ADMIN:
+
+
+    // ROUTE FOR WEB ADMIN:
+Route::get('/admin_kencana_bakery', function () {
+    return view('layouts.main_pages.welcome_page');
+});
+
+Route::get('login_kencana_bakery',[AuthenticatedSessionController::class,'create'])->name('login_kencana_bakery');
+Route::post('login_exe', [AuthenticatedSessionController::class, 'store'])->name('login_exe');
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard_main', [HomepageController::class, 'index'])->name('dashboard_main');
@@ -85,7 +93,7 @@ Route::middleware('auth')->group(function () {
     // USERS Route
     Route::apiResource('user_register', App\Http\Controllers\Auth\RegisteredUserController::class);
     Route::get('users_register_account', [RegisteredUserController::class, 'show_users_register'])->name('users_register_account');
-     Route::get('users_data', [RegisteredUserController::class, 'master_main_users'])->name('users_data');
+    Route::get('users_data', [RegisteredUserController::class, 'master_main_users'])->name('users_data');
     Route::post('signout', [AuthenticatedSessionController::class, 'destroy'])->name('signout');
     Route::get('users_edit/{nik}' , [RegisteredUserController::class, 'edit_users_layout'])->name('users_edit');
     Route::put('users_update/{nik}' , [RegisteredUserController::class, 'update'])->name('users_update');
@@ -94,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::put('user_active_update/{nik}', [RegisteredUserController::class, 'update_user_active'])->name('user_active_update');
     Route::get('get_email/{emp_nik}', [RegisteredUserController::class,'get_email']);
     Route::delete('delete_role/{user_role_id}', [RegisteredUserController::class, 'delete_role'])->name('delete_role');
+    
     //  Customer API
     Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class);
 
@@ -134,6 +143,7 @@ Route::middleware('auth')->group(function () {
     })->name('dailyproducts_data');
     Route::get('/filter_data', [DailyProducts::class, 'filter'])->name('filter_data');
     Route::delete('dailyproduct_delete_variant/{variant_code}', [DailyProducts::class, 'delete_variant'])->name('dailyproduct_delete_variant');
+    Route::get('get_stock_product/{production_code}', [DailyProducts::class, 'get_stock']);
 
     // Route Promo Campign
     Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class);
@@ -148,15 +158,18 @@ Route::middleware('auth')->group(function () {
     // Rewards Routes
     Route::apiResource('master_rewards', App\Http\Controllers\Api\RewardsController::class);
     Route::get('rewards_create', [RewardsController::class, 'create'])->name('rewards_create');
-    Route::get('rewards_update/{rewards_code}', [RewardsController::class, 'edit'])->name('rewards_update');
+    Route::get('rewards_update/{reward_store_code}', [RewardsController::class, 'edit'])->name('rewards_update');
+    Route::get('rewards_master_update/{rewards_code}', [RewardsController::class, 'edit_master_reward'])->name('rewards_master_update');
     Route::put('rewards_edit/{rewards_code}', [RewardsController::class, 'update'])->name('rewards_edit');
-    Route::put('rewards_nonactive/{rewards_code}', [RewardsController::class, 'update_nonactive_rewards'])->name('rewards_nonactive');
+    Route::put('rewards_update_store/{reward_store_code}', [RewardsController::class, 'update_reward_store'])->name('rewards_update_store');
+    Route::put('rewards_nonactive/{reward}', [RewardsController::class, 'update_nonactive_rewards'])->name('rewards_nonactive');
     Route::delete('rewards_delete/{rewards_code}', [RewardsController::class, 'destroy'])->name('rewards_delete');
     Route::get('/rewards', function () {
         return view('pages.rewards');
     })->name('rewards');
     Route::get('claim-reward', [RewardsController::class, 'claim_reward_layouts'])->name('claim-reward');
     Route::put('claimed-reward/{redeem_code}', [RewardsController::class, 'claimed_reward'])->name('claimed-reward');
+    Route::get('/filter_rewards', [RewardsController::class, 'filter_rewards'])->name('filter_rewards');
 
     // Route Voucher
     Route::apiResource('master_voucher', App\Http\Controllers\Api\Voucher::class);
@@ -191,7 +204,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/production_products', function () {
         return view('pages.production_product');
     })->name('production_products');
-    Route::get('/filter_production', [ProductionProductController::class, 'filter_production'])->name('filter_production');
+    Route::get('/production_store', [ProductionProductController::class, 'filter_production'])->name('production_store');
+    Route::get('get_variant/{product}', [ProductionProductController::class,'get_variant']);
+    Route::get('get_variant_code/{product}/{variant}', [ProductionProductController::class, 'get_variant_code']);
+
 
     // Products Waste
     Route::post('product_waste_save', [ProductionProductController::class, 'product_waste_save'])->name('product_waste_save');
@@ -207,6 +223,11 @@ Route::middleware('auth')->group(function () {
     Route::get('category_create', [ItemsCategoryController::class, 'category_create'])->name('category_create');
     Route::get('category_update/{id}', [ItemsCategoryController::class, 'category_update'])->name('category_update');
     Route::put('category_edit/{id}', [ItemsCategoryController::class, 'update'])->name('category_edit');
+
+    Route::apiResource('variant_category', App\Http\Controllers\Api\VariantCategory::class);
+    Route::get('variant_category_create', [VariantCategory::class,'create'])->name('variant_category_create');
+    Route::get('variant_category_update/{id}', [VariantCategory::class,'edit'])->name('variant_category_update');
+    Route::put('variant_category_edit/{id}', [VariantCategory::class,'update'])->name('variant_category_edit');
 
     // Route for Transactions
     Route::apiResource('transaction', App\Http\Controllers\Api\TransactionController::class);
@@ -229,11 +250,29 @@ Route::middleware('auth')->group(function () {
     Route::get('update_discount/{id}', [DiscountController::class, 'edit_layout'])->name('update_discount');
     Route::put('edit_discount/{id}', [DiscountController::class, 'update'])->name('edit_discount');
 
+    // ROUTE STORE
+    Route::apiResource('store', App\Http\Controllers\Api\StoreOutletController::class);
+    Route::get('store_create', [StoreOutletController::class, 'store_create_layout'])->name('store_create');
+    Route::get('store_update/{store_code}', [StoreOutletController::class, 'edit_layout'])->name('store_update');
+    Route::put('edit_store/{store_code}', [StoreOutletController::class, 'update'])->name('edit_store');
+    Route::put('delete_head_store/{store_code}', [StoreOutletController::class, 'delete_head_store'])->name('delete_head_store');
+    Route::put('update_status_store/{store_code}', [StoreOutletController::class, 'update_status_store'])->name('update_status_store');
 
-    // =========================================ROUTE FOR MAIN APP CUSTOMERS==================
-   
+    Route::apiResource('master_main_menu', App\Http\Controllers\Api\MasterMainMenu::class);
+    Route::get('main_menu_create', [MasterMainMenu::class, 'create'])->name('main_menu_create');
+    Route::get('main_menu_update/{id}', [MasterMainMenu::class, 'update'])->name('main_menu_update');
+    Route::put('main_menu_edit/{id}', [MasterMainMenu::class, 'main_menu_edit'])->name('main_menu_edit');
 
+    // Submenu:
+    Route::get('submenu_create/{id}', [MasterMainMenu::class, 'submenu_create'])->name('submenu_create');
+    Route::get('submenu_update/{submenu_id}', [MasterMainMenu::class, 'submenu_update'])->name('submenu_update');
+    Route::post('submenu_save', [MasterMainMenu::class, 'submenu_save'])->name('submenu_save');
+    Route::get('submenu_list/{id}', [MasterMainMenu::class, 'submenu_list'])->name('submenu_list');
+    Route::put('submenu_edit/{id}', [MasterMainMenu::class, 'submenu_edit'])->name('submenu_edit');
 
-    });
+    // ROUTE Business Intelligence
+    Route::apiResource('business_intelligence', App\Http\Controllers\Api\BusinessIntelligence::class);
+    Route::get('data_analytics', [BusinessIntelligence::class, 'data_analytics_layouts'])->name('data_analytics');
+});
 
 require __DIR__ . '/auth.php';

@@ -55,7 +55,7 @@ class AuthenticatedSessionController extends Controller
 
         $user = auth()->user();
         $users_data = DB::table('users as u')
-                        ->select('e.id', 'e.nik','e.name', 'u.id', 'u.username', 'st.id as store_id', 
+                        ->select('e.id', 'e.nik','e.name', 'u.id', 'u.username', 'st.id as store_id','st.store_code',
                             'st.store_name', 'r.role as role_name', 'jp.position_name',
                             DB::raw("
                                     CONCAT(
