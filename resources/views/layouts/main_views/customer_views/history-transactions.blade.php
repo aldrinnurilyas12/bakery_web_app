@@ -45,7 +45,7 @@
 
                             <div class="grand-total">
                                 <p>Total items :
-                                    {{ $history->quantity }}</p>
+                                    {{ $history->quantity_per_product }}</p>
                                 <p>Total belanja :
                                     {{ 'Rp.' . number_format($history->grand_total) }}</p>
                             </div>

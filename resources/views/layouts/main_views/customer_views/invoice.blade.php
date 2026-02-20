@@ -145,7 +145,7 @@
                                         <div class="col-xl-3">
                                             <ul style="color: black;" class="list-unstyled">
                                                 <li class="text-muted ms-3"><span class="text-black me-4">Qty:</span>
-                                                    <br>{{ $invoice->quantity }} Item
+                                                    <br>{{ $invoice->quantity_per_product }} Item
                                                 </li>
                                                 @if ($invoice->voucher_code_used)
                                                     @if ($invoice->discount)
