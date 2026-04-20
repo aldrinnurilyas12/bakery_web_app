@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -23,7 +24,7 @@
                     <hr>
 
                     @foreach ($v_users as $user)
-                        <form action="{{ route('users_update', $user->nik) }}" method="POST"
+                        <form id="formGeneralMaster" action="{{ route('users_update', $user->nik) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
@@ -32,18 +33,21 @@
                                 <label><strong>NIK</strong></label>
                                 <input class="form-control" type="text" value="{{ $user->nik }}" id=""
                                     autocomplete="off" readonly>
+                                <x-input-error :messages="$errors->get('nik')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
                                 <label><strong>Nama Pengguna</strong></label>
                                 <input class="form-control" type="text" name="username" value="{{ $user->username }}"
                                     id="" autocomplete="off">
+                                <x-input-error :messages="$errors->get('username')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
                                 <label><strong>Email</strong></label>
                                 <input class="form-control" type="email" name="email" value="{{ $user->email }}"
                                     autocomplete="off">
+                                <x-input-error :messages="$errors->get('email')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
@@ -61,6 +65,7 @@
                                             {{ $r->role }}</option>
                                     @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('role')" class="text-danger" />
                             </div>
 
                             <div class="form-group">
@@ -75,12 +80,15 @@
                                     readonly>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Simpan Data</button>
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                    Data</span>
+                                <span class="spinner"></span></button>
                         </form>
                     @endforeach
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 @if (Session::has('message_success'))
     <script>

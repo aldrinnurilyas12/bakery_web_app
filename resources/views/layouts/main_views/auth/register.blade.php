@@ -1,6 +1,7 @@
 @extends('layouts.main_views.auth.auth')
 
 @section('title', 'Kencana Bakery | Daftar Akun')
+<link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 
 @section('content')
     <div style="display: flex; justify-content: center;" class="d-flex-center">
@@ -13,7 +14,7 @@
         <h2 style="font-weight: bold;font-size: 20px;">Register Account</h2>
     </div>
 
-    <form method="POST" action="{{ route('register_member_account') }}">
+    <form id="formGeneral" method="POST" action="{{ route('register_member_account') }}">
         @csrf
 
         <div class="form-group">
@@ -58,7 +59,8 @@
         </div>
 
 
-        <button type="submit">Daftar Akun</button>
+        <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Register Your Account</span>
+            <span class="spinner"></span></button>
     </form>
 
     <div class="link">
@@ -146,5 +148,5 @@
             </div>
         </div>
     </div>
-
 @endsection
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>

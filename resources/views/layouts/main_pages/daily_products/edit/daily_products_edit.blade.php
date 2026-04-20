@@ -39,21 +39,15 @@
                             <input type="text" name="product_name" class="form-control"
                                 value="{{ $product->product }}" readonly>
                         </div>
-                        @if ($product->stock_available == null || 0)
+                        {{-- @if ($product->stock_available == null || 0)
                             <div class="form-group">
                                 <label><strong>Stok Produk</strong></label>
                                 <small class="text-danger">*Stok Kosong mohon update stok produk ini</small>
                                 <input type="text" name="stock_available" class="form-control"
                                     value="{{ $product->stock_available }}">
+                                <x-input-error :messages="$errors->get('stock_available')" class="text-danger" />
                             </div>
-                        @endif
-
-                        <div class="form-group">
-                            <label><strong>Jumlah Point</strong></label>
-
-                            <input type="text" name="point" class="form-control" value="{{ $product->point }}">
-
-                        </div>
+                        @endif --}}
 
                         <div class="form-group">
                             <label><strong>Status Produk</strong></label>
@@ -65,6 +59,14 @@
                                         {{ $sts->status_name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Tanggal Expired</strong></label>
+                            <input type="date" name="expired_date"
+                                value="{{ old('expired_date', $product->expired_date ? $expired_date->format('Y-m-d') : null) }}"
+                                class="form-control" autocomplete="off">
+                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">

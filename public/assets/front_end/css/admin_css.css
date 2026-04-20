@@ -1,0 +1,79 @@
+/* btn */
+.btn-general {
+    width: 100%;
+    background: #bb0239;
+    color: white;
+    border-radius: 6px;
+    padding: 10px;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+
+.btn-general-secondary {
+    width: 100%;
+    background: #adadad;
+    color: white;
+    border-radius: 6px;
+    padding: 10px;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+
+.btn-general-delete {
+    width: 100%;
+    background: #bb0239;
+    color: white;
+    border-radius: 6px;
+    padding: 10px;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: none;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Saat loading */
+.btn-general.loading .spinner {
+    display: inline-block;
+}
+
+.btn-general.loading .btn-text {
+    opacity: 0.7;
+}
+
+
+.btn-general-delete.loading .spinner {
+    display: inline-block;
+}
+
+.btn-general-delete.loading .btn-text {
+    opacity: 0.7;
+}

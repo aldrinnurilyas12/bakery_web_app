@@ -13,6 +13,7 @@ class MasterMainMenuModel extends Model
         'menu_name',
         'status',
         'location',
-        'icon'
+        'icon',
+        'description'
     ];
 }

@@ -14,6 +14,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -133,7 +134,7 @@
                                                                     @else
                                                                     @endif
 
-                                                                    @if ($product->variant == null)
+                                                                    @if ($product->variant_code == null)
                                                                         @if ($product->price_after_discount)
                                                                             <div class="price">
                                                                                 <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
@@ -180,16 +181,19 @@
                                                                     @endif
 
                                                                     <div class="btn-add-cart">
-                                                                        <form action="{{ route('cart_add') }}"
+                                                                        <form class="form-general"
+                                                                            action="{{ route('cart_add') }}"
                                                                             method="POST">
                                                                             @csrf
-                                                                            <input type="hidden" name="product_code"
-                                                                                value="{{ $product->daily_code }}">
+                                                                            <input type="hidden" name="product"
+                                                                                value="{{ $product->product_code }}">
+                                                                            <input type="hidden" name="variant"
+                                                                                value="{{ $product->variant_code }}">
                                                                             <input type="hidden" name="variant_type"
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
-                                                                            @if ($product->variant)
+                                                                            @if ($product->variant_code)
                                                                                 @if ($product->variant_discount)
                                                                                     <input type="hidden"
                                                                                         name="price"
@@ -211,8 +215,11 @@
                                                                                 @endif
                                                                             @endif
                                                                             @if ($product->stock_available)
-                                                                                <button class="btn-add-to-cart"
-                                                                                    type="submit">Tambah</button>
+                                                                                <button class="btn-general"
+                                                                                    type="submit"><span
+                                                                                        class="btn-text">Tambah</span>
+                                                                                    <span
+                                                                                        class="spinner"></span></button>
                                                                             @else
                                                                                 <button style="width:100%;"
                                                                                     class="btn btn-secondary"
@@ -281,7 +288,7 @@
                                                                     @else
                                                                     @endif
 
-                                                                    @if ($product->variant == null)
+                                                                    @if ($product->variant_code == null)
                                                                         @if ($product->price_after_discount)
                                                                             <div class="price">
                                                                                 <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
@@ -330,16 +337,19 @@
 
 
                                                                     <div class="btn-add-cart">
-                                                                        <form action="{{ route('cart_add') }}"
+                                                                        <form class="form-general"
+                                                                            action="{{ route('cart_add') }}"
                                                                             method="POST">
                                                                             @csrf
-                                                                            <input type="hidden" name="product_code"
-                                                                                value="{{ $product->daily_code }}">
+                                                                            <input type="hidden" name="product"
+                                                                                value="{{ $product->product_code }}">
+                                                                            <input type="hidden" name="variant"
+                                                                                value="{{ $product->variant_code }}">
                                                                             <input type="hidden" name="variant_type"
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
-                                                                            @if ($product->variant)
+                                                                            @if ($product->variant_code)
                                                                                 @if ($product->discount)
                                                                                     <input type="hidden"
                                                                                         name="price"
@@ -361,8 +371,11 @@
                                                                                 @endif
                                                                             @endif
                                                                             @if ($product->stock_available)
-                                                                                <button class="btn-add-to-cart"
-                                                                                    type="submit">Tambah</button>
+                                                                                <button class="btn-general"
+                                                                                    type="submit"><span
+                                                                                        class="btn-text">Tambah</span>
+                                                                                    <span
+                                                                                        class="spinner"></span></button>
                                                                             @else
                                                                                 <button style="width:100%;"
                                                                                     class="btn btn-secondary"
@@ -426,11 +439,14 @@
                                             <div class="modal-body">Apakah anda yakin ingin membersihkan keranjang
                                                 belanja ?</div>
                                             <div class="modal-footer">
-                                                <form action="{{ route('clear_cart') }}" method="POST">
+                                                <form id="formGeneral" action="{{ route('clear_cart') }}"
+                                                    method="POST">
                                                     @csrf
                                                     @method('POST')
-                                                    <button type="submit" class="btn-clear-cart">Bersihkan
-                                                        Keranjang</button>
+                                                    <button class="btn-general" id="btnGeneral" type="submit"
+                                                        class="btn btn-primary"><span class="btn-text">Bersihkan
+                                                            Keranjang</span>
+                                                        <span class="spinner"></span></button>
                                                 </form>
                                             </div>
                                         </div>
@@ -439,8 +455,8 @@
 
 
                                 <!-- Daftar barang di keranjang -->
-                                <form action="{{ route('transaction.store') }}" method="POST"
-                                    enctype="multipart/form-data">
+                                <form class="form-transaction" action="{{ route('transaction.store') }}"
+                                    method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="cart-items">
                                         @if ($cart_value)
@@ -454,7 +470,9 @@
                                                             <p style="margin-bottom: 0;" class="item-name">
                                                                 {{ $cart['product_name'] }}</p>
                                                             <input name="product[]" type="hidden"
-                                                                value="{{ $cart['product_code'] }}">
+                                                                value="{{ $cart['product'] }}">
+                                                            <input name="variant[]" type="hidden"
+                                                                value="{{ $cart['variant'] }}">
 
                                                             <small class="text-info" style="margin-bottom: 0;"
                                                                 class="item-price">
@@ -479,7 +497,7 @@
                                                             <button style="background: none;border:none;"
                                                                 type="button" class="text-danger"
                                                                 onclick="event.preventDefault();
-                                                                document.getElementById('delete-{{ $cart['product_code'] }}').submit();">
+                                                                document.getElementById('delete-{{ $cart['product'] }}').submit();">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
                                                             <!-- Quantity Control -->
@@ -642,8 +660,9 @@
                                         <br>
 
                                         @if ($cart_value)
-                                            <button style="width: 100%;" type="submit" class="btn btn-primary">Buat
-                                                Pesanan</button>
+                                            <button type="submit" class="btn-general"><span class="btn-text">Buat
+                                                    Pesanan</span>
+                                                <span class="spinner"></span></button>
                                         @else
                                             <button style="width: 100%;" type="button"
                                                 class="btn btn-secondary">Buat
@@ -655,8 +674,8 @@
 
 
                     @foreach ($cart_value as $cart)
-                        <form id="delete-{{ $cart['product_code'] }}"
-                            action="{{ route('delete_item_cart', $cart['product_code']) }}" method="POST"
+                        <form class="form-delete" id="delete-{{ $cart['product'] }}"
+                            action="{{ route('delete_item_cart', $cart['product']) }}" method="POST"
                             style="display:none;">
                             @csrf
                             @method('DELETE')
@@ -678,6 +697,7 @@
     </div>
     </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/main/transaction.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
@@ -891,7 +911,7 @@
                             if (customer.status == 7)
                                 html += `
                              <div>
-                            <strong>${customer.name} [${customer.email}] &nbsp;  <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="checkbox">
+                            <strong>${customer.name} [${customer.email}] &nbsp;  <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="radio">
                                 Pilih</strong><br>
                             <small>Aktif</small>
                             `;

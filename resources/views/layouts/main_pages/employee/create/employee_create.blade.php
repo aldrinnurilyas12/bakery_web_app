@@ -10,6 +10,7 @@
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -22,7 +23,7 @@
                 <div class="container-fluid px-4">
                     <h4>Data Karyawan</h4>
                     <hr>
-                    <form action="{{ route('master_employee.store') }}" method="POST">
+                    <form id="formGeneralMaster" action="{{ route('master_employee.store') }}" method="POST">
                         @csrf
 
                         <div class="form-group">
@@ -91,13 +92,16 @@
                             <input class="form-control" type="date" name="start_date" autocomplete="off">
                             <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
-                        <button type="submit" class="btn btn-primary">Tambah Data</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 @if (Session::has('message_success'))
     <script>

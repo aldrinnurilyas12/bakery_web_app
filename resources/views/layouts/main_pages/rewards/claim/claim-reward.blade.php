@@ -11,6 +11,8 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+
 </head>
 
 <body class="sb-nav-fixed">
@@ -132,10 +134,13 @@
                     <div class="modal-body">Apakah anda yakin ingin Klaim Reward
                         {{ $reward->redeem_code }} ?</div>
                     <div class="modal-footer">
-                        <form action="{{ route('claimed-reward', $reward->redeem_code) }}" method="POST">
+                        <form id="formGeneralMaster" action="{{ route('claimed-reward', $reward->redeem_code) }}"
+                            method="POST">
                             @csrf
                             @method('PUT')
-                            <button type="submit" class="btn btn-primary">Klaim Reward</button>
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Klaim
+                                    Reward</span>
+                                <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
@@ -143,6 +148,7 @@
         </div>
     @endforeach
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>

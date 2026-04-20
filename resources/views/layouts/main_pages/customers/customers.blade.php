@@ -41,7 +41,6 @@
                                                 <th>Email</th>
                                                 <th>Alamat</th>
                                                 <th>Total Transaksi</th>
-                                                <th>Total Items</th>
                                                 <th>Total Spent</th>
                                                 <th>Total Voucher</th>
                                                 <th>Total Point</th>
@@ -61,7 +60,6 @@
                                                     <td>{{ $customer->email }}</td>
                                                     <td>{{ $customer->address }}</td>
                                                     <td>{{ $customer->transaction_total }}</td>
-                                                    <td>{{ $customer->product_total }}</td>
                                                     <td>
                                                         @if ($customer->spent_money == 0 || null)
                                                             <span>-</span>

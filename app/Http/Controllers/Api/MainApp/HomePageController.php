@@ -51,8 +51,8 @@ class HomePageController extends Controller
         $category_products = DB::table('product_category as c')
             ->select('c.id','c.icon', DB::raw("REPLACE(c.category_name, ' ', '_') as category_name",))
             ->join('products as p', 'c.id', '=', 'p.category_id')
-            ->join('production_products as pp', 'p.product_code', '=', 'pp.product')
-            ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
+            ->leftJoin('distribution_products_detail as ppd', 'p.product_code', '=', 'ppd.product')
+            ->join('products_daily as pd', 'ppd.distribution_store_code', '=', 'pd.distribution_store')
             ->groupBy('c.id', 'c.category_name')
             ->get();
 
@@ -97,8 +97,8 @@ class HomePageController extends Controller
         $category_products = DB::table('product_category as c')
             ->select('c.id','c.icon', DB::raw("REPLACE(c.category_name, ' ', '_') as category_name",))
             ->join('products as p', 'c.id', '=', 'p.category_id')
-            ->join('production_products as pp', 'p.product_code', '=', 'pp.product')
-            ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
+            ->join('distribution_products_detail as pp', 'p.product_code', '=', 'pp.product')
+            ->join('products_daily as pd', 'pp.distribution_store_code', '=', 'pd.distribution_store')
             ->groupBy('c.id', 'c.category_name')
             ->get();
 
@@ -134,19 +134,24 @@ class HomePageController extends Controller
 
     public function product_detail(Request $request)
     {
-        $code = $request->route('code');
+
+       $code = $request->route('code');
 
         // coba sebagai product_code dulu
         $product = DB::table('v_daily_products')
-            ->where('product_code', $code)
+            ->where('status', 'Ready')
+            ->where(function ($query) use ($code) {
+                $query->where('product_code', $code)
+                    ->orWhere('variant_code', $code);
+            })
             ->first();
 
-        // kalau tidak ketemu, anggap variant_code
+        // cek kalau tidak ditemukan
         if (!$product) {
-            $product = DB::table('v_daily_products')
-                ->where('variant', $code)
-                ->first();
+            session()->flash('failed_message', 'Product tidak ditemukan');
+            return redirect()->back();
         }
+       
 
         return view('layouts.main_views.products.product_detail', compact('product'));
     }
@@ -162,14 +167,7 @@ class HomePageController extends Controller
         $promo_campaign = DB::table('promo_campaign as pc')
         ->select('pc.promo_code', 'pc.promo_name', 'pc.min_transaction', 'pc.quota', 'pc.description as promo_description', 'pi.images', 'pc.start_date', 'pc.end_date')
         ->leftJoin('promo_campaign_images as pi', 'pc.promo_code', '=', 'pi.promo_code')
-        ->leftJoin('promo_campaign_products as pcp', 'pc.promo_code', '=', 'pcp.promo_code')
-        ->leftJoin('v_daily_products as vp', function($join){
-            $join->on('pcp.product', '=', 'vp.product_code')
-            ->where(function($q){
-                $q->whereColumn('pcp.variant', 'vp.variant_code')
-                ->orWhereNull('pcp.variant');
-            });
-        })->where('pc.status', 7)
+        ->where('pc.status', 7)
         ->where('pc.promo_code', $request->promo_code)->first();
 
         if(!$promo_campaign){

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Livewire\Products;
 use App\Models\ProductsModel;
 use App\Models\ProductImages;
+use App\Models\ProductIngredients;
+use App\Models\ProductIngredientsDetail;
 use App\Models\ProductPointModel;
 use App\Models\ProductsVariant;
 use App\Models\VariantCategoryModel;
@@ -31,7 +33,8 @@ class ProductsController extends Controller
 
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
         $product_category = DB::table('product_category')->get();
-        return view('layouts.main_pages.products.create.products_create', compact('product_category'));
+        $raw_materials = DB::table('raw_material')->get();
+        return view('layouts.main_pages.products.create.products_create', compact('product_category', 'raw_materials'));
     }
 
     /**
@@ -46,25 +49,29 @@ class ProductsController extends Controller
             'product_weight' =>'required',
             'product_weight_type' =>'required',
             'product_variant' => 'required',
-            'expired_date' =>'required',
-            'images' => 'required',
-            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000'
+            'images' => 'required|image|mimes:jpg,png,jpeg|max:5000',
+            'point' => 'numeric|min:2',
+            'raw_material' => 'required|array',
+            'raw_material.*' => 'exists:raw_material,material_code',
+            'weight' => 'array'
         ],
         [
             'product_name.required' => 'Nama Produk harus diisi',
             'category_id.required' => 'Kategori Produk harus diisi',
             'product_weight.required' => 'Berat Produk harus diisi',
             'product_weight_type.required' => 'Massa Produk harus diisi',
-            'expired_date.required' => 'Tanggal Kadaluarsa Produk harus diisi',
-            'images.required' => 'Gambar/Foto Produk harus ada'
+            'images.required' => 'Gambar/Foto Produk harus ada',
+            'point.min' => 'Point minimal lebih dari 1',
+            'raw_material.required' => 'Ingredient untuk produk ini harus diisi'
         ]);
 
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         
-        
+        $category = $request->category_id;
         $uuid = (string) Str::uuid();
-        $unique_code = substr($uuid, 0, 8);
-        $product_code = 'PR' .$request->category_id. $unique_code;
+        $unique_code = substr($uuid, 0, 6);
+        $product_code = 'PRD' . $category . $unique_code;
+        $ingredients_code = 'INGR' . $unique_code;
 
         $data = ProductsModel::create([
                 'product_code'=> $product_code,
@@ -77,16 +84,15 @@ class ProductsController extends Controller
                 'product_weight_type' => $request->product_weight_type,
                 'product_variant'  => $request->product_variant,
                 'description' => $request->description,
-                'expired_date' => $request->expired_date,
                 'created_at' => now(),
                 'created_by' => $created_by
 
         ]);
 
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
+                $product_image = $request->file('images');
                 $folderPath = 'product/' . $data->latest()->first()->id;
-                $imagePath = $image->storeAs($folderPath, uniqid() . '.' . $image->getClientOriginalExtension(), 'public');
+                $imagePath = $product_image->storeAs($folderPath, uniqid() . '.' . $product_image->getClientOriginalExtension(), 'public');
 
                 ProductImages::create([
                     'product_code' => $product_code,
@@ -95,8 +101,6 @@ class ProductsController extends Controller
                     'created_by' => $created_by
                             
                 ]);
-            }
-
         }
 
         ProductPointModel::create([
@@ -107,6 +111,29 @@ class ProductsController extends Controller
             'status' => 7
         ]);
 
+
+        // for Ingredients product:
+
+        $raw_materials = $request->raw_material;
+        $qty = $request->quantity;
+        $weight = $request->weight;
+
+        $ingredient = ProductIngredients::create([
+            'product' => $data->product_code,
+            'ingredients_code' => $ingredients_code
+        ]);
+
+        foreach($raw_materials as $raw){
+            ProductIngredientsDetail::create([
+                'ingredients' => $ingredients_code,
+                'raw_material' => $raw,
+                'quantity' => (int) $qty[$raw] ?? 0,
+                'weight' => $weight[$raw] ?? null
+            ]);
+        }
+        
+
+
         if($request->product_variant == 'Y'){
             session()->flash('message_success', 'Data produk berhasil disimpan!');
             return redirect()->route('add_product_variant', $data->product_code);
@@ -115,6 +142,44 @@ class ProductsController extends Controller
         session()->flash('message_success', 'Data produk berhasil disimpan!');
         return redirect()->route('products_data');
       
+    }
+
+
+    public function save_ingredients(Request $rq)
+    {
+         $rq->validate([
+            'raw_material' => 'required|array',
+            'raw_material.*' => 'exists:raw_material,material_code',
+            'weight' => 'array'
+        ],
+        [
+            'raw_material.required' => 'Ingredient untuk produk ini harus diisi'
+        ]);
+
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 6);
+        $ingredients_code = 'INGR' . $unique_code;
+
+        $raw_materials = $rq->raw_material;
+        $qty = $rq->quantity;
+        $weight = $rq->weight;
+
+        $ingredient = ProductIngredients::create([
+            'product' => $rq->product,
+            'ingredients_code' => $ingredients_code
+        ]);
+
+        foreach($raw_materials as $raw){
+            ProductIngredientsDetail::create([
+                'ingredients' => $ingredients_code,
+                'raw_material' => $raw,
+                'quantity' => (int) $qty[$raw] ?? 0,
+                'weight' => $weight[$raw] ?? null
+            ]);
+        }
+
+       session()->flash('message_success', 'Data ingredients produk berhasil disimpan!');
+       return redirect()->route('products_data');
     }
 
     public function save_product_variant(Request $request) {
@@ -167,10 +232,20 @@ class ProductsController extends Controller
         $variant = DB::table('product_variant as pv')
                 ->leftJoin('v_products as p', 'pv.product', '=', 'p.product_code')
                 ->where('variant_code', $request->variant_code)->first();
-        return view('layouts.main_pages.products.edit.edit_variant_product', compact('variant'));
+        $variant_category_food = DB::table('variant_category')->whereIn('id', ['1', '2', '3'])->get();
+        $variant_category_drink = DB::table('variant_category')->whereIn('id', ['4', '5'])->get();
+        return view('layouts.main_pages.products.edit.edit_variant_product', compact('variant', 'variant_category_food', 'variant_category_drink'));
     }
 
     public function edit_variant(Request $request) {
+
+        $request->validate([
+            'variant_price' => 'required'
+        ],
+        [
+            'variant_price' => 'Harga variant produk harus diisi'
+        ]);
+
         DB::table('product_variant')->where('variant_code', $request->variant_code)->update([
             'variant_price' => $request->variant_price,
             'variant_discount' => $request->variant_discount,
@@ -218,10 +293,9 @@ class ProductsController extends Controller
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $product_images = DB::table('product_images')->where('product_code', $request->product_code)->select('id','images' )->get();
         $products_category = DB::table('product_category')->get();
-        $expired_date = Carbon::parse($products->expired_date);
         $point_start_date = Carbon::parse($products->point_start_date);
         $point_end_date = Carbon::parse($products->point_end_date);
-        return view('layouts.main_pages.products.edit.products_edit', compact('products','point', 'products_category', 'status', 'expired_date', 'product_images', 'point_start_date', 'point_end_date'));
+        return view('layouts.main_pages.products.edit.products_edit', compact('products','point', 'products_category', 'status', 'product_images', 'point_start_date', 'point_end_date'));
         
     }
 
@@ -230,7 +304,7 @@ class ProductsController extends Controller
      */
    
 
-    public function update(Request $request, $product_code)
+    public function update(Request $request)
     {
      $request->validate([
             'product_name' =>'required',
@@ -238,19 +312,18 @@ class ProductsController extends Controller
             'price' =>'required',
             'product_weight' =>'required',
             'product_weight_type' =>'required',
-            'expired_date' =>'required',
-            'images.*' => 'image|mimes:jpg,png,jpeg|max:5000'
+            'images' => 'image|mimes:jpg,png,jpeg|max:5000'
         ],
         [
             'product_name.required' => 'Nama Produk harus diisi',
             'category_id.required' => 'Kategori Produk harus diisi',
             'price.required' => 'Harga Produk harus diisi',
             'product_weight.required' => 'Berat Produk harus diisi',
-            'product_weight_type.required' => 'Massa Produk harus diisi',
-            'expired_date.required' => 'Tanggal Kadaluarsa Produk harus diisi',
+            'product_weight_type.required' => 'Massa Produk harus diisi'
         ]);
 
-    $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+    $product_code = $request->product_code;
+    $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
     $product_id = DB::table('v_products')->select('id')->where('product_code', $request->product_code)->first();
     $point = ProductPointModel::where('product', $product_code)->select('point')->first();
 
@@ -267,26 +340,23 @@ class ProductsController extends Controller
             'product_weight_type' => $request->product_weight_type,
             'product_variant'  => $request->product_variant,
             'description' => $request->description,
-            'expired_date' => $request->expired_date,
             'updated_at' => now(),
             'updated_by' => $updated_by
         ]);
 
     // Upload dan simpan foto jika ada
         if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $folderPath = 'product/' . $product_id->id;
-                    $imagePath = $image->storeAs($folderPath, uniqid() . '.' . $image->getClientOriginalExtension(), 'public');
+                $product_image = $request->file('images');
+                $folderPath = 'product/' . $product_id->id;
+                $imagePath = $product_image->storeAs($folderPath, uniqid() . '.' . $product_image->getClientOriginalExtension(), 'public');
 
-                    ProductImages::create([
-                        'product_code' => $product_code,
-                        'images' => $imagePath,
-                        'created_at' => now(),
-                        'created_by' => $updated_by
+                ProductImages::create([
+                    'product_code' => $product_code,
+                    'images' => $imagePath,
+                    'created_at' => now(),
+                    'created_by' => $updated_by
                             
-                    ]);
-                }
-
+                ]);
         }
 
         if($point == null)
@@ -333,9 +403,20 @@ class ProductsController extends Controller
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+    public function add_ingredients_layouts(Request $rq)
+    {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+        $products = DB::table('products')->where('product_code', $rq->product_code)->first();
+        $raw_materials = DB::table('raw_material')->get();
+        return view('layouts.main_pages.products.create.add_ingredients', compact('products', 'raw_materials'));
+    }
+    
     
     public function destroy($product_code)
 {

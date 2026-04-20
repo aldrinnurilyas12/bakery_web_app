@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Ubah kata sandi</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -33,7 +33,7 @@
 
                 <div class="menu-list">
                     <hr class="hr-menu">
-                    <form action="{{ route('update_password') }}" method="POST">
+                    <form id="changePassword" action="{{ route('update_password') }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
@@ -54,8 +54,10 @@
                                 placeholder="Buat kata sandi baru">
                         </div>
 
-                        <button type="submit" style="background:#bb0239; color:white;border:none;"
-                            class="btn btn-primary">Simpan</button>
+                        <button id="btnResetPassword" type="submit" class="btn-general">
+                            Ubah kata sandi
+                            <span class="spinner"></span>
+                        </button>
 
                     </form>
 
@@ -199,6 +201,15 @@
     @endif
 
 </body>
+
+<script>
+    // button
+    document.getElementById("changePassword").addEventListener("submit", function() {
+        const btn = document.getElementById("btnResetPassword");
+        btn.classList.add("loading");
+        btn.disabled = true;
+    });
+</script>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

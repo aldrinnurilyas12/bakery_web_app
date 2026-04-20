@@ -37,7 +37,6 @@
                                             @endif
                                             <th>Kode Promo</th>
                                             <th>Nama Promo</th>
-                                            <th>Produk</th>
                                             <th>Kuota</th>
                                             <th>Status</th>
                                             <th>Min Transaksi</th>
@@ -73,7 +72,6 @@
                                                 @endif
                                                 <td>{{ $promo->promo_code }}</td>
                                                 <td>{{ $promo->promo_name }}</td>
-                                                <td>{{ $promo->product }}</td>
                                                 <td>{{ $promo->quota }}</td>
                                                 <td>
                                                     @if ($promo->status == 'Active')

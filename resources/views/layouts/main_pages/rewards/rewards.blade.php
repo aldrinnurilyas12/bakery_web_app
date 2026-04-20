@@ -102,6 +102,7 @@
                                                                             <td>{{ $item->store_name }}</td>
                                                                             <td>
                                                                                 {{ $item->stock }}</td>
+                                                                            <td>{{ $item->total_redeem }}</td>
                                                                         </tr>
                                                                     @endif
                                                                 @endforeach

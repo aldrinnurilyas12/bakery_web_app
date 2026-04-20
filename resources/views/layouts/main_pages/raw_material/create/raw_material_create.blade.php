@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Tambah Bahan Baku</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -20,7 +21,8 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Bahan Baku</h4>
                     <hr>
-                    <form action="{{ route('master_material.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('master_material.store') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
                             <label><strong>Masukan Nama Bahan Baku</strong></label>
@@ -29,21 +31,6 @@
                                 autocomplete="off">
                             <x-input-error :messages="$errors->get('material_name')" class="text-danger" />
                         </div>
-
-                        <div class="form-group">
-                            <label><strong>Masukan Harga Bahan Baku</strong></label>
-                            <input type="text" name="price" class="form-control" value="{{ old('price') }}"
-                                placeholder="Masukan harga" autocomplete="off">
-                            <x-input-error :messages="$errors->get('price')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Masukan Stok</strong></label>
-                            <input type="text" name="quantity" class="form-control" value="{{ old('quantity') }}"
-                                placeholder="Masukan stok bahan baku" autocomplete="off">
-                            <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
-                        </div>
-
 
                         <div class="form-group">
                             <label><strong>Masa Bahan Baku</strong></label>
@@ -81,13 +68,17 @@
                             <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Tambah material</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Notifikasi</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">

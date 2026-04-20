@@ -64,7 +64,7 @@ class Voucher extends Controller
         ]
         );
         
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 8);
 
@@ -164,11 +164,10 @@ class Voucher extends Controller
         ]
         );
 
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         VoucherModel::where('voucher_code', $request->voucher_code)->update([
             'voucher_name'=> $request->voucher_name,
             'quota'=> $request->quota,
-            'total_quota_used' =>$request->quota,
             'nominal'=> $request->nominal,
             'discount'=> $request->discount,
             'min_transaction'=> $request->min_transaction,
@@ -187,7 +186,7 @@ class Voucher extends Controller
 
     
     public function update_nonactive_voucher(Request $request) {
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         VoucherModel::where('voucher_code', $request->voucher_code)->update([
             'status' => $request->status,
             'updated_by' => $updated_by,

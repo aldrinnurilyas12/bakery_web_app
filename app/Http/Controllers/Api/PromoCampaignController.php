@@ -52,10 +52,6 @@ class PromoCampaignController extends Controller
             'min_transaction' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
-            'product' => 'required|array',
-            'product.*' => 'required|exists:products,product_code',
-            'variant' => 'nullable|array',
-            'variant.*' => 'nullable|exists:product_variant,variant_code',
             'images' => 'required|image|mimes:jpg,png,jpeg,JPG,PNG'
         ],
         [
@@ -70,12 +66,10 @@ class PromoCampaignController extends Controller
             'images.required' => 'Gambah harus diupload'
         ]);
 
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0,8);
-        $products = $request->product ?? [];
-        $variants = $request->variant ?? [];
         
         if($request->hasFile('images')){
              $promo_image = $request->file('images');
@@ -99,26 +93,6 @@ class PromoCampaignController extends Controller
                 'images' => $imagePath,
                 'created_at' => now()
             ]);
-
-            foreach($products as $prd) {
-                PromoCampaignProducts::create([
-                    'promo_code' => $promo->promo_code,
-                    'product' => $prd,
-                    'variant' => null,
-                    'created_at' => now()
-                ]);
-            }
-
-            foreach ($variants as $index => $variantCode) {
-                PromoCampaignProducts::create([
-                    'promo_code' => $promo->promo_code,
-                    'product' => $products,
-                    'variant' => $variantCode,
-                    'created_at' => now()
-                ]);
-            }
-
-
         }
         session()->flash('message_success', 'Data Promo berhasil disimpan!');
         return redirect()->route('promo_campaign');
@@ -177,7 +151,7 @@ class PromoCampaignController extends Controller
             'end_date.required' => 'Tanggal akhir promo harus diisi',
         ]);
 
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         PromoCampaign::where('promo_code', $request->promo_code)->update([
             'promo_name' => $request->promo_name,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ItemsModel;
 use App\Models\RawMaterial;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -41,31 +42,29 @@ class RawMaterialController extends Controller
     {
         $request->validate([
             'material_name'=> 'required',
-            'quantity' => 'required',
-            'price'=> 'required',
             'material_type'=> 'required',
             'material_category'=> 'required',
             'expired_date'=> 'required'
         ],
         [
             'material_name.required' => 'Nama bahan baku harus diisi',
-            'quantity.required' => 'Stok harus diisi',
-            'price.required' => 'Harga bahan baku harus diisi',
             'material_type.required' => 'Tipe bahan baku harus diisi',
             'material_category.required' => 'Kategori bahan baku harus diisi',
             'expired_date.required' => 'Tanggal kadaluarsa harus diisi'
         ]);
 
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $created = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
+        $unique_code_item = substr($uuid, 0, 5);
         $material_code = 'RAW' . $unique_code;
+        $item_code = 'ITEM-' . $unique_code_item;
 
-        RawMaterial::create([
+
+       $raw = RawMaterial::create([
             'material_code' =>$material_code,
             'material_name' =>$request->material_name,
-            'quantity' => $request->quantity,
-            'price' =>$request->price,
             'material_type' =>$request->material_type,
             'material_category' => $request->material_category,
             'expired_date' =>$request->expired_date,
@@ -75,7 +74,17 @@ class RawMaterialController extends Controller
 
         ]);
 
-         session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
+        $items = ItemsModel::create([
+            'item_code' => $item_code,
+            'raw_material'=> $raw->material_code,
+            'name' => $raw->material_name,
+            'item_category' => 1,
+            'weight_type' => $raw->material_type,
+            'created_at' => now(),
+            'created_by' => $created
+        ]);
+
+        session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
         return redirect()->route('raw_material');
     }
 
@@ -115,7 +124,6 @@ class RawMaterialController extends Controller
     {
         $request->validate([
             'material_name'=> 'required',
-            'quantity' => 'required',
             'price'=> 'required',
             'material_type'=> 'required',
             'material_category'=> 'required',
@@ -123,18 +131,16 @@ class RawMaterialController extends Controller
         ],
         [
             'material_name.required' => 'Nama bahan baku harus diisi',
-            'quantity.required' => 'Stok harus diisi',
             'price.required' => 'Harga bahan baku harus diisi',
             'material_type.required' => 'Tipe bahan baku harus diisi',
             'material_category.required' => 'Kategori bahan baku harus diisi',
             'expired_date.required' => 'Tanggal kadaluarsa harus diisi'
         ]);
 
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         RawMaterial::where('material_code', $request->material_code)->update([
             'material_name' =>$request->material_name,
-            'quantity' => $request->quantity,
             'price' =>$request->price,
             'material_type' =>$request->material_type,
             'material_category' =>$request->material_category,
@@ -147,6 +153,25 @@ class RawMaterialController extends Controller
 
         session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
         return redirect()->route('raw_material');
+    }
+
+
+    public function history_raw_material(Request $rq)
+    {
+        $history = DB::table('purchase_order_detail as po')
+        ->select('po.purchase_code', 'po.quantity as qty_po', 'rm.material_name','po.price', 'po.created_at')
+        ->leftJoin('raw_material as rm', 'po.raw_material', '=', 'rm.material_code')
+        ->where('raw_material', $rq->material_code)
+        ->orderBy('created_at', 'DESC')->get();
+        return view('layouts.main_pages.raw_material.history_raw_material_po', compact('history'));
+    }
+
+    public function raw_material_usages(Request $rq)
+    {
+        $material_usages = DB::table('raw_material_usages as rmu')
+            ->leftJoin('raw_material as rm', 'rmu.raw_material', '=', 'rm.material_code')
+            ->where('rmu.raw_material', $rq->material_code)->get();
+        return view('layouts.main_pages.raw_material.raw_material_usages', compact('material_usages'));
     }
 
     /**

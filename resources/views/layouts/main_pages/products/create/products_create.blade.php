@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -21,7 +22,8 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Produk</h4>
                     <hr>
-                    <form action="{{ route('master_products.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('master_products.store') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
 
                         <div class="form-group">
@@ -113,12 +115,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Estimasi Tanggal Kadaluarsa</strong></label>
-                            <input type="date" name="expired_date" class="form-control" autocomplete="off">
-                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
                             <label><strong>Deskripsi Produk</strong></label>
                             <textarea class="form-control" name="description" id="" cols="30" rows="4"></textarea>
                         </div>
@@ -126,7 +122,7 @@
 
                         <div class="form-group">
                             <label><strong>Gambar/Foto Produk</strong></label>
-                            <input type="file" name="images[]" multiple class="form-control">
+                            <input type="file" name="images" class="form-control">
                             <x-input-error :messages="$errors->get('images')" class="text-danger" />
                         </div>
 
@@ -139,6 +135,7 @@
                             <label><strong>Masukan jumlah Point</strong></label>
                             <input type="text" name="point" class="form-control" value="{{ old('point') }}"
                                 placeholder="Masukan jumlah point" autocomplete="off">
+                            <x-input-error :messages="$errors->get('point')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -154,14 +151,99 @@
                         </div>
 
 
+                        <hr class="hr-menu">
+                        <h4>Produk Ingredients</h4>
+                        <hr>
 
-                        <button type="submit" class="btn btn-primary">Tambah Produk</button>
+                        <div class="form-group">
+                            <label><strong>Pilih Bahan Baku</strong></label>
+                            <div style="color: black; height: 400px;background: white;overflow: auto;"
+                                class="modal-body">
+                                <div class="table-responsive">
+                                    <table style="font-size: 14px; color:black;" class="table" id="dataTable"
+                                        width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Pilih</th>
+                                                <th>Bahan Baku</th>
+                                                <th>Qty</th>
+                                                <th>Massa</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <?php $no = 1; ?>
+                                            @foreach ($raw_materials as $raw)
+                                                <tr style="width: 200px;">
+                                                    <td><?php echo $no++; ?></td>
+                                                    <td>
+                                                        @if ($raw->quantity == 0)
+                                                            <a
+                                                                href="{{ route('material_update', $raw->material_code) }}"><i
+                                                                    class="fa fa-edit"></i></a>
+                                                        @else
+                                                            <input class="allowed-checkbox" type="checkbox"
+                                                                name="raw_material[{{ $raw->material_code }}]"
+                                                                value="{{ $raw->material_code }}">
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ '[' . $raw->material_code . '] ' . ' - ' . $raw->material_name }}
+                                                    </td>
+
+                                                    <td>
+                                                        <input class="form-control"
+                                                            name="quantity[{{ $raw->material_code }}]"
+                                                            type="number">
+
+                                                        <x-input-error :messages="$errors->get('quantity_used.' . $raw->material_code)" class="text-danger" />
+                                                    </td>
+                                                    <td>
+
+                                                        <select name="weight[{{ $raw->material_code }}]"
+                                                            class="form-control" id="">
+                                                            <option value="">=== Pilih Massa Bahan Baku ===
+                                                            </option>
+                                                            <option value="pcs">Pcs</option>
+                                                            <option value="miligram">Miligram</option>
+                                                            <option value="gram">Gram</option>
+                                                            <option value="kilogram">Kilogram</option>
+                                                            <option value="quintal">Quintal</option>
+                                                            <option value="ton">Ton</option>
+                                                            <option value="sachet">Sachet</option>
+                                                            <option value="pack">Pack</option>
+                                                            <option value="liter">Liter</option>
+                                                            <option value="mililiter">Mililiter</option>
+                                                        </select>
+                                                    </td>
+
+                                                    {{-- <td>
+                                                        <input class="disallowed-checkbox" type="checkbox"
+                                                            name="disallowed[]" value="{{ $raw->id }}"
+                                                            {{ in_array($raw->id, $disallowedData) ? 'checked' : '' }}>
+                                                    </td>  --}}
+                                                </tr>
+                                            @endforeach
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <x-input-error :messages="$errors->get('raw_material')" class="text-danger" />
+                            <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
+                        </div>
+
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Tambah
+                                Produk</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

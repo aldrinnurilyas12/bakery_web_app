@@ -37,25 +37,59 @@ class TransactionController extends Controller
         $main_transaction = DB::table('v_main_transactions')->orderBy('transaction_date', 'DESC')
         ->whereDate('transaction_date', now()->format('Y-m-d'))->paginate(500);
 
-        
+        $show_items = DB::table('transactions_detail as td')
+                                    ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+                                    ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+                                    ->leftJoin('product_variant as pv', 'td.variant', '=', 'pv.variant_code')
+                                    ->get();
 
-        // $show_transaction_array_data =  $show_transaction->map(function ($transaction) {
-        //     $product_names = explode(',', $transaction->product_name);
-        //     if (count($product_names) > 2) {
-        //         $transaction->product_name = array_slice($product_names, 0, 2);
-        //         $transaction->product_name[] = 'dan lainnya';
-        //     } else {
-        //         $transaction->product_name = $product_names;
-        //     }
+        $transaction_with_items = DB::table('transactions_detail as td')
+             ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+             ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+             ->select('td.transaction_code')
+             ->distinct()
+             ->pluck('td.transaction_code')
+             ->toArray();
 
-        //     return $transaction;
-        // });
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name, [
+            'Supervisor',
+            'Manager',
+            ]);
 
-        return view('layouts.main_pages.transactions.transaction', compact('show_transaction', 'main_transaction'));
+        $stores = DB::table('store')->get();
+       
+
+        return view('layouts.main_pages.transactions.transaction', compact('show_transaction', 'main_transaction', 'show_items','transaction_with_items', 'session_user', 'user_permission_forbidden', 'stores'));
     }
 
     public function filter_transaction(Request $request) {
 
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
+
+        $show_items = DB::table('transactions_detail as td')
+                                    ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+                                    ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+                                    ->leftJoin('product_variant as pv', 'td.variant', '=', 'pv.variant_code')
+                                    ->get();
+
+        $transaction_with_items = DB::table('transactions_detail as td')
+             ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+             ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+             ->select('td.transaction_code')
+             ->distinct()
+             ->pluck('td.transaction_code')
+             ->toArray();
+
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name, [
+            'Supervisor',
+            'Manager',
+            ]);
+
+        $stores = DB::table('store')->get();
+
+        $rq_store = $request->store;
 
         if($request->filter_transaction){
            $query = DB::table('v_main_transactions')
@@ -64,31 +98,41 @@ class TransactionController extends Controller
             if ($request->filter_transaction) {
 
                 if ($request->filter_transaction == 'today') {
-                    $query->whereDate('transaction_date', Carbon::today());
+                    $query->whereDate('transaction_date', Carbon::today())
+                    ->where('store_code', $rq_store ?? $store);
                 }
 
                 if ($request->filter_transaction == 'week') {
                     $query->whereBetween('transaction_date', [
                         Carbon::now()->startOfWeek(),
                         Carbon::now()->endOfWeek()
-                    ]);
+                    ])->where('store_code', $rq_store ?? $store);
                 }
 
                 if ($request->filter_transaction == 'month') {
                     $query->whereMonth('transaction_date', Carbon::now()->month)
-                        ->whereYear('transaction_date', Carbon::now()->year);
+                        ->whereYear('transaction_date', Carbon::now()->year)
+                          ->where('store_code', $rq_store ?? $store);
                 }
-            }
 
-             if ($request->filter_transaction == 'month') {
-                    $main_transaction = $query->paginate(400);
+                if($request->filter_transaction == 'year'){
+                     $query->whereYear('transaction_date', Carbon::now()->year)
+                          ->where('store_code', $rq_store ?? $store);
+                 }
+            }
+            
+
+
+            // Mengatur data sebanyak 400
+             if ($request->filter_transaction == 'month' || $request->filter_transaction == 'year' ) {
+                    $main_transaction = $query->paginate(500);
              }else {
 
                  $main_transaction = $query->get();
              }
 
 
-            return view('layouts.main_pages.transactions.transaction', compact('main_transaction'));
+            return view('layouts.main_pages.transactions.transaction', compact('main_transaction', 'show_items', 'transaction_with_items', 'user_permission_forbidden', 'stores', 'session_user'));
         }
 
 
@@ -168,8 +212,8 @@ class TransactionController extends Controller
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
          $category_data = DB::table('product_category as c')->select(DB::raw("REPLACE(c.category_name, ' ', '_') as 'category_name'"))
                 ->join('products as p', 'c.id', '=', 'p.category_id')
-                ->join('production_products as pp', 'p.product_code', '=', 'pp.product')
-                ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
+                ->join('distribution_products_detail as pp', 'p.product_code', '=', 'pp.product')
+                ->join('products_daily as pd', 'pp.distribution_store_code', '=', 'pd.distribution_store')
                 ->groupBy('c.category_name')->get();
         $all_products =  DB::table('v_daily_products')->where('status', 'Ready')->where('store_id', $store )->paginate(15);
         $payment_type = DB::table('payment_category')->get();
@@ -223,7 +267,9 @@ class TransactionController extends Controller
     {
        $request->validate([
         'product' => 'required|array',
-        'product.*' => 'required|exists:products_daily,daily_code',
+        'product.*' => 'required|exists:products,product_code',
+        'variant' => 'nullable|array',
+        'variant.*' => 'nullable|string',
         'quantity_per_product' => 'required|array',
         'quantity_per_product.*' => 'required|integer|min:1',
         ]);
@@ -234,6 +280,7 @@ class TransactionController extends Controller
         $transaction_code = 'INV' . $inv_date . $unique_code;
 
         $productCode = $request->product;
+        $variants = $request->variant ?? [];
         $qtyProducts = $request->quantity_per_product;
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
@@ -292,6 +339,7 @@ class TransactionController extends Controller
                TransactionDetail::create([
                     'transaction_code' => $main_transaction->transaction_code,
                     'product' => $productId,
+                    'variant' => $variants[$index] ?? null,
                     'quantity_per_product' => $qtyProducts[$index],
                     'created_by' => $casheer,
                     'created_at' => now()
@@ -317,45 +365,28 @@ class TransactionController extends Controller
             ]);
         }
         
-
+    
     // PROSEDUR GET POINT FOR CUSTOMERS WHEN TRANSACTIONS :
-    $transactionDetail = DB::table('transactions_detail as td')
-        ->join('products_daily as pd', 'td.product', '=', 'pd.daily_code')
-        ->join('production_products as pp', 'pd.production', '=', 'pp.production_code')
-        ->where('transaction_code', $main_transaction->transaction_code)
-        ->get();
+    
+        $totalPoints = DB::table('transactions_detail as td')
+                ->join('products_point as pp', function($join){
+                    $join->on('td.product', '=', 'pp.product')
+                    ->where('pp.status', 7);
+                })
+                ->where('td.transaction_code', $main_transaction->transaction_code)
+                ->selectRaw('SUM(pp.point * td.quantity_per_product) as total')
+                ->value('total') ?? 0;
 
-    // FIX THIS CHANGE TO TABLE PRODUCTS_POINT
-    $productPoints = DB::table('products_point')
-        ->whereNotNull('product')->where('status', 7)
-        ->pluck('point', 'product');
 
-    $customerTransaction = DB::table('transactions')
+         DB::table('customer')
+        ->where('customer_code', $main_transaction->customer)
+        ->increment('point', $totalPoints);
+
+
+        $customerTransaction = DB::table('transactions')
         ->where('customer', $main_transaction->customer)
         ->first();
-
-    $customerPoint = DB::table('customer')
-        ->where('customer_code', $main_transaction->customer)
-        ->value('point') ?? 0;
-    
-    $totalPoints = 0;
-
-    if ($customerTransaction) {
-
-        foreach($transactionDetail as $detail) {
-
-            if (!empty($detail->product) && isset($productPoints[$detail->product])) {
-                $totalPoints += $productPoints[$detail->product];
-            }
-        }
-
-        DB::table('customer')
-            ->where('customer_code', $main_transaction->customer)
-            ->update(['point' => $totalPoints + $customerPoint
-        ]);
-    }
-
-            
+                
 
         // PROSEDUR PEMBAGIAN E-VOUCHER ke CUSTOMER 
         $getAmount = $main_transaction->grand_total;

@@ -10,6 +10,7 @@
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -22,7 +23,7 @@
                 <div class="container-fluid px-4">
                     <h4>Buat Akun Pengguna</h4>
                     <hr>
-                    <form action="{{ route('user_register.store') }}" method="POST">
+                    <form id="formGeneralMaster" action="{{ route('user_register.store') }}" method="POST">
                         @csrf
 
                         <div class="form-group">
@@ -34,6 +35,7 @@
                                 @endforeach
 
                             </select>
+                            <x-input-error :messages="$errors->get('nik')" class="text-danger" />
                         </div>
 
 
@@ -41,12 +43,14 @@
                             <label><strong>Nama Pengguna</strong></label>
                             <input class="form-control" type="text" name="username" value="{{ old('username') }}"
                                 placeholder="Masukan nama pengguna" id="showUsername" autocomplete="off">
+                            <x-input-error :messages="$errors->get('username')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Email</strong></label>
                             <input class="form-control" type="email" name="email" value="{{ old('email') }}"
                                 placeholder="Email akan muncul disini" id="showEmail" autocomplete="off" readonly>
+                            <x-input-error :messages="$errors->get('email')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -57,6 +61,7 @@
                                     <option value="{{ $r->id }}">{{ $r->role }}</option>
                                 @endforeach
                             </select>
+                            <x-input-error :messages="$errors->get('role')" class="text-danger" />
                         </div>
 
 
@@ -64,10 +69,12 @@
                             <label><strong>Buat Kata Sandi</strong></label>
                             <input class="form-control" type="password" name="password" placeholder="Masukan kata sandi"
                                 autocomplete="off">
+                            <x-input-error :messages="$errors->get('password')" class="text-danger" />
                         </div>
                         <div style="display: flex; gap:20px;" class="btn-grouped">
-                            <button type="submit" class="btn btn-primary">Buat Akun</button>
-                            <a class="btn btn-info" href="{{ route('users_data') }}">Kembali</a>
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                    Data</span>
+                                <span class="spinner"></span></button>
                         </div>
                     </form>
                     <br>
@@ -75,7 +82,7 @@
                 </div>
             </main>
 </body>
-
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 <script>
     document.getElementById('emp_nik').addEventListener('change', function() {

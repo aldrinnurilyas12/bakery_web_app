@@ -78,7 +78,25 @@ class CustomerController extends Controller
             return redirect()->back();
         }
 
-        return view('layouts.main_views.customer_views.history-transactions', compact('history_transaction'));
+        // FOR INSIGHT TO CHART
+
+        $defaultPeriode =[
+            '1-7' => 0,
+            '8-14' => 0
+        ];
+
+        $transactions = DB::table('v_insight_transaction')
+        ->where('customer', $CUSTOMER_LOGIN_SESSION)->get();
+
+        foreach($transactions as $trx){
+            $defaultPeriode[$trx->periode] = $trx->total_grand;
+        }
+
+        $labels = array_keys($defaultPeriode);
+        $data = array_values($defaultPeriode);
+
+
+        return view('layouts.main_views.customer_views.history-transactions', compact('history_transaction', 'labels', 'data'));
     }
 
     public function invoice(Request $request)
@@ -203,7 +221,7 @@ class CustomerController extends Controller
         $auth_check = auth()->guard('customer')->user();
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         
-        $favorite_exists = DB::table('products_favorite')->where('product_daily', $request->daily_code)
+        $favorite_exists = DB::table('products_favorite')->where('product', $request->product)->where('variant', $request->variant)
                 ->where('customer_code', $customer_code)->first();
 
             if(!auth()->guard('customer')->check()) {
@@ -218,7 +236,8 @@ class CustomerController extends Controller
                         return redirect()->back();
                     } 
                     ProductFavorite::create([
-                        'product_daily'=> $request->daily_code,
+                        'product'=> $request->product,
+                        'variant' => $request->variant,
                         'customer_code' => $customer_code,
                         'favorite' => 1,
                         'created_at' => now(),
@@ -251,9 +270,10 @@ class CustomerController extends Controller
         //     });
 
         $product_favorite = DB::table('products_favorite as pf')
-        ->select('pf.product_daily', 'vp.product_code', 'vp.variant','vp.product', 
-        'vp.price','vp.discount', 'vp.price_after_discount', 'vp.variant_price','vp.variant_discount','vp.variant_price_after_discount')
-        ->leftJoin('v_daily_products as vp', 'pf.product_daily', '=', 'vp.daily_code')
+        ->select('p.product_code', 'pv.variant_code','p.product_name as product', 
+        'p.price','p.discount', 'p.price_after_discount', 'pv.variant_price','pv.variant_discount','pv.variant_price_after_discount')
+        ->leftJoin('products as p', 'pf.product', '=', 'p.product_code')
+        ->leftJoin('product_variant as pv','pf.variant', '=', 'pv.variant_code')
         ->where('pf.customer_code', '=', $customer_code)->orderBy('pf.created_at', 'DESC')->get();
 
 
@@ -274,6 +294,21 @@ class CustomerController extends Controller
 
     public function update_customer(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'address' => 'required',
+            'birth_date' => 'required',
+            'phone_number' => 'required'
+        ],
+        [
+            'name.required' => 'Nama harus diisi',
+            'email.required' => 'Alamat email harus diisi',
+            'address.required' => 'Masukan Alamat anda',
+            'birth_date.required' => 'Tanggal lahir harus diisi',
+            'phone_number.required' => 'No.Handphone harus diisi'
+        ]);
+
         $updated_at = now();
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
     
@@ -295,7 +330,7 @@ class CustomerController extends Controller
     {
 
         $customer_code =app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
-        $favId = ProductFavorite::where('product_daily', $request->product_daily)
+        $favId = ProductFavorite::where('product', $request->product)->where('variant', $request->variant)
         ->where('customer_code', $customer_code)->first();
 
         if($favId){
@@ -311,7 +346,9 @@ class CustomerController extends Controller
             ->leftJoin('rewards_store as rs','rr.reward', '=', 'rs.reward_store_code')
             ->leftJoin('rewards as r', 'rs.reward', '=', 'r.rewards_code')
             ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
+            ->join('store as st', 'rs.store', '=', 'st.store_code')
             ->where('customer', $customer)->orderBy('redeem_date', 'DESC')->get();
+     
         return view('layouts.main_views.customer_views.rewards', compact('rewards'));
     }
 
@@ -320,7 +357,12 @@ class CustomerController extends Controller
     public function redeem_reward(Request $request)
     {
         $request->validate([
-            'pickup_schedule' => 'required'
+            'pickup_schedule' => 'required',
+            'store' => 'required'
+        ],
+        [
+            'pickup_schedule.required' => 'Jadwal pengambilan harus diisi',
+            'store.required' => 'Pilih dahulu store'
         ]);
 
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
@@ -365,7 +407,7 @@ class CustomerController extends Controller
             ]);
 
             session()->flash('message_success', 'Berhasil Redeem Point!');
-            return redirect()->back();
+            return redirect()->route('rewards-history');
         }
 
 
@@ -385,6 +427,28 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function get_insight(Request $rq)
+    {
+        $defaultPeriode =[
+            '1-7' => 0,
+            '8-14' => 0,
+            '15-akhir' => 0
+        ];
+
+        $customer =  app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
+        $data_trasactions = DB::table('v_insight_transaction')
+        ->where('customer', $customer)->get();
+
+        foreach($data_transactions as $transaction){
+            $defaultPeriode[$transaction->periode] = $transaction->total_grand;
+        }
+
+        $labels = array_keys($defaultPeriode);
+        $data = array_values($defaultPeriode);
+
+        return view('layouts.main_views.customer_views.history-transactions', compact('data', 'labels'));
+
+    }
 
     public function edit(string $id)
     {

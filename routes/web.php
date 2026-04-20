@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\BusinessIntelligence;
+use App\Http\Controllers\Api\CentralStockProductsController;
 use App\Http\Controllers\Api\DailyProducts;
 use App\Http\Controllers\Api\DiscountController;
+use App\Http\Controllers\Api\DistributionProducts;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\HomepageController;
 use App\Http\Controllers\Api\ItemsCategoryController;
+use App\Http\Controllers\Api\ItemsController;
 use App\Http\Controllers\Api\MainApp\CustomerController;
 use App\Http\Controllers\Api\MainApp\HomePageController as MainAppHomePageController;
 use App\Http\Controllers\Api\MainApp\RegisteredCustomer;
@@ -22,12 +25,16 @@ use App\Http\Controllers\Api\ProductionProductController;
 use App\Http\Controllers\Api\StoreOutletController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Api\MasterMainMenu;
+use App\Http\Controllers\Api\PurchaseOrderController;
+use App\Http\Controllers\Api\RawMaterialStore;
+use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\VariantCategory;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\Cors;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProductsController as ControllersProductsController;
 use App\Http\Controllers\ShowProducts;
+use App\Http\Controllers\OmdbApiServices;
 
 
 
@@ -53,6 +60,10 @@ Route::get('promo-detail/{promo_code}', [MainAppHomePageController::class, 'prom
 Route::get('reward-detail/{rewards_code}', [CustomerController::class, 'reward_detail'])->name('reward-detail');
 Route::get('fstore/', [MainAppHomePageController::class, 'filter_store'])->name('fstore');
 
+// for testing get API Eksternal
+Route::get('omdb_services', [OmdbApiServices::class, 'index']);
+Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
+
 Route::middleware('customer')->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile');
     Route::get('profile-menu', [CustomerController::class, 'menu'])->name('profile-menu');
@@ -67,7 +78,7 @@ Route::middleware('customer')->group(function () {
     Route::post('logout_account', [AuthenticatedSessionController::class, 'logout_session_account'])->name('logout_account');
     Route::get('notification', [CustomerController::class, 'notification'])->name('notification');
     Route::put('update_customer/{customer_code}', [CustomerController::class, 'update_customer'])->name('update_customer');
-    Route::delete('remove-favorite/{product_daily}', [CustomerController::class, 'remove_favorite'])->name('remove-favorite');
+    Route::delete('remove-favorite/{product_code}', [CustomerController::class, 'remove_favorite'])->name('remove-favorite');
     Route::post('redeem-reward', [CustomerController::class, 'redeem_reward'])->name('redeem-reward');
     Route::get('rewards-history', [CustomerController::class,'rewards_customer_history'])->name('rewards-history');
     Route::get('get_stock/{rewards_code}', [CustomerController::class,'get_stock'])->name('get_stock');
@@ -123,6 +134,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/products_data', function () {
         return view('pages.product-data');
     })->name('products_data');
+    Route::get('add_ingredients/{product_code}', [ProductsController::class, 'add_ingredients_layouts'])->name('add_ingredients');
+    Route::post('save_ingredients', [ProductsController::class, 'save_ingredients'])->name('save_ingredients');
 
     Route::get('add_product_variant/{product_code}', [ProductsController::class, 'add_product_variant_layout'])->name('add_product_variant');
     Route::get('update_variant/{variant_code}', [ProductsController::class, 'update_variant_layout'])->name('update_variant');
@@ -134,7 +147,7 @@ Route::middleware('auth')->group(function () {
     // DailyProducts Route
     Route::apiResource('master_daily_products', App\Http\Controllers\Api\DailyProducts::class);
     Route::put('daily_product_edit/{daily_code}', [DailyProducts::class, 'update'])->name('daily_product_edit');
-    Route::put('nonactive_daily_product/{daily_code}', [DailyProducts::class, 'nonactive_daily_product'])->name('nonactive_daily_product');
+    Route::put('nonactive_daily_product/{product}', [DailyProducts::class, 'nonactive_daily_product'])->name('nonactive_daily_product');
     Route::get('dailyproduct_create', [DailyProducts::class, 'create'])->name('daily_product_create');
     Route::get('dailyproduct_update/{daily_code}', [DailyProducts::class, 'edit'])->name('dailyproduct_update');
     Route::delete('dailyproduct_delete/{product_code}', [DailyProducts::class, 'destroy'])->name('dailyproduct_delete');
@@ -143,7 +156,7 @@ Route::middleware('auth')->group(function () {
     })->name('dailyproducts_data');
     Route::get('/filter_data', [DailyProducts::class, 'filter'])->name('filter_data');
     Route::delete('dailyproduct_delete_variant/{variant_code}', [DailyProducts::class, 'delete_variant'])->name('dailyproduct_delete_variant');
-    Route::get('get_stock_product/{production_code}', [DailyProducts::class, 'get_stock']);
+    Route::get('get_stock_product/{distribution_store}', [DailyProducts::class, 'get_stock']);
 
     // Route Promo Campign
     Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class);
@@ -191,6 +204,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/raw_material', function () {
         return view('pages.raw_material');
     })->name('raw_material');
+    Route::get('history_raw_material/{material_code}', [RawMaterialController::class, 'history_raw_material'])->name('history_raw_material');
+    Route::get('raw_material_usages/{material_code}', [RawMaterialController::class, 'raw_material_usages'])->name('raw_material_usages');
+
+
+    // Raw Material Store
+    Route::apiResource('raw_material_store', App\Http\Controllers\Api\RawMaterialStore::class);
+    Route::get('raw_store_create', [RawMaterialStore::class , 'create'])->name('raw_store_create');
+
+    // Items
+    Route::apiResource('master_items', App\Http\Controllers\Api\ItemsController::class);
+    Route::get('item_create', [ItemsController::class, 'create'])->name('item_create');
+    Route::get('item_update/{item_code}', [ItemsController::class, 'update_layout'])->name('item_update');
+     Route::put('edit_item/{item_code}', [ItemsController::class, 'edit_item'])->name('edit_item');
+
+    // Purchase Order Routes
+    Route::apiResource('purchase_order', App\Http\Controllers\Api\PurchaseOrderController::class);
+    Route::get('po_create', [PurchaseOrderController::class, 'create'])->name('po_create');
+    Route::get('get_category/{supplier}', [PurchaseOrderController::class, 'get_category']);
+    Route::get('purchase_detail/{purchase_code}', [PurchaseOrderController::class, 'get_detail'])->name('purchase_detail');
 
     // Production Product Route
     Route::apiResource('master_production_product', App\Http\Controllers\Api\ProductionProductController::class);
@@ -204,18 +236,35 @@ Route::middleware('auth')->group(function () {
     Route::get('/production_products', function () {
         return view('pages.production_product');
     })->name('production_products');
-    Route::get('/production_store', [ProductionProductController::class, 'filter_production'])->name('production_store');
+    Route::get('production-detail/{production_code}', [ProductionProductController::class,'production_detail'])->name('production-detail');
+    Route::put('production_detail_update/{id}', [ProductionProductController::class,'production_detail_update'])->name('production_detail_update');
+    Route::get('/filter_production_product', [ProductionProductController::class, 'filter_production'])->name('filter_production_product');
     Route::get('get_variant/{product}', [ProductionProductController::class,'get_variant']);
     Route::get('get_variant_code/{product}/{variant}', [ProductionProductController::class, 'get_variant_code']);
+    Route::get('get_ingredients/{product}', [ProductionProductController::class, 'get_ingredients']);
+    Route::get('product-waste-production/{production_id}', [ProductionProductController::class, 'production_waste_create'])->name('product-waste-production');
+    Route::put('production_waste_save/{production_detail_id}', [ProductionProductController::class, 'production_waste_save'])->name('production_waste_save');
+
+    // Central Stock Products
+    Route::apiResource('central_stock_products', App\Http\Controllers\Api\CentralStockProductsController::class);
+
+
+    // Distribution Stock to Stores
+    Route::apiResource('distribution_products', App\Http\Controllers\Api\DistributionProducts::class);
+    Route::get('distribution_create', [ DistributionProducts::class, 'distribution_create'])->name('distribution_create');
+    Route::get('distribution_detail/{distribution_code}', [ DistributionProducts::class, 'distribution_detail_layouts'])->name('distribution_detail');
+    Route::put('distribution_store_update/{distribution_store_code}', [ DistributionProducts::class, 'edit'])->name('distribution_store_update');
 
 
     // Products Waste
     Route::post('product_waste_save', [ProductionProductController::class, 'product_waste_save'])->name('product_waste_save');
     Route::get('product-wastes', [ProductionProductController::class, 'product_waste'])->name('product-wastes');
     Route::get('product-waste-create', [ProductionProductController::class, 'waste_create'])->name('product-waste-create');
+    Route::get('product-waste-distribution/{distribution_store_code}', [ProductionProductController::class, 'waste_distribution_create'])->name('product-waste-distribution');
     Route::delete('waste-delete/{waste_code}', [ProductionProductController::class, 'waste_delete'])->name('waste-delete');
     Route::get('waste-update/{waste_code}', [ProductionProductController::class,'product_waste_update'])->name('waste-update');
     Route::put('product_waste_edit', [ProductionProductController::class, 'product_waste_edit'])->name('product_waste_edit');
+    Route::put('waste_distribution_save/{distribution_code}', [DistributionProducts::class, 'product_waste_distribution_save'])->name('waste_distribution_save');
     Route::get('/filter_wastes', [ProductionProductController::class, 'filter_wastes'])->name('filter_wastes');
     
     // Routes Category
@@ -269,10 +318,23 @@ Route::middleware('auth')->group(function () {
     Route::post('submenu_save', [MasterMainMenu::class, 'submenu_save'])->name('submenu_save');
     Route::get('submenu_list/{id}', [MasterMainMenu::class, 'submenu_list'])->name('submenu_list');
     Route::put('submenu_edit/{id}', [MasterMainMenu::class, 'submenu_edit'])->name('submenu_edit');
+    Route::delete('submenu_delete/{id}', [MasterMainMenu::class, 'submenu_delete'])->name('submenu_delete');
 
     // ROUTE Business Intelligence
     Route::apiResource('business_intelligence', App\Http\Controllers\Api\BusinessIntelligence::class);
     Route::get('data_analytics', [BusinessIntelligence::class, 'data_analytics_layouts'])->name('data_analytics');
+    Route::get('sales_performance', [BusinessIntelligence::class, 'sales_performance'])->name('sales_performance');
+
+    // Route for Supplier
+    Route::apiResource('supplier', App\Http\Controllers\Api\SupplierController::class);
+    Route::get('supplier_create', [SupplierController::class, 'create'])->name('supplier_create');
+    Route::get('supplier_update/{supplier_code}', [SupplierController::class, 'update_layouts'])->name('supplier_update');
+    Route::put('supplier_edit/{supplier_code}', [SupplierController::class, 'edit'])->name('supplier_edit');
+    Route::get('supplier_category', [SupplierController::class, 'supplier_category'])->name('supplier_category');
+    Route::get('category_supplier_create', [SupplierController::class, 'category_supplier_layouts'])->name('category_supplier_create');
+    Route::post('category_supplier_save', [SupplierController::class, 'category_supplier_save'])->name('category_supplier_save');
+    Route::get('category_supplier_update/{id}', [SupplierController::class, 'category_supplier_update'])->name('category_supplier_update');
+    Route::put('category_supplier_edit/{id}', [SupplierController::class, 'category_supplier_edit'])->name('category_supplier_edit');
 });
 
 require __DIR__ . '/auth.php';

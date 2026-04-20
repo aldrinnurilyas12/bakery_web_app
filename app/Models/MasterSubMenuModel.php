@@ -14,6 +14,7 @@ class MasterSubMenuModel extends Model
         'submenu_link',
         'main_menu',
         'icon',
-        'status'
+        'status',
+        'description'
     ];
 }

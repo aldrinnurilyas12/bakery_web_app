@@ -66,7 +66,7 @@ class EmployeeController extends Controller
             'start_date.required' => 'Tanggal masuk harus diisi'
         ]);
 
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $data = EmployeeModel::create([
             'nik' => $request->nik,
             'name' =>$request->name,
@@ -149,7 +149,7 @@ class EmployeeController extends Controller
         ]);
 
         
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $update_data = DB::table('employee')->where('nik', $request->nik)->update([
             'nik' => $request->nik,
             'name' =>$request->name,
@@ -175,7 +175,7 @@ class EmployeeController extends Controller
 
     public function update_user_profile(Request $request)
     {
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $update_data = DB::table('employee')->where('nik', $request->nik)->update([
             'name' =>$request->name,
             'address' => $request->address,
@@ -199,7 +199,7 @@ class EmployeeController extends Controller
      */
     public function employee_nonactive(Request $request)
     {
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         EmployeeModel::where('nik', $request->nik)->update([
             'status' => $request->status,
             'deleted_at' => now(),

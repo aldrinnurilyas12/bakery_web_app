@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+
 </head>
 
 <body class="sb-nav-fixed">
@@ -23,8 +25,8 @@
                     <hr>
 
                     @if (request()->routeIs('rewards_master_update'))
-                        <form action="{{ route('rewards_edit', $rewards->rewards_code) }}" method="POST"
-                            enctype="multipart/form-data">
+                        <form id="formGeneralMaster" action="{{ route('rewards_edit', $rewards->rewards_code) }}"
+                            method="POST" enctype="multipart/form-data">
                             @csrf
                             @METHOD('PUT')
                             <div class="form-group">
@@ -85,10 +87,13 @@
                                 <input type="text" class="form-control" value="{{ $rewards->updated_by ?: '-' }}"
                                     readonly>
                             </div>
-                            <button type="submit" class="btn btn-primary">Simpan Reward</button>
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                    Data</span>
+                                <span class="spinner"></span></button>
                         </form>
                     @else
-                        <form action="{{ route('rewards_update_store', $rewards->reward_store_code) }}" method="POST"
+                        <form id="formGeneralMaster"
+                            action="{{ route('rewards_update_store', $rewards->reward_store_code) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
                             @METHOD('PUT')
@@ -115,8 +120,8 @@
 
                             <div class="form-group">
                                 <label><strong>Jumlah point</strong></label>
-                                <input type="number" name="point" class="form-control" value="{{ $rewards->point }}"
-                                    autocomplete="off" readonly>
+                                <input type="number" name="point" class="form-control"
+                                    value="{{ $rewards->point }}" autocomplete="off" readonly>
                                 <x-input-error :messages="$errors->get('point')" class="text-danger" />
                             </div>
 
@@ -149,7 +154,9 @@
                                 <input type="text" class="form-control" value="{{ $rewards->updated_by ?: '-' }}"
                                     readonly>
                             </div>
-                            <button type="submit" class="btn btn-primary">Simpan Reward</button>
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                    Data</span>
+                                <span class="spinner"></span></button>
                         </form>
                     @endif
                     <br>
@@ -157,6 +164,7 @@
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

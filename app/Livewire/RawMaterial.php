@@ -10,9 +10,9 @@ class RawMaterial extends Component
     public function render()
     {
         return view('livewire.raw-material', [
-            'raw_material' => DB::table('raw_material as rm')
-                            ->leftJoin('status_category as s','rm.status', '=', 's.id')
-                            ->leftJoin('raw_material_category as ctg', 'rm.material_category', '=', 'ctg.id')->get()
+            'raw_material' => DB::table('v_raw_material')->get(),
+            'store' => DB::table('store')->get(),
+            'raw_material_usages_store' => DB::table('v_raw_material_usages_store')->get()
         ]);
     }
 }

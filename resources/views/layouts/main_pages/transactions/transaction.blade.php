@@ -36,30 +36,6 @@
                                 </div>
                             @endif
 
-                            @php
-                                $show_items = DB::table('transactions_detail as td')
-                                    ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
-                                    ->leftJoin('v_daily_products as vdp', 'td.product', '=', 'vdp.daily_code')
-                                    ->get();
-
-                                $transaction_with_items = DB::table('transactions_detail as td')
-                                    ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
-                                    ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
-                                    ->select('td.transaction_code')
-                                    ->distinct()
-                                    ->pluck('td.transaction_code')
-                                    ->toArray();
-
-                                $session_user = app(
-                                    'App\Http\Controllers\Auth\AuthenticatedSessionController',
-                                )->getUsers();
-                                $user_permission_forbidden = in_array($session_user->role_name, [
-                                    'Supervisor',
-                                    'Manager',
-                                ]);
-
-                            @endphp
-
                         </div>
                         <hr>
                         <div class="card-header">
@@ -70,22 +46,43 @@
                                     <div style="display: flex; gap:10px;" class="d-flex-container-filter">
                                         <form action="{{ route('filter_transaction') }}" method="GET">
                                             <div style="display:flex;gap:20px;" class="d-flex-content">
-                                                <select style="width:max-content;" name="filter_transaction"
-                                                    id="" class="form-control">
-                                                    <option value="">=== Pilih Data ===</option>
-                                                    <option value="today"
-                                                        {{ request('filter_transaction') == 'today' ? 'selected' : '' }}>
-                                                        Hari ini</option>
-                                                    <option value="week"
-                                                        {{ request('filter_transaction') == 'week' ? 'selected' : '' }}>
-                                                        Minggu ini</option>
-                                                    <option value="month"
-                                                        {{ request('filter_transaction') == 'month' ? 'selected' : '' }}>
-                                                        Bulan ini</option>
-                                                </select>
+                                                <div class="filter-date">
+                                                    <select style="width:max-content;" name="filter_transaction"
+                                                        id="" class="form-control">
+                                                        <option value="">=== Pilih Data ===</option>
+                                                        <option value="today"
+                                                            {{ request('filter_transaction') == 'today' ? 'selected' : '' }}>
+                                                            Hari ini</option>
+                                                        <option value="week"
+                                                            {{ request('filter_transaction') == 'week' ? 'selected' : '' }}>
+                                                            Minggu ini</option>
+                                                        <option value="month"
+                                                            {{ request('filter_transaction') == 'month' ? 'selected' : '' }}>
+                                                            Bulan ini</option>
+                                                        <option value="year"
+                                                            {{ request('filter_transaction') == 'year' ? 'selected' : '' }}>
+                                                            Tahun ini</option>
+                                                    </select>
+                                                </div>
+
+                                                @if (in_array(app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_id, [1, 2]))
+                                                    <div class="filter-store">
+                                                        <select class="form-control" name="store" id="">
+                                                            <option value="">=== Pilih Store ===</option>
+                                                            @foreach ($stores as $st)
+                                                                <option value="{{ $st->store_code }}"
+                                                                    {{ request('store') == $st->store_code ? 'selected' : '' }}>
+                                                                    {{ $st->store_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                @endif
                                                 <button class="btn btn-primary">Pilih</button>
                                             </div>
                                         </form>
+
+
+
 
                                         <div class="excel-file">
                                             <form action="{{ route('export_transaction_excel') }}" method="POST">
@@ -152,10 +149,22 @@
                                                             {{ $transaction->transaction_code }}</a>
                                                     </td>
                                                     <td>{{ $transaction->transaction_date }}</td>
-                                                    <td>{{ $transaction->quantity_per_product }}</td>
+                                                    <td>{{ $transaction->total_qty }}</td>
                                                     <td>{{ $transaction->payment_type }}</td>
-                                                    <td>{{ 'Rp' . number_format($transaction->total_amount) }}</td>
-                                                    <td>{{ 'Rp' . number_format($transaction->payment_changes) }}</td>
+                                                    <td>
+                                                        @if ($transaction->payment_type == 'Cash/Tunai')
+                                                            {{ 'Rp' . number_format($transaction->total_amount) }}
+                                                        @else
+                                                            <span>-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($transaction->payment_type == 'Cash/Tunai')
+                                                            {{ 'Rp' . number_format($transaction->payment_changes) }}
+                                                        @else
+                                                            <span>-</span>
+                                                        @endif
+                                                    </td>
                                                     <td>{{ 'Rp' . number_format($transaction->grand_total) }}</td>
                                                     <td>
                                                         @if ($transaction->customer)

@@ -8,6 +8,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 
@@ -40,25 +41,29 @@
                     <div class="card-header">
                         <div class="title">
                             <div class="filter-data">
-                                <label for=""><strong>Pilih Store</strong></label>
+                                <label for=""><strong>Filter Produksi Produk</strong></label>
                                 <br>
                                 <div style="display: flex; gap:10px;margin-top:5px;" class="d-flex-container-filter">
-                                    <form action="{{ route('production_store') }}" method="GET">
+                                    <form action="{{ route('filter_production_product') }}" method="GET">
                                         <div style="display:flex;gap:20px;" class="d-flex-content">
-                                            <select style="width:max-content;" name="fstore" id=""
-                                                class="form-control">
-                                                <option value="">=== Pilih Data ===</option>
-                                                <option value="all"
-                                                    {{ request('filter') == 'all' ? 'selected' : '' }}>
-                                                    Semua Store
-                                                </option>
-                                                @foreach ($store as $shop)
-                                                    <option value="{{ $shop->store_code }}"
-                                                        {{ request('filter') == $shop->id ? 'selected' : '' }}>
-                                                        {{ $shop->store_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <div class="filter-date">
+                                                <select style="width:max-content;" name="filter_date" id=""
+                                                    class="form-control">
+                                                    <option value="">=== Pilih Data ===</option>
+                                                    <option value="today"
+                                                        {{ request('filter_date') == 'today' ? 'selected' : '' }}>
+                                                        Hari ini</option>
+                                                    <option value="week"
+                                                        {{ request('filter_date') == 'week' ? 'selected' : '' }}>
+                                                        Minggu ini</option>
+                                                    <option value="month"
+                                                        {{ request('filter_date') == 'month' ? 'selected' : '' }}>
+                                                        Bulan ini</option>
+                                                    <option value="year"
+                                                        {{ request('filter_date') == 'year' ? 'selected' : '' }}>
+                                                        Tahun ini</option>
+                                                </select>
+                                            </div>
                                             <button class="btn btn-primary">Pilih</button>
                                         </div>
                                     </form>
@@ -66,8 +71,8 @@
                                     {{-- <div class="excel-file">
                                      <form action="{{ route('export_transaction_excel') }}" method="POST">
                                          @csrf
-                                         <input type="hidden" name="filter_transaction"
-                                             value="{{ request('filter_transaction') }}">
+                                         <input type="hidden" name="filter_date"
+                                             value="{{ request('filter_date') }}">
                                          <button type="submit" class="btn btn-success">
                                              <i class="fas fa-file-excel"></i>
                                              &nbsp; Excel
@@ -89,16 +94,13 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                @if (!$user_permission_forbidden)
-                                                    <th>Aksi</th>
-                                                @endif
+                                                <th>Produk</th>
                                                 <th>Bahan Baku</th>
                                                 <th>Kode Produksi</th>
-                                                <th>Produk</th>
+                                                <th>Biaya Produksi</th>
                                                 <th>Target Produksi Produk</th>
                                                 <th>Tipe Produksi</th>
                                                 <th>Status</th>
-                                                <th>Store</th>
                                                 <th>Deskripsi</th>
                                                 <th>Tanggal Produksi</th>
                                                 <th>Created at</th>
@@ -115,26 +117,21 @@
                                             @foreach ($production_products as $raw)
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
-                                                    @if (!$user_permission_forbidden)
-                                                        <td>
-                                                            <div style="display: flex; gap:10px;" class="btn-action">
-                                                                <a
-                                                                    href="{{ route('production_update', $raw->production_code) }}"><i
-                                                                        class="fas fa-edit"></i></a>
 
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteModal{{ $raw->production_code }}"><i
-                                                                        class="fas fa-trash"></i></a>
-                                                            </div>
-                                                        </td>
-                                                    @endif
+                                                    <td>
+                                                        <a
+                                                            href="{{ route('production-detail', $raw->production_code) }}"><i
+                                                                class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                                                    </td>
                                                     <td>
                                                         <a href="#" data-toggle="modal"
                                                             data-target="#showRaw{{ $raw->production_code }}"><i
                                                                 class="fa fa-eye"></i></a>
                                                     </td>
                                                     <td>{{ $raw->production_code }}</td>
-                                                    <td>{{ $raw->product }}</td>
+
+                                                    <td>{{ 'Rp.' . number_format($raw->total_cost) }}</td>
+
                                                     <td>
 
                                                         <table style="font-size: 14px; color:black;"
@@ -142,7 +139,7 @@
                                                             cellspacing="0">
 
                                                             <tr>
-
+                                                                <th>Total Produk</th>
                                                                 <th>Total Target </th>
                                                                 <th>Total Actual</th>
                                                                 <th>Total Reject</th>
@@ -150,18 +147,26 @@
                                                             </tr>
 
                                                             <tr>
+                                                                <td>{{ $raw->product_total }}</td>
                                                                 <td>{{ $raw->target_total }}</td>
-                                                                <td>{{ $raw->actual_quantity }}</td>
-                                                                <td>{{ $raw->reject_quantity }}</td>
+                                                                <td>
+                                                                    @if ($raw->actual_quantity)
+                                                                        {{ $raw->actual_quantity }}
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if ($raw->reject_quantity)
+                                                                        {{ $raw->reject_quantity }}
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
                                                             </tr>
 
                                                         </table>
-                                                        @if ($raw->status == 'Completed')
-                                                        @else
-                                                            <a class="text-info" href="#" data-toggle="modal"
-                                                                data-target="#editStatus{{ $raw->production_code }}">Ubah
-                                                                Target</a>
-                                                        @endif
+
 
                                                     </td>
                                                     <td>
@@ -204,13 +209,6 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if ($raw->store_name)
-                                                            {{ $raw->store_name }}
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                    <td>
                                                         @if ($raw->description)
                                                             {{ $raw->description }}
                                                         @else
@@ -237,8 +235,8 @@
                                     <div>
                                         <h3>Belum ada data Produksi Produk</h3>
                                         @if (!$user_permission_forbidden)
-                                            <p class="text-secondary">Tambah data Produksi Produk</p>
-                                            <a class="btn btn-primary" href="{{ 'production_create' }}">Tambah Produksi
+                                            <a class="btn btn-primary" href="{{ 'production_create' }}">Tambah
+                                                Produksi
                                                 Produk</a>
                                         @endif
                                     </div>
@@ -268,10 +266,13 @@
                     <div class="modal-body">Apakah anda yakin ingin menghapus data Produksi Produk
                         [{{ $production->production_code }}]?</div>
                     <div class="modal-footer">
-                        <form action="{{ route('production_delete', $raw->production_code) }}" method="POST">
+                        <form class="form-delete" action="{{ route('production_delete', $raw->production_code) }}"
+                            method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Hapus</button>
+                            <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
+                                    class="btn-text">Hapus</span>
+                                <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
@@ -295,7 +296,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ route('production_reason_cancelled', $production->production_code) }}"
+                        <form id="formGeneralMaster"
+                            action="{{ route('production_reason_cancelled', $production->production_code) }}"
                             method="POST">
                             @csrf
                             @method('PUT')
@@ -311,7 +313,9 @@
                             </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
@@ -392,58 +396,6 @@
         </div>
     @endforeach
 
-    {{-- Modal show change status target produksi --}}
-
-    @foreach ($production_products as $production)
-        <div wire:ignore class="modal fade" id="editStatus{{ $production->production_code }}" tabindex="-1"
-            role="dialog" aria-labelledby="exampleModalLabel{{ $production->production_code }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Ubah data Target Produksi Produk</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('update_target_production', $production->production_code) }}"
-                            method="POST">
-                            @csrf
-                            @method('PUT')
-                            <div class="form-group">
-                                <label for=""><strong>Kode Produksi</strong></label>
-                                <input type="text" value="{{ $production->production_code }}"
-                                    class="form-control" readonly>
-                            </div>
-                            <br>
-                            <div class="form-group">
-                                <label for=""><strong>Target Total Produksi</strong></label>
-                                <input type="text" value="{{ $production->target_total }}" class="form-control"
-                                    readonly>
-                            </div>
-                            <br>
-                            <div class="form-group">
-                                <label for=""><strong>Total Produk Jadi</strong></label>
-                                <input type="number" name="actual_quantity"
-                                    value="{{ $production->actual_quantity }}" class="form-control">
-                            </div>
-                            <br>
-                            <div class="form-group">
-                                <label for=""><strong>Total Produk Gagal</strong></label>
-                                <small>*Masukan 0 jika tidak ada</small>
-                                <input type="number" name="reject_quantity"
-                                    value="{{ $production->reject_quantity }}" class="form-control">
-                            </div>
-                    </div>
-                    <div class="modal-footer">
-
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
 
     {{-- Modal change status produksi --}}
     @foreach ($production_products as $production)
@@ -459,7 +411,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ route('update_production_status', $production->production_code) }}"
+                        <form class="form-general"
+                            action="{{ route('update_production_status', $production->production_code) }}"
                             method="POST">
                             @csrf
                             @method('PUT')
@@ -477,7 +430,7 @@
                             <br>
                             <div class="form-group">
                                 <label for=""><strong>Status Produksi</strong></label>
-                                <select name="status" class="form-control">
+                                <select name="status" class="form-control" required>
                                     <option value="">=== Pilih Status Produksi ===</option>
                                     @foreach ($status as $sts)
                                         <option value="{{ $sts->id }}">{{ $sts->status_name }}</option>
@@ -487,8 +440,9 @@
 
                     </div>
                     <div class="modal-footer">
-
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button class="btn-general" type="submit">
+                            <span class="btn-text">Ubah status produksi</span>
+                            <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
@@ -496,6 +450,7 @@
         </div>
     @endforeach
 
+    <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
     @if (Session::has('message_success'))
         <script>
             Swal.fire({
@@ -517,6 +472,5 @@
             });
         </script>
     @endif
-
 
 </div>

@@ -10,6 +10,7 @@
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -22,19 +23,23 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Daily Produk</h4>
                     <hr>
+                    <div class="card-header">
+                        &nbsp; <a class="btn btn-primary" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                    </div>
+                    <hr>
                     <div style="font-size: 13px;" class="alert alert-info">
                         <ul>
                             <li>Input Product Daily hanya dapat dilakukan setiap jam operasional Store pada pukul
                                 06.00–08.00.</li>
+                            <li>Data Produk akan muncul ketika proses Distribusi Produk dari Central berhasil</li>
                             <li>Perubahan data Product Daily hanya diperbolehkan sebelum pukul 08.30.</li>
                             <li>Input dan perubahan Product Daily hanya dapat dilakukan oleh user dengan role Admin dan
                                 Supervisor.</li>
                             <li>Penghapusan Product Daily hanya dapat dilakukan oleh Admin.</li>
-                            <li>Setiap input dan perubahan Product Daily wajib tercatat siapa yang melakukan dan kapan
-                                dilakukan.</li>
+                            <li>Produk akan muncul ketika masa Produksi Produk sudah selesai</li>
                         </ul>
                     </div>
-                    <form action="{{ route('master_daily_products.store') }}" method="POST"
+                    <form id="formGeneralMaster" action="{{ route('master_daily_products.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
 
@@ -48,18 +53,17 @@
                         <div class="form-group">
                             <label><strong>Produk</strong></label>
                             @if ($products->isNotEmpty())
-                                <select id="productSelect" class="form-control" name="production">
+                                <select id="productSelect" class="form-control" name="distribution_store">
                                     <option value="">==== Pilih Produk ====</option>
                                     @foreach ($products as $item)
-                                        <option value="{{ $item->production_code }}">
-                                            {{ $item->production_code . ' - ' . '[' . $item->product_code . ' - ' . $item->product . ($item->variant_type ? ' - ' . $item->variant_type : '') . ']' }}
+                                        <option value="{{ $item->distribution_store_code }}">
+                                            {{ $item->distribution_store_code . ' - ' . '[' . $item->product . ($item->variant ? ' - ' . $item->variant : '') . ']' }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('production')" class="text-danger" />
                             @else
-                                <p class="text-secondary">Tidak ada Product, <a
-                                        href="{{ route('product_create') }}">Tambah Product</a> </p>
+                                <p class="text-secondary">Produk belum didistribusi pada Store ini </p>
                             @endif
                         </div>
 
@@ -70,7 +74,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label><strong>Masukan jumlah stok</strong></label>
+                                <label><strong>Jumlah stock tersedia</strong></label>
                                 <input type="text" name="stock_available" class="form-control" id="showStock"
                                     value="{{ old('stock_available') }}" placeholder="Stok produk akan muncul"
                                     autocomplete="off" readonly>
@@ -78,8 +82,9 @@
                             </div>
 
                             <div style="display:flex; gap:20px;" class="btn-groupe">
-                                <button type="submit" class="btn btn-primary">Tambah Item</button>
-                                <a class="btn btn-info" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                                <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                        Data</span>
+                                    <span class="spinner"></span></button>
                             </div>
                         @endif
 
@@ -89,6 +94,7 @@
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
@@ -145,8 +151,8 @@
             }
             return response.json();
         }).then(data => {
-            if (data.data.actual_quantity) {
-                document.getElementById('showStock').value = data.data.actual_quantity;
+            if (data.data.received_quantity) {
+                document.getElementById('showStock').value = data.data.received_quantity;
             }
         })
     })

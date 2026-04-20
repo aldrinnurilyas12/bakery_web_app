@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <title>Login Admin Kencana Bakery</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -30,7 +31,7 @@
             </div>
 
 
-            <form action="{{ route('login_exe') }}" method="POST">
+            <form id="formGeneral" action="{{ route('login_exe') }}" method="POST">
                 @csrf
                 <div class="input-group">
                     <label for="">Masukan Email atau Nama Pengguna</label>
@@ -55,7 +56,9 @@
                 @endif
 
                 <div class="button-group">
-                    <button type="submit">Login</button>
+                    <button id="btnGeneral" class="btn-general" type="submit">Login
+                        <span class="spinner"></span>
+                    </button>
                 </div>
 
 
@@ -64,6 +67,7 @@
     </div>
 
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 @if (Session::has('message_success'))
     <script>

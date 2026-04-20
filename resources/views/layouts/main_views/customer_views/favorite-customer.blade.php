@@ -52,10 +52,15 @@
 
                                             <div class="image-overlay">
                                                 <div class="form-favorite">
-                                                    <form action="{{ route('remove-favorite', $item->product_daily) }}"
+                                                    {{-- FIX THIS --}}
+                                                    <form action="{{ route('remove-favorite', $item->product_code) }}"
                                                         method="POST">
                                                         @csrf
                                                         @method('DELETE')
+                                                        <input hidden type="text" name="product"
+                                                            value="{{ $item->product_code }}">
+                                                        <input hidden type="text" name="variant"
+                                                            value="{{ $item->variant_code }}">
                                                         <button type="submit" style="background: none;border: none;"><i
                                                                 style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
                                                                 class="fa-solid fa-heart"></i></button>
@@ -99,9 +104,9 @@
                                             @endif
                                         </div>
                                         <div class="btn-detail">
-                                            @if ($item->variant)
+                                            @if ($item->variant_code)
                                                 <a class="btn-detail-product"
-                                                    href="{{ route('product', $item->variant) }}">detail</a>
+                                                    href="{{ route('product', $item->variant_code) }}">detail</a>
                                             @else
                                                 <a class="btn-detail-product"
                                                     href="{{ route('product', $item->product_code) }}">detail</a>

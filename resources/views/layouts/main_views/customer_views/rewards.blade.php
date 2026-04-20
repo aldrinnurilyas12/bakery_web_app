@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Histori Rewards</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -55,21 +55,31 @@
                                         {{ $reward->redeem_code }}</p>
                                     <p style="font-size: 13px;margin:0;">Tgl Redeem :
                                         {{ $reward->redeem_date }}</p>
-                                    <p>Status:
-                                        @if ($reward->status_name == 'Claimed')
-                                            <span class="text-success">
-                                                {{ $reward->status_name }}
-                                            </span>
-                                        @else
-                                            <span class="text-secondary">
-                                                {{ $reward->status_name }}
-                                            </span>
-                                        @endif
-                                    </p>
                                     @if ($reward->claimed_at)
                                         <p style="font-size: 13px;margin:0;">Tgl Klaim :
                                             {{ $reward->claimed_at }}</p>
                                     @endif
+                                    <p>Status:
+                                        @if ($reward->status_name == 'Claimed')
+                                            <span class="text-success">
+                                                sudah klaim
+                                            </span>
+                                        @else
+                                            <span class="text-secondary">
+                                                belum klaim
+                                            </span>
+                                        @endif
+                                    </p>
+                                    <div style="font-size: 13px;" class="group-date">
+                                        <p>Jadwal Pengambilan</p>
+                                        <div style="display:flex; gap:10px;" class="flex-location">
+                                            <span>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}</span>
+                                            |
+                                            <span>{{ $reward->store_name }}</span>
+                                        </div>
+                                    </div>
+
+
                                 </div>
                             </div>
                             <hr class="hr-menu">

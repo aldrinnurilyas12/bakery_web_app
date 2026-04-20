@@ -10,6 +10,7 @@
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -34,7 +35,8 @@
                                 untuk mencegah kehilangan data transaksi.</li>
                         </ul>
                     </div>
-                    <form action="{{ route('master_rewards.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('master_rewards.store') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
                             <label><strong>Masukan nama reward</strong></label>
@@ -98,7 +100,7 @@
                                                             name="store[{{ $outlet->store_code }}]"
                                                             value="{{ $outlet->store_code }}">
                                                     </td>
-                                                    <td>{{ '[' . $outlet->store_code . '] ' . ' - ' . $outlet->store_name }}
+                                                    <td>{{ $outlet->store_name }}
                                                     </td>
                                                     <td><input class="form-control"
                                                             name="stock[{{ $outlet->store_code }}]" type="number"></td>
@@ -113,13 +115,16 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Tambah Rewards</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

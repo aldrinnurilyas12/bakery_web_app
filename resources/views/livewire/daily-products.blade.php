@@ -8,6 +8,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 
@@ -34,6 +35,17 @@
                         </div>
                     @endif
                 @endif
+            </div>
+            <hr>
+            <div style="font-size: 13px;" class="alert alert-info">
+                <ul>
+                    <li>Produk Daily ini digunakan untuk media promosi kepada pelanggan dan sebagai produk yang
+                        digunakan untuk Transaksi</li>
+                    <li>Produk Daily dapat dihapus jika Produk belum pernah digunakan dalam Transaksi</li>
+                    <li>Produk Daily di input ketika produk sudah selesai Produksi Produk</li>
+                    <li>Produk Daily otomatis nonaktif jika produk sudah sold dan masa expired produk sudah melebihi
+                        batas waktu expired</li>
+                </ul>
             </div>
             @if (!$filter_forbidden_access)
                 <div class="card-header">
@@ -104,9 +116,6 @@
                                             @endif
                                             <div class="content-text">
                                                 <div style="width: 200px;" class="title-text">
-                                                    <h5 style="font-size:14px; margin:0;">
-                                                        #{{ $product->daily_code }}
-                                                    </h5>
                                                     <p style="margin-bottom: 0;">{{ $product->product }}
                                                     </p>
 
@@ -116,7 +125,7 @@
                                                         {{ $product->category }} </p>
 
 
-                                                    @if ($product->variant == null)
+                                                    @if ($product->variant_code == null)
                                                         @if ($product->price_after_discount == 0)
                                                             <p class="price" style="margin: 0;">
                                                                 {{ 'Rp' . number_format($product->price) }}
@@ -164,7 +173,7 @@
                                                     </span> &nbsp;
                                                     <span>Berat:
                                                         {{ $product->product_weight }}</span> &nbsp;
-                                                    @if ($product->variant)
+                                                    @if ($product->variant_code)
                                                         <span>Variant:
                                                             {{ $product->variant_type }}</span>
                                                     @else
@@ -178,13 +187,37 @@
                                                         @endif
                                                     </span>
 
-                                                    <span>Status :
+                                                    <span>Store:
                                                         @if ($product->store_id == 1)
                                                             <small
                                                                 style="color:black;">{{ $product->store_name }}</small>
                                                         @else
                                                             <small
                                                                 style="color:black;">{{ $product->store_name }}</small>
+                                                        @endif
+                                                    </span>
+
+                                                    <span>
+                                                        @if ($product->expired_date)
+                                                            Expired:
+                                                            <small
+                                                                style="color:black;">{{ $product->expired_date }}</small>
+
+
+                                                            @if ($product->expired_status == 'Hampir Expired')
+                                                                <div style="background: none; border: 1px solid rgb(255, 255, 0); border-radius: 2px; padding:2px;width:max-content;font-size:14px;"
+                                                                    class="expired-status">
+                                                                    <small
+                                                                        class="text-warning">{{ $product->expired_status }}</small>
+                                                                </div>
+                                                            @elseif($product->expired_status == 'Sudah Expired')
+                                                                <div style="background: none; border: 1px solid rgb(255, 0, 0); border-radius: 2px; padding:2px;width:max-content;font-size:14px;"
+                                                                    class="expired-status">
+                                                                    <small
+                                                                        class="text-danger">{{ $product->expired_status }}</small>
+                                                                </div>
+                                                            @endif
+                                                        @else
                                                         @endif
                                                     </span>
                                                 </p>
@@ -211,38 +244,62 @@
                                             $canEdit =
                                                 (request('filter') == $store || request('filter') == 'all') &&
                                                 $product->store_id == $store;
+
+                                            $checkTransactionProductExists = DB::table('transactions_detail as td')
+                                                ->join('products_daily as pd', 'td.product', '=', 'pd.daily_code')
+                                                ->first();
+                                            $modalId = $product->variant_code
+                                                ? 'deleteModal' . $product->product_code . '-' . $product->variant_code
+                                                : 'deleteModal' . $product->product_code;
                                         @endphp
 
+                                        {{-- FILTER RESULT --}}
                                         @if (request('filter') == $store)
                                             @if (!$user_permission_forbidden)
-                                                <a class="small text-black"
-                                                    href="{{ route('dailyproduct_update', $product->daily_code) }}">Edit</a>
+                                                <div class="flex-content">
+                                                    <a class="small text-black"
+                                                        href="{{ route('dailyproduct_update', $product->daily_code) }}">Edit</a>
+                                                    @if ($product->daily_code == $checkTransactionProductExists->product)
+                                                    @else
+                                                        <a class="small text-danger"
+                                                            href="{{ route('dailyproduct_update', $product->daily_code) }}">Hapus</a>
+                                                    @endif
+                                                </div>
 
                                                 @if ($product->status == 'Inactive')
                                                     <a class="btn btn-success" href="#" data-toggle="modal"
-                                                        data-target="#deleteModal{{ $product->daily_code }}">Aktifkan
-                                                        Kembali
+                                                        data-target="#{{ $modalId }}">
+                                                        Aktifkan Kembali
                                                     </a>
                                                 @else
                                                     <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                        data-target="#deleteModal{{ $product->daily_code }}">Nonaktif
+                                                        data-target="#{{ $modalId }}">
+                                                        Nonaktif
                                                     </a>
                                                 @endif
                                             @endif
                                         @elseif($filter == 'all')
                                             @if ($canEdit)
                                                 @if (!$user_permission_forbidden)
-                                                    <a class="small text-black"
-                                                        href="{{ route('dailyproduct_update', $product->daily_code) }}">Edit</a>
+                                                    <div class="flex-content">
+                                                        {{-- <a class="small text-black"
+                                                            href="{{ route('dailyproduct_update', $product->daily_code) }}">Edit</a> --}}
+                                                        {{-- @if ($product->daily_code == $checkTransactionProductExists->product)
+                                                        @else --}}
+                                                        {{-- <a class="small text-danger"
+                                                                href="{{ route('dailyproduct_update', $product->daily_code) }}">Hapus</a> --}}
+                                                        {{-- @endif --}}
+                                                    </div>
 
                                                     @if ($product->status == 'Inactive')
                                                         <a class="btn btn-success" href="#" data-toggle="modal"
-                                                            data-target="#deleteModal{{ $product->daily_code }}">Aktifkan
-                                                            Kembali
+                                                            data-target="#{{ $modalId }}">
+                                                            Aktifkan Kembali
                                                         </a>
                                                     @else
                                                         <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                            data-target="#deleteModal{{ $product->daily_code }}">Nonaktif
+                                                            data-target="#{{ $modalId }}">
+                                                            Nonaktif
                                                         </a>
                                                     @endif
                                                 @endif
@@ -251,17 +308,26 @@
                                         @else
                                             @if ($product->store_id == $store)
                                                 @if (!$user_permission_forbidden)
-                                                    <a class="small text-black"
-                                                        href="{{ route('dailyproduct_update', $product->daily_code) }}">Edit</a>
+                                                    <div class="flex-content">
+                                                        {{-- <a class="small text-black"
+                                                            href="{{ route('dailyproduct_update', $product->daily_code) }}">Edit</a> --}}
+                                                        {{-- @if ($product->daily_code == $checkTransactionProductExists->product) --}}
+                                                        {{-- @else --}}
+                                                        {{-- <a class="small text-danger"
+                                                                href="{{ route('dailyproduct_update', $product->daily_code) }}">Hapus</a> --}}
+                                                        {{-- @endif --}}
+                                                    </div>
+
 
                                                     @if ($product->status == 'Inactive')
                                                         <a class="btn btn-success" href="#" data-toggle="modal"
-                                                            data-target="#deleteModal{{ $product->daily_code }}">Aktifkan
-                                                            Kembali
+                                                            data-target="#{{ $modalId }}">
+                                                            Aktifkan Kembali
                                                         </a>
                                                     @else
                                                         <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                            data-target="#deleteModal{{ $product->daily_code }}">Nonaktif
+                                                            data-target="#{{ $modalId }}">
+                                                            Nonaktif
                                                         </a>
                                                     @endif
                                                 @endif
@@ -295,57 +361,83 @@
 
         </div>
     </div>
+
+
+    {{-- MODAL STATUS  --}}
     @foreach ($daily_products as $product)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $product->daily_code }}" tabindex="-1"
-            role="dialog" aria-labelledby="exampleModalLabel{{ $product->daily_code }}" aria-hidden="true">
+        @php
+            $modalId = $product->variant_code
+                ? 'deleteModal' . $product->product_code . '-' . $product->variant_code
+                : 'deleteModal' . $product->product_code;
+        @endphp
+
+        <div wire:ignore class="modal fade" id="{{ $modalId }}" tabindex="-1" role="dialog"
+            aria-hidden="true">
+
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
+
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Data daily produk</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <h5 class="modal-title">
+                            {{ $product->variant_code ? 'Data daily produk' : 'Data daily produk' }}
+                        </h5>
+                        <button class="close" type="button" data-dismiss="modal">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
+
                     <div class="modal-body">
                         @if ($product->status == 'Inactive')
-                            Apakah anda yakin ingin aktifkan produk
-                            {{ $product->product }}
-                            ?
+                            Apakah anda yakin ingin aktifkan produk {{ $product->product }} ?
                         @else
-                            Apakah anda yakin ingin men-Nonaktif produk
-                            {{ $product->product }}
-                            ?
+                            Apakah anda yakin ingin men-Nonaktif produk {{ $product->product }} ?
                         @endif
-                        <br>
-                        <br>
-                        <form method="POST" action="{{ route('nonactive_daily_product', $product->daily_code) }}">
+
+                        <br><br>
+
+                        <form class="form-general" method="POST"
+                            action="{{ route('nonactive_daily_product', $product->product_code) }}">
                             @csrf
                             @method('PUT')
+
+                            <input type="text" hidden name="product" value="{{ $product->product_code }}">
+                            <input type="text" hidden name="variant" value="{{ $product->variant_code }}">
+
                             <div class="form-group">
                                 @if ($product->status == 'Inactive')
-                                    <input type="checkbox" name="status" value="4">
-                                    <label for="">Aktifkan</label>
+                                    <input type="checkbox" name="status" value="4" required>
+                                    <label>Aktifkan</label>
                                 @else
-                                    <input type="checkbox" name="status" value="8">
-                                    <label for="">Nonaktifkan</label>
+                                    <input type="checkbox" name="status" value="8" required>
+                                    <label>Nonaktifkan</label>
                                 @endif
+                                <x-input-error :messages="$errors->get('status')" class="text-danger" />
                             </div>
+
                             <br>
 
                             @if ($product->status == 'Inactive')
-                                <button class="btn btn-primary" type="submit">Aktifkan</button>
+                                <button class="btn-general" type="submit">
+                                    <span class="btn-text">Aktifkan</span>
+                                    <span class="spinner"></span></button>
                             @else
-                                <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                                <button class="btn-general" type="submit">
+                                    <span class="btn-text">Nonaktifkan</span>
+                                    <span class="spinner"></span></button>
                             @endif
 
                         </form>
                     </div>
-                    <div class="modal-footer">
-                    </div>
+
                 </div>
             </div>
         </div>
     @endforeach
+
+
+    {{-- END --}}
+
+    <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
     @if (Session::has('message_success'))
         <script>
             Swal.fire({
@@ -367,4 +459,11 @@
             });
         </script>
     @endif
+
+    <style>
+        .flex-content {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
 </main>

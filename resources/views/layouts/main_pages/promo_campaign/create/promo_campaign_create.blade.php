@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+
 </head>
 
 <body class="sb-nav-fixed">
@@ -34,61 +36,9 @@
 
                         </ul>
                     </div>
-                    <form action="{{ route('master_promo_campaign.store') }}" method="POST"
+                    <form id="formGeneralMaster" action="{{ route('master_promo_campaign.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
-                        <div class="form-group">
-                            <label><strong>Pilih Produk</strong></label>
-                            <div style="color: black; height: 300px;background: white;overflow: auto;"
-                                class="modal-body">
-                                <div class="table-responsive">
-                                    <table style="font-size: 14px; color:black;" class="table" id="dataTable"
-                                        width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Pilih</th>
-                                                <th>Nama Product</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            <?php $no = 1; ?>
-                                            @foreach ($products as $prd)
-                                                <tr>
-                                                    <td><?php echo $no++; ?></td>
-                                                    <td>
-
-                                                        {{-- PERBAIKI BAGIAN INI --}}
-                                                        @if ($prd->variant_code)
-                                                            <input class="allowed-checkbox" type="checkbox"
-                                                                name="product[]" value="{{ $prd->product_code }}"
-                                                                hidden>
-                                                            <input class="allowed-checkbox" type="checkbox"
-                                                                name="variant[]" value="{{ $prd->variant_code }}">
-                                                        @else
-                                                            <input class="allowed-checkbox" type="checkbox"
-                                                                name="product[]" value="{{ $prd->product_code }}">
-                                                        @endif
-
-                                                    </td>
-                                                    <td>
-                                                        @if ($prd->variant_code)
-                                                            {{ '[' . $prd->variant_code . '] ' . ' - ' . $prd->product }}
-                                                        @else
-                                                            {{ '[' . $prd->product_code . '] ' . ' - ' . $prd->product }}
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $prd->status }}</td>
-                                                </tr>
-                                            @endforeach
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="form-group">
                             <label style="margin: 0;"><strong>Masukan kode promo</strong></label>
@@ -155,13 +105,17 @@
                             <input type="file" name="images" class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('images')" class="text-danger" />
                         </div>
-                        <button type="submit" class="btn btn-primary">Tambah Promo</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
+
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

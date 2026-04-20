@@ -11,10 +11,9 @@ class ProductFavorite extends Model
 
     protected $table = 'products_favorite';
     protected $fillable = [
-        'product_daily',
+        'product',
+        'variant',
         'customer_code',
-        'product_code',
-        'variant_code',
         'favorite'
 
     ];

@@ -1,7 +1,7 @@
 @extends('layouts.main_views.auth.auth')
 
 @section('title', 'Kencana Bakery | Login')
-
+<link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 @section('content')
     <div style="display: flex; justify-content: center;" class="d-flex-center">
         <div class="img-logo">
@@ -13,7 +13,7 @@
         <h2 style="font-weight: bold;font-size: 20px;">Login</h2>
     </div>
 
-    <form method="POST" action="{{ route('login_execute') }}">
+    <form id="formGeneral" method="POST" action="{{ route('login_execute') }}">
         @csrf
 
         <div class="form-group">
@@ -27,8 +27,10 @@
             <input type="password" name="password" placeholder="Masukan password anda" required autocomplete="off">
         </div>
 
-        <button type="submit">Login</button>
+        <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Login</span>
+            <span class="spinner"></span></button>
     </form>
+    <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
     @if ($errors->get('login'))
         <div class="alert alert-warning">

@@ -59,6 +59,7 @@
                                                 <th>Submenu Link</th>
                                                 <th>Status</th>
                                                 <th>Icon</th>
+                                                <th>Status</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -78,9 +79,9 @@
                                                                     href="{{ route('submenu_update', $sub->submenu_id) }}"><i
                                                                         class="fas fa-edit"></i></a>
 
-                                                                {{-- <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteModal{{ $sub->id }}"><i
-                                                                        class="fas fa-trash"></i></a> --}}
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#deleteModal{{ $sub->submenu_id }}"><i
+                                                                        class="fas fa-trash"></i></a>
                                                             </div>
                                                         </td>
                                                     @endif
@@ -96,6 +97,7 @@
                                                     </td>
                                                     <td><i class="{{ $sub->icon }} "></i>
                                                     </td>
+                                                    <td>{{ $sub->description ?: '-' }}</td>
                                                     <td>{{ $sub->created_at }}</td>
                                                     <td>{{ $sub->updated_at }}</td>
                                                 </tr>
@@ -133,21 +135,21 @@
         </div>
     </div>
 
-    {{-- @foreach ($submenu as $sub)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $sub->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $sub->id }}" aria-hidden="true">
+    @foreach ($submenu as $sub)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $sub->submenu_id }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $sub->submenu_id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data kategori produk</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data Submenu {{ $sub->submenu_name }}</h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">Apakah anda yakin ingin menghapus Kategori
-                        {{ $sub->category_name }} ?</div>
+                    <div class="modal-body">Apakah anda yakin ingin menghapus Submenu
+                        {{ $sub->submenu_name }} ?</div>
                     <div class="modal-footer">
-                        <form action="{{ route('master_category.destroy', $sub->id) }}" method="POST">
+                        <form action="{{ route('submenu_delete', $sub->submenu_id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">Hapus</button>
@@ -156,7 +158,7 @@
                 </div>
             </div>
         </div>
-    @endforeach --}}
+    @endforeach
 </body>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

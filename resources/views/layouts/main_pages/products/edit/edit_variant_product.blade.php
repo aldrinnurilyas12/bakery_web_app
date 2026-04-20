@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Ubah Variant Produk</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -19,8 +20,8 @@
                 <br>
                 <div class="container-fluid px-4">
                     <h4>Ubah Data Variant Produk</h4>
-                    <form action="{{ route('edit_variant', $variant->variant_code) }}" method="POST"
-                        enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('edit_variant', $variant->variant_code) }}"
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @METHOD('PUT')
                         <hr>
@@ -43,31 +44,22 @@
                             <div class="form-group">
                                 <label><strong>Tipe Variant</strong></label>
                                 <select name="variant_type" class="form-control">
-                                    <option value="ice" {{ $variant->variant_type == 'ice' ? 'selected' : '' }}>
-                                        Ice
-                                    </option>
-
-                                    <option value="hot" {{ $variant->variant_type == 'hot' ? 'selected' : '' }}>
-                                        Hot
-                                    </option>
+                                    @foreach ($variant_category_drink as $item)
+                                        <option value="{{ $item->id }}"
+                                            {{ $item->id == $variant->variant_type ? 'selected' : '' }}>
+                                            {{ $item->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         @else
                             <div class="form-group">
                                 <label><strong>Tipe Variant</strong></label>
                                 <select name="variant_type" class="form-control">
-                                    <option value="">=== Pilih tipe variant ===</option>
-                                    <option value="small" {{ $variant->variant_type == 'small' ? 'selected' : '' }}>
-                                        Small
-                                    </option>
-
-                                    <option value="small" {{ $variant->variant_type == 'medium' ? 'selected' : '' }}>
-                                        Medium
-                                    </option>
-
-                                    <option value="large" {{ $variant->variant_type == 'large' ? 'selected' : '' }}>
-                                        Large
-                                    </option>
+                                    @foreach ($variant_category_food as $item)
+                                        <option value="{{ $item->id }}"
+                                            {{ $item->id == $variant->variant_type ? 'selected' : '' }}>
+                                            {{ $item->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         @endif
@@ -76,6 +68,7 @@
                             <label><strong>Harga Variant Produk</strong></label>
                             <input type="text" inputmode="numeric" name="variant_price" class="form-control"
                                 value="{{ $variant->variant_price }}">
+                            <x-input-error :messages="$errors->get('variant_price')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
@@ -91,9 +84,9 @@
                         </div>
 
 
-                        <div style="display: flex; gap:20px;" class="button-groupe">
-                            <button type="submit" class="btn btn-primary">Simpan Data</button>
-                        </div>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
@@ -105,6 +98,7 @@
         </div>
     </div>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');

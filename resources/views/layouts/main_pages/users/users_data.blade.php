@@ -14,6 +14,8 @@
     <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
@@ -183,13 +185,15 @@
                     <div class="modal-body">Hapus Akun Pengguna
                         :{{ '[' . $user->nik . ']' . ' - ' . $user->username }}
                         <br>
-                        <form action="{{ route('users_delete', $user->id) }}" method="POST">
+                        <form class="form-delete" action="{{ route('users_delete', $user->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
 
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" type="submit">Hapus Akun</button>
+                        <button type="submit" class="btn-general-delete"><span class="btn-text">Hapus akun
+                                pengguna</span>
+                            <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
@@ -271,6 +275,7 @@
 
 
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 @if (Session::has('message_success'))
     <script>

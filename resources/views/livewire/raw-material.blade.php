@@ -1,4 +1,5 @@
-<title>@yield('title', 'Kencana Bakery - Master Data Bahan Baku')</title>
+<title>
+    @yield('title', 'Kencana Bakery - Master Data Bahan Baku')</title>
 <div>
     <main>
         @php
@@ -23,6 +24,13 @@
                     @endif
                 </div>
 
+                <div class="card-header">
+
+                    <a href="#" data-toggle="modal" data-target="#showInfoPrice"> <i
+                            class="fa fa-info-circle"></i>
+                        ketentuan harga bahan baku</a>
+                </div>
+
                 <div class="card-body">
                     <div wire:poll.keep.alive.2s>
 
@@ -34,13 +42,15 @@
                                             <th>No</th>
                                             @if (!$user_permission_forbidden)
                                                 <th>Aksi</th>
+                                                <th>Lainnya</th>
                                             @endif
                                             <th>Kode Bahan Baku</th>
                                             <th>Bahan Baku</th>
                                             <th>Stok</th>
+                                            <th>Harga
+                                            </th>
                                             <th>Massa</th>
                                             <th>Status</th>
-                                            <th>Harga</th>
                                             <th>Kategori</th>
                                             <th>Tanggal Expired</th>
                                             <th>Created at</th>
@@ -69,19 +79,48 @@
                                                                     class="fa fa-trash"></i></a>
                                                         </div>
                                                     </td>
+
+                                                    <td>
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+                                                                <th>Penggunaan</th>
+                                                                <th>Riwayat PO</th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td> <a
+                                                                        href="{{ route('raw_material_usages', $raw->material_code) }}"><i
+                                                                            class="fas fa-eye"></i></a>
+                                                                </td>
+                                                                <td> <a
+                                                                        href="{{ route('history_raw_material', $raw->material_code) }}"><i
+                                                                            class="fas fa-list"></i></a></td>
+                                                            </tr>
+
+                                                        </table>
+                                                    </td>
                                                 @endif
                                                 <td>{{ $raw->material_code }}</td>
                                                 <td>{{ $raw->material_name }}</td>
                                                 <td>{{ $raw->quantity }}</td>
+                                                <td>
+                                                    @if ($raw->price == null)
+                                                        <span>-</span>
+                                                    @else
+                                                        {{ 'Rp.' . number_format($raw->price) }}
+                                                    @endif
+                                                </td>
                                                 <td>{{ $raw->material_type }}</td>
                                                 <td>
-                                                    @if ($raw->status == 4)
+                                                    @if ($raw->status_name == 'Ready')
                                                         <p class="text-success">Ready </p>
                                                     @else
                                                         <p class="text-danger">Kosong </p>
                                                     @endif
                                                 </td>
-                                                <td>{{ 'Rp.' . number_format($raw->price) }}</td>
                                                 <td>{{ $raw->category_name }}</td>
                                                 <td>{{ $raw->expired_date }}</td>
                                                 <td>{{ $raw->created_at }}</td>
@@ -118,6 +157,75 @@
         </div>
     </main>
 
+
+
+    @foreach ($raw_material_usages_store as $raw)
+        <div wire:ignore class="modal fade" id="showUsedStore{{ $raw->material_code }}" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel{{ $raw->material_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Penggunaan Bahan Baku by Store</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-header">
+                        <p[] class="modal-title" id="exampleModalLabel">Bahan Baku :
+                            <strong>{{ $raw->material_name }}</strong></p>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table" id="dataTable" width="100%" cellspacing="0" wire:ignore>
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Store</th>
+                                        <th>Total Penggunaan</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @php $no = 1; @endphp
+
+                                    @foreach ($store as $st)
+                                        @php
+                                            $used = $raw_material_usages_store
+                                                ->where('material_code', $raw->material_code)
+                                                ->where('store_name', $st->store_name)
+                                                ->first();
+                                        @endphp
+
+                                        <tr>
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $st->store_name }}</td>
+                                            <td>{{ $used->total_used ?? 0 }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <div wire:ignore class="modal fade" id="showInfoPrice" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <h5>Harga Bahan Baku mengikuti harga terbaru saat Purchase Order bahan baku.</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     @foreach ($raw_material as $raw)
         <div wire:ignore class="modal fade" id="deleteModal{{ $raw->material_code }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel{{ $raw->material_code }}" aria-hidden="true">
@@ -133,16 +241,20 @@
                         {{ $raw->material_code . '  - ' . $raw->material_name }}?
                     </div>
                     <div class="modal-footer">
-                        <form action="{{ route('material_delete', $raw->material_code) }}" method="POST">
+                        <form class="form-delete" action="{{ route('material_delete', $raw->material_code) }}"
+                            method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Hapus</button>
+                            <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
+                                    class="btn-text">Hapus</span>
+                                <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     @endforeach
+    <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
     @if (Session::has('message_success'))
         <script>

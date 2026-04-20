@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Ubah data Promo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
@@ -21,22 +22,10 @@
                 <div class="container-fluid px-4">
                     <h4>Ubah Data Promo Campaign</h4>
                     <hr>
-                    <form action="{{ route('promo_edit', $promo->promo_code) }}" method="POST"
+                    <form id="formGeneralMaster" action="{{ route('promo_edit', $promo->promo_code) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @METHOD('PUT')
-                        <div class="form-group">
-                            <label><strong>Produk</strong></label>
-                            <select class="form-control" name="product" id="">
-                                @foreach ($products as $item)
-                                    <option value="{{ $item->product_code }}"
-                                        {{ $item->product == $promo->product ? 'selected' : '' }}>
-                                        {{ $item->product }}
-                                    </option>
-                                @endforeach
-                            </select>
-
-                        </div>
 
                         <div class="form-group">
                             <label><strong>Kode promo</strong></label>
@@ -112,13 +101,16 @@
                             <input type="text" class="form-control" value="{{ $promo->updated_by ?: '-' }}"
                                 readonly>
                         </div>
-                        <button type="submit" class="btn btn-primary">Tambah Promo</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

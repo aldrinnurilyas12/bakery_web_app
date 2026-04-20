@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Home</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
@@ -89,64 +89,56 @@
             @endphp
 
             <!-- PROMO -->
-            <div class="container">
-                <div class="container-content-promo">
-                    <div class="title-content d-flex mb-2">
-                        <h1 class="title">Best Deals</h1>
-                        <a style="color:#bb0239;text-decoration: underline;" href="{{ route('promo-campaign') }}">lihat
-                            semua</a>
-                    </div>
-                    <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            @forelse ($promos as $index => $promo)
-                                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="card-promo">
-                                            <a style="text-decoration: none;"
-                                                href="{{ route('promo-detail', $promo->promo_code) }}">
-                                                <div class="card-body-promo">
-                                                    <p style="color:#bb0239;">
-                                                        {{ $promo->promo_code }}
-                                                    </p>
-
-                                                    <h5 style="color:black;" class="card-title">
-                                                        {{ $promo->promo_name }}
-                                                    </h5>
-
-                                                    <p class="text-secondary">
-                                                        {{ \Carbon\Carbon::parse($promo->start_date)->format('d M Y') }}
-                                                        s.d
-                                                        {{ \Carbon\Carbon::parse($promo->end_date)->format('d M Y') }}
-                                                    </p>
-
-                                                </div>
-                                            </a>
+            @if ($promos->isNotEmpty())
+                <div class="container">
+                    <div class="container-content-promo">
+                        <div class="title-content d-flex mb-2">
+                            <h1 class="title">Best Deals</h1>
+                            <a style="color:#bb0239;text-decoration: underline;"
+                                href="{{ route('promo-campaign') }}">lihat
+                                semua</a>
+                        </div>
+                        <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                @forelse ($promos as $index => $promo)
+                                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="card-promo">
+                                                <a style="text-decoration: none;"
+                                                    href="{{ route('promo-detail', $promo->promo_code) }}">
+                                                    <div class="card-body-promo">
+                                                        <img style="width:100%;height:150px;"
+                                                            src="{{ asset('storage/' . $promo->images) }}"
+                                                            alt="">
+                                                    </div>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @empty
-                                <div class="text-center mt-3">No Promo available.</div>
-                            @endforelse
+                                @empty
+                                    <div class="text-center mt-3">No Promo available.</div>
+                                @endforelse
+                            </div>
+
+                            <button class="carousel-control-prev  custom-carousel-btn" type="button"
+                                data-bs-target="#promoCarousel" data-bs-slide="prev"
+                                style="background:gainsboro;width:30px;height:30px;border-radius:10px;">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+
+                            <button class="carousel-control-next  custom-carousel-btn" type="button"
+                                data-bs-target="#promoCarousel" data-bs-slide="next"
+                                style="background:gainsboro;width:30px;height:30px;border-radius:10px;">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
                         </div>
-
-                        <button class="carousel-control-prev  custom-carousel-btn" type="button"
-                            data-bs-target="#promoCarousel" data-bs-slide="prev"
-                            style="background:gainsboro;width:30px;height:30px;border-radius:10px;">
-                            <span class="carousel-control-prev-icon"></span>
-                        </button>
-
-                        <button class="carousel-control-next  custom-carousel-btn" type="button"
-                            data-bs-target="#promoCarousel" data-bs-slide="next"
-                            style="background:gainsboro;width:30px;height:30px;border-radius:10px;">
-                            <span class="carousel-control-next-icon"></span>
-                        </button>
                     </div>
                 </div>
-            </div>
+            @endif
 
             {{-- section Products --}}
 
-            <div class="container">
+            <div style="margin-top: 30px;" class="container">
                 <div class="title-content">
                     <h1 class="title">Produk kami</h1>
                 </div>
@@ -191,7 +183,7 @@
                     ->keyBy('product_code');
             @endphp
 
-            {{-- ALL PRODUCTS --}}
+            {{-- TAB CONTENT PRODUCTS --}}
 
             <div class="tab-content">
                 {{-- Tab all products --}}
@@ -206,9 +198,6 @@
                                             ->first();
 
                                     @endphp
-
-
-
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="image-wrapper">
@@ -222,8 +211,11 @@
                                                         <form action="{{ route('add_favorite') }}" method="POST">
                                                             @csrf
 
-                                                            <input hidden type="text" name="daily_code"
-                                                                value="{{ $item->daily_code }}">
+                                                            {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
+                                                            <input hidden type="text" name="product"
+                                                                value="{{ $item->product_code }}">
+                                                            <input hidden type="text" name="variant"
+                                                                value="{{ $item->variant_code }}">
 
                                                             <button type="submit"
                                                                 style="background: none;border: none;"><i
@@ -270,9 +262,9 @@
                                                 @endif
                                             </div>
                                             <div class="btn-detail">
-                                                @if ($item->variant)
+                                                @if ($item->variant_code)
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant) }}">detail</a>
+                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
                                                 @else
                                                     <a class="btn-detail-product"
                                                         href="{{ route('product', $item->product_code) }}">detail</a>
@@ -317,8 +309,11 @@
                                                     <div class="form-favorite">
                                                         <form action="{{ route('add_favorite') }}" method="POST">
                                                             @csrf
-                                                            <input hidden type="text" name="daily_code"
-                                                                value="{{ $item->daily_code }}">
+                                                            {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
+                                                            <input hidden type="text" name="product"
+                                                                value="{{ $item->product_code }}">
+                                                            <input hidden type="text" name="variant"
+                                                                value="{{ $item->variant_code }}">
 
                                                             <button type="submit"
                                                                 style="background: none;border: none;"><i
@@ -365,9 +360,9 @@
                                                 @endif
                                             </div>
                                             <div class="btn-detail">
-                                                @if ($item->variant)
+                                                @if ($item->variant_code)
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant) }}">detail</a>
+                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
                                                 @else
                                                     <a class="btn-detail-product"
                                                         href="{{ route('product', $item->product_code) }}">detail</a>
@@ -413,9 +408,11 @@
                                                             <form action="{{ route('add_favorite') }}"
                                                                 method="POST">
                                                                 @csrf
-
-                                                                <input hidden type="text" name="daily_code"
-                                                                    value="{{ $item->daily_code }}">
+                                                                {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
+                                                                <input hidden type="text" name="product"
+                                                                    value="{{ $item->product_code }}">
+                                                                <input hidden type="text" name="variant"
+                                                                    value="{{ $item->variant_code }}">
 
                                                                 <button type="submit"
                                                                     style="background: none;border: none;"><i
@@ -542,7 +539,6 @@
                 text: "{{ Session::get('message_success') }}",
                 icon: 'success',
                 timer: 1000,
-                confirmButtonText: 'OK'
             });
         </script>
     @elseif(Session::has('failed_message'))
@@ -552,7 +548,6 @@
                 text: "{{ Session::get('failed_message') }}",
                 icon: 'error',
                 timer: 2000,
-                confirmButtonText: 'OK'
             });
         </script>
     @elseif(Session::has('product_not_found'))

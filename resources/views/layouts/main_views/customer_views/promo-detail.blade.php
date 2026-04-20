@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Promo detail</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -27,17 +27,17 @@
                 <div class="product-card">
 
                     <div class="container-product-info">
-                        <div style="display: flex; justify-content:space-between;" class="info-detail">
+                        <div class="info-detail">
                             <div style="display: flex; justify-content:space-between; gap:10px;font-size: 14px;margin-bottom: 10px;"
                                 class="group-like">
                                 @if ($promo_campaign->quota && $promo_campaign->min_transaction)
-                                    <p>Kuota: {{ $promo_campaign->quota }}</p>
+                                    <p>Kode: {{ $promo_campaign->promo_code }}</p>
                                     <p>Min Transaksi: {{ 'Rp.' . number_format($promo_campaign->min_transaction) }}</p>
                                 @elseif($promo_campaign->quota == null)
-                                    <p>Kuota:- </p>
+                                    <p>Kode: {{ $promo_campaign->promo_code }}</p>
                                     <p>Min Transaksi: {{ 'Rp.' . number_format($promo_campaign->min_transaction) }}</p>
                                 @elseif($promo_campaign->min_transaction == null)
-                                    <p>Kuota: {{ $promo_campaign->quota }}</p>
+                                    <p>Kode: {{ $promo_campaign->promo_code }}</p>
                                     <p>Min Transaksi: - </p>
                                 @else
                                 @endif

@@ -43,17 +43,15 @@
                                                 <th>Aksi</th>
                                             @endif
                                             <th>Foto</th>
-                                            <th>Kode Produk</th>
+                                            <th>SKU</th>
                                             <th>Produk</th>
                                             {{-- <th>Product Daily</th> --}}
                                             <th>Kategori</th>
-                                            @if ($products->first()->product_variant)
+                                            @if ($products->first()->product_variant == 'Y')
                                                 <th>Harga Variant</th>
                                             @endif
-                                            <th>Point</th>
                                             <th>Harga</th>
-                                            <th>Diskon</th>
-                                            <th>Harga Setelah Diskon</th>
+                                            <th>Point</th>
                                             <th>Berat</th>
                                             <th>Created at</th>
                                             <th>Created by</th>
@@ -78,18 +76,28 @@
                                                                     href="{{ route('product_update', $product->product_code) }}"><i
                                                                         class="fas fa-edit"></i></a>
 
-                                                                {{-- @if ($product->status == 'Ready')
-                                                                @else
+                                                                @if ($product->transaction_status == 'N')
                                                                     <a href="#" data-toggle="modal"
                                                                         data-target="#deleteModal{{ $product->product_code }}"><i
                                                                             class="fas fa-trash"></i></a>
-                                                                @endif --}}
+                                                                @endif
                                                             </div>
                                                             @if ($product->product_variant == 'Y')
-                                                                <div class="text-primary">
-                                                                    <a style="font-size:13px; color:rgb(49, 0, 243);width: 100%;"
+                                                                <div style="margin-bottom: 10px;" class="text-primary">
+                                                                    <a class="btn btn-primary"
+                                                                        style="font-size:13px; color:rgb(255, 255, 255);width: 100%;"
                                                                         href="{{ route('add_product_variant', $product->product_code) }}">
                                                                         <i class="fa fa-plus"></i>variant
+                                                                    </a>
+                                                                </div>
+                                                            @endif
+
+                                                            @if ($product->ingredients == 'N')
+                                                                <div class="text-primary">
+                                                                    <a class="btn btn-warning"
+                                                                        style="font-size:12px; color:rgb(0, 0, 0);width: 100%;"
+                                                                        href="{{ route('add_ingredients', $product->product_code) }}">
+                                                                        <i class="fa fa-plus"></i>Ingredients
                                                                     </a>
                                                                 </div>
                                                             @endif
@@ -147,39 +155,6 @@
                                                     @endif
                                                 </td> --}}
                                                 <td>{{ $product->category }}</td>
-                                                @if ($product->point)
-                                                    <td>
-
-                                                        <table style="font-size: 14px; color:black;"
-                                                            class="table table-bordered" id="dataTable" width="100%"
-                                                            cellspacing="0">
-
-                                                            <tr>
-
-                                                                <th>Point</th>
-                                                                <th>Status </th>
-                                                                <th>Tanggal Mulai</th>
-                                                                <th>Tanggal Akhir</th>
-                                                            </tr>
-
-                                                            <tr>
-                                                                <td>{{ $product->point }}</td>
-                                                                <td>{{ $product->point_status }}</td>
-                                                                <td>{{ \Carbon\Carbon::parse($product->point_start_date)->format('Y-m-d') }}
-                                                                </td>
-                                                                <td>{{ \Carbon\Carbon::parse($product->point_end_date)->format('Y-m-d') }}
-                                                                </td>
-
-                                                            </tr>
-                                                        </table>
-                                                        {{-- <a class="text-info" href="#" data-toggle="modal"
-                                                            data-target="#editStatus{{ $product->production_code }}">Ubah
-                                                            Target</a> --}}
-
-                                                    </td>
-                                                @else
-                                                    <td>-</td>
-                                                @endif
 
                                                 @if ($product_variants->isNotEmpty())
                                                     <td>
@@ -194,8 +169,10 @@
                                                                 @endif
                                                                 <th>Tipe Variant</th>
                                                                 <th>Harga Variant </th>
-                                                                <th>Discount</th>
-                                                                <th>Harga setelah discount</th>
+                                                                @if ($product_variants->first()->variant_discount)
+                                                                    <th>Discount</th>
+                                                                    <th>Harga setelah discount</th>
+                                                                @endif
                                                             </tr>
 
                                                             @foreach ($product_variants as $prd)
@@ -220,20 +197,22 @@
                                                                         <td>{{ $prd->variant_type }}</td>
                                                                         <td>{{ 'Rp.' . number_format($prd->variant_price) }}
                                                                         </td>
-                                                                        <td>
-                                                                            @if ($prd->variant_discount == 0)
-                                                                                -
-                                                                            @else
-                                                                                {{ $prd->variant_discount . '%' }}
-                                                                            @endif
-                                                                        </td>
-                                                                        <td>
-                                                                            @if ($prd->variant_price_after_discount == 0)
-                                                                                -
-                                                                            @else
-                                                                                {{ 'Rp.' . number_format($prd->variant_price_after_discount) }}
-                                                                            @endif
-                                                                        </td>
+                                                                        @if ($prd->variant_discount)
+                                                                            <td>
+                                                                                @if ($prd->variant_discount == 0)
+                                                                                    -
+                                                                                @else
+                                                                                    {{ $prd->variant_discount . '%' }}
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>
+                                                                                @if ($prd->variant_price_after_discount == 0)
+                                                                                    -
+                                                                                @else
+                                                                                    {{ 'Rp.' . number_format($prd->variant_price_after_discount) }}
+                                                                                @endif
+                                                                            </td>
+                                                                        @endif
                                                                     </tr>
                                                                 @endif
                                                             @endforeach
@@ -269,40 +248,98 @@
                                                     </td>
                                                 @else
                                                     <td>
-                                                        @if ($product->price)
-                                                            {{ 'Rp.' . number_format($product->price) }}
-                                                        @else
-                                                            <small class="text-danger"> harga untuk variant produk ini
-                                                                belum diinput</small>
-                                                            <br>
-                                                            <br>
-                                                            <form
-                                                                action="{{ route('delete_variant_product', $product->product_code) }}"
-                                                                method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <input type="text" name="product_code"
-                                                                    value="{{ $product->product_code }}" hidden>
-                                                                <button style="background: none; border:none;color:red;"
-                                                                    type="submit"><i class="fa fa-trash"></i>Hapus
-                                                                    Produk Variant</button>
-                                                            </form>
-                                                        @endif
+
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+                                                                <th>Harga</th>
+                                                                @if ($product->discount)
+                                                                    <th>Discount</th>
+                                                                    <th>Harga setelah discount</th>
+                                                                @endif
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    @if ($product->price)
+                                                                        {{ 'Rp.' . number_format($product->price) }}
+                                                                    @else
+                                                                        <small class="text-danger"> harga untuk variant
+                                                                            produk ini
+                                                                            belum diinput</small>
+                                                                        <br>
+                                                                        <br>
+                                                                        <form
+                                                                            action="{{ route('delete_variant_product', $product->product_code) }}"
+                                                                            method="POST">
+                                                                            @csrf
+                                                                            @method('PUT')
+                                                                            <input type="text" name="product_code"
+                                                                                value="{{ $product->product_code }}"
+                                                                                hidden>
+                                                                            <button
+                                                                                style="background: none; border:none;color:red;"
+                                                                                type="submit"><i
+                                                                                    class="fa fa-trash"></i>Hapus
+                                                                                Produk Variant</button>
+                                                                        </form>
+                                                                    @endif
+                                                                </td>
+                                                                @if ($product->discount)
+                                                                    <td>
+                                                                        @if ($product->discount == 0)
+                                                                            -
+                                                                        @else
+                                                                            {{ $product->discount . '%' }}
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>
+                                                                        @if ($product->price_after_discount == 0)
+                                                                            -
+                                                                        @else
+                                                                            {{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                        @endif
+                                                                    </td>
+                                                                @endif
+                                                            </tr>
+
+                                                        </table>
                                                     </td>
+                                                @endif
+
+                                                @if ($product->point)
                                                     <td>
-                                                        @if ($product->discount == 0)
-                                                            -
-                                                        @else
-                                                            {{ $product->discount . '%' }}
-                                                        @endif
+
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+
+                                                                <th>Point</th>
+                                                                <th>Status </th>
+                                                                <th>Tanggal Mulai</th>
+                                                                <th>Tanggal Akhir</th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td>{{ $product->point }}</td>
+                                                                <td>{{ $product->point_status }}</td>
+                                                                <td>{{ \Carbon\Carbon::parse($product->point_start_date)->format('Y-m-d') }}
+                                                                </td>
+                                                                <td>{{ \Carbon\Carbon::parse($product->point_end_date)->format('Y-m-d') }}
+                                                                </td>
+
+                                                            </tr>
+                                                        </table>
+                                                        {{-- <a class="text-info" href="#" data-toggle="modal"
+                                                            data-target="#editStatus{{ $product->production_code }}">Ubah
+                                                            Target</a> --}}
+
                                                     </td>
-                                                    <td>
-                                                        @if ($product->price_after_discount == 0)
-                                                            -
-                                                        @else
-                                                            {{ 'Rp.' . number_format($product->price_after_discount) }}
-                                                        @endif
-                                                    </td>
+                                                @else
+                                                    <td>-</td>
                                                 @endif
 
                                                 <td>{{ $product->product_weight . ' ' . $product->product_weight_type }}
@@ -351,7 +388,7 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    @if ($product->product_variant)
+                    @if ($product->product_variant == 'Y')
                         <div class="modal-body">Apakah anda yakin ingin menghapus produk
                             {{ $product->product_code . ' - ' . $product->product }} ? <br>
                             Produk ini juga terdapat beberapa Variant.</div>

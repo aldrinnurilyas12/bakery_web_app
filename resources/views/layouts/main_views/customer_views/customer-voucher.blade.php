@@ -45,9 +45,19 @@
                             <div class="card-reward">
                                 <div class="body-reward"
                                     style=" box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:20px;margin:10px;">
-                                    <div style="display: flex; gap:10px;" class="image-content">
-                                        <img width="90" height="90"
-                                            src="{{ url('storage/' . $voucher->qr_code) }}" alt="">
+                                    <div style="flex-wrap:wrap; gap:10px;" class="image-content">
+                                        <div style="display:flex; flex-wrap: wrap; justify-content: space-between;"
+                                            class="image-display">
+                                            <img width="90" height="90"
+                                                src="{{ url('storage/' . $voucher->qr_code) }}" alt="">
+                                            <span>
+                                                @if ($voucher->voucher_used == 'Y')
+                                                    <span class="badge badge-success">Terpakai </span>
+                                                @else
+                                                    <span class="badge badge-secondary">Belum Terpakai </span>
+                                                @endif
+                                            </span>
+                                        </div>
                                         <div class="content-text">
                                             <div style="width: 200px;" class="title-text">
                                                 <h5 style="font-size:15px;">{{ $voucher->voucher_name }}</h5>
@@ -63,11 +73,6 @@
                                                 <span>Kategori:
                                                     <span
                                                         style="color:black;">{{ $voucher->voucher_type }}</span></span>
-                                                @if ($voucher->voucher_used)
-                                                    <span>Status : <span class="text-success">Terpakai </span> </span>
-                                                @else
-                                                    <span>Status : Belum Terpakai </span>
-                                                @endif
                                             </p>
                                             <div style="font-size: 14px; font-weight: 500;margin-bottom: 20px;"
                                                 class="date">

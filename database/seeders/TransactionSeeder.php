@@ -20,20 +20,20 @@ class TransactionSeeder extends Seeder
         $data = [];
 
         // id mulai dari 4
-        $startId = 0;
+        $startId = (DB::table('transactions')->max('id') ?? 0) + 1;
         // ambil semua customer id
         $customerIds = DB::table('customer')->pluck('customer_code')->toArray();
         $emp_code = DB::table('employee')->where('position', 'CSR')->pluck('nik')->toArray();
         $startDate = Carbon::create(2025, 1, 1);
         $endDate = Carbon::create(2026, 1, 1);
 
-        for ($i = 0; $i < 800; $i++) {
+        for ($i = 0; $i < 250; $i++) {
 
-            $quantity = $faker->numberBetween(1, 5);
-            $price = $faker->numberBetween(10000, 50000);
+            // $quantity = $faker->numberBetween(1, 5);
+            $amount = $faker->numberBetween(10000, 50000);
 
             $year  = 2026;
-            $month = rand(1, 2);
+            $month = rand(1, 3);
             $hour = rand(8, 21); // jam 08 - 21
             $minute = rand(0, 59);
             $second = rand(0, 59);
@@ -44,8 +44,8 @@ class TransactionSeeder extends Seeder
             $today = Carbon::create($year, $month, $day);
             $dateCode = $today->format('Ymd');
 
-            $totalAmount = $quantity * $price;
-            $grandTotal = $totalAmount;
+            $totalAmount = $amount;
+            $grandTotal = $amount;
             $paymentChanges = $faker->numberBetween(0, 50000);
 
             $randomTimestamp = rand($startDate->timestamp, $endDate->timestamp);
@@ -63,7 +63,6 @@ class TransactionSeeder extends Seeder
 
             $data[] = [
                 'transaction_code' => 'INV' . $dateCode . Str::random(6),
-                'quantity' => $quantity,
                 'total_amount' => $totalAmount,
                 'payment_changes' => $paymentChanges,
                 'grand_total' => $grandTotal,

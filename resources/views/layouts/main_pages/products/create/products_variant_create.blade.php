@@ -12,6 +12,7 @@
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -23,7 +24,8 @@
                 <br>
                 <div class="container-fluid px-4">
                     <h4>Tambah Variant Produk</h4>
-                    <form action="{{ route('save_product_variant') }}" method="POST" enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('save_product_variant') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <hr>
                         <div class="form-group">
@@ -86,10 +88,14 @@
                         </div>
 
 
-                        <div style="display: flex; gap:20px;" class="button-groupe">
-                            <button type="submit" class="btn btn-primary">Simpan Data</button>
-                            <a class="btn btn-info" href="{{ route('products_data') }}">Kembali</a>
+                        <div style="display: block; gap:20px;" class="button-groupe">
+
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                    Data</span>
+                                <span class="spinner"></span></button>
                         </div>
+                        <br>
+                        <a style="width:100%;" class="btn btn-info" href="{{ route('products_data') }}">Kembali</a>
                     </form>
                     <br>
                     <br>
@@ -102,6 +108,8 @@
     </div>
 
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
+
 
 @if (Session::has('message_success'))
     <script>

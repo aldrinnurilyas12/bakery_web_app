@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 
 class BusinessIntelligence extends Controller
@@ -19,6 +20,12 @@ class BusinessIntelligence extends Controller
     public function data_analytics_layouts()
     {
         return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics');
+    }
+
+    public function sales_performance(Request $rq)
+    {
+        $products_sales = DB::table('v_products_sales_performance')->get();
+        return view('layouts.main_pages.business_intelligence.sales_performance', compact('products_sales'));
     }
 
     /**

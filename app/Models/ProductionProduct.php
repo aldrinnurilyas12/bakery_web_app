@@ -12,15 +12,10 @@ class ProductionProduct extends Model
     protected $table = 'production_products';
     protected $fillable = [
         'production_code',
-        'product',
-        'variant',
-        'target_total',
-        'reject_quantity',
-        'actual_quantity',
         'status',
-        'store',
         'production_type',
         'production_date',
+        'reason_failed',
         'created_by',
         'updated_by'
     ];

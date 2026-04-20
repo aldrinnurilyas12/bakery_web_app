@@ -21,7 +21,6 @@ class ProductsModel extends Model
         'product_weight_type',
         'product_variant',
         'description',
-        'expired_date',
         'created_by',
         'updated_by'
     ];

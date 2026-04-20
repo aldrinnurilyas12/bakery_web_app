@@ -33,15 +33,7 @@
                                 Master Data / <a href="{{ route('production_products') }}">Produk Waste</a>
                             </div>
 
-                            @if ($product_wastes->isNotEmpty())
-                                @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('product-waste-create') }}">Tambah
-                                            Produk
-                                            Waste</a>
-                                    </div>
-                                @endif
-                            @endif
+
                         </div>
 
                         @if (!$filter_forbidden_access)
@@ -92,8 +84,56 @@
                         <div class="card-body">
                             <div wire:poll.keep.alive.2s>
 
-                                @if ($product_wastes->isNotEmpty())
-                                    <div>
+
+                                <div class="table-responsive">
+                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                @foreach ($waste_category as $waste_type)
+                                                    <th>{{ $waste_type->waste_type }}</th>
+                                                @endforeach
+
+
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @php
+                                                $no = 1;
+                                            @endphp
+                                            @foreach ($products as $prd)
+                                                <tr>
+                                                    <td>{{ $prd->product_name }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                {{-- <div>
                                         <div class="table-responsive">
                                             <table class="table" id="dataTable" width="100%" cellspacing="0">
                                                 <thead>
@@ -184,27 +224,25 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
-                                @else
-                                    <div
-                                        style="height: 50vh; display:flex; justify-content:center; border:1px solid gray; border-radius:10px;">
-                                        <div style="display: flex; gap:20px; margin:auto;" class="alert-info">
-                                            <img width="70" height="70"
-                                                src="{{ asset('assets/front_end/assets/img/null.png') }}"
-                                                alt="">
-                                            <div>
-                                                <h3>Belum ada data Produk Waste</h3>
-                                                @if (!$user_permission_forbidden)
-                                                    <p class="text-secondary">Tambah data Produk Waste</p>
-                                                    <a class="btn btn-primary"
-                                                        href="{{ 'product-waste-create' }}">Tambah
-                                                        Produk
-                                                        Waste</a>
-                                                @endif
-                                            </div>
+                                    </div> --}}
+                                {{-- @else
+                                <div
+                                    style="height: 50vh; display:flex; justify-content:center; border:1px solid gray; border-radius:10px;">
+                                    <div style="display: flex; gap:20px; margin:auto;" class="alert-info">
+                                        <img width="70" height="70"
+                                            src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
+                                        <div>
+                                            <h3>Belum ada data Produk Waste</h3>
+                                            @if (!$user_permission_forbidden)
+                                                <p class="text-secondary">Tambah data Produk Waste</p>
+                                                <a class="btn btn-primary" href="{{ 'product-waste-create' }}">Tambah
+                                                    Produk
+                                                    Waste</a>
+                                            @endif
                                         </div>
                                     </div>
-                                @endif
+                                </div>
+                                @endif --}}
 
                             </div>
                         </div>
@@ -214,7 +252,7 @@
             </main>
 
             {{-- Modal delete  --}}
-            @foreach ($product_wastes as $waste)
+            {{-- @foreach ($product_wastes as $waste)
                 <div wire:ignore class="modal fade" id="deleteModal{{ $waste->waste_code }}" tabindex="-1"
                     role="dialog" aria-labelledby="exampleModalLabel{{ $waste->waste_code }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -236,7 +274,7 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @endforeach --}}
 
 
             {{-- modal show description --}}
@@ -284,7 +322,7 @@
 
 
             {{-- Modal show Raw Materials --}}
-            @foreach ($product_wastes as $waste)
+            {{-- @foreach ($product_wastes as $waste)
                 <div wire:ignore class="modal fade" id="showRaw{{ $waste->waste_code }}" tabindex="-1" role="dialog"
                     aria-labelledby="exampleModalLabel{{ $waste->waste_code }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -323,7 +361,7 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @endforeach --}}
 
             {{-- Modal show change status target produksi --}}
 

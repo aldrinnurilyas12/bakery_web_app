@@ -165,7 +165,8 @@
                         @endif
                         <br>
                         <br>
-                        <form method="POST" action="{{ route('nonactive_voucher', $voucher->voucher_code) }}">
+                        <form id="formGeneralMaster" method="POST"
+                            action="{{ route('nonactive_voucher', $voucher->voucher_code) }}">
                             @csrf
                             @method('PUT')
                             <div class="form-group">
@@ -180,9 +181,13 @@
                             <br>
 
                             @if ($voucher->status == 8)
-                                <button class="btn btn-primary" type="submit">Aktifkan</button>
+                                <button id="btnMaster" type="submit" class="btn-general"><span
+                                        class="btn-text">Aktifkan</span>
+                                    <span class="spinner"></span></button>
                             @else
-                                <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                                <button id="btnMaster" type="submit" class="btn-general"><span
+                                        class="btn-text">Nonaktifkan</span>
+                                    <span class="spinner"></span></button>
                             @endif
 
                         </form>
@@ -195,6 +200,7 @@
             </div>
         </div>
     @endforeach
+    <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
     @if (Session::has('message_success'))
         <script>

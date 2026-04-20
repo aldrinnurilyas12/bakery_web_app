@@ -27,31 +27,49 @@ class ShoppingCartController extends Controller
     {
         $cart = Session::get('cart', []);
 
-        $cart_product = [
-            'product_code' => $request->product_code,
-            'variant_type' => $request->variant_type,
-            'product_name' => $request->product_name,
-            'price' => $request->price,
-            'quantity' => $request->quantity,
+$cart_product = [
+    'product'       => $request->product,
+    'variant'       => $request->variant,
+    'variant_type'  => $request->variant_type,
+    'product_name'  => $request->product_name,
+    'price'         => $request->price,
+    'quantity'      => $request->quantity,
+];
 
-        ];
+$found = false;
 
-        $found = false;
-        foreach ($cart as &$item) {
-            
-            if ($item['product_code'] === $cart_product['product_code']) {
-                $found = true;
-                break;
-            }
+foreach ($cart as &$item) {
+
+    // Jika produk punya variant
+    if (!empty($cart_product['variant'])) {
+
+        if (
+            $item['product'] === $cart_product['product'] &&
+            $item['variant'] === $cart_product['variant'] &&
+            $item['variant_type'] === $cart_product['variant_type']
+        ) {
+            $item['quantity'] += $cart_product['quantity'];
+            $found = true;
+            break;
         }
 
+    } else {
 
-        // Jika produk belum ada, tambahkan ke cart
-        if (!$found) {
-            $cart[] = $cart_product;
+        // Produk tanpa variant
+        if ($item['product'] === $cart_product['product']) {
+            $item['quantity'] += $cart_product['quantity'];
+            $found = true;
+            break;
         }
-        // Simpan cart ke session
-        Session::put('cart', $cart);
+    }
+}
+
+// Jika tidak ditemukan → push item baru
+if (!$found) {
+    $cart[] = $cart_product;
+}
+
+Session::put('cart', $cart);
 
         session()->flash('add_cart_success', 'Produk berhasil ditambahkan!');
         return redirect()->back();
@@ -119,7 +137,7 @@ class ShoppingCartController extends Controller
         if ($prdCode && !empty($cart)) {
             // Loop through the cart to find the item with the matching ID and remove it
             foreach ($cart as $key => $cartItem) {
-                if ($cartItem['product_code'] == $prdCode) {
+                if ($cartItem['product'] == $prdCode) {
                     unset($cart[$key]); // Remove the product from the cart
                     break;
                 }

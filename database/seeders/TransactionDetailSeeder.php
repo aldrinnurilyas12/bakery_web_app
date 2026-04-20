@@ -9,76 +9,70 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionDetailSeeder extends Seeder
 {
-    public function run(): void
-    {
-        $faker = Faker::create('id_ID');
+   public function run(): void
+{
+    $faker = Faker::create('id_ID');
 
-        // ambil semua transaction_code
-        $allTransactions = DB::table('transactions')
-            ->pluck('transaction_code')
-            ->toArray();
+    // ambil semua transaction_code dan created_at dari tabel transactions
+    $transactions = DB::table('transactions')
+        ->select('transaction_code', 'created_at')
+        ->pluck('created_at', 'transaction_code')
+        ->toArray();
+    // hasil: ['TRX001' => '2026-03-05 10:15:00', ...]
 
-        // ambil transaction_code yang sudah ada detail
-        $existingDetails = DB::table('transactions_detail')
-            ->pluck('transaction_code')
-            ->toArray();
+    // ambil transaction_code yang sudah ada di transactions_detail
+    $existingDetails = DB::table('transactions_detail')
+        ->pluck('transaction_code')
+        ->toArray();
 
-        // cari transaction_code yang belum punya detail
-        $missingTransactionCodes = array_diff(
-            $allTransactions,
-            $existingDetails
-        );
+    // cari transaction_code yang belum punya detail
+    $missingTransactionCodes = array_diff(
+        array_keys($transactions), // ambil semua transaction_code
+        $existingDetails
+    );
 
-        // ambil product & variant
-        $products = DB::table('products_daily')
-            ->select('daily_code')
-            ->get();
+    if (empty($missingTransactionCodes)) {
+        return; // tidak ada data yang perlu dibuat
+    }
 
-        $data = [];
-        // $startId = DB::table('transactions_detail')->max('id') + 1;
-        $startId = (DB::table('transactions_detail')->max('id') ?? 0) + 1;
+    // ambil product & variant
+    $products = DB::table('production_products as pp')
+        ->join('products_daily as pd', 'pp.production_code', '=', 'pd.production')
+        ->select('pp.product', 'pp.variant')
+        ->get();
 
-         $casheer = DB::table('employee')->where('position', 'CSR')->pluck('nik')->toArray();
-       
+    // ambil daftar kasir
+    $casheer = DB::table('employee')
+        ->where('position', 'CSR')
+        ->pluck('nik')
+        ->toArray();
 
-        foreach ($missingTransactionCodes as $index => $transactionCode) {
+    $data = [];
 
-            // tanggal random 2026
-            $year  = 2026;
-            $month = rand(1, 2);
-            $hour = rand(8, 21); // jam 08 - 21
-            $minute = rand(0, 59);
-            $second = rand(0, 59);
-            $day   = rand(1, Carbon::create($year, $month)->daysInMonth);
-            $today = Carbon::create($year, $month, $day);
+    foreach ($missingTransactionCodes as $transactionCode) {
 
-            $itemCount = rand(1, 3);
+        $transactionDate = $transactions[$transactionCode]; // ambil created_at dari transaksi
 
-            for ($i = 0; $i <3; $i++) {
+        // jumlah item per transaksi, bisa random 1-3
+        $itemCount = rand(1, 3);
 
-                $product = $products->random();
-                  $transactionDate = Carbon::create(
-                    $year,
-                    $month,
-                    $day,
-                    $hour,
-                    $minute,
-                    $second
-                );
+        for ($i = 0; $i < $itemCount; $i++) {
+            $product = $products->random();
 
-                $data[] = [
-                    'transaction_code'      => $transactionCode,
-                    'product'               => $product->daily_code,
-                    'quantity_per_product'  => $faker->numberBetween(1, 4),
-                    'created_at'            => $transactionDate,
-                    'created_by'            => $faker->randomElement($casheer),
-                    'updated_at'            => $transactionDate,
-                ];
-            }
-        }
-
-        if (!empty($data)) {
-            DB::table('transactions_detail')->insert($data);
+            $data[] = [
+                'transaction_code'     => $transactionCode,
+                'product'              => $product->product,
+                'variant'              => $product->variant,
+                'quantity_per_product' => $faker->numberBetween(1, 3),
+                'created_at'           => $transactionDate,
+                'updated_at'           => $transactionDate,
+                'created_by'           => $faker->randomElement($casheer),
+            ];
         }
     }
+
+    if (!empty($data)) {
+        DB::table('transactions_detail')->insert($data);
+    }
+}
 }

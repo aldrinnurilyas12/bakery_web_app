@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Reward detail</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -98,32 +98,34 @@
                                         </div>
                                     @else
                                         <div style="display: block;width:100%;" class="form-redeem">
-                                            <div class="form-group">
-                                                <label for=""><strong>Pilih Store</strong></label>
-                                                <select class="form-control" name="store" id="code_store">
-                                                    <option value="">=== Pilih Store ===</option>
-                                                    @foreach ($reward_store as $store)
-                                                        <option value="{{ $store->store_code }}">
-                                                            {{ $store->store_name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
 
-
-                                            <form action="{{ route('redeem-reward') }}" method="POST">
+                                            <form class="form-redeem" action="{{ route('redeem-reward') }}"
+                                                method="POST">
                                                 @csrf
+                                                <div class="form-group">
+                                                    <label for=""><strong>Pilih Store</strong></label>
+                                                    <select class="form-control" name="store" id="code_store">
+                                                        <option value="">=== Pilih Store ===</option>
+                                                        @foreach ($reward_store as $store)
+                                                            <option value="{{ $store->store_code }}">
+                                                                {{ $store->store_name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <x-input-error :messages="$errors->get('store')" class="text-danger" />
+                                                </div>
                                                 <div class="form-group">
                                                     <label for=""><strong>Jadwalkan pengambilan
                                                             Reward</strong></label>
-                                                    <input class="form-control" type="date" name="pickup_schedule"
-                                                        required>
+                                                    <input class="form-control" type="date" name="pickup_schedule">
+                                                    <x-input-error :messages="$errors->get('pickup_schedule')" class="text-danger" />
                                                 </div>
                                                 <input name="point" type="text" value="{{ $reward->point }}"
                                                     hidden>
                                                 <input type="text" name="reward" hidden id="showRewardCodeStore">
-                                                <button type="submit" class="btn-redeem"
-                                                    style="width:100%;background: #bb0239;color:white; border-radius:6px;padding:10px;text-decoration: none;border:none;"
-                                                    href="">Redeem</button>
+                                                <button type="submit" class="btn-general"><span
+                                                        class="btn-text">Redeem</span>
+                                                    <span class="spinner"></span>
+                                                </button>
                                             </form>
                                         </div>
                                     @endif
@@ -135,7 +137,7 @@
                             <div style="display: flex; justify-content: center;text-align: center;"
                                 class="btn-login-auth">
 
-                                <a class="btn-redeem"
+                                <a class="btn-general"
                                     style="background: #bb0239;color:white; border-radius:6px;padding:10px;text-decoration: none;border:none;width:100%;"
                                     href="{{ route('login_app') }}">Login untuk klaim reward</a>
 
@@ -241,19 +243,29 @@
             }
             return response.json();
         }).then(data => {
-            if (data.data && data.data.stock !== null && data.data.reward_store_code) {
+            if (data.data && data.data.stock === 0 && data.data.reward_store_code) {
+                showStock.innerText = 'Habis';
+                showStock.style.color = 'red';
+                hiddenAllStock.hidden = true;
+            } else if (data.data && data.data.stock !== null && data.data.reward_store_code) {
                 showStock.innerText = data.data.stock;
                 document.getElementById('showRewardCodeStore').value = data.data.reward_store_code;
                 hiddenAllStock.hidden = true;
-            } else {
-                showStock.innerText = 'Habis';
-                hiddenAllStock.hidden = true;
+
             }
 
         })
     })
-</script>
 
+
+    // button
+    document.getElementById("redeemForm").addEventListener("submit", function() {
+        const btn = document.getElementById("redeemBtn");
+        btn.classList.add("loading");
+        btn.disabled = true;
+    });
+</script>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>

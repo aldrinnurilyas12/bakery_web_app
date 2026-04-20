@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Profile</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@
 
             // kalau tidak ketemu, berarti variant_code
             if (!$productCode) {
-                $productCode = DB::table('v_daily_products')->where('variant', $code)->value('product_code');
+                $productCode = DB::table('v_daily_products')->where('variant_code', $code)->value('product_code');
             }
 
             $image_product = null;
@@ -60,13 +60,13 @@
                             <div class="form-favorite">
                                 <form action="{{ route('add_favorite') }}" method="POST">
                                     @csrf
-                                    @if ($product->variant)
-                                        <input hidden type="text" name="variant_code"
-                                            value="{{ $product->variant }}">
-                                        <input hidden type="text" name="product_code"
+                                    @if ($product->variant_code)
+                                        <input hidden type="text" name="variant"
+                                            value="{{ $product->variant_code }}">
+                                        <input hidden type="text" name="product_"
                                             value="{{ $product->product_code }}">
                                     @else
-                                        <input hidden type="text" name="product_code"
+                                        <input hidden type="text" name="product"
                                             value="{{ $product->product_code }}">
                                     @endif
 

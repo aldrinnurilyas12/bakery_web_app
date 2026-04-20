@@ -11,6 +11,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -129,10 +130,13 @@
                     <div class="modal-body">Apakah anda yakin ingin menghapus Kategori
                         {{ $category->category_name }} ?</div>
                     <div class="modal-footer">
-                        <form action="{{ route('master_category.destroy', $category->id) }}" method="POST">
+                        <form class="form-delete" action="{{ route('master_category.destroy', $category->id) }}"
+                            method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Hapus</button>
+                            <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
+                                    class="btn-text">Hapus</span>
+                                <span class="spinner"></span></button>
                         </form>
                     </div>
                 </div>
@@ -140,6 +144,7 @@
         </div>
     @endforeach
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>

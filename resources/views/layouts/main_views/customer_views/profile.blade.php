@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery | Profile</title>
-    <link rel="stylesheet" href="{{ asset('assets\front_end\css\homepage.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Font Awesome Free 6 -->
@@ -93,7 +93,7 @@
 
                 <h4 style="font-size: 1.6rem;"><strong>Profil Pengguna</strong></h4>
                 <hr class="hr-menu">
-                <form method="POST" action="{{ route('update_customer', $customer->customer_code) }}"
+                <form id="saveProfile" method="POST" action="{{ route('update_customer', $customer->customer_code) }}"
                     enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -101,9 +101,7 @@
                     <div class="form-group">
                         <label><strong>Nama</strong></label>
                         <input type="text" name="name" class="form-control" value="{{ $customer->name }}">
-                        @if ($errors->has('name'))
-                            <span class="text-danger">{{ $errors->first('name') }}</span>
-                        @endif
+                        <x-input-error :messages="$errors->get('name')" class="text-danger" />
                     </div>
 
                     <div class="form-group">
@@ -111,17 +109,13 @@
                         <input class="form-control" type="date"
                             value="{{ old('birth_date', $customer->birth_date ? $birth_date->format('Y-m-d') : null) }}"
                             name="birth_date" autocomplete="off">
-                        @if ($errors->has('birth_date'))
-                            <span class="text-danger">{{ $errors->first('birth_date') }}</span>
-                        @endif
+                        <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
                     </div>
 
                     <div class="form-group">
                         <label><strong>Alamat</strong></label>
                         <input type="text" name="address" class="form-control" value="{{ $customer->address }}">
-                        @if ($errors->has('address'))
-                            <span class="text-danger">{{ $errors->first('address') }}</span>
-                        @endif
+                        <x-input-error :messages="$errors->get('address')" class="text-danger" />
                     </div>
 
 
@@ -129,15 +123,14 @@
                         <label><strong>No. Handphone</strong></label>
                         <input type="text" name="phone_number" class="form-control"
                             value="{{ $customer->phone_number }}">
-                        @if ($errors->has('phone_number'))
-                            <span class="text-danger">{{ $errors->first('phone_number') }}</span>
-                        @endif
+                        <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
                     </div>
 
                     <div class="form-group">
                         <label><strong>Email</strong></label>
                         <input type="email" name="email" class="form-control" value="{{ $customer->email }}"
                             readonly>
+                        <x-input-error :messages="$errors->get('email')" class="text-danger" />
                     </div>
 
                     <div class="form-group">
@@ -152,8 +145,9 @@
                     </div>
 
 
-                    <button style="background:#bb0239 ;border:none; color:white;" type="submit"
-                        class="btn btn-primary">Simpan Data</button>
+                    <button id="btnProfile" type="submit" class="btn-general">Simpan Data
+                        <span class="spinner"></span>
+                    </button>
                 </form>
 
                 <br>
@@ -165,7 +159,7 @@
                     <p class="delete-desc">
                         Tindakan ini akan menghapus akun Anda secara permanen dan tidak dapat dibatalkan.
                     </p>
-                    <a href="#" data-toggle="modal" data-target="#delete_account" class="btn-delete">Hapus
+                    <a href="#" data-toggle="modal" data-target="#delete_account" class="btn-general">Hapus
                         Akun</a>
                 </div>
                 <br>
@@ -232,12 +226,15 @@
                     <br>
 
                     <div class="form-nonactive-account">
-                        <form action="{{ route('nonactive_account', $customer->customer_code) }}" method="POST">
+                        <form id="deleteAccount" action="{{ route('nonactive_account', $customer->customer_code) }}"
+                            method="POST">
                             @csrf
                             @method('PUT')
-                            <button class="btn btn-primary" type="submit"
-                                style="background:#bb0239;color:white; border:none; padding:10px;">Hapus akun
-                                saya</button>
+                            <button id="btndelete_account" class="btn-general" type="submit"
+                                style="background:#bb0239;color:white; border:none; padding:10px;">
+                                <span class="btn-text">Hapus akun
+                                    saya</span>
+                                <span class="spinner"></span></button>
                         </form>
                     </div>
 
@@ -245,7 +242,7 @@
 
                 <div class="modal-footer">
                     <button style="background: #bb0239;border: none;" data-dismiss="modal" class="btn btn-primary"
-                        aria-label="Close">Tutup</button>
+                        aria-label="Close">Batal</button>
                 </div>
             </div>
         </div>
@@ -274,6 +271,26 @@
     @endif
 
 </body>
+
+<script>
+    // button
+    document.getElementById("saveProfile").addEventListener("submit", function() {
+        const btn = document.getElementById("btnProfile");
+        btn.classList.add("loading");
+        btn.disabled = true;
+    });
+
+
+    // btn delete
+    document.getElementById("deleteAccount").addEventListener("submit", function() {
+        const btn = document.getElementById("btndelete_account");
+        const text = btn.querySelector(".btn-text");
+
+        btn.classList.add("loading");
+        btn.disabled = true;
+        text.textContent = "Processing...";
+    });
+</script>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

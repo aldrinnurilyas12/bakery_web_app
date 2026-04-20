@@ -81,6 +81,21 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
+
+        $request->validate([
+            'nik' => 'required',
+            'username' => 'required',
+            'email' => 'required',
+            'role' => 'required',
+            'password' => 'required'
+        ],
+        [
+            'nik.required' => 'Pilih Karyawan dahulu',
+            'username.required' => 'Username harus diisi',
+            'email.required' => 'Alamat Email harus diisi',
+            'role.required' => 'Pilih Role dahulu',
+            'password' => 'Kata sandi tidak boleh kosong'
+        ]);
       
         $role = $request->role;
         $nik = $request->nik;
@@ -93,7 +108,7 @@ class RegisteredUserController extends Controller
             return redirect()->back();
         }
 
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
        
 
        if(!$users_exists){
@@ -137,7 +152,21 @@ class RegisteredUserController extends Controller
     }
 
     public function update(Request $request) {
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+
+         $request->validate([
+            'nik' => 'required',
+            'username' => 'required',
+            'email' => 'required',
+            'role' => 'required'
+        ],
+        [
+            'nik.required' => 'Pilih Karyawan dahulu',
+            'username.required' => 'Username harus diisi',
+            'email.required' => 'Alamat Email harus diisi',
+            'role.required' => 'Pilih Role dahulu'
+        ]);
+
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $user =  DB::table('users')->where('nik', $request->nik)->update([
             'username' => $request->username,
             'email' => $request->email,
@@ -156,7 +185,7 @@ class RegisteredUserController extends Controller
     }
 
     public function update_user_active(Request $request) {
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         
         User::where('nik', $request->nik)->update([
             'is_active' => $request->is_active,

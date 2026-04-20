@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -21,8 +22,8 @@
                 <div class="container-fluid px-4">
                     <h4>Ubah Data Bahan Baku</h4>
                     <hr>
-                    <form action="{{ route('material_edit', $raw_material->material_code) }}" method="POST"
-                        enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('material_edit', $raw_material->material_code) }}"
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -40,19 +41,19 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Harga Bahan Baku</strong></label>
+                            <label><strong>Harga Bahan Baku (satuan)</strong></label>
                             <input type="text" name="price" class="form-control" value="{{ $raw_material->price }}"
-                                placeholder="Masukan harga" autocomplete="off">
+                                placeholder="Masukan harga bahan baku (satuan)" autocomplete="off">
                             <x-input-error :messages="$errors->get('price')" class="text-danger" />
                         </div>
 
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label><strong>Stok</strong></label>
                             <input type="text" name="quantity" class="form-control"
                                 value="{{ $raw_material->quantity }}" placeholder="Masukan stok bahan baku"
                                 autocomplete="off">
                             <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
-                        </div>
+                        </div> --}}
 
 
                         <div class="form-group">
@@ -65,7 +66,8 @@
                                 <option value="gram" {{ $raw_material->material_type == 'gram' ? 'selected' : '' }}>
                                     Gram</option>
                                 <option value="kilogram"
-                                    {{ $raw_material->material_type == 'kilogram' ? 'selected' : '' }}>Kilogram</option>
+                                    {{ $raw_material->material_type == 'kilogram' ? 'selected' : '' }}>Kilogram
+                                </option>
                                 <option value="quintal"
                                     {{ $raw_material->material_type == 'quintal' ? 'selected' : '' }}>Quintal</option>
                                 <option value="ton" {{ $raw_material->material_type == 'ton' ? 'selected' : '' }}>
@@ -130,13 +132,16 @@
                                 readonly>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Perbarui material</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 

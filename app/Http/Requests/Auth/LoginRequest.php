@@ -85,7 +85,6 @@ class LoginRequest extends FormRequest
         Auth::login($user_available);
         RateLimiter::clear($this->throttleKey());
         $this->session()->regenerate();
-        session()->flash('message_success', 'Berhasil login!');
         return redirect()->intended('dashboard_main');
     }
 
@@ -117,7 +116,6 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
-        session()->flash('message_success', 'Berhasil login!');
         return redirect()->intended(route('home'));
     }
 

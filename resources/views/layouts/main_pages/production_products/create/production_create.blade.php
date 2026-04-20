@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Tambah Produksi Produk</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -30,6 +31,7 @@
                             <li>Jumlah produk yang diproduksi produk harus valid, tidak boleh negatif atau melebihi
                                 kapasitas
                                 produksi produk harian.</li>
+                            <li>Penggunaan bahan baku harus mengikuti panduan pada tabel Ingredients</li>
                             <li>Produk yang sudah dicatat produksi produk tidak boleh dihapus, hanya dapat diubah dengan
                                 alasan valid dan tercatat.</li>
                             <li>Jika stok kosong segera melakukan input stok kembali pada modul Raw Material(Bahan
@@ -37,46 +39,58 @@
                             <li>Jadwal untuk melakukan input data Produksi Produk pada jam 05.00 s.d 07.30</li>
                         </ul>
                     </div>
-                    <form action="{{ route('master_production_product.store') }}" method="POST"
+                    <form id="formGeneralMaster" action="{{ route('master_production_product.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
-                        <div class="form-group">
-                            <label><strong>Store</strong></label>
-                            <input type="text"
-                                value="{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name }}"
-                                class="form-control" autocomplete="off" readonly>
-                        </div>
-                        <hr class="hr-menu">
+                        <div style="color: black; height: 400px;background: white;overflow: auto;" class="modal-body">
+                            <div class="table-responsive">
+                                <table style="font-size: 14px; color:black;" class="table" id="dataTable"
+                                    width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Pilih</th>
+                                            <th>Produk</th>
+                                            <th>Total Target Produksi (*per Produk)</th>
+                                        </tr>
+                                    </thead>
 
-                        <div class="form-group">
-                            <label><strong>Produk</strong></label>
-                            <select name="product" class="form-control" id="products">
-                                <option value="">=== Pilih Produk ===</option>
-                                @foreach ($products as $item)
-                                    <option value="{{ $item->product_code }}">
-                                        {{ $item->product }}
-                                    </option>
-                                @endforeach
-                            </select>
+                                    <tbody>
+
+                                        <?php $no = 1; ?>
+                                        @foreach ($products as $prd)
+                                            @php
+                                                $key = $prd->product_code . '_' . $prd->variant_code;
+                                            @endphp
+                                            <tr style="width: 200px;">
+                                                <td><?php echo $no++; ?></td>
+                                                <td> <input class="allowed-checkbox" type="checkbox"
+                                                        name="product[{{ $key }}]"
+                                                        value="{{ $prd->product_code }}">
+                                                    <input type="hidden" name="variant[{{ $key }}]"
+                                                        value="{{ $prd->variant_code }}">
+                                                </td>
+                                                <td>{{ $prd->product_name }}
+                                                    <span style="font-weight:bold;">
+                                                        @if ($prd->product_variant == 'Y')
+                                                            {{ '[' . $prd->category . ']' }}
+                                                        @endif
+                                                    </span>
+                                                </td>
+                                                <td> <input class="form-control"
+                                                        name="qty_target_total[{{ $key }}]" type="number">
+                                                </td>
+                                            </tr>
+                                        @endforeach
+
+                                    </tbody>
+                                </table>
+                            </div>
                             <x-input-error :messages="$errors->get('product')" class="text-danger" />
                         </div>
 
-                        {{-- HIDE THIS --}}
-                        <div class="form-group" id="showSelectVariant" style="display: none;">
-                            <label><strong>Variant</strong></label>
-                            <select name="variant" class="form-control" id="variantSelect">
-                                <option value="">=== Pilih Variant Produk ===</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('product')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
-                            <input hidden type="text" name="variant" id="showVariantCode">
-                        </div>
-
-
-
-
+                        <br>
+                        <br>
                         <div class="form-group">
                             <label><strong>Pilih Bahan Baku</strong></label>
                             <div style="color: black; height: 400px;background: white;overflow: auto;"
@@ -88,7 +102,7 @@
                                             <tr>
                                                 <th>No</th>
                                                 <th>Pilih</th>
-                                                <th>Nama Material</th>
+                                                <th>Bahan Baku</th>
                                                 <th>Stok</th>
                                                 <th>Massa</th>
                                                 <th>Jumlah Pemakaian (hanya angka)</th>
@@ -114,7 +128,11 @@
                                                     </td>
                                                     <td>{{ '[' . $raw->material_code . '] ' . ' - ' . $raw->material_name }}
                                                     </td>
-                                                    <td>{{ $raw->quantity }}</td>
+                                                    <td>
+                                                        {{ $raw->quantity }}
+                                                        <input type="hidden" id="stock_{{ $raw->material_code }}"
+                                                            value="{{ $raw->quantity }}">
+                                                    </td>
                                                     <td>{{ $raw->material_type }}</td>
 
                                                     <td>
@@ -122,9 +140,16 @@
                                                             <input type="number" placeholder="Stok Kosong"
                                                                 class="form-control" readonly>
                                                         @else
-                                                            <input class="form-control"
+                                                            <input id="qty_{{ $raw->material_code }}"
+                                                                class="form-control"
                                                                 name="quantity_used[{{ $raw->material_code }}]"
-                                                                type="number">
+                                                                type="number"
+                                                                oninput="validateSingle('{{ $raw->material_code }}')">
+
+                                                            <small id="error_{{ $raw->material_code }}"
+                                                                style="color:red; display:none;">
+                                                                Jumlah melebihi stok
+                                                            </small>
 
                                                             <x-input-error :messages="$errors->get(
                                                                 'quantity_used.' . $raw->material_code,
@@ -132,12 +157,6 @@
                                                         @endif
 
                                                     </td>
-
-                                                    {{-- <td>
-                                                        <input class="disallowed-checkbox" type="checkbox"
-                                                            name="disallowed[]" value="{{ $raw->id }}"
-                                                            {{ in_array($raw->id, $disallowedData) ? 'checked' : '' }}>
-                                                    </td>  --}}
                                                 </tr>
                                             @endforeach
 
@@ -150,8 +169,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Total Target Produksi Produk</strong></label>
-                            <select name="production_type" class="form-control" id="">
+                            <label><strong>Tipe Produksi</strong></label>
+                            <select name="production_type" class="form-control" id="" required>
                                 <option value="">=== Pilih Tipe Produksi ===</option>
                                 <option value="per_day">Per Hari</option>
                                 <option value="per_week">Per Minggu</option>
@@ -160,32 +179,36 @@
                             <x-input-error :messages="$errors->get('production_type')" class="text-danger" />
                         </div>
 
-                        <div class="form-group">
-                            <label><strong>Total Target Produksi Produk</strong></label>
-                            <input type="number" name="target_total" class="form-control"
-                                value="{{ old('target_total') }}" placeholder="Masukan jumlah target total produk"
-                                autocomplete="off">
-                            <x-input-error :messages="$errors->get('target_total')" class="text-danger" />
-                        </div>
+                        {{-- BUAT MENJADI OTOMATIS TAMPIL KETIKA INPUT QTY TOTAL TARGET PER PRODUKSI --}}
 
                         <div class="form-group">
                             <label><strong>Tanggal Produksi Produk</strong></label>
-                            <input type="date" name="production_date" class="form-control" autocomplete="off">
+                            <input type="date" name="production_date" class="form-control" autocomplete="off"
+                                required>
                             <x-input-error :messages="$errors->get('production_date')" class="text-danger" />
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Tambah Data</button>
+                        <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
+                                Data</span>
+                            <span class="spinner"></span></button>
                     </form>
                     <br>
                     <br>
                 </div>
             </main>
 </body>
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
     body {
         font-family: "DM Sans", serif;
+    }
+
+
+    #showIngredients {
+        display: none;
     }
 </style>
 
@@ -196,9 +219,13 @@
         const variantSelect = document.getElementById('variantSelect');
         const showVariantCode = document.getElementById('showVariantCode');
 
+        const showRawMaterial = document.getElementById('showRawMaterial');
+        const showIngredients = document.getElementById('showIngredients');
+
         // // ✅ RESET DULU
         variantSelect.innerHTML = '<option value="">=== Pilih Variant Produk ===</option>';
         showVariantCode.value = '';
+
 
         if (!products) {
             document.getElementById('showVariant').value = '';
@@ -223,6 +250,29 @@
 
                 } else {
                     showVariant.style.display = "none";
+                }
+            })
+
+        fetch('/get_ingredients/' + products)
+            .then(response => {
+                if (!response.ok) throw new Error('Ingredients not found');
+                return response.json();
+
+            }).then(res => {
+                const tbody = document.getElementById('ingredientsTbody');
+                tbody.innerHTML = '';
+                if (res.data && res.data.length > 0) {
+                    res.data.forEach((item, index) => {
+                        tbody.innerHTML +=
+                            `<tr>
+                            <td>${index + 1}</td>
+                       <td>${ item.material_name }</td>
+                       <td>${ item.quantity  }  ${item.weight}</td>
+                      </tr>`
+                    });
+                    showIngredients.style.display = "block";
+                } else {
+                    showIngredients.style.display = "none";
                 }
             })
     });
@@ -255,6 +305,54 @@
                 showVariantCode.value = '';
             });
     })
+
+
+
+
+    function validateSingle(code) {
+        let stock = parseInt(document.getElementById("stock_" + code).value) || 0;
+        let input = document.getElementById("qty_" + code);
+        let value = parseInt(input.value) || 0;
+
+        let errorEl = document.getElementById("error_" + code);
+
+        if (value > stock) {
+            input.style.border = "2px solid red";
+            input.setCustomValidity("Melebihi stok");
+
+            if (errorEl) errorEl.style.display = "block";
+        } else {
+            input.style.border = "";
+            input.setCustomValidity("");
+
+            if (errorEl) errorEl.style.display = "none";
+        }
+
+        // update tombol submit
+        updateSubmitButton();
+    }
+
+
+    function updateSubmitButton() {
+        let inputs = document.querySelectorAll('[id^="qty_"]');
+        let btn = document.getElementById("btnMaster");
+
+        let hasError = false;
+
+        inputs.forEach(function(input) {
+            if (input.style.border.includes("red")) {
+                hasError = true;
+            }
+        });
+
+        if (hasError) {
+            btn.type = "button";
+            btn.className = "btn-general-secondary";
+        } else {
+            btn.type = "submit";
+            btn.className = "btn-general";
+        }
+    }
 </script>
 
 

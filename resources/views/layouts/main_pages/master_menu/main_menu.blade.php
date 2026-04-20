@@ -55,6 +55,7 @@
                                                 <th>Icon</th>
                                                 <th>Lokasi</th>
                                                 <th>Status</th>
+                                                <th>Deskripsi</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -102,6 +103,7 @@
                                                             <span class="text-danger">Nonaktif</span>
                                                         @endif
                                                     </td>
+                                                    <td>{{ $menu->description ?: '-' }}</td>
                                                     <td>{{ $menu->created_at }}</td>
                                                     <td>{{ $menu->updated_at }}</td>
                                                 </tr>

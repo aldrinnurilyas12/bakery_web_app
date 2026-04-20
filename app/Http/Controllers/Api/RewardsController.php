@@ -56,8 +56,7 @@ class RewardsController extends Controller
             'end_date' => 'required',
             'store' => 'required|array',
             'store.*' => 'required|exists:store,store_code',
-            'stock' => 'required|array',
-            'stock.*' => 'required|numeric|min:1'
+            'stock' => 'required|array'
 
         ], 
         [
@@ -74,7 +73,7 @@ class RewardsController extends Controller
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 8);
         $rewards_code = 'REWARD' . $unique_code;
-        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         $store_code = $request->store;
         $stock = $request->stock;
@@ -191,7 +190,7 @@ class RewardsController extends Controller
 
         ]);
 
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         $images_old = DB::table('rewards')->select('images')->where('rewards_code', $request->rewards_code)->first();
         if($request->hasFile('images')){
@@ -251,7 +250,7 @@ class RewardsController extends Controller
 
         ]);
 
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username;
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         if(!$request->status){
             session()->flash('failed_message', 'Centang status dahulu!');
             return redirect()->back();
