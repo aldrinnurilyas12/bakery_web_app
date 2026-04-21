@@ -11,50 +11,58 @@ This project start build at September 2025 until now for development, Using PHP 
 ![Page 3](https://raw.githubusercontent.com/aldrinnurilyas12/bakery_web_app/main/screenshoot_web_layouts/page3.jpg)
 
 
-## Feature in this Information System
 
-- **>>> MASTER DATA MODULE <<<**
-  
-- Login and Register User Account
-- Master Data Products Data
-- Master Data Products Daily
-- Master Data Production Products
-- Master Data Products Category
-- Master Data Customers
-- Master Data Product Waste
-- Master Data Product Variant Catagory
-- Master Data Stores
+## 📦 Project Modules Overview
 
+🔐 Master Data Modules
+Manage all core data used across the system.
 
-- **>>> TRANSACTION MODULES <<<**
+👤 User Authentication
+Login & Register User Account
 
-- Transactions Point Of Sales (POS)
-- Transactions Pick-Up [On Progress]
-- Redeem Point & Claim Rewards [On Progress]
+📦 Product Management
 
-- **>>> INVENTORY DATA MODULE <<<**
-  
-- Distribution to Multistore
-- Items 
-- Suppliers
-- Raw Materials
-- Purchase Orders
+- Products Data
+- Products Daily
 - Production Products
+- Product Categories
+- Product Variant Categories
+
+🧑‍🤝‍🧑 Customer Management
+- Customers data
+
+🏬 Store Management
+- Stores
+
+♻️ Product Waste Management
+- Product Waste
+
+💳 Transaction Modules
+Handle all transactional processes.
+
+- Point of Sales (POS)
+- Pick-Up System (On Progress)
+- Redeem Points & Claim Rewards
+
+📊 Inventory Modules
+Control stock, supply chain, and production resources.
+
+- Distribution to Multi-store
+- Items
 - Central Stock Products
+- Production Products
+- Raw Materials
 
+🧾 Procurement
+- Suppliers
+- Purchase Orders
 
-- **>>> E-CRM MODULES <<<**
+📢 E-CRM Modules
+Customer engagement and marketing features.
 
-- Redeem Rewards
 - E-Vouchers
-- Promo Campaign
-- Rewards
-- Promotions
-
-- **>>> ANALYTICS MODULES <<<**
-
-- Data Warehouse for Data Analytics
-- Building Machine Learning for prediction products waste and product not sold using Random Forest Algorithm [On Progress]
+- Rewards & Redeem Rewards
+- Promo Campaigns
 
 
 
