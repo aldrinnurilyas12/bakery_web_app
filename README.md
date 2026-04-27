@@ -10,7 +10,8 @@ This project start build at September 2025 until now for development, Using PHP 
 
 ![Page 3](https://raw.githubusercontent.com/aldrinnurilyas12/bakery_web_app/main/screenshoot_web_layouts/page3.jpg)
 
-
+## 🎥 Video Demo
+[![Watch Video](https://img.youtube.com/vi/_CMnFDJEHx0/0.jpg)](https://www.youtube.com/watch?v=_CMnFDJEHx0)
 
 ## 📦 Project Modules Overview
 
@@ -24,7 +25,7 @@ Login & Register User Account
 
 - Products Data
 - Products Daily
-- Production Products
+- Production Products Daily
 - Product Categories
 - Product Variant Categories
 
@@ -54,6 +55,7 @@ Control stock, supply chain, and production resources.
 - Raw Materials
 
 🧾 Procurement
+
 - Suppliers
 - Purchase Orders
 
