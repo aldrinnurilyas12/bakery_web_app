@@ -90,7 +90,8 @@
                                                             name="product[{{ $loop->parent->index }}][store][{{ $store->store_code }}]"
                                                             min="0" max="{{ $product->total_available }}"
                                                             id="qty_{{ $loop->parent->index }}_{{ $store->store_code }}"
-                                                            oninput="validateTotal({{ $loop->parent->index }})">
+                                                            oninput="validateTotal({{ $loop->parent->index }})"
+                                                            value="{{ old('product.' . $loop->parent->index . '.store.' . $store->store_code) }}">
 
                                                         <small
                                                             id="error_{{ $loop->parent->index }}_{{ $store->store_code }}"

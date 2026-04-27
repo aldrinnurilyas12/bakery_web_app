@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery - Master Data Kategori</title>
+    <title>Kencana Bakery - Master Data Redeem E-Voucher</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
@@ -30,29 +30,22 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Kategori</a>
+                                Master Data / <a href="{{ route('master_category.index') }}">Redeem E-Vouchers</a>
                             </div>
-                            @if ($category_data->isNotEmpty())
-                                @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('category_create') }}">Tambah
-                                            Kategori</a>
-                                    </div>
-                                @endif
-                            @endif
                         </div>
                         <div class="card-body">
-                            @if ($category_data->isNotEmpty())
+                            @if ($redeem_vouchers->isNotEmpty())
                                 <div class="table-responsive">
                                     <table class="table" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                @if (!$user_permission_forbidden)
-                                                    <th>Aksi</th>
-                                                @endif
-                                                <th>Kategori</th>
-                                                <th>Icon</th>
+                                                <th>Kode E-Voucher</th>
+                                                <th>Nama E-Voucher</th>
+                                                <th>Pelanggan</th>
+                                                <th>Status</th>
+                                                <th>Outlet</th>
+                                                <th>Tanggal Redeem</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -61,26 +54,17 @@
                                             <?php
                                             $no = 1;
                                             ?>
-                                            @foreach ($category_data as $key => $category)
+                                            @foreach ($redeem_vouchers as $redeem)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    @if (!$user_permission_forbidden)
-                                                        <td>
-                                                            <div style="display: flex;gap:10px;" class="btn-action">
-
-                                                                <a href="{{ route('category_update', $category->id) }}"><i
-                                                                        class="fas fa-edit"></i></a>
-
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteModal{{ $category->id }}"><i
-                                                                        class="fas fa-trash"></i></a>
-                                                            </div>
-                                                        </td>
-                                                    @endif
-                                                    <td>{{ $category->category_name }}</td>
-                                                    <td> {{ $category->icon ?: '-' }} </td>
-                                                    <td>{{ $category->created_at }}</td>
-                                                    <td>{{ $category->updated_at }}</td>
+                                                    <td>{{ $redeem->voucher_code }}</td>
+                                                    <td> {{ $redeem->voucher_name }} </td>
+                                                    <td>{{ $redeem->name }}</td>
+                                                    <td> {{ $redeem->status_name }} </td>
+                                                    <td> {{ $redeem->store_name }} </td>
+                                                    <td>{{ $redeem->redeem_date }}</td>
+                                                    <td>{{ $redeem->created_at }}</td>
+                                                    <td>{{ $redeem->updated_at }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -96,12 +80,7 @@
                                                 src="{{ asset('assets/front_end/assets/img/null.png') }}"
                                                 alt="">
                                             <div style="display: block;" class="text-content">
-                                                <h3>Belum ada Kategori</h3>
-                                                @if (!$user_permission_forbidden)
-                                                    <a class="btn btn-primary"
-                                                        href="{{ route('category_create') }}">Tambah
-                                                        Kategori</a>
-                                                @endif
+                                                <h3>Belum ada data Redeem Vouchers</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -115,33 +94,6 @@
         </div>
     </div>
 
-    @foreach ($category_data as $category)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $category->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $category->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data kategori produk</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Apakah anda yakin ingin menghapus Kategori
-                        {{ $category->category_name }} ?</div>
-                    <div class="modal-footer">
-                        <form class="form-delete" action="{{ route('master_category.destroy', $category->id) }}"
-                            method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
-                                    class="btn-text">Hapus</span>
-                                <span class="spinner"></span></button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
 </body>
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>

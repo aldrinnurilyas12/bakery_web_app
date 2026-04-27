@@ -8,6 +8,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <title>Login Admin Kencana Bakery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -41,8 +42,13 @@
 
                 <div class="input-group">
                     <label for="">Masukan Kata Sandi</label>
-                    <input class="form-input-text" type="password" name="password" placeholder="Masukan kata sandi"
-                        autocomplete="off">
+                    <div style="position: relative;">
+                        <input id="password" class="form-input-text" type="password" name="password"
+                            placeholder="Masukan kata sandi" autocomplete="off">
+                        <i class="fas fa-eye" id="togglePassword"
+                            style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                        </i>
+                    </div>
 
                 </div>
                 @if ($errors->get('login'))
@@ -60,9 +66,12 @@
                         <span class="spinner"></span>
                     </button>
                 </div>
-
-
             </form>
+
+            <div style="display: flex;justify-content: center;margin-top: 10px;" class="link">
+                <a style="text-decoration:underline;color:#bb0239;" href="{{ route('request-forgot-password') }}">Lupa
+                    password?</a>
+            </div>
         </div>
     </div>
 
@@ -92,6 +101,21 @@
         });
     </script>
 @endif
+
+
+<script>
+    const toggle = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+
+    toggle.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+
+        // ganti icon
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');

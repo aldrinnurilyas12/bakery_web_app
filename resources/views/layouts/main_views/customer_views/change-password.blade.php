@@ -44,14 +44,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label for=""><strong>Kata Sandi lama (optional)</strong></label>
-                            <input type="password" class="form-control" placeholder="Masukan kata sandi lama">
-                        </div>
-
-                        <div class="form-group">
                             <label for=""><strong>Kata Sandi Baru </strong></label>
-                            <input type="password" name="password" class="form-control"
-                                placeholder="Buat kata sandi baru">
+                            <div style="position: relative;">
+                                <input id="password" type="password" name="password" class="form-control"
+                                    placeholder="Buat kata sandi baru">
+                                <i class="fas fa-eye" id="togglePassword"
+                                    style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                                </i>
+                            </div>
                         </div>
 
                         <button id="btnResetPassword" type="submit" class="btn-general">
@@ -209,7 +209,20 @@
         btn.classList.add("loading");
         btn.disabled = true;
     });
+
+    const toggle = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+
+    toggle.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+
+        // ganti icon
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
 </script>
+
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

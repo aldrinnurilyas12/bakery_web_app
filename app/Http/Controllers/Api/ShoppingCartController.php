@@ -27,52 +27,53 @@ class ShoppingCartController extends Controller
     {
         $cart = Session::get('cart', []);
 
-$cart_product = [
-    'product'       => $request->product,
-    'variant'       => $request->variant,
-    'variant_type'  => $request->variant_type,
-    'product_name'  => $request->product_name,
-    'price'         => $request->price,
-    'quantity'      => $request->quantity,
-];
+        $cart_product = [
+            'product'       => $request->product,
+            'variant'       => $request->variant,
+            'variant_type'  => $request->variant_type,
+            'product_name'  => $request->product_name,
+            'price'         => $request->price,
+            'quantity'      => $request->quantity,
+            'stock_available'=> $request->stock_available
+        ];
 
-$found = false;
+        $found = false;
 
-foreach ($cart as &$item) {
+        foreach ($cart as &$item) {
 
-    // Jika produk punya variant
-    if (!empty($cart_product['variant'])) {
+            // Jika produk punya variant
+            if (!empty($cart_product['variant'])) {
 
-        if (
-            $item['product'] === $cart_product['product'] &&
-            $item['variant'] === $cart_product['variant'] &&
-            $item['variant_type'] === $cart_product['variant_type']
-        ) {
-            $item['quantity'] += $cart_product['quantity'];
-            $found = true;
-            break;
+                if (
+                    $item['product'] === $cart_product['product'] &&
+                    $item['variant'] === $cart_product['variant'] &&
+                    $item['variant_type'] === $cart_product['variant_type']
+                ) {
+                    $item['quantity'] += $cart_product['quantity'];
+                    $found = true;
+                    break;
+                }
+
+            } else {
+
+                // Produk tanpa variant
+                if ($item['product'] === $cart_product['product']) {
+                    $item['quantity'] += $cart_product['quantity'];
+                    $found = true;
+                    break;
+                }
+            }
         }
 
-    } else {
-
-        // Produk tanpa variant
-        if ($item['product'] === $cart_product['product']) {
-            $item['quantity'] += $cart_product['quantity'];
-            $found = true;
-            break;
+     // Jika tidak ditemukan → push item baru
+        if (!$found) {
+            $cart[] = $cart_product;
         }
-    }
-}
 
-// Jika tidak ditemukan → push item baru
-if (!$found) {
-    $cart[] = $cart_product;
-}
+        Session::put('cart', $cart);
 
-Session::put('cart', $cart);
-
-        session()->flash('add_cart_success', 'Produk berhasil ditambahkan!');
-        return redirect()->back();
+            session()->flash('add_cart_success', 'Produk berhasil ditambahkan!');
+            return redirect()->back();
     }
 
     /**

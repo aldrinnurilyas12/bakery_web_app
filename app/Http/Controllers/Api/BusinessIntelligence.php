@@ -24,7 +24,7 @@ class BusinessIntelligence extends Controller
 
     public function sales_performance(Request $rq)
     {
-        $products_sales = DB::table('v_products_sales_performance')->get();
+        $products_sales = DB::table('v_product_sales_performance')->get();
         return view('layouts.main_pages.business_intelligence.sales_performance', compact('products_sales'));
     }
 

@@ -153,19 +153,19 @@
                                                     <td>{{ $transaction->payment_type }}</td>
                                                     <td>
                                                         @if ($transaction->payment_type == 'Cash/Tunai')
-                                                            {{ 'Rp' . number_format($transaction->total_amount) }}
+                                                            {{ 'Rp. ' . number_format($transaction->total_amount) }}
                                                         @else
                                                             <span>-</span>
                                                         @endif
                                                     </td>
                                                     <td>
                                                         @if ($transaction->payment_type == 'Cash/Tunai')
-                                                            {{ 'Rp' . number_format($transaction->payment_changes) }}
+                                                            {{ 'Rp. ' . number_format($transaction->payment_changes) }}
                                                         @else
                                                             <span>-</span>
                                                         @endif
                                                     </td>
-                                                    <td>{{ 'Rp' . number_format($transaction->grand_total) }}</td>
+                                                    <td>{{ 'Rp. ' . number_format($transaction->grand_total) }}</td>
                                                     <td>
                                                         @if ($transaction->customer)
                                                             {{ $transaction->customer . ' - ' . $transaction->name }}

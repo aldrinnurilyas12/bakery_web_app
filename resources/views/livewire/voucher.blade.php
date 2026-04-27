@@ -41,8 +41,7 @@
                                                     </div>
                                                     <p
                                                         style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;">
-                                                        <span>Kuota:
-                                                            {{ $voucher->quota }}</span> &nbsp;
+
                                                         <span>Min Transaksi:
                                                             {{ 'Rp.' . number_format($voucher->min_transaction) }}</span>
                                                         &nbsp;
@@ -51,10 +50,16 @@
                                                             <span>Diskon:
                                                                 {{ $voucher->discount . '%' }}</span>
                                                         @elseif($voucher->nominal)
-                                                            <span>Nominal:
+                                                            <span>Potongan:
                                                                 {{ 'Rp.' . number_format($voucher->nominal) }}
                                                             @else
                                                         @endif
+
+                                                        <br>
+                                                        <span>Kuota:
+                                                            {{ $voucher->quota }}</span> &nbsp;
+                                                        <span>Redeem:
+                                                            0</span>
                                                     </p>
 
                                                     <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
@@ -98,18 +103,21 @@
                                         </div>
                                         @if (!$user_permission_forbidden)
                                             <div class="card-footer d-flex align-items-center justify-content-between">
-                                                <a class="small text-black"
-                                                    href="{{ route('voucher_update', $voucher->voucher_code) }}">Edit</a>
+
 
                                                 @if ($voucher->status == 8)
-                                                    <a class="btn btn-success" href="#" data-toggle="modal"
+                                                    {{-- <a class="btn btn-success" href="#" data-toggle="modal"
                                                         data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Aktifkan
                                                         Kembali
-                                                    </a>
+                                                    </a> --}}
                                                 @else
-                                                    <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                        data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Nonaktif
-                                                    </a>
+                                                    @if (!$cek_redeem_voucher)
+                                                        <a class="small text-black"
+                                                            href="{{ route('voucher_update', $voucher->voucher_code) }}">Edit</a>
+                                                        <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                            data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Nonaktif
+                                                        </a>
+                                                    @endif
                                                 @endif
 
                                             </div>

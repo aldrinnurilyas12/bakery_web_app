@@ -11,10 +11,12 @@ class VoucherRedeem extends Model
     protected $table = 'redeem_voucher';
     protected $fillable = [
         'voucher_code',
+        'customer_voucher',
         'customer',
         'redeem_date',
         'casheer',
         'status',
+        'store',
         'created_by',
         'updated_by'
     ];

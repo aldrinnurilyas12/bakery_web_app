@@ -45,14 +45,15 @@
                             <br>
                             <small style="font-style: oblique;">Jika sudah pakai jumlah nominal maka opsi Diskon tidak
                                 berlaku/tidak diisi</small>
-                            <input type="text" name="nominal" class="form-control" value="{{ $vouchers->nominal }}"
-                                placeholder="Masukan jumlah nominal" autocomplete="off">
+                            <input id="nominalInput" type="text" name="nominal" class="form-control"
+                                value="{{ $vouchers->nominal }}" placeholder="Masukan jumlah nominal"
+                                autocomplete="off">
                         </div>
 
                         <div class="form-group">
                             <label><strong>Diskon (opsional)</strong></label>
-                            <input type="text" name="discount" class="form-control" value="{{ $vouchers->discount }}"
-                                placeholder="Masukan discount" autocomplete="off">
+                            <input id="discountInput" type="text" name="discount" class="form-control"
+                                value="{{ $vouchers->discount }}" placeholder="Masukan discount" autocomplete="off">
                         </div>
 
                         <div class="form-group">
@@ -142,6 +143,29 @@
 </style>
 
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const nominalInput = document.getElementById("nominalInput");
+        const discountInput = document.getElementById("discountInput");
 
+        nominalInput.addEventListener("input", function() {
+            if (nominalInput.value.trim() !== "") {
+                discountInput.value = "";
+                discountInput.disabled = true;
+            } else {
+                discountInput.disabled = false;
+            }
+        });
+
+        discountInput.addEventListener("input", function() {
+            if (discountInput.value.trim() !== "") {
+                nominalInput.value = "";
+                nominalInput.disabled = true;
+            } else {
+                nominalInput.disabled = false;
+            }
+        });
+    });
+</script>
 
 </html>

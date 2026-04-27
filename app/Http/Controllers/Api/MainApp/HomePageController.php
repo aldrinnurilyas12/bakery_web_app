@@ -182,13 +182,13 @@ class HomePageController extends Controller
     public function product_search(Request $request){
 
         $search = $request->input('search');
-        $product = DB::table('v_daily_products')->where('product', 'like', '%' . $search . '%')
+        $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code')->distinct()->where('product', 'like', '%' . $search . '%')
         ->orWhere('category','like', '%' . $search . '%')->paginate();
         if ($search) {
-             $product = DB::table('v_daily_products')->where('product', 'like', '%' . $search . '%')
+             $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code')->distinct()->where('product', 'like', '%' . $search . '%')
         ->orWhere('category','like', '%' . $search . '%')->paginate();
         } else {
-             $product = DB::table('v_daily_products')->where('product', 'like', '%' . $search . '%')
+             $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code')->distinct()->where('product', 'like', '%' . $search . '%')
         ->orWhere('category','like', '%' . $search . '%')->paginate();
         }
 

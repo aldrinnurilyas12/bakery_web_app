@@ -138,8 +138,13 @@ class CustomerController extends Controller
         $CUSTOMER_LOGIN_SESSION = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         $vouchers = DB::table('customer_vouchers as cv')
                 ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
-                ->where('customer',$CUSTOMER_LOGIN_SESSION)->get();
-        return view('layouts.main_views.customer_views.customer-voucher', compact('vouchers'));
+                ->where('customer',$CUSTOMER_LOGIN_SESSION)->where('cv.voucher_used', 'N')->orderBy('cv.created_at', 'DESC')->get();
+
+            $vouchers_used = DB::table('customer_vouchers as cv')
+                ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
+                ->where('customer',$CUSTOMER_LOGIN_SESSION)->where('cv.voucher_used', 'Y')->orderBy('cv.created_at', 'DESC')->get();
+
+        return view('layouts.main_views.customer_views.customer-voucher', compact('vouchers', 'vouchers_used'));
     }
 
 
@@ -347,9 +352,16 @@ class CustomerController extends Controller
             ->leftJoin('rewards as r', 'rs.reward', '=', 'r.rewards_code')
             ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
             ->join('store as st', 'rs.store', '=', 'st.store_code')
-            ->where('customer', $customer)->orderBy('redeem_date', 'DESC')->get();
+            ->where('customer', $customer)->where('rr.status', 11)->orderBy('redeem_date', 'DESC')->get();
+
+            $unclaimed_rewards = DB::table('redeem_reward as rr')
+            ->leftJoin('rewards_store as rs','rr.reward', '=', 'rs.reward_store_code')
+            ->leftJoin('rewards as r', 'rs.reward', '=', 'r.rewards_code')
+            ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
+            ->join('store as st', 'rs.store', '=', 'st.store_code')
+            ->where('customer', $customer)->where('rr.status', 12)->orderBy('redeem_date', 'DESC')->get();
      
-        return view('layouts.main_views.customer_views.rewards', compact('rewards'));
+        return view('layouts.main_views.customer_views.rewards', compact('rewards', 'unclaimed_rewards'));
     }
 
 

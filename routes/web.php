@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\BusinessIntelligence;
 use App\Http\Controllers\Api\CentralStockProductsController;
+use App\Http\Controllers\Api\CustomerForgotPasswordRequest;
+use App\Http\Controllers\Api\GetPointMemberTransaction;
 use App\Http\Controllers\Api\DailyProducts;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\DistributionProducts;
@@ -26,7 +28,7 @@ use App\Http\Controllers\Api\StoreOutletController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Api\MasterMainMenu;
 use App\Http\Controllers\Api\PurchaseOrderController;
-use App\Http\Controllers\Api\RawMaterialStore;
+use App\Http\Controllers\Api\RequestForgotPassword;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\VariantCategory;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +61,16 @@ Route::get('promo-campaign', [MainAppHomePageController::class, 'promo_campaign'
 Route::get('promo-detail/{promo_code}', [MainAppHomePageController::class, 'promo_campaign_detail'])->name('promo-detail');
 Route::get('reward-detail/{rewards_code}', [CustomerController::class, 'reward_detail'])->name('reward-detail');
 Route::get('fstore/', [MainAppHomePageController::class, 'filter_store'])->name('fstore');
+Route::apiResource('customer-forgot-password', App\Http\Controllers\Api\CustomerForgotPasswordRequest::class);
+Route::get('forgot-password-help', [CustomerForgotPasswordRequest::class, 'create'])->name('forgot-password-help');
+Route::post('check-email-otp', [CustomerForgotPasswordRequest::class, 'send_otp'])->name('check-email-otp');
+Route::get('otp-confirmation-request', [CustomerForgotPasswordRequest::class, 'otp_confirmation'])->name('otp-confirmation-request');
+Route::post('otp-proccess-request', [CustomerForgotPasswordRequest::class, 'otp_auth_confirmation'])->name('otp-proccess-request');
+Route::get('change-password-req', [CustomerForgotPasswordRequest::class, 'change_password_layouts'])->name('change-password-req');
+Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest::class, 'change_password_proccess'])->name('change-password-proccessing');
+
+
+
 
 // for testing get API Eksternal
 Route::get('omdb_services', [OmdbApiServices::class, 'index']);
@@ -70,7 +82,7 @@ Route::middleware('customer')->group(function () {
     Route::get('history-transactions', [CustomerController::class, 'history_transaction'])->name('history-transaction');
     Route::get('invoice/{transaction_code}', [CustomerController::class, 'invoice'])->name('invoice');
     Route::get('your-voucher', [CustomerController::class, 'customer_voucher'])->name('your-voucher');
-    Route::get('change-password', [CustomerController::class, 'change_password_layout'])->name('change-password');
+    Route::get('change-password-help', [CustomerController::class, 'change_password_layout'])->name('change-password-help');
     Route::put('nonactive_account/{customer_code}', [CustomerController::class, 'nonactive_account'])->name('nonactive_account');
     Route::put('update_password', [CustomerController::class, 'update_customer_password'])->name('update_password');
     Route::post('add_favorite', [CustomerController::class, 'favorite_product'])->name('add_favorite');
@@ -94,6 +106,16 @@ Route::get('/admin_kencana_bakery', function () {
 
 Route::get('login_kencana_bakery',[AuthenticatedSessionController::class,'create'])->name('login_kencana_bakery');
 Route::post('login_exe', [AuthenticatedSessionController::class, 'store'])->name('login_exe');
+Route::apiResource('forgot-password', App\Http\Controllers\Api\RequestForgotPassword::class);
+Route::get('request-forgot-password', [RequestForgotPassword::class, 'create'])->name('request-forgot-password');
+Route::post('password-auth-proccess', [RequestForgotPassword::class, 'password_proccess_auth'])->name('password-auth-proccess');
+Route::get('otp-confirmation', [RequestForgotPassword::class, 'otp_confirmation'])->name('otp-confirmation');
+Route::post('otp-proccess', [RequestForgotPassword::class, 'otp_auth_confirmation'])->name('otp-proccess');
+Route::get('change-password', [RequestForgotPassword::class, 'change_password_layouts'])->name('change-password');
+Route::put('change-password-proccess/{email}', [RequestForgotPassword::class, 'change_password_proccess'])->name('change-password-proccess');
+
+
+
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard_main', [HomepageController::class, 'index'])->name('dashboard_main');
@@ -113,6 +135,10 @@ Route::middleware('auth')->group(function () {
     Route::put('user_active_update/{nik}', [RegisteredUserController::class, 'update_user_active'])->name('user_active_update');
     Route::get('get_email/{emp_nik}', [RegisteredUserController::class,'get_email']);
     Route::delete('delete_role/{user_role_id}', [RegisteredUserController::class, 'delete_role'])->name('delete_role');
+
+    Route::apiResource('point_member_setting', App\Http\Controllers\Api\GetPointMemberTransaction::class);
+    Route::get('point_create', [GetPointMemberTransaction::class, 'create'])->name('point_create');
+    Route::put('point_update_status/{id}', [GetPointMemberTransaction::class, 'update'])->name('point_update_status');
     
     //  Customer API
     Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class);
@@ -194,6 +220,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/voucher_data', function () {
         return view('pages.voucher');
     })->name('voucher');
+    Route::get('redeem_vouchers', [Voucher::class, 'redeem_voucher_data'])->name('redeem_vouchers');
 
     // Raw Material Route
     Route::apiResource('master_material', App\Http\Controllers\Api\RawMaterialController::class);

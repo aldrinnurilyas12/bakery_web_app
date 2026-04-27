@@ -34,101 +34,144 @@
                                     Performance</a>
                             </div>
                         </div>
-                        <div class="card-body">
-                            @if ($products_sales->isNotEmpty())
+                        @if ($products_sales->isNotEmpty())
+                            <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                    <table class="table" width="100%">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>SKU</th>
                                                 <th>Produk</th>
-                                                <th>Harga</th>
-                                                <th>Harga Variant</th>
-                                                <th>Tipe Variant</th>
-                                                <th>Kode Produksi</th>
+                                                <th></th>
                                                 <th>Products Sales Performance</th>
-                                                <th>Store</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            $no = 1;
-                                            ?>
-                                            @foreach ($products_sales as $sales)
+                                            @php
+                                                $no = 1;
+                                                $grouped = $products_sales->groupBy(function ($item) {
+                                                    return $item->product_code . '-' . $item->variant_code;
+                                                });
+
+                                            @endphp
+
+                                            @foreach ($grouped as $key => $group)
+                                                @php
+                                                    $first = $group->first();
+
+                                                    $product_images = DB::table('product_images')
+                                                        ->where('product_code', $first->product_code)
+                                                        ->first();
+
+                                                @endphp
                                                 <tr>
-                                                    <td><?php echo $no++; ?></td>
-                                                    <td>{{ $sales->product_code }}</td>
-                                                    <td>{{ $sales->product_name }}</td>
-                                                    <td> {{ 'Rp.' . number_format($sales->price) ?: '-' }} </td>
-                                                    <td>{{ 'Rp.' . number_format($sales->variant_price) ?: '-' }}</td>
-                                                    <td> {{ $sales->variant_category ?: '-' }} </td>
-                                                    <td>{{ $sales->production_code }}</td>
+                                                    <td>{{ $no++ }}</td>
                                                     <td>
+                                                        <div style="display:block;" class="span">
+                                                            @if ($product_images)
+                                                                <img width="100" height="100"
+                                                                    src="{{ 'storage/' . $product_images->images }}"
+                                                                    alt="">
+                                                            @endif
+                                                            <br>
+                                                            <br>
+                                                            <span
+                                                                style="font-weight: 800;">{{ $first->product_name }}</span>
+                                                            <br>
+                                                            <span
+                                                                style="font-weight: 400;">{{ $first->variant_category ?? '-' }}</span>
 
-                                                        <table style="font-size: 14px; color:black;"
-                                                            class="table table-bordered" id="dataTable" width="100%"
-                                                            cellspacing="0">
+                                                        </div>
+                                                    </td>
 
-                                                            <tr>
-                                                                <th>Total Terjual</th>
-                                                                <th>HPP</th>
-                                                                <th>COGS</th>
-                                                                <th>Total Cost</th>
-                                                                <th>Revenue</th>
-                                                                <th>Gross Profit</th>
-                                                                <th>Profit</th>
-                                                                <th>Margin Profit(%)</th>
+                                                    <td>
+                                                        <table class="table table-bordered" style="font-size: 13px;">
+                                                            <thead>
+                                                                <tr>
+                                                                    @if ($first->price)
+                                                                        <th>Harga</th>
+                                                                    @endif
 
-                                                            </tr>
+                                                                    @if ($first->variant_price)
+                                                                        <th>Harga Variant</th>
+                                                                    @endif
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    @if ($first->price)
+                                                                        <td>{{ $first->price ? 'Rp.' . number_format($first->price) : '-' }}
+                                                                        </td>
+                                                                    @endif
 
-                                                            <tr>
-                                                                <td> {{ $sales->total_sold ?: '-' }} </td>
-                                                                <td>{{ $sales->hpp ?: '-' }}
-                                                                </td>
-                                                                <td>{{ $sales->cogs ?: '-' }}
-                                                                </td>
-                                                                <td>{{ 'Rp.' . number_format($sales->total_cost) ?: '-' }}
-                                                                </td>
-                                                                <td> {{ 'Rp.' . number_format($sales->revenue) ?: '-' }}
-                                                                </td>
-                                                                <td>{{ $sales->gross_profit ?: '-' }}
-                                                                </td>
-                                                                <td>{{ 'Rp.' . number_format($sales->profit) ?: '-' }}
-                                                                </td>
-                                                                <td> {{ $sales->margin_profit_percent . '%' }} </td>
-                                                            </tr>
-
+                                                                    @if ($first->variant_price)
+                                                                        <td>{{ $first->variant_price ? 'Rp.' . number_format($first->variant_price) : '-' }}
+                                                                        </td>
+                                                                    @endif
+                                                                </tr>
+                                                            </tbody>
                                                         </table>
                                                     </td>
-                                                    <td>{{ $sales->store_name }}</td>
+
+
+
+                                                    <td>
+                                                        <table class="table table-bordered" style="font-size: 13px;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Store</th>
+                                                                    <th>Total Produk</th>
+                                                                    <th>Total Terjual</th>
+                                                                    <th>Total Cost</th>
+                                                                    <th>Revenue</th>
+                                                                    <th>Profit</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($group as $item)
+                                                                    <tr>
+                                                                        <td>{{ $item->store ?? '-' }}</td>
+                                                                        <td>0</td>
+                                                                        <td>{{ $item->total_sold ?? 0 }}</td>
+                                                                        <td>{{ $item->total_cost ? 'Rp.' . number_format($item->total_cost) : '0' }}
+                                                                        </td>
+                                                                        <td>{{ $item->revenue ? 'Rp.' . number_format($item->revenue) : '0' }}
+                                                                        </td>
+                                                                        <td>{{ $item->profit ? 'Rp.' . number_format($item->profit) : '0' }}
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
                                                 </tr>
                                             @endforeach
+
                                         </tbody>
                                     </table>
                                 </div>
-                            @else
-                                <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
-                                    class="empty-transaction">
+                            </div>
+                        @else
+                            <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                                class="empty-transaction">
 
-                                    <div style="display: flex;" class="empty-content">
-                                        <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
-                                            <img width="70" height="70"
-                                                src="{{ asset('assets/front_end/assets/img/null.png') }}"
-                                                alt="">
-                                            <div style="display: block;" class="text-content">
-                                                <h3>Belum ada data Sales Performance</h3>
-                                            </div>
+                                <div style="display: flex;" class="empty-content">
+                                    <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
+                                        <img width="70" height="70"
+                                            src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
+                                        <div style="display: block;" class="text-content">
+                                            <h3>Belum ada data Sales Performance</h3>
                                         </div>
                                     </div>
-
                                 </div>
-                            @endif
-                        </div>
+
+                            </div>
+                        @endif
                     </div>
                 </div>
-            </main>
         </div>
+        </main>
+    </div>
     </div>
 
 </body>

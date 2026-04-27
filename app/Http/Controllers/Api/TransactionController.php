@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Exports\TransactionExport;
 use App\Http\Controllers\Controller;
+use App\Mail\GetVoucherInfoCustomer;
 use App\Models\ItemsCategoryModel;
 use App\Models\ProductsModel;
+use App\Models\RedeemRewardModel;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDetailInformationModel;
 use App\Models\TransactionModel;
 use App\Models\TransactionsVouchers;
 use App\Models\VoucherCustomer;
 use App\Models\VoucherModel;
+use App\Models\VoucherRedeem;
 use App\Models\VouchersUsages;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,6 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Mail;
 
 class TransactionController extends Controller
 {
@@ -181,19 +185,50 @@ class TransactionController extends Controller
 
 
     $show_voucher =DB::table('customer_vouchers as cv')
+                    ->select('v.voucher_code','v.discount', 'v.nominal', 'cv.customer', 'cv.voucher_used','cv.status', 'v.end_date')
                     ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
-                    ->select('v.voucher_code','v.discount', 'v.nominal')
-                    ->where('cv.voucher', $voucher_code)
-                    ->where('cv.customer', $customer)
-                    ->where('cv.voucher_used', 'N')->first();
+                    ->leftJoin('customer as c','cv.customer', '=', 'c.customer_code')
+                    ->where('cv.customer_voucher_code', $voucher_code)
+                    ->first();
+    
+                    
+    if(!$show_voucher){
+       return response()->json([
+            'message' => 'E-Voucher tidak ditemukan!',
+            'status' => 'voucher_not_found'
+        ]);
 
-    if ($voucher_code) {
+    }
+
+
+    if (Carbon::parse($show_voucher->end_date)->lt(now())) {
+        return response()->json([
+            'message' => 'E-Voucher Expired!',
+            'status' => 'voucher_expired'
+        ]);
+    }
+
+     if($show_voucher->customer !== $customer){
+        return response()->json([
+            'message' => 'E-Voucher invalid!',
+            'status' => 'voucher_not_matching'
+        ]);
+    }
+
+
+    if($show_voucher->voucher_used === 'Y' && $show_voucher->status === 8 ){
+        return response()->json([
+            'message' => 'E-Voucher invalid!',
+            'status' => 'voucher_used'
+        ]);
+    }
+
         return response()->json([
             'data' => $show_voucher,
             'message' => 'Data voucher ditemukan',
             'status' => 'success'
         ]);
-    } 
+    
 }
 
 
@@ -284,10 +319,15 @@ class TransactionController extends Controller
         $qtyProducts = $request->quantity_per_product;
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $store_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
         $customer = $request->customer;
         $voucher_code = $request->promo_code;
         $voucher_quota = DB::table('voucher')->where('voucher_code', $voucher_code)->value('quota');
         $voucherExpired = VoucherModel::where('voucher_code', $voucher_code)->where('status', 7)->value('end_date');
+        $date = now()->format('Ymd');
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 5);
+        $customerVoucher = 'VOUCHER'. $date . $unique_code;
         
         // HITUNG TOTAL VOUCHER YANG SUDAH DIGUNAKAN
         $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
@@ -348,20 +388,34 @@ class TransactionController extends Controller
 
         if($voucher_code){
 
+          
+            VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
+                'voucher_used' => 'Y',
+                'status' => 8,
+                'updated_at' => now()
+            ]);
+
+          $redeemVoucher =  VoucherRedeem::create([
+                'voucher_code' => $voucher_code,
+                'customer_voucher' => $customerVoucher,
+                'customer' => $customer,
+                'redeem_date' => now(),
+                'casheer' => $casheer,
+                'status' => 17,
+                'store' => $store_code,
+                'created_by' => $casheer
+            ]);
+
             TransactionsVouchers::create([
                 'transaction_code' => $main_transaction->transaction_code,
                 'voucher_code' => $voucher_code,
-                'status' => 7,
+                'customer_voucher' => $redeemVoucher->customer_voucher,
+                'status' => 8,
                 'voucher_used' => 'Y',
                 'used_at' => now(),
                 'created_at' => now(),
                 'created_by' => $casheer,
                 'created_at' => now()
-            ]);
-
-            VoucherCustomer::where('voucher', $voucher_code)->where('customer', $customer)->update([
-                'voucher_used' => 'Y',
-                'updated_at' => now()
             ]);
         }
         
@@ -376,11 +430,17 @@ class TransactionController extends Controller
                 ->where('td.transaction_code', $main_transaction->transaction_code)
                 ->selectRaw('SUM(pp.point * td.quantity_per_product) as total')
                 ->value('total') ?? 0;
+        
+        $check_point = DB::table('point_member_transactions')
+                        ->where('status', 7)
+                        ->orderBy('created_at', 'DESC')
+                        ->first();
 
+        $get_point = $check_point ? $check_point->point : 0;
 
          DB::table('customer')
         ->where('customer_code', $main_transaction->customer)
-        ->increment('point', $totalPoints);
+        ->increment('point', $totalPoints + $get_point);
 
 
         $customerTransaction = DB::table('transactions')
@@ -395,7 +455,7 @@ class TransactionController extends Controller
             ->where('status', 7)
             ->where('voucher_type', 'regular')
             ->orderBy('min_transaction', 'desc')->first();
-        
+ 
 
         if($get_voucher) {
 
@@ -407,25 +467,35 @@ class TransactionController extends Controller
             $voucher_quota =  $get_voucher->quota;
             $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
             $voucherExpired = now()->greaterThan($get_voucher->end_date);
+            $customer_email = DB::table('customer')->where('customer_code', $customer)->first();
+           
+
+            // TOLONG BUATKAN ATAU HAPUS VALIDASI JIKA CUSTOMER MELAKUKAN TRANSAKSI > 1 MAKA DAPAT VOUCHER
 
             if($customerTransaction){
-                if(!$voucherShared) {
                     if($getAmount >= $get_voucher->min_transaction) {
                         if(!$checkingQuotaVoucher && $get_voucher){
                             if(!$voucherExpired) {
                                 VoucherCustomer::create([
                                     'customer' => $main_transaction->customer,
                                     'voucher' => $get_voucher->voucher_code,
+                                    'customer_voucher_code' =>$customerVoucher,
                                     'transaction' => $main_transaction->transaction_code,
                                     'status' => 7,
                                     'voucher_used' => 'N',
                                     'created_by' => $casheer,
                                     'created_at' => now()
                                 ]);
+
+                                Mail::to($customer_email->email)->sendNow(new GetVoucherInfoCustomer([
+                                    'name' => $customer_email->name,
+                                    'voucher_name' => $get_voucher->voucher_code,
+                                    'voucher_name' => $get_voucher->voucher_name,
+                                    'email' => $customer_email->email
+                                ]));
                             }
                         }
                     }
-                }
             }
         }
 

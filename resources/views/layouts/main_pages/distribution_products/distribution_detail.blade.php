@@ -72,7 +72,6 @@
                                                                 <tr>
                                                                     <th>Attachment</th>
                                                                     <th>Edit </th>
-                                                                    <th>Notes</th>
                                                                 </tr>
 
                                                                 <tr>
@@ -92,16 +91,6 @@
                                                                             <a href="#" data-toggle="modal"
                                                                                 data-target="#showModalEdit{{ $dst->distribution_store_code }}"><i
                                                                                     class="fas fa-edit"></i></a>
-                                                                        @endif
-                                                                    </td>
-
-                                                                    <td>
-                                                                        @if ($dst->notes == null)
-                                                                            <span>-</span>
-                                                                        @else
-                                                                            <a href="#" data-toggle="modal"
-                                                                                data-target="#showNotes{{ $dst->distribution_store_code }}"><i
-                                                                                    class="fas fa-sticky-note"></i></a>
                                                                         @endif
                                                                     </td>
                                                                 </tr>
@@ -213,8 +202,18 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <img style="width: 100%; height:100%;" src="{{ '../storage/' . $dst->attachment_files }}"
-                            alt="">
+
+                        <div class="img-content-info">
+                            <img style="width: 100%; height:100%;" src="{{ '../storage/' . $dst->attachment_files }}"
+                                alt="">
+                        </div>
+
+                        <br>
+                        <hr>
+                        <div class="notes-info">
+                            <h5>Notes:</h5>
+                            <p>{{ $dst->notes }}</p>
+                        </div>
                     </div>
                     <div class="modal-footer">
 

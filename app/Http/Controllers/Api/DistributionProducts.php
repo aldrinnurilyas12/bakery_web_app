@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CentralStockProductsModel;
 use App\Models\DistributionProductsDetailModel;
 use App\Models\DistributionProductsModel;
 use App\Models\ProductWaste;
@@ -48,7 +49,7 @@ class DistributionProducts extends Controller
                 'distribution_date' => 'required'
             ],
             [
-            'distribution_date.required' => 'Pilih tanggal distribusi dahulu'
+                'distribution_date.required' => 'Pilih tanggal distribusi dahulu'
             ]);
 
 
@@ -60,83 +61,96 @@ class DistributionProducts extends Controller
 
         DB::beginTransaction();
 
-        try {
-            // Simpan header
-            $distribution = DistributionProductsModel::create([
-                'distribution_code' => $distribution_code,
-                'distribution_date' => $request->distribution_date,
-                'status' => 19,
-                'notes' => $request->notes,
-                'created_by' => $emp,
-                'created_at' => now()
-            ]);
+    try {
 
-            // Loop semua produk
-            foreach ($request->product as $product) {
+        if (!$request->has('product')) {
+            throw new \Exception('Data produk tidak ditemukan');
+        }
 
-                if (!isset($product['store'])) {
+        $distribution = DistributionProductsModel::create([
+            'distribution_code' => $distribution_code,
+            'distribution_date' => $request->distribution_date,
+            'status' => 19,
+            'created_by' => $emp,
+            'created_at' => now()
+        ]);
+
+        foreach ($request->product as $i => $product) {
+
+            $productId   = $product['product_code'];
+            $variantId   = $product['variant_code'] ?? null;
+            $expiredDate = $product['expired_date'] ?? null;
+
+            // ambil stock sekali saja per product (lebih efisien)
+            $stockQuery = CentralStockProductsModel::where('product', $productId);
+
+            if (!empty($variantId)) {
+                $stockQuery->where('variant', $variantId);
+            } else {
+                $stockQuery->whereNull('variant');
+            }
+
+            $stock = $stockQuery->lockForUpdate()->first();
+
+            if (!$stock) {
+                throw new \Exception("Stock tidak ditemukan untuk product $productId");
+            }
+
+            // total distribusi untuk 1 product
+            $totalRequestQty = 0;
+
+            if (!isset($product['store'])) {
+                continue;
+            }
+
+            foreach ($product['store'] as $storeId => $qty) {
+
+                if (empty($qty) || $qty <= 0) {
                     continue;
                 }
 
-                $productId = $product['product_code'];
-                $variantId = $product['variant_code'];
-                $expiredDate = $product['expired_date'];
-                $totalAvailable = $product['total_available'];
-
-                // Loop store per produk
-                foreach ($product['store'] as $storeId => $qty) {
-
-                    // Skip jika kosong atau 0
-                    if (empty($qty) || $qty <= 0) {
-                        continue;
-                    }
-
-                    // Validasi qty tidak melebihi stok
-                    
-                    // 🚨 VALIDASI
-                    if ($qty > $totalAvailable) {
-
-                        return redirect()->back()
-                            ->withErrors([
-                                "product.$storeId.store.$storeId" => "Jumlah melebihi stok (maks: $totalAvailable)"
-                            ])
-                            ->withInput();
-                    }
-
-                    if ($qty < 0) {
-                        return redirect()->back()
-                            ->withErrors([
-                                "product.$storeId.store.$storeId" => "Jumlah tidak boleh kurang dari 0"
-                            ])
-                            ->withInput();
-                    }
-
-
-                    $distribution_store_code = 'DST-' . $date . '-' . substr(Str::uuid(), 0, 6);
-
-                    DistributionProductsDetailModel::create([
-                        'distribution_store_code' =>$distribution_store_code,
-                        'distribution' => $distribution->distribution_code,
-                        'product' => $productId,
-                        'variant' => $variantId, // sesuaikan jika ada
-                        'quantity' => $qty,
-                        'expired_date' => $expiredDate,
-                        'store' => $storeId,
-                        'status' => 21
-                    ]);
+                if ($qty < 0) {
+                    throw new \Exception("Qty tidak boleh minus (product $productId, store $storeId)");
                 }
+
+                $totalRequestQty += $qty;
             }
 
-            DB::commit();
+            foreach ($product['store'] as $storeId => $qty) {
 
-            session()->flash('message_success', 'Data Distribusi Produk berhasil disimpan!');
-            return redirect()->route('distribution_products.index');
+                if (empty($qty) || $qty <= 0) {
+                    continue;
+                }
+
+                $distribution_store_code = 'DST-' . date('Ymd') . '-' . substr(Str::uuid(), 0, 6);
+
+                DistributionProductsDetailModel::create([
+                    'distribution_store_code' => $distribution_store_code,
+                    'distribution' => $distribution->distribution_code,
+                    'product' => $productId,
+                    'variant' => $variantId,
+                    'quantity' => $qty,
+                    'expired_date' => $expiredDate,
+                    'store' => $storeId,
+                    'status' => 21
+                ]);
+            }
+
+            $stock->decrement('qty_available', $totalRequestQty);
+        }
+
+        DB::commit();
+
+        return redirect()->route('distribution_products.index')
+            ->with('message_success', 'Data Distribusi Produk berhasil disimpan!');
 
         } catch (\Exception $e) {
+
             DB::rollBack();
 
-            session()->flash('failed_message', 'Gagal menyimpan data');
-                        return redirect()->back();
+            return redirect()->back()
+                ->with('failed_message', $e->getMessage())
+                ->withInput();
         }
     }
 

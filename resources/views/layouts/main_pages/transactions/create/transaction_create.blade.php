@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+
 </head>
 
 <body class="sb-nav-fixed">
@@ -148,9 +149,9 @@
                                                                                 </p>
                                                                             </div>
                                                                         @endif
-                                                                        <div class="stok">
+                                                                        <div id="availableStock" class="stok">
                                                                             <p>Stok:
-                                                                                {{ $product->stock_available }}
+                                                                                <span>{{ $product->stock_available }}</span>
                                                                             </p>
                                                                             {{-- <p>Terjual:
                                                                             {{ $product->sold }}
@@ -170,9 +171,9 @@
                                                                                 </p>
                                                                             </div>
                                                                         @endif
-                                                                        <div class="stok">
+                                                                        <div id="availableStock" class="stok">
                                                                             <p>Stok:
-                                                                                {{ $product->stock_available }}
+                                                                                <span>{{ $product->stock_available }}</span>
                                                                             </p>
                                                                             {{-- <p>Terjual:
                                                                             {{ $product->sold }}
@@ -193,6 +194,10 @@
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
+                                                                            <input type="hidden"
+                                                                                name="stock_available"
+                                                                                value="{{ $product->stock_available }}">
+
                                                                             @if ($product->variant_code)
                                                                                 @if ($product->variant_discount)
                                                                                     <input type="hidden"
@@ -302,9 +307,10 @@
                                                                                 </p>
                                                                             </div>
                                                                         @endif
-                                                                        <div class="stok">
+                                                                        <div id="availableStock" class="stok">
                                                                             <p>Stok:
-                                                                                {{ $product->stock_available }}
+                                                                                <span>
+                                                                                    {{ $product->stock_available }}</span>
                                                                             </p>
                                                                             {{-- <p>Terjual:
                                                                             {{ $product->sold }}
@@ -324,9 +330,9 @@
                                                                                 </p>
                                                                             </div>
                                                                         @endif
-                                                                        <div class="stok">
+                                                                        <div id="availableStock" class="stok">
                                                                             <p>Stok:
-                                                                                {{ $product->stock_available }}
+                                                                                <span>{{ $product->stock_available }}</span>
                                                                             </p>
                                                                             {{-- <p>Terjual:
                                                                             {{ $product->sold }}
@@ -349,6 +355,10 @@
                                                                                 value="{{ $product->variant_type }}">
                                                                             <input type="hidden" name="product_name"
                                                                                 value="{{ $product->product }}">
+                                                                            <input type="hidden"
+                                                                                name="stock_available"
+                                                                                value="{{ $product->stock_available }}">
+
                                                                             @if ($product->variant_code)
                                                                                 @if ($product->discount)
                                                                                     <input type="hidden"
@@ -500,13 +510,26 @@
                                                                 document.getElementById('delete-{{ $cart['product'] }}').submit();">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
-                                                            <!-- Quantity Control -->
-                                                            <div class="quantity-container">
-                                                                <button type="button" class="decrease">-</button>
-                                                                <input name="quantity_per_product[]" value="1"
-                                                                    min="1" type="number"
-                                                                    class="item-quantity">
-                                                                <button type="button" class="increase">+</button>
+
+                                                            <div class="product-item"
+                                                                data-stock="{{ $cart['stock_available'] }}">
+                                                                <div style="display: none;" class="stok">
+                                                                    <p>Stok:
+                                                                        <span
+                                                                            class="available-stock">{{ $cart['stock_available'] }}</span>
+                                                                    </p>
+                                                                </div>
+                                                                <!-- Quantity Control -->
+                                                                <small class="error-msg"
+                                                                    style="color:red; display:none;font-size: 12px;"></small>
+                                                                <div class="quantity-container">
+                                                                    <button type="button" class="decrease">-</button>
+                                                                    <input name="quantity_per_product[]"
+                                                                        value="1" min="1" type="number"
+                                                                        class="item-quantity">
+                                                                    <button type="button" class="increase">+</button>
+                                                                </div>
+
                                                             </div>
                                                         </div>
 
@@ -561,6 +584,26 @@
                                             <br>
 
                                             {{-- TAMPILKAN JUGA DISINI --}}
+
+                                            {{-- @php
+                                                $show_voucher = DB::table('customer_vouchers as cv')
+                                                    ->select(
+                                                        'v.voucher_code',
+                                                        'v.discount',
+                                                        'v.nominal',
+                                                        'cv.customer',
+                                                        'cv.voucher_used',
+                                                        'v.end_date',
+                                                    )
+                                                    ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
+                                                    ->leftJoin('customer as c', 'cv.customer', '=', 'c.customer_code')
+                                                    ->where('cv.voucher', 'VOUCHER54d9308a')
+                                                    ->where('cv.customer', 'cust26021320c4f0')
+                                                    ->first();
+
+                                                dd($show_voucher);
+
+                                            @endphp --}}
 
                                             <div class="btn-submit">
                                                 <button id="btn-submit-check-result"
@@ -660,11 +703,12 @@
                                         <br>
 
                                         @if ($cart_value)
-                                            <button type="submit" class="btn-general"><span class="btn-text">Buat
+                                            <button type="submit" id="submitBtn" class="btn-general"><span
+                                                    class="btn-text">Buat
                                                     Pesanan</span>
                                                 <span class="spinner"></span></button>
                                         @else
-                                            <button style="width: 100%;" type="button"
+                                            <button style="width: 100%;" id="submitBtn" type="button"
                                                 class="btn btn-secondary">Buat
                                                 Pesanan</button>
                                         @endif
@@ -783,10 +827,85 @@
             payChangeInput.value = change >= 0 ? change : 0;
         }
 
+        const items = document.querySelectorAll('.product-item');
+
+        quantityInputs.forEach((input, index) => {
+
+            let item = input.closest('.product-item');
+            let stock = parseInt(item.getAttribute('data-stock')) || 0;
+            let errorEl = item.querySelector('.error-msg');
+
+            function validate_stock() {
+                let qty = parseInt(input.value) || 0;
+
+                if (qty > stock) {
+                    errorEl.style.display = "block";
+                    errorEl.innerText = "Qty melebihi stok (" + stock + ")";
+                    input.style.border = "2px solid red";
+                } else if (qty < 1) {
+                    errorEl.style.display = "block";
+                    errorEl.innerText = "Minimal 1";
+                    input.style.border = "2px solid red";
+                } else {
+                    errorEl.style.display = "none";
+                    input.style.border = "";
+                }
+
+                checkAllValidity();
+            }
+
+            input.addEventListener('input', () => {
+                if (parseInt(input.value) < 1 || isNaN(input.value)) {
+                    input.value = 1;
+                }
+
+                validate_stock();
+                updateTotalQuantity();
+                updateGrandTotal();
+            });
+
+        });
+
+        function checkAllValidity() {
+
+            let isInvalid = false;
+
+            document.querySelectorAll('.product-item').forEach(function(item) {
+
+                let input = item.querySelector('.item-quantity');
+                let stock = parseInt(item.getAttribute('data-stock')) || 0;
+                let qty = parseInt(input.value) || 0;
+
+                if (qty > stock || qty < 1) {
+                    isInvalid = true;
+                }
+            });
+
+            let btn = document.getElementById('submitBtn');
+
+            if (btn) {
+                if (isInvalid) {
+                    btn.classList.remove('btn-general');
+                    btn.classList.add('btn', 'btn-general-secondary');
+                    btn.disabled = true;
+                } else {
+                    btn.classList.remove('btn', 'btn-general-secondary');
+                    btn.classList.add('btn-general');
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        // 🔥 trigger awal
+        checkAllValidity();
+
         // Handling quantity increase and decrease
         increaseButtons.forEach((btn, index) => {
             btn.addEventListener('click', () => {
                 quantityInputs[index].value = (parseInt(quantityInputs[index].value) || 0) + 1;
+
+                quantityInputs[index].dispatchEvent(new Event('input')); // 🔥 WAJIB
+
                 updateTotalQuantity();
                 updateGrandTotal();
             });
@@ -797,19 +916,12 @@
                 const current = parseInt(quantityInputs[index].value) || 0;
                 if (current > 1) {
                     quantityInputs[index].value = current - 1;
+
+                    quantityInputs[index].dispatchEvent(new Event('input')); // 🔥 WAJIB
+
                     updateTotalQuantity();
                     updateGrandTotal();
                 }
-            });
-        });
-
-        quantityInputs.forEach((input, index) => {
-            input.addEventListener('input', () => {
-                if (parseInt(input.value) < 1 || isNaN(input.value)) {
-                    input.value = 1;
-                }
-                updateTotalQuantity();
-                updateGrandTotal();
             });
         });
 
@@ -862,6 +974,66 @@
 
                         // Update grand total after applying voucher
                         updateGrandTotal();
+                    } else if (response.status === 'voucher_used') {
+                        // Reset tampilan voucher
+                        $('#show-nominal').hide();
+                        $('#show-voucher-code').empty();
+
+                        voucher.type = null;
+                        voucher.value = 0;
+
+                        // SweetAlert
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Voucher Invalid',
+                            text: 'E-voucher sudah digunakan',
+                            confirmButtonColor: '#d33'
+                        });
+                    } else if (response.status === 'voucher_not_found') {
+                        // Reset tampilan voucher
+                        $('#show-nominal').hide();
+                        $('#show-voucher-code').empty();
+
+                        voucher.type = null;
+                        voucher.value = 0;
+
+                        // SweetAlert
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Voucher Invalid',
+                            text: 'E-voucher tidak ada/tidak ditemukan',
+                            confirmButtonColor: '#d33'
+                        });
+                    } else if (response.status === 'voucher_not_matching') {
+                        // Reset tampilan voucher
+                        $('#show-nominal').hide();
+                        $('#show-voucher-code').empty();
+
+                        voucher.type = null;
+                        voucher.value = 0;
+
+                        // SweetAlert
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Voucher Invalid',
+                            text: 'E-voucher Invalid/Not Matching',
+                            confirmButtonColor: '#d33'
+                        });
+                    } else if (response.status === 'voucher_expired') {
+                        // Reset tampilan voucher
+                        $('#show-nominal').hide();
+                        $('#show-voucher-code').empty();
+
+                        voucher.type = null;
+                        voucher.value = 0;
+
+                        // SweetAlert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Voucher Expired',
+                            text: 'E-voucher sudah Expired',
+                            confirmButtonColor: '#d33'
+                        });
                     }
                 },
                 error: function(xhr, status, error) {
@@ -991,6 +1163,7 @@
         });
     </script>
 @endif
+
 
 @if (Session::has('success_empty_cart'))
     <script>

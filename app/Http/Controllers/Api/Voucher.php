@@ -123,6 +123,19 @@ class Voucher extends Controller
         //
     }
 
+
+    public function redeem_voucher_data(Request $request)
+    {
+        $redeem_vouchers = DB::table('redeem_voucher as rv')
+        ->leftJoin('voucher as v', 'rv.voucher_code', '=', 'v.voucher_code')
+        ->leftJoin('customer as c', 'rv.customer', '=', 'c.customer_code')
+        ->leftJoin('status_category as sc', 'rv.status', '=', 'sc.id')
+        ->leftJoin('store as st', 'rv.store', '=', 'st.store_code')
+        ->get();
+
+        return view('layouts.main_pages.voucher.redeem_voucher', compact('redeem_vouchers'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
