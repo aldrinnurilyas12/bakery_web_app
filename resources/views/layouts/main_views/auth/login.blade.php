@@ -3,6 +3,7 @@
 @section('title', 'Kencana Bakery | Login')
 <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @section('content')
     <div style="display: flex; justify-content: center;" class="d-flex-center">
         <div class="img-logo">
@@ -38,16 +39,28 @@
             <span class="spinner"></span></button>
     </form>
     <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
-
-    @if ($errors->get('login'))
-        <div class="alert alert-warning">
-            <x-input-error :messages="$errors->get('login')" />
-        </div>
-    @elseif($errors->get('password'))
-        <div class="alert alert-warning">
-            <x-input-error :messages="$errors->get('password')" />
-        </div>
+    @if (Session::has('message_success'))
+        <script>
+            Swal.fire({
+                title: 'Berhasil',
+                text: "{{ Session::get('message_success') }}",
+                icon: 'success',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif (Session::has('failed_message'))
+        <script>
+            Swal.fire({
+                title: 'Gagal',
+                text: "{{ Session::get('failed_message') }}",
+                icon: 'error',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
     @endif
+
 
     <div class="link">
         <a href="{{ route('register_account') }}">Daftar akun</a>
@@ -57,6 +70,13 @@
         <a style="text-decoration:underline;" href="{{ route('forgot-password-help') }}">Lupa password?</a>
     </div>
 
+
+    <style>
+        .alert {
+            color: red;
+            transition: opacity 0.5s ease-out;
+        }
+    </style>
 
     <script>
         const toggle = document.getElementById('togglePassword');
@@ -70,5 +90,17 @@
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500); // Menghapus elemen setelah fade out
+                }, 4000); // Waktu tampilan alert, dalam milidetik (3 detik)
+            }
+        });
     </script>
+
+
 @endsection

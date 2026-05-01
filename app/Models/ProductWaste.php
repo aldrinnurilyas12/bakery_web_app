@@ -13,6 +13,7 @@ class ProductWaste extends Model
         'waste_code',
         'production_code',
         'product_daily',
+        'attachment_files',
         'distribution',
         'quantity',
         'reason',

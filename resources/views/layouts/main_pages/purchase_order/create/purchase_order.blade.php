@@ -34,7 +34,7 @@
                         @csrf
                         <div class="form-group">
                             <label><strong>Perusahaan Supplier</strong></label>
-                            <select name="supplier" class="form-control" id="supplier_company">
+                            <select name="supplier" class="form-control" id="supplier_company" required>
                                 <option value="">=== Pilih Supplier ===</option>
                                 @foreach ($supplier as $sp)
                                     <option value="{{ $sp->supplier_code }}">{{ $sp->store }}</option>
@@ -46,7 +46,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal Purchase Order (PO)</strong></label>
                             <input type="date" name="purchase_date" class="form-control"
-                                value="{{ old('purchase_date') }}" autocomplete="off">
+                                value="{{ old('purchase_date') }}" autocomplete="off" required>
                             <x-input-error :messages="$errors->get('purchase_date')" class="text-danger" />
                         </div>
 
@@ -71,8 +71,10 @@
                                                 <th>Bahan Baku</th>
                                                 <th>Kategori</th>
                                                 <th>Massa</th>
+                                                <th>Tgl Expired</th>
                                                 <th>Harga (satuan)</th>
                                                 <th>Jumlah Item (hanya angka)</th>
+                                                <th>Subtotal</th>
 
                                             </tr>
                                         </thead>
@@ -86,10 +88,12 @@
 
                                                         <input class="allowed-checkbox" type="checkbox"
                                                             name="item[{{ $item->item_code }}]"
-                                                            value="{{ $item->item_code }}">
+                                                            value="{{ $item->item_code }}"
+                                                            {{ old('item.' . $item->item_code) ? 'checked' : '' }}>
                                                         <input type="text"
                                                             name="raw_material[{{ $item->item_code }}]"
-                                                            value="{{ $item->raw_material }}" hidden>
+                                                            value="{{ old('raw_material.' . $item->item_code, $item->raw_material) }}"
+                                                            hidden>
 
                                                     </td>
                                                     <td>
@@ -104,13 +108,31 @@
                                                             -
                                                         @endif
                                                     </td>
-                                                    <td><input type="number" class="form-control"
-                                                            name="price[{{ $item->item_code }}]" id="">
+
+                                                    <td>
+                                                        @if ($item->item_category == 1)
+                                                            <input type="date" class="form-control"
+                                                                name="expired_date[{{ $item->item_code }}]"
+                                                                id=""
+                                                                value="{{ old('expired_date.' . $item->item_code) }}">
+                                                        @endif
+                                                    </td>
+
+                                                    <td><input type="number" class="form-control price"
+                                                            name="price[{{ $item->item_code }}]" id=""
+                                                            value="{{ old('price.' . $item->item_code) }}">
                                                     </td>
                                                     <td>
-                                                        <input class="form-control"
-                                                            name="quantity[{{ $item->item_code }}]" type="number">
+                                                        <input class="form-control quantity"
+                                                            name="quantity[{{ $item->item_code }}]" type="number"
+                                                            value="{{ old('quantity.' . $item->item_code) }}">
 
+                                                        <x-input-error :messages="$errors->get('quantity.' . $item->item_code)" class="text-danger" />
+
+                                                    </td>
+
+                                                    <td>
+                                                        <input class="form-control subTotal" type="number" readonly>
                                                         <x-input-error :messages="$errors->get('quantity.' . $item->item_code)" class="text-danger" />
 
                                                     </td>
@@ -129,8 +151,8 @@
 
                         <div class="form-group">
                             <label><strong>Total Biaya (*Hanya angka)</strong></label>
-                            <input type="number" name="total_amount" class="form-control"
-                                value="{{ old('total_amount') }}" autocomplete="off">
+                            <input id="grandTotal" type="number" name="total_amount" class="form-control"
+                                value="{{ old('total_amount') }}" autocomplete="off" readonly>
                             <x-input-error :messages="$errors->get('total_amount')" class="text-danger" />
                         </div>
 
@@ -152,7 +174,8 @@
                         <div class="form-group">
                             <label for=""><strong>Upload bukti transaksi pembayaran <span
                                         class="text-danger">*wajib</span></strong></label>
-                            <input type="file" name="payment_invoice" class="form-control" id="" required>
+                            <input type="file" name="payment_invoice" class="form-control" id=""
+                                required>
                             <x-input-error :messages="$errors->get('payment_invoice')" class="text-danger" />
                         </div>
 
@@ -210,6 +233,42 @@
             showDeliveryDate.style.display = 'none';
         }
     })
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        function calculate() {
+            let grandTotal = 0;
+
+            const rows = document.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const price = row.querySelector('.price');
+                const qty = row.querySelector('.quantity');
+                const subTotal = row.querySelector('.subTotal');
+
+                if (price && qty && subTotal) {
+                    let priceVal = parseFloat(price.value) || 0;
+                    let qtyVal = parseFloat(qty.value) || 0;
+
+                    let result = priceVal * qtyVal;
+                    subTotal.value = result;
+
+                    grandTotal += result;
+                }
+            });
+
+            document.getElementById('grandTotal').value = grandTotal;
+        }
+
+        // trigger saat input berubah
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('price') || e.target.classList.contains('quantity')) {
+                calculate();
+            }
+        });
+
+    });
 </script>
 
 

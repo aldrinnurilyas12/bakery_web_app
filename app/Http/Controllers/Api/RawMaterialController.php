@@ -159,7 +159,7 @@ class RawMaterialController extends Controller
     public function history_raw_material(Request $rq)
     {
         $history = DB::table('purchase_order_detail as po')
-        ->select('po.purchase_code', 'po.quantity as qty_po', 'rm.material_name','po.price', 'po.created_at')
+        ->select('po.purchase_code', 'po.quantity as qty_po', 'rm.material_name','po.price', 'po.created_at','po.expired_date')
         ->leftJoin('raw_material as rm', 'po.raw_material', '=', 'rm.material_code')
         ->where('raw_material', $rq->material_code)
         ->orderBy('created_at', 'DESC')->get();

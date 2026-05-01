@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
           $middleware->prepend(Cors::class);
            $middleware->alias([
             'customer' => \App\Http\Middleware\AutheticationCustomer::class,
+            'route_access' => \App\Http\Middleware\CheckRouteAccess::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

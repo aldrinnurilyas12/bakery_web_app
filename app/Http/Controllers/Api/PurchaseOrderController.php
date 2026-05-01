@@ -54,13 +54,15 @@ class PurchaseOrderController extends Controller
             'purchase_date' => 'required',
             'total_amount' => 'required',
             'supplier' => 'required',
+            'expired_date' => 'required',
             'payment_invoice' => 'image|required| mimes: jpg,png,jpeg|max:5000'
         ],
         [
             'supplier.required' => 'Pilih Supplier dahulu',
             'purchase_date.required'=> 'Tanggal PO harus diisi',
             'total_amount.required'=> 'Total biaya harus diisi',
-            'payment_invoice.required' => 'Upload bukti pembayaran'
+            'payment_invoice.required' => 'Upload bukti pembayaran',
+            'expired_date' => 'Tanggal expired bahan baku harus diisi'
         ]);
 
         $date = now()->format('Ymd');
@@ -74,6 +76,7 @@ class PurchaseOrderController extends Controller
         $rawMaterial = $request->raw_material;
         $quantities = $request->quantity;
         $price = $request->price;
+        $expired_date = $request->expired_date;
 
         if ($request->hasFile('payment_invoice')) {
                 $po_invoice = $request->file('payment_invoice');
@@ -109,7 +112,8 @@ class PurchaseOrderController extends Controller
                         'item' =>$itemCode,
                         'raw_material' => $rawCode,
                         'quantity' =>(int) ($quantities[$itemCode] ?? 0),
-                        'price' => (int) ($price[$itemCode]??0)
+                        'price' => (int) ($price[$itemCode]??0),
+                        'expired_date' => $expired_date[$itemCode]
                     ]);
 
                     ItemPriceDetailModel::create([

@@ -57,6 +57,14 @@
                                 <div class="menu-list">
                                     @if ($rewards->isNotEmpty())
                                         @foreach ($rewards as $reward)
+                                            <div style="display:flex; flex-wrap: wrap; justify-content: right;"
+                                                class="image-display">
+                                                <span>
+                                                    @if ($reward->status_name == 'Claimed')
+                                                        <span class="badge badge-success">claimed </span>
+                                                    @endif
+                                                </span>
+                                            </div>
                                             <div style="display: flex; gap:20px;" class="image-content">
                                                 <img width="90" height="90"
                                                     src="{{ url('storage/' . $reward->images) }}" alt="">
@@ -72,25 +80,10 @@
                                                         {{ $reward->redeem_code }}</p>
                                                     <p style="font-size: 13px;margin:0;">Tgl Redeem :
                                                         {{ $reward->redeem_date }}</p>
-                                                    @if ($reward->claimed_at)
-                                                        <p style="font-size: 13px;margin:0;">Tgl Klaim :
-                                                            {{ $reward->claimed_at }}</p>
-                                                    @endif
-                                                    <p>Status:
-                                                        @if ($reward->status_name == 'Claimed')
-                                                            <span class="text-success">
-                                                                sudah klaim
-                                                            </span>
-                                                        @else
-                                                            <span class="text-secondary">
-                                                                belum klaim
-                                                            </span>
-                                                        @endif
-                                                    </p>
-                                                    <div style="font-size: 13px;" class="group-date">
-                                                        <p>Jadwal Pengambilan</p>
+                                                    <div style="font-size: 12px;" class="group-date">
+                                                        <p style="font-size: 13px;margin:0;">Lokasi pengambilan:</p>
                                                         <div style="display:flex; gap:10px;" class="flex-location">
-                                                            <span>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}</span>
+                                                            <span>{{ \Carbon\Carbon::parse($reward->claimed_at)->format('Y-m-d') }}</span>
                                                             |
                                                             <span>{{ $reward->store_name }}</span>
                                                         </div>
@@ -124,6 +117,14 @@
                                 <div class="menu-list">
                                     @if ($rewards->isNotEmpty())
                                         @foreach ($unclaimed_rewards as $reward)
+                                            <div style="display:flex; flex-wrap: wrap; justify-content: right;"
+                                                class="image-display">
+                                                <span>
+                                                    @if ($reward->status_name == 'Unclaimed')
+                                                        <span class="badge badge-secondary">unclaimed </span>
+                                                    @endif
+                                                </span>
+                                            </div>
                                             <div style="display: flex; gap:20px;" class="image-content">
                                                 <img width="90" height="90"
                                                     src="{{ url('storage/' . $reward->images) }}" alt="">
@@ -143,17 +144,6 @@
                                                         <p style="font-size: 13px;margin:0;">Tgl Klaim :
                                                             {{ $reward->claimed_at }}</p>
                                                     @endif
-                                                    <p>Status:
-                                                        @if ($reward->status_name == 'Claimed')
-                                                            <span class="text-success">
-                                                                sudah klaim
-                                                            </span>
-                                                        @else
-                                                            <span class="text-secondary">
-                                                                belum klaim
-                                                            </span>
-                                                        @endif
-                                                    </p>
                                                     <div style="font-size: 13px;" class="group-date">
                                                         <p>Jadwal Pengambilan</p>
                                                         <div style="display:flex; gap:10px;" class="flex-location">
@@ -273,6 +263,18 @@
 
         </div>
 </body>
+
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

@@ -32,17 +32,11 @@
                             <div class="title">
                                 Master Data / <a href="{{ route('production_products') }}">Produk Waste</a>
                             </div>
-
-                            <div style="display:flex;gap:20px;" class="btn">
-                                <a class="btn btn-warning" href="{{ route('product-waste-data') }}">Lihat Tabel
-                                    Data</a>
-                                <a class="btn btn-primary" href="{{ route('product-waste-create') }}">Tambah data</a>
-                            </div>
-
-
                         </div>
 
-
+                        <div style="display: flex; justify-content:space-between;" class="card-header">
+                            <a class="btn btn-primary" href="{{ '../product-waste-data' }}">Kembali</a>
+                        </div>
 
                         <div class="card-body">
                             <div wire:poll.keep.alive.2s>

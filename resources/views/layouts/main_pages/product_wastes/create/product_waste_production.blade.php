@@ -85,6 +85,10 @@
                                             </td>
                                             <td>
                                                 {{ $production->product_name }}
+                                                &nbsp;
+                                                @if ($production->variant)
+                                                    <span>[{{ $production->variant_name }}]</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 {{ $production->qty_target_total }}
@@ -99,6 +103,13 @@
                             </div>
 
                         </div>
+
+
+                        <input type="text" value="{{ $production->product }}" name="product_code"
+                            class="form-control" readonly hidden>
+                        <input type="text" value="{{ $production->variant }}" name="variant_code"
+                            class="form-control" readonly hidden>
+
 
                         <div class="form-group">
                             <label><strong>Total Produk Waste</strong></label>
@@ -129,13 +140,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for=""><strong>Expired</strong></label>
-                            <input type="number" class="form-control" name="waste_type[WASTE1002]" placeholder="0">
-                            <div id="wasteError" class="text-danger mt-2" style="display:none;">
-                                Total kategori waste tidak boleh melebihi Total Produk Waste.
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label for=""><strong>Kelebihan Produksi</strong></label>
                             <input type="number" class="form-control" name="waste_type[WASTE1003]" placeholder="0">
                             <div id="wasteError" class="text-danger mt-2" style="display:none;">
@@ -155,23 +159,6 @@
                         <div class="form-group">
                             <label for=""><strong>Masalah Pengemasan Produk</strong></label>
                             <input type="number" class="form-control" name="waste_type[WASTE1006]" placeholder="0">
-                            <div id="wasteError" class="text-danger mt-2" style="display:none;">
-                                Total kategori waste tidak boleh melebihi Total Produk Waste.
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for=""><strong>Masalah Mesin Produksi</strong></label>
-                            <input type="number" class="form-control" name="waste_type[WASTE1011]" placeholder="0">
-                            <div id="wasteError" class="text-danger mt-2" style="display:none;">
-                                Total kategori waste tidak boleh melebihi Total Produk Waste.
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for=""><strong>Masalah Distribusi</strong></label>
-                            <input type="number" class="form-control" name="waste_type[WASTE10010]"
-                                placeholder="0">
                             <div id="wasteError" class="text-danger mt-2" style="display:none;">
                                 Total kategori waste tidak boleh melebihi Total Produk Waste.
                             </div>

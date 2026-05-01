@@ -87,6 +87,10 @@
                                             </td>
                                             <td>
                                                 {{ $distribution->product_name }}
+                                                &nbsp;
+                                                @if ($distribution->variant)
+                                                    <span>[{{ $distribution->name }}]</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 {{ $distribution->quantity }}
@@ -101,6 +105,11 @@
                             </div>
 
                         </div>
+
+                        <input type="text" value="{{ $distribution->product_code }}" name="product_code"
+                            class="form-control" hidden readonly>
+                        <input type="text" value="{{ $distribution->variant_code }}" name="variant_code"
+                            class="form-control" hidden readonly>
 
                         <div class="form-group">
                             <label><strong>Total Produk Waste</strong></label>

@@ -38,89 +38,106 @@
                                 tinggi)</li>
                         </ul>
                     </div>
-
-                    <form id="formGeneralMaster" action="{{ route('distribution_products.store') }}" method="POST">
-                        @csrf
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Varian</th>
-                                            <th>Qty Available</th>
-                                            <th>Tanggal Expired</th>
-                                            @foreach ($stores as $store)
-                                                <th>{{ $store->store_name }}</th>
-                                            @endforeach
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($products as $product)
+                    @if ($products->isNotEmpty())
+                        <form id="formGeneralMaster" action="{{ route('distribution_products.store') }}" method="POST">
+                            @csrf
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
                                             <tr>
-
-                                                <td>
-                                                    {{ $product->product }}
-                                                    <input type="hidden"
-                                                        name="product[{{ $loop->index }}][product_code]"
-                                                        value="{{ $product->product_code }}">
-                                                </td>
-                                                <td>
-                                                    {{ $product->variant ?: '-' }}
-                                                    <input type="hidden"
-                                                        name="product[{{ $loop->index }}][variant_code]"
-                                                        value="{{ $product->variant_code }}">
-                                                </td>
-
-                                                <td>
-                                                    {{ $product->total_available }}
-                                                    <input id="stock_{{ $loop->index }}" type="hidden"
-                                                        name="product[{{ $loop->index }}][total_available]"
-                                                        value="{{ $product->total_available }}">
-                                                </td>
-
-                                                <td>
-                                                    <input class="form-control" type="date"
-                                                        name="product[{{ $loop->index }}][expired_date]">
-                                                </td>
-
+                                                <th>Product</th>
+                                                <th>Varian</th>
+                                                <th>Qty Available</th>
+                                                <th>Tanggal Expired</th>
                                                 @foreach ($stores as $store)
-                                                    <td>
-                                                        <input class="form-control" type="number"
-                                                            name="product[{{ $loop->parent->index }}][store][{{ $store->store_code }}]"
-                                                            min="0" max="{{ $product->total_available }}"
-                                                            id="qty_{{ $loop->parent->index }}_{{ $store->store_code }}"
-                                                            oninput="validateTotal({{ $loop->parent->index }})"
-                                                            value="{{ old('product.' . $loop->parent->index . '.store.' . $store->store_code) }}">
-
-                                                        <small
-                                                            id="error_{{ $loop->parent->index }}_{{ $store->store_code }}"
-                                                            style="color:red; display:none;">
-                                                            Jumlah melebihi stok
-                                                        </small>
-                                                    </td>
+                                                    <th>{{ $store->store_name }}</th>
                                                 @endforeach
-
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($products as $product)
+                                                <tr>
 
-                                <br>
+                                                    <td>
+                                                        {{ $product->product }}
+                                                        <input type="hidden"
+                                                            name="product[{{ $loop->index }}][product_code]"
+                                                            value="{{ $product->product_code }}">
+                                                    </td>
+                                                    <td>
+                                                        {{ $product->variant ?: '-' }}
+                                                        <input type="hidden"
+                                                            name="product[{{ $loop->index }}][variant_code]"
+                                                            value="{{ $product->variant_code }}">
+                                                    </td>
 
-                                <div class="form-group">
-                                    <label><strong>Tanggal Distribusi</strong></label>
-                                    <input type="date" name="distribution_date" class="form-control"
-                                        value="{{ old('distribution_date') }}" required>
-                                    <x-input-error :messages="$errors->get('distribution_date')" class="text-danger" />
+                                                    <td>
+                                                        {{ $product->total_available }}
+                                                        <input id="stock_{{ $loop->index }}" type="hidden"
+                                                            name="product[{{ $loop->index }}][total_available]"
+                                                            value="{{ $product->total_available }}">
+                                                    </td>
+
+                                                    <td>
+                                                        <input class="form-control" type="date"
+                                                            name="product[{{ $loop->index }}][expired_date]">
+                                                    </td>
+
+                                                    @foreach ($stores as $store)
+                                                        <td>
+                                                            <input class="form-control" type="number"
+                                                                name="product[{{ $loop->parent->index }}][store][{{ $store->store_code }}]"
+                                                                min="0" max="{{ $product->total_available }}"
+                                                                id="qty_{{ $loop->parent->index }}_{{ $store->store_code }}"
+                                                                oninput="validateTotal({{ $loop->parent->index }})"
+                                                                value="{{ old('product.' . $loop->parent->index . '.store.' . $store->store_code) }}">
+
+                                                            <small
+                                                                id="error_{{ $loop->parent->index }}_{{ $store->store_code }}"
+                                                                style="color:red; display:none;">
+                                                                Jumlah melebihi stok
+                                                            </small>
+                                                        </td>
+                                                    @endforeach
+
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+
+                                    <br>
+                                    <div class="form-group">
+                                        <label><strong>Tanggal Distribusi</strong></label>
+                                        <input type="date" name="distribution_date" class="form-control"
+                                            value="{{ old('distribution_date') }}" required>
+                                        <x-input-error :messages="$errors->get('distribution_date')" class="text-danger" />
+                                    </div>
+
+
+                                    <button id="btnMaster" type="submit" class="btn-general"><span
+                                            class="btn-text">Simpan
+                                            Data</span>
+                                        <span class="spinner"></span></button>
                                 </div>
-
-                                <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
-                                        Data</span>
-                                    <span class="spinner"></span></button>
                             </div>
+                        </form>
+                    @else
+                        <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                            class="empty-transaction">
+
+                            <div style="display: flex;" class="empty-content">
+                                <div style="display: flex; gap:20px;margin:auto;">
+                                    <img width="70" height="70"
+                                        src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
+                                    <div style="display: block;align-self: center;">
+                                        <h3>Belum ada data produksi produk</h3>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                    </form>
+                    @endif
                     <br>
                     <br>
                 </div>

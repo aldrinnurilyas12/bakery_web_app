@@ -53,10 +53,12 @@
                                                 <th>No</th>
                                                 <th>Kode PO</th>
                                                 <th>Bahan Baku</th>
+                                                <th>Tgl Expired</th>
                                                 <th>Qty</th>
                                                 <th>Harga</th>
                                                 <th>Subtotal</th>
                                                 <th>Tanggal PO</th>
+
                                             </tr>
                                         </thead>
 
@@ -69,6 +71,7 @@
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $raw->purchase_code }}</td>
                                                     <td>{{ $raw->material_name }}</td>
+                                                    <td>{{ $raw->expired_date }}</td>
                                                     <td>{{ $raw->qty_po }}</td>
                                                     <td>{{ 'Rp.' . number_format($raw->price) }}</td>
                                                     <td>{{ 'Rp.' . number_format($raw->price * $raw->qty_po) }}</td>

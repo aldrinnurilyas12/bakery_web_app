@@ -32,7 +32,7 @@ class ProductionProducts extends Component
         $selectedStore = $this->store ?: $user_store;
 
         $query = DB::table('v_production_products')
-                    ->orderByDesc('production_date');
+                    ->orderBy('created_at', 'DESC');
 
         
         if($this->filter_date){

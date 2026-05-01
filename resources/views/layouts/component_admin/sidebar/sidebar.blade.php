@@ -4,8 +4,16 @@
 
 <body>
     @php
+        $IT_GUY =
+            app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name ==
+            'IT Developer';
         $main_menu = DB::table('main_menu')->where('location', 'admin')->get();
-        $submenu = DB::table('submenu')->where('status', 7)->get();
+
+        if (!$IT_GUY) {
+            $submenu = DB::table('submenu')->where('status', 7)->where('main_menu', '<>', 10)->get();
+        } else {
+            $submenu = DB::table('submenu')->where('main_menu', '<>', 10)->get();
+        }
 
     @endphp
     <div id="layoutSidenav">

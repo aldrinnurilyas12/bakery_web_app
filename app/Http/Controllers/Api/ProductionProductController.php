@@ -199,7 +199,8 @@ class ProductionProductController extends Controller
             return redirect()->route('product-waste-production', $rq->production_id);
         }else{
             ProductionProductDetailModel::where('id', $rq->id)->update([
-                'actual_quantity' => $rq->actual_quantity
+                'actual_quantity' => $rq->actual_quantity,
+                'reject_quantity' =>(int) 0
             ]);
         }
 
@@ -222,11 +223,14 @@ class ProductionProductController extends Controller
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
         
         $production = DB::table('production_products as pd')
-        ->select('pd.production_code','ppd.id as production_detail_id','ppd.qty_target_total', 'ppd.actual_quantity', 'ppd.reject_quantity', 'p.product_name')
+        ->select('pd.production_code','ppd.id as production_detail_id','ppd.qty_target_total', 'ppd.actual_quantity', 'ppd.reject_quantity', 'p.product_name', 'ppd.product', 'ppd.variant', 'vc.name as variant_name')
         ->leftJoin('production_products_detail as ppd','pd.production_code', '=', 'ppd.production_code' )
         ->leftJoin('products as p', 'ppd.product', '=', 'p.product_code')
-        ->where('ppd.id', $rq->production_id)->first();
-    
+        ->leftJoin('product_variant as pv', 'ppd.variant', '=', 'pv.variant_code')
+        ->leftJoin('variant_category as vc', 'pv.variant_type', '=', 'vc.id')
+        ->where('ppd.id', $rq->production_id)->first();   
+
+        
         if($production->reject_quantity)
         {
             session()->flash('failed_message', 'Data sudah diinput!');
@@ -264,7 +268,7 @@ class ProductionProductController extends Controller
                     'waste_code' => $wasteCode,
                     'waste_date' => now(),
                     'reason' => $rq->reason,
-                    'status' => 13,
+                    'status' => 1,
                     'approved_by' => null,
                     'created_by' => $user,
             ]);
@@ -275,15 +279,14 @@ class ProductionProductController extends Controller
                 }
                 $waste_type = DB::table('waste_category')->select('waste_code')->where('waste_code', $waste)->first();
 
-                ProductWasteDetail::create([
+               $codeWastesDetail = ProductWasteDetail::create([
                     'waste_code' => $codeWastes->waste_code,
+                    'product' => $rq->product_code,
+                    'variant' => $rq->variant_code ?? null,
                     'waste_type' => $waste_type->waste_code,
                     'quantity' => $qty,
                 ]);
             }
-
-        
-
         session()->flash('message_success', 'Berhasil menyimpan data!');
         return redirect()->route('production-detail', $production);
     }
@@ -416,27 +419,41 @@ class ProductionProductController extends Controller
     }
 
     public function update_production_status(Request $request) {
-        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;        
+        $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik; 
+        
+        
+        $checking_production_available = DB::table('production_products_detail')
+        ->where('production_code', $request->production_code)
+        ->where(function($q){
+            $q->whereNull('actual_quantity')
+                ->orWhereNull('reject_quantity');
+        })->exists();
 
-        if($request->status == null){
-            session()->flash('failed_message', 'Status Produksi harus dipilih');
-            return redirect()->back();
-        }
 
         $production_detail = DB::table('production_products_detail')
         ->where('production_code', $request->production_code)->get();
-
-
 
         $check_null = DB::table('production_products_detail')
         ->where('production_code', $request->production_code)
         ->whereNull('actual_quantity')
         ->exists();
 
+       
+        if($request->status == null){
+            session()->flash('failed_message', 'Status Produksi harus dipilih');
+            return redirect()->back();
+        }
+
+        if($checking_production_available){
+            session()->flash('failed_message', 'Masih ada produk yang belum diperbarui status jumlah produksinya');
+             return redirect()->route('production-detail', $request->production_code);
+        }
+
         if($check_null && $request->status == 5){
             session()->flash('failed_message', 'Anda harus update target Produksi Produk dahulu!');
             return redirect()->route('production-detail', $request->production_code);
         }
+
 
         if($request->status == 5){
             ProductionProduct::where('production_code', $request->production_code)->update([
@@ -536,53 +553,99 @@ class ProductionProductController extends Controller
 
 
 
-    // PRODUCT WASTE MODULE
+    // PRODUCT WASTE MODULE =============================== PRODUCT WASTES SECTION ======================================//////////////////
 
     public function product_waste(Request $request) 
     {
 
      $store_outlet = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
-    // $product_wastes = DB::table('product_wastes as pw')
-    // // relasi ke production
-    // ->leftJoin('distribution_products_detail as pp', 'pw.distribution', '=', 'pp.distribution_store_code')
-    // ->leftJoin('products as prod', 'pp.product', '=', 'prod.product_code')
-    // ->leftJoin('store as st', 'pp.store', '=', 'st.id')
-
-    // // relasi ke product daily
-    // ->leftJoin('products_daily as pd', 'pw.product_daily', '=', 'pd.daily_code')
-    // ->leftJoin('products as prod_daily', 'pd.product_code', '=', 'prod_daily.product_code')
-    // ->leftJoin('store as sto', 'pd.store', '=', 'sto.id')
-
-    // // relasi tambahan
-    // ->leftJoin('status_category as sc', 'pw.status', '=', 'sc.id')
-    // ->select([
-    //     'pw.*',
-
-    //     // production
-    //     'pp.distribution_store_code',
-    //     'prod.product_code as production_product_code',
-    //     'prod.product_name as product_name',
-    //     'st.store_name as production_store', 
-
-    //     // daily
-    //     'pd.daily_code',
-    //     'prod_daily.product_code as daily_product_code',
-    //     'prod_daily.product_name as daily_product_name',
-    //     'sto.store_name as daily_store', 
-
-    //     // status & store
-    //     'sc.status_name as status_name',
-        
-    // ])->where('pd.store', $store_outlet)->orWhere('pp.store', $store_outlet)
-    // ->get();
-
-
-
+ 
+         $products = DB::table('product_wastes_detail as pwd')
+            ->select('p.product_name', 'pwd.product')
+            ->leftJoin('products as p', 'pwd.product', '=', 'p.product_code')
+            ->distinct()
+            ->get();
         $waste_category = DB::table('waste_category')->get();
-        $products = DB::table('products')->get();
+        $waste_detail = DB::table('product_wastes_detail')
+                ->select('product', 'waste_type',  DB::raw('SUM(quantity) as quantity'))
+                ->groupBy('product', 'waste_type')
+                ->get();
+
+        foreach ($products as $prd) {
+            $prd->waste = [];
+
+            foreach ($waste_detail as $wd) {
+                if ($wd->product == $prd->product) {
+                    $prd->waste[$wd->waste_type] = $wd->quantity;
+                }
+            }
+        }
+
         $store = DB::table('store')->get();
         // $product_wastes_detail = DB::table('v_product_wastes')->get();
         return view('layouts.main_pages.product_wastes.product_waste', compact( 'store', 'waste_category', 'products'));
+    }
+
+    public function product_waste_data(Request $rq)
+    {
+        $product_waste_production = DB::table('product_wastes as pw')
+        ->where('pw.production_code', '!=', null)->get();
+
+        $product_waste_distribution = DB::table('product_wastes as pw')
+        ->where('pw.distribution', '!=', null)->get();
+
+        $product_waste_product_daily = DB::table('product_wastes as pw')
+        ->where('pw.product_daily', '!=', null)->get();
+
+        return view('layouts.main_pages.product_wastes.product_waste_data', compact('product_waste_production', 'product_waste_distribution', 'product_waste_product_daily'));
+
+    }
+
+
+    // FIX THIS :
+    // REQUEST DATE : 29/04/2026
+    public function product_waste_detail(Request $rq)
+    {
+
+
+        $products = DB::table('product_wastes_detail as pwd')
+            ->select('p.product_name', 'pwd.product')
+            ->leftJoin('products as p', 'pwd.product', '=', 'p.product_code')
+            ->where('pwd.waste_code', $rq->waste_code)
+            ->distinct()
+            ->get();
+
+        // ambil semua detail waste
+        $waste_detail = DB::table('product_wastes_detail')
+            ->select('product', 'waste_type',  DB::raw('SUM(quantity) as quantity'))
+            ->where('waste_code', $rq->waste_code)
+            ->groupBy('product', 'waste_type')
+            ->get();
+
+         $wasteTypes = DB::table('product_wastes_detail')
+            ->where('waste_code', $rq->waste_code)
+            ->pluck('waste_type')
+            ->unique();
+
+        $waste_category = DB::table('waste_category')
+        ->whereIn('waste_code', $wasteTypes)
+        ->get();
+
+
+        // 🔥 mapping ke masing-masing product
+        foreach ($products as $prd) {
+            $prd->waste = [];
+
+            foreach ($waste_detail as $wd) {
+                if ($wd->product == $prd->product) {
+                    $prd->waste[$wd->waste_type] = $wd->quantity;
+                }
+            }
+        }
+
+       
+
+        return view('layouts.main_pages.product_wastes.product_waste_detail', compact('products', 'waste_category', 'waste_detail'));
     }
 
     public function waste_create(Request $request)
@@ -593,57 +656,99 @@ class ProductionProductController extends Controller
             session()->flash('failed_message', 'Tidak bisa akses');
             return redirect()->back();
         }
-        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
         // $product_daily = DB::table('products_daily as pd')->leftJoin('products as p', 'pd.product_code', '=', 'p.product_code')->where('store', $store)->where('status', 4)->get();
-        $production = DB::table('production_products_detail as pp')->leftJoin('products as p', 'pp.product', '=', 'p.product_code')
-        ->get();
-         return view('layouts.main_pages.product_wastes.create.product_waste_create', compact('production'));
+        $products_daily = DB::table('products_daily as pd')
+                    ->leftJoin('distribution_products_detail as dpd', 'pd.distribution_store', '=', 'dpd.distribution_store_code')
+                    ->leftJoin('products as p', 'dpd.product', '=', 'p.product_code')
+                    ->where('pd.store', $store)
+                    ->get();
+
+                    // dd($products_daily);
+         return view('layouts.main_pages.product_wastes.create.product_waste_create', compact('products_daily'));
     }
+
+
 
     public function product_waste_save(Request $request)
     {
         $request->validate([
+            'attachment_files' => 'image|mimes:jpg,png,jpeg|max:5000',
             'waste_type'  => 'required|array',
-            'waste_type*'=> 'nullable|integer|min:0'
+            'waste_type*'=> 'nullable|integer|min:0',
+            'product_daily' => 'required'
+        ],
+        [
+            'product_daily.required' => 'Product Daily harap dipilih'
         ]);
 
-        $production_code = $request->production_code;
         $product_daily = $request->product_daily;
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 5);
         $wasteCode = 'WASTE' . $unique_code;
-
+        $approval = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
 
-        if($production_code && $product_daily){
-            session()->flash('failed_message', 'Hanya diperbolehkan satu kategori');
-            return redirect()->back();
-        }
+           if ($request->hasFile('attachment_files')) {
+                $productwasteFile = $request->file('attachment_files');
+                $folderPath = 'dailyproduct_reject_file/' . $request->product_daily;
+                $productwastePath = $productwasteFile->storeAs($folderPath, uniqid() . '.' . $productwasteFile->getClientOriginalExtension(), 'public');
 
-       $codeWastes = ProductWaste::create([
-                'production_code' => $production_code,
-                'product_daily' => $product_daily,
-                'waste_code' => $wasteCode,
-                'waste_date' => now(),
-                'status' => 13,
-                'approved_by' => null,
-                'created_by' => $user,
-        ]);
+                $codeWastes = ProductWaste::create([
+                   'product_daily' => $request->product_daily,
+                    'attachment_files' => $productwastePath,
+                    'waste_code' => $wasteCode,
+                    'waste_date' => now(),
+                    'reason' => $request->reason,
+                    'status' => 1,
+                    'approved_by' => null,
+                    'created_by' => $user,
+                ]);
+                
+            foreach($request->waste_type as $waste => $qty){
 
-        foreach($request->waste_type as $waste => $qty){
 
-            if (!$qty || $qty <= 0) {
-                 continue;
-            }
-            $waste_type = DB::table('waste_category')->select('waste_code')->where('waste_code', $waste)->first();
+                if (!$qty || $qty <= 0) {
+                    continue;
+                }
+                $waste_type = DB::table('waste_category')->select('waste_code')->where('waste_code', $waste)->first();
 
-            ProductWasteDetail::create([
-                'waste_code' => $codeWastes->waste_code,
-                'waste_type' => $waste_type->waste_code,
-                'quantity' => $qty,
-            ]);
+                ProductWasteDetail::create([
+                    'waste_code' => $codeWastes->waste_code,
+                    'product' => $request->product_code,
+                    'variant' => $request->variant_code ?? null,
+                    'waste_type' => $waste_type->waste_code,
+                    'quantity' => $qty,
+                ]);
+             }
+        }else{
+                $codeWastes = ProductWaste::create([
+                    'product_daily' => $product_daily,
+                    'waste_code' => $wasteCode,
+                    'waste_date' => now(),
+                    'reason' => $request->reason,
+                    'status' => 1,
+                    'approved_by' => null,
+                    'created_by' => $user,
+                ]);
+            
+            foreach($request->waste_type as $waste => $qty){
 
+
+                if (!$qty || $qty <= 0) {
+                    continue;
+                }
+                $waste_type = DB::table('waste_category')->select('waste_code')->where('waste_code', $waste)->first();
+
+                ProductWasteDetail::create([
+                    'waste_code' => $codeWastes->waste_code,
+                    'product' => $request->product_code,
+                    'variant' => $request->variant_code ?? null,
+                    'waste_type' => $waste_type->waste_code,
+                    'quantity' => $qty,
+                ]);
+             }
         }
 
         session()->flash('message_success', 'Data Produk Waste berhasil disimpan!');
@@ -664,6 +769,8 @@ class ProductionProductController extends Controller
         
         $distribution = DB::table('distribution_products_detail as dpd')
         ->leftJoin('products as p','dpd.product', '=', 'p.product_code' )
+        ->leftJoin('product_variant as pv', 'dpd.variant', '=', 'pv.variant_code')
+        ->leftJoin('variant_category as vc', 'pv.variant_type', '=', 'vc.id')
         ->where('distribution_store_code', $rq->distribution_store_code)->first();
      
         if($distribution->reject_quantity)

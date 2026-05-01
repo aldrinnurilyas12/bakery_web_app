@@ -60,7 +60,15 @@
                                                     <td>{{ $redeem->voucher_code }}</td>
                                                     <td> {{ $redeem->voucher_name }} </td>
                                                     <td>{{ $redeem->name }}</td>
-                                                    <td> {{ $redeem->status_name }} </td>
+                                                    <td>
+                                                        @if ($redeem->status_name == 'Success')
+                                                            <span class="text-success"> {{ $redeem->status_name }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-secondary"> {{ $redeem->status_name }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
                                                     <td> {{ $redeem->store_name }} </td>
                                                     <td>{{ $redeem->redeem_date }}</td>
                                                     <td>{{ $redeem->created_at }}</td>

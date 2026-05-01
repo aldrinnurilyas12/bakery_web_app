@@ -54,31 +54,32 @@ class LoginRequest extends FormRequest
         // Jika pengguna tidak ditemukan
         if (!$user_available) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'login' => 'Email atau username tidak sesuai'
-            ]);
+            return redirect()->route('login_kencana_bakery')->with(
+                'failed_message',
+                'Email/Username dan kata sandi tidak sesuai!'
+             );
         }
 
-        // Memeriksa apakah password yang dimasukkan benar
 
-
-        // Memeriksa status aktif pengguna
         if ($user_available->is_active == null) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'login' => 'Email belum diaktivasi'
-            ]);
+            return redirect()->route('login_kencana_bakery')->with(
+                'failed_message',
+                'Email belum diaktivasi!'
+             );
         }elseif($user_available->is_active == 'N'){
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'login' => 'Akun anda sudah tidak aktif silahkan hubungi IT'
-            ]);
+            return redirect()->route('login_kencana_bakery')->with(
+                'failed_message',
+                'Akun anda sudah tidak aktif silahkan hubungi IT!'
+             );
         
         } elseif (!Auth::attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'password' => 'Password salah, coba lagi.'
-            ]);
+             return redirect()->route('login_kencana_bakery')->with(
+                'failed_message',
+                'Kata sandi salah, silahkan coba lagi!'
+             );
         }
 
         // Jika semua pemeriksaan berhasil, login pengguna
@@ -94,25 +95,29 @@ class LoginRequest extends FormRequest
 
         $login = $this->input('login');
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
+        
 
         $user = CustomerModel::where($field, $login)->first();
 
         if (!$user) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'login' => 'Email atau nomor telepon tidak sesuai'
-            ]);
+            return redirect()->route('login_app')->with(
+                'failed_message',
+                'Email atau nomor telepon tidak sesuai!'
+             );
         } elseif ($user->status == 8) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'login' => 'Akun anda sudah tidak aktif'
-            ]);
+             return redirect()->route('login_app')->with(
+                'failed_message',
+                'Akun anda sudah tidak aktif!'
+             );
 
         } elseif (!Auth::guard('customer')->attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-            throw ValidationException::withMessages([
-                'password' => 'Password salah, coba lagi.'
-            ]);
+             return redirect()->route('login_app')->with(
+                'failed_message',
+                'Kata sandi salah, silahkan coba lagi!'
+             );
         }
 
         RateLimiter::clear($this->throttleKey());

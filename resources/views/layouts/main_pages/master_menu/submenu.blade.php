@@ -34,6 +34,9 @@
                             @if ($submenu->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
+                                        <a style="color:black;" class="btn btn-info" href="#" data-toggle="modal"
+                                            data-target="#changeStatus">Update Status</a>
+                                        |
                                         <a style="color:black;" class="btn btn-warning"
                                             href="{{ route('master_main_menu.index') }}">Menu
                                             Utama</a>
@@ -135,13 +138,51 @@
         </div>
     </div>
 
+
+
+    <div wire:ignore class="modal fade" id="changeStatus" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ubah status data Submenu </h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Apakah anda yakin ingin mengubah status semua submenu
+                    ?
+                    <form action="{{ route('submenu_change_status', $main_menu_id->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="modal-body">
+
+                            <select class="form-control" name="status" id="">
+                                <option value="">=== Pilih status ===</option>
+                                <option value="7">Aktifkan semua</option>
+                                <option value="8">Nonaktifkan semua</option>
+                            </select>
+
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Ya ubah</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     @foreach ($submenu as $sub)
         <div wire:ignore class="modal fade" id="deleteModal{{ $sub->submenu_id }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel{{ $sub->submenu_id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data Submenu {{ $sub->submenu_name }}</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus data Submenu {{ $sub->submenu_name }}
+                        </h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>

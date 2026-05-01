@@ -161,7 +161,8 @@ class DistributionProducts extends Controller
     {
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_name;
         $wastes_category = DB::table('waste_category')->get();
-        $distribution_detail = DB::table('v_distribution_detail')->where('distribution', $request->distribution_code)->where('store_name', $store)->get();
+        $distribution_detail = DB::table('v_distribution_detail')->where('distribution', $request->distribution_code)
+        ->where('store_name', $store)->get();
         return view('layouts.main_pages.distribution_products.distribution_detail', compact('distribution_detail', 'wastes_category'));
     }
 
@@ -190,19 +191,21 @@ class DistributionProducts extends Controller
 
 
         if($request->waste_confirmation == 'yes'){
-
             DistributionProductsDetailModel::where('distribution_store_code', $request->distribution_store_code)->update([
                         'received_quantity' => $request->received_quantity,
                         'status' => 20,
                         'approval' => $approval,
+                        'received_date' => now(),
                         'updated_at' =>now()
                 ]);
             return redirect()->route('product-waste-distribution', $request->distribution);
         }else{
              DistributionProductsDetailModel::where('distribution_store_code', $request->distribution_store_code)->update([
                         'received_quantity' => $request->received_quantity,
+                        'reject_quantity' => (int) 0,
                         'status' => 20,
                         'approval' => $approval,
+                        'received_date' => now(),
                         'updated_at' =>now()
                 ]);
         }
@@ -246,7 +249,7 @@ class DistributionProducts extends Controller
                     'waste_code' => $wasteCode,
                     'waste_date' => now(),
                     'reason' => $request->reason,
-                    'status' => 13,
+                    'status' => 1,
                     'approved_by' => null,
                     'created_by' => $user,
                 ]);
@@ -263,6 +266,45 @@ class DistributionProducts extends Controller
 
                 ProductWasteDetail::create([
                     'waste_code' => $codeWastes->waste_code,
+                    'product' => $request->product_code,
+                    'variant' => $request->variant_code ?? null,
+                    'waste_type' => $waste_type->waste_code,
+                    'quantity' => $qty,
+                ]);
+             }
+        }else{
+             DistributionProductsDetailModel::where('distribution_store_code', $request->distribution)->update([
+                        'reject_quantity' => $request->reject_quantity,
+                        'notes' => $request->notes,
+                        'status' => 20,
+                        'approval' => $approval,
+                        'updated_at' =>now()
+                    ]);
+
+                $codeWastes = ProductWaste::create([
+                    'distribution' => $request->distribution,
+                    'waste_code' => $wasteCode,
+                    'waste_date' => now(),
+                    'reason' => $request->reason,
+                    'status' => 1,
+                    'approved_by' => null,
+                    'created_by' => $user,
+                ]);
+                
+
+
+            foreach($request->waste_type as $waste => $qty){
+
+
+                if (!$qty || $qty <= 0) {
+                    continue;
+                }
+                $waste_type = DB::table('waste_category')->select('waste_code')->where('waste_code', $waste)->first();
+
+                ProductWasteDetail::create([
+                    'waste_code' => $codeWastes->waste_code,
+                    'product' => $request->product_code,
+                    'variant' => $request->variant_code ?? null,
                     'waste_type' => $waste_type->waste_code,
                     'quantity' => $qty,
                 ]);

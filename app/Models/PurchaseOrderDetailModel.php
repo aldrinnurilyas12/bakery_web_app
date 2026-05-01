@@ -12,6 +12,7 @@ class PurchaseOrderDetailModel extends Model
         'item',
         'raw_material',
         'quantity',
-        'price'
+        'price',
+        'expired_date'
     ];
 }

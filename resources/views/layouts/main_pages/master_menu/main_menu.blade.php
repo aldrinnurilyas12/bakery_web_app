@@ -34,6 +34,9 @@
                             @if ($main_menu->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
+                                        <a style="color:black;" class="btn btn-info" href="#" data-toggle="modal"
+                                            data-target="#changeStatus">Update Status</a>
+                                        |
                                         <a class="btn btn-primary" href="{{ route('main_menu_create') }}">Tambah
                                             Menu Utama</a>
                                     </div>
@@ -140,30 +143,39 @@
         </div>
     </div>
 
-    {{-- @foreach ($main_menu as $menu)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $menu->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $menu->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data Mas</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Apakah anda yakin ingin menghapus Kategori
-                        {{ $menu->category_name }} ?</div>
-                    <div class="modal-footer">
-                        <form action="{{ route('master_category.destroy', $menu->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Hapus</button>
-                        </form>
-                    </div>
+    <div wire:ignore class="modal fade" id="changeStatus" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ubah status data Submenu </h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Apakah anda yakin ingin mengubah status semua submenu
+                    ?
+                    <form action="{{ route('submenu_update_status') }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="modal-body">
+
+                            <select class="form-control" name="status" id="">
+                                <option value="">=== Pilih status ===</option>
+                                <option value="7">Aktifkan semua</option>
+                                <option value="8">Nonaktifkan semua</option>
+                            </select>
+
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Ya ubah</button>
+                    </form>
                 </div>
             </div>
         </div>
-    @endforeach --}}
+    </div>
 </body>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

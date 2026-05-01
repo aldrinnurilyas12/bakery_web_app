@@ -151,7 +151,9 @@ class MasterMainMenu extends Controller
        $submenu = DB::table('submenu as s')->select('mm.id','mm.menu_name','s.id as submenu_id', 's.submenu_name','s.submenu_link', 's.icon','s.status','s.description', 's.created_at','s.updated_at')
                 ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
                 ->where('s.main_menu', $request->id)->get();
+                
         $main_menu_id = DB::table('main_menu')->where('id', $request->id)->first();
+
         return view('layouts.main_pages.master_menu.submenu',compact('submenu', 'main_menu_id'));
     }
     /**
@@ -259,7 +261,27 @@ class MasterMainMenu extends Controller
             'description' => $request->description,
             'status' => $request->status
         ]);
-          session()->flash('message_success', 'Berhasil perbarui Submenu');
+        session()->flash('message_success', 'Berhasil perbarui Submenu');
          return redirect()->route('submenu_list', ['id' => $request->main_menu]);
+    }
+
+    public function submenu_change_status(Request $rq, $id){
+
+        DB::table('submenu')->where('main_menu',$id)->update([
+            'status' => $rq->status,
+        ]);
+
+        session()->flash('message_success', 'Berhasil perbarui Submenu');
+         return redirect()->back();
+    }
+
+     public function submenu_update_status(Request $rq){
+
+        DB::table('submenu')->update([
+            'status' => $rq->status,
+        ]);
+
+        session()->flash('message_success', 'Berhasil perbarui Submenu');
+         return redirect()->back();
     }
 }

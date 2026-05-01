@@ -418,7 +418,7 @@ class CustomerController extends Controller
                 'point' => $result_point
             ]);
 
-            session()->flash('message_success', 'Berhasil Redeem Point!');
+            session()->flash('message_success', 'Berhasil Redeem Reward!');
             return redirect()->route('rewards-history');
         }
 

@@ -51,15 +51,6 @@
                     </div>
 
                 </div>
-                @if ($errors->get('login'))
-                    <div class="alert alert-warning">
-                        <x-input-error :messages="$errors->get('login')" />
-                    </div>
-                @elseif($errors->get('password'))
-                    <div class="alert alert-warning">
-                        <x-input-error :messages="$errors->get('password')" />
-                    </div>
-                @endif
 
                 <div class="button-group">
                     <button id="btnGeneral" class="btn-general" type="submit">Login
@@ -90,13 +81,13 @@
     </script>
 @endif
 
-@if (Session::has('failed'))
+@if (Session::has('failed_message'))
     <script>
         Swal.fire({
             title: 'Gagal',
-            text: "{{ Session::get('failed') }}",
+            text: "{{ Session::get('failed_message') }}",
             icon: "error",
-            timer: 4000,
+            timer: 2000,
             confirmButtonText: 'OK'
         });
     </script>

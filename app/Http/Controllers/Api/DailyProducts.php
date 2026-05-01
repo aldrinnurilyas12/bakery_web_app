@@ -69,7 +69,7 @@ class DailyProducts extends Controller
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
-        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 5);
         $daily_code = 'DAILY' . $unique_code;
@@ -234,6 +234,18 @@ class DailyProducts extends Controller
         $data = DB::table('distribution_products_detail')
         ->select('received_quantity', 'product', 'variant', 'expired_date')
         ->where('distribution_store_code', $rq->distribution_store)->first();
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Stock product'
+        ]);
+    }
+
+     public function get_qty(Request $rq){
+        $data = DB::table('products_daily as pd')
+        ->select('dpd.product', 'dpd.variant','dpd.received_quantity', 'dpd.received_date')
+        ->join('distribution_products_detail as dpd', 'pd.distribution_store', '=', 'dpd.distribution_store_code')
+        ->where('pd.daily_code', $rq->daily_code)->first();
 
         return response()->json([
             'data' => $data,

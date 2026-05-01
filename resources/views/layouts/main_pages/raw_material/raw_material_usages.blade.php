@@ -83,7 +83,7 @@
                                             <img width="70" height="70"
                                                 src="{{ asset('assets/front_end/assets/img/null.png') }}"
                                                 alt="">
-                                            <div style="display: block;" class="text-content">
+                                            <div style="display: block;align-self: center;" class="text-content">
                                                 <h3>Belum ada Penggunaan untuk Bahan Baku ini</h3>
                                             </div>
                                         </div>

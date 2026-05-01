@@ -21,6 +21,7 @@ class DistributionProductsDetailModel extends Model
         'status',
         'approval',
         'product_daily',
+        'received_date',
         'attachment_files'
     ];
 }

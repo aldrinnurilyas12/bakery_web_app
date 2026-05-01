@@ -29,6 +29,15 @@
                     <a href="#" data-toggle="modal" data-target="#showInfoPrice"> <i
                             class="fa fa-info-circle"></i>
                         ketentuan harga bahan baku</a>
+
+
+                    <hr>
+                    <div style="font-size: 13px;" class="alert alert-info">
+                        <ul>
+                            <li>Bahan baku bisa dihapus jika bahan baku belum pernah digunakan untuk produksi produk
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -63,6 +72,7 @@
                                     <tbody>
                                         @php
                                             $no = 1;
+
                                         @endphp
                                         @foreach ($raw_material as $raw)
                                             <tr>
@@ -74,9 +84,11 @@
                                                                 href="{{ route('material_update', $raw->material_code) }}"><i
                                                                     class="fa fa-edit"></i></a>
 
-                                                            <a href="#" data-toggle="modal"
-                                                                data-target="#deleteModal{{ $raw->material_code }}"><i
-                                                                    class="fa fa-trash"></i></a>
+                                                            @if ($checking_material_usages->where('material_code', $raw->material_code)->isEmpty())
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#deleteModal{{ $raw->material_code }}"><i
+                                                                        class="fa fa-trash"></i></a>
+                                                            @endif
                                                         </div>
                                                     </td>
 

@@ -122,7 +122,17 @@
                                                             </tr>
 
                                                             <tr>
-                                                                <td>{{ $dst->status_name }}</td>
+                                                                <td>
+                                                                    @if ($dst->status_name == 'Received')
+                                                                        <span class="text-success">
+                                                                            {{ $dst->status_name }}
+                                                                        </span>
+                                                                    @elseif($dst->status_name == 'Unreceived')
+                                                                        <span class="text-secondary">
+                                                                            {{ $dst->status_name }}
+                                                                        </span>
+                                                                    @endif
+                                                                </td>
                                                                 <td>{{ $dst->expired_date }}</td>
                                                                 <td>{{ $dst->quantity }}</td>
                                                                 <td>

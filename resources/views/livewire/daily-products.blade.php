@@ -30,7 +30,7 @@
                 @if ($daily_products->isNotEmpty())
                     @if (!$user_permission_forbidden)
                         <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('daily_product_create') }}">Tambah
+                            <a class="btn btn-primary" href="{{ route('dailyproduct_create') }}">Tambah
                                 Daily Produk</a>
                         </div>
                     @endif

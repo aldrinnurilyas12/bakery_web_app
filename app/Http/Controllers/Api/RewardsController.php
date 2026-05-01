@@ -279,9 +279,30 @@ class RewardsController extends Controller
                     ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
                     ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
                     ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
-                    ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')->get();
+                    ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
+                    ->orderBy('created_at', 'DESC')->get();
+        
+        $reward_data_claimed = DB::table('redeem_reward as rr')
+                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
+                    ->leftJoin('rewards_store as rws', 'rr.reward', '=', 'rws.reward_store_code')
+                    ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
+                    ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
+                    ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
+                    ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
+                    ->where('rr.status', 11)
+                    ->orderBy('created_at', 'DESC')->get();
+
+        $reward_data_unclaimed = DB::table('redeem_reward as rr')
+                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
+                    ->leftJoin('rewards_store as rws', 'rr.reward', '=', 'rws.reward_store_code')
+                    ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
+                    ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
+                    ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
+                    ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
+                    ->where('rr.status', 12)
+                    ->orderBy('created_at', 'DESC')->get();
    
-        return view('layouts.main_pages.rewards.claim.claim-reward', compact('reward_data'));
+        return view('layouts.main_pages.rewards.claim.claim-reward', compact('reward_data','reward_data_claimed', 'reward_data_unclaimed'));
     }
 
     // APPROVAL REDEEM REWARD BY CASHEER

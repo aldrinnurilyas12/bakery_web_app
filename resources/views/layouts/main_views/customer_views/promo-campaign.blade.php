@@ -42,20 +42,18 @@
                                             <div style="width: 200px;" class="title-text">
                                                 <h5 style="font-size:20px;">{{ $promo->promo_name }}</h5>
                                             </div>
-                                            <p
-                                                style="font-size: 18px;color:gray; font-weight: normal;margin-bottom:5px;">
-                                                Kuota:
-                                                {{ $promo->quota }}
-                                            </p>
                                             <div class="date">
+                                                <span style="font-size: 13px;">Periode promo:</span>
+                                                <br>
                                                 <small>{{ \Carbon\Carbon::parse($promo->start_date)->format('Y-m-d') }}</small>
                                                 <span>s.d</span>
                                                 <small>
                                                     {{ \Carbon\Carbon::parse($promo->end_date)->format('Y-m-d') }}</small>
                                             </div>
                                             <div class="btn-redeem-point">
-                                                <a href="{{ route('promo-detail', $promo->promo_code) }}"
-                                                    class="btn-detail-info">Lihat</a>
+                                                <a style="background:#bb0239;color:white; border:none;width:100%;"
+                                                    href="{{ route('promo-detail', $promo->promo_code) }}"
+                                                    class="btn btn-primary">Lihat promo</a>
                                             </div>
                                         </div>
                                     </div>

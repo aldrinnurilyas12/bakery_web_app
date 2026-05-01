@@ -51,8 +51,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Produk</strong></label>
                             @if ($products->isNotEmpty())
+                                <label><strong>Produk</strong></label>
                                 <select id="productSelect" class="form-control" name="distribution_store">
                                     <option value="">==== Pilih Produk ====</option>
                                     @foreach ($products as $item)
@@ -63,7 +63,21 @@
                                 </select>
                                 <x-input-error :messages="$errors->get('production')" class="text-danger" />
                             @else
-                                <p class="text-secondary">Produk belum didistribusi pada Store ini </p>
+                                <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                                    class="empty-transaction">
+
+                                    <div style="display: flex;" class="empty-content">
+                                        <div style="display: flex; gap:20px;margin:auto;">
+                                            <img width="70" height="70"
+                                                src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                alt="">
+                                            <div style="display: block;align-self: center;">
+                                                <h3>Belum ada distribusi produk pada store ini</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             @endif
                         </div>
 

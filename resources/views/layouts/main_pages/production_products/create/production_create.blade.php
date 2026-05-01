@@ -34,8 +34,7 @@
                             <li>Penggunaan bahan baku harus mengikuti panduan pada tabel Ingredients</li>
                             <li>Produk yang sudah dicatat produksi produk tidak boleh dihapus, hanya dapat diubah dengan
                                 alasan valid dan tercatat.</li>
-                            <li>Jika stok kosong segera melakukan input stok kembali pada modul Raw Material(Bahan
-                                Baku).</li>
+                            <li>Jika stok kosong segera melakukan Purchase Order</li>
                             <li>Jadwal untuk melakukan input data Produksi Produk pada jam 05.00 s.d 07.30</li>
                         </ul>
                     </div>
@@ -66,7 +65,8 @@
                                                 <td><?php echo $no++; ?></td>
                                                 <td> <input class="allowed-checkbox" type="checkbox"
                                                         name="product[{{ $key }}]"
-                                                        value="{{ $prd->product_code }}">
+                                                        value="{{ $prd->product_code }}"
+                                                        {{ old('product.' . $key) == $prd->product_code ? 'checked' : '' }}>
                                                     <input type="hidden" name="variant[{{ $key }}]"
                                                         value="{{ $prd->variant_code }}">
                                                 </td>
@@ -78,7 +78,8 @@
                                                     </span>
                                                 </td>
                                                 <td> <input class="form-control"
-                                                        name="qty_target_total[{{ $key }}]" type="number">
+                                                        name="qty_target_total[{{ $key }}]" type="number"
+                                                        value="{{ old('qty_target_total.' . $key) }}">
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -117,13 +118,12 @@
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
                                                         @if ($raw->quantity == 0)
-                                                            <a
-                                                                href="{{ route('material_update', $raw->material_code) }}"><i
-                                                                    class="fa fa-edit"></i></a>
+                                                            -
                                                         @else
                                                             <input class="allowed-checkbox" type="checkbox"
                                                                 name="raw_material[{{ $raw->material_code }}]"
-                                                                value="{{ $raw->material_code }}">
+                                                                value="{{ $raw->material_code }}"
+                                                                {{ old('raw_material.' . $raw->material_code) == $raw->material_code ? 'checked' : '' }}>
                                                         @endif
                                                     </td>
                                                     <td>{{ '[' . $raw->material_code . '] ' . ' - ' . $raw->material_name }}
@@ -144,7 +144,8 @@
                                                                 class="form-control"
                                                                 name="quantity_used[{{ $raw->material_code }}]"
                                                                 type="number"
-                                                                oninput="validateSingle('{{ $raw->material_code }}')">
+                                                                oninput="validateSingle('{{ $raw->material_code }}')"
+                                                                value="{{ old('quantity_used.' . $raw->material_code) }}">
 
                                                             <small id="error_{{ $raw->material_code }}"
                                                                 style="color:red; display:none;">
@@ -171,10 +172,18 @@
                         <div class="form-group">
                             <label><strong>Tipe Produksi</strong></label>
                             <select name="production_type" class="form-control" id="" required>
-                                <option value="">=== Pilih Tipe Produksi ===</option>
-                                <option value="per_day">Per Hari</option>
-                                <option value="per_week">Per Minggu</option>
-                                <option value="per_month">Per Bulan</option>
+                                <option value="per_day" {{ old('production_type') == 'per_day' ? 'selected' : '' }}>
+                                    Per Hari
+                                </option>
+
+                                <option value="per_week" {{ old('production_type') == 'per_week' ? 'selected' : '' }}>
+                                    Per Minggu
+                                </option>
+
+                                <option value="per_month"
+                                    {{ old('production_type') == 'per_month' ? 'selected' : '' }}>
+                                    Per Bulan
+                                </option>
                             </select>
                             <x-input-error :messages="$errors->get('production_type')" class="text-danger" />
                         </div>
@@ -184,7 +193,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal Produksi Produk</strong></label>
                             <input type="date" name="production_date" class="form-control" autocomplete="off"
-                                required>
+                                value="{{ old('production_date') }}" required>
                             <x-input-error :messages="$errors->get('production_date')" class="text-danger" />
                         </div>
 

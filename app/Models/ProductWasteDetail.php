@@ -12,6 +12,8 @@ class ProductWasteDetail extends Model
     protected $table = 'product_wastes_detail';
     protected $fillable = [
         'waste_code',
+        'product',
+        'variant',
         'waste_type',
         'quantity'
     ];
