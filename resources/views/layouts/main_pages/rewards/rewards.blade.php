@@ -92,6 +92,7 @@
                                                                 <tr style="font-size: 14px;">
                                                                     <th>Store</th>
                                                                     <th>Stock</th>
+                                                                    <th>Available</th>
                                                                     <th>Redeem</th>
                                                                 </tr>
                                                             </thead>
@@ -102,6 +103,7 @@
                                                                             <td>{{ $item->store_name }}</td>
                                                                             <td>
                                                                                 {{ $item->stock }}</td>
+                                                                            <td>{{ $item->total_available }}</td>
                                                                             <td>{{ $item->total_redeem }}</td>
                                                                         </tr>
                                                                     @endif

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\InventoryMovementModel;
 use App\Models\ItemPriceDetailModel;
 use App\Models\PurchaseOrderDetailModel;
 use App\Models\PurchaseOrderModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\UserLogActivity;
 
 class PurchaseOrderController extends Controller
 {
@@ -40,8 +42,28 @@ class PurchaseOrderController extends Controller
             return redirect()->back();
         }
         $supplier = DB::table('supplier')->where('status', 7 )->get();
+        
         $items = DB::table('items as i')
-        ->leftJoin('item_category as ic', 'i.item_category', '=', 'ic.id')->get();
+        ->select(
+            'rm.material_code',
+            'ic.category_name',
+            'i.name',
+            'i.item_code',
+            'i.item_category',
+            'i.raw_material',
+            'i.weight_type as weight_type_id',
+            'muc.unit_code as purchase_unit',
+            'muci.unit_name as inventory_code',
+            'mucy.unit_name as weight_type',
+            'muci.unit_name as inventory_unit'
+        )
+        ->leftJoin('item_category as ic', 'i.item_category', '=', 'ic.id')
+        ->leftJoin('raw_material as rm', 'i.raw_material', '=', 'rm.material_code')
+        ->leftJoin('material_unit_category as mucy', 'i.weight_type', '=', 'mucy.id')
+        ->leftJoin('material_unit_category as muc', 'rm.purchase_unit', '=', 'muc.id')
+        ->leftJoin('material_unit_category as muci', 'rm.inventory_unit', '=', 'muci.id')
+        ->get();
+
         return view('layouts.main_pages.purchase_order.create.purchase_order', compact('supplier', 'items'));
     }
 
@@ -69,6 +91,7 @@ class PurchaseOrderController extends Controller
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
         $po_code = 'PO-'.$date.'-'. $unique_code;
+        $inventoryCode = 'INVTR-'.$date.'-'. $unique_code;
         $emp =app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         $supplier_code = $request->supplier;
@@ -76,6 +99,7 @@ class PurchaseOrderController extends Controller
         $rawMaterial = $request->raw_material;
         $quantities = $request->quantity;
         $price = $request->price;
+        $qty_ratio = $request->qty_ratio;
         $expired_date = $request->expired_date;
 
         if ($request->hasFile('payment_invoice')) {
@@ -99,7 +123,7 @@ class PurchaseOrderController extends Controller
             ]);
 
 
-            $itemType = DB::table('items as i')
+                DB::table('items as i')
                 ->leftJoin('item_category as ic', 'i.item_category', '=', 'ic.id')
                 ->where('i.item_code', $items)
                 ->value('ic.category_name');
@@ -113,6 +137,7 @@ class PurchaseOrderController extends Controller
                         'raw_material' => $rawCode,
                         'quantity' =>(int) ($quantities[$itemCode] ?? 0),
                         'price' => (int) ($price[$itemCode]??0),
+                        'qty_ratio' => $qty_ratio[$itemCode] ?? null,
                         'expired_date' => $expired_date[$itemCode]
                     ]);
 
@@ -122,7 +147,22 @@ class PurchaseOrderController extends Controller
                     ]);
                   
                 }
+
+                InventoryMovementModel::create([
+                    'inventory_code_reference' => $inventoryCode,
+                    'purchase_code' => $po->purchase_code,
+                    'movement_type' => 1,
+                    'references_type' => 'IN',
+                    'movement_date' => now(),
+                    'status' => 5
+                ]);
         }
+
+         UserLogActivity::log(
+                module: 'Purchase Order',
+                method_type: 'CREATE',
+                description: "user create purchase order: {$po->purchase_code}"      
+        );
 
         session()->flash('message_success', 'Data Purchase Order berhasil disimpan!');
         return redirect()->route('purchase_order.index');

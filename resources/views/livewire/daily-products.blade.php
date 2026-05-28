@@ -27,14 +27,25 @@
                     Master Data / <a href="{{ route('master_products.index') }}">Daily Produk</a>
                 </div>
 
-                @if ($daily_products->isNotEmpty())
-                    @if (!$user_permission_forbidden)
-                        <div class="button-add-product">
-                            <a class="btn btn-primary" href="{{ route('dailyproduct_create') }}">Tambah
-                                Daily Produk</a>
+                <div style="display: flex;gap:10px;" class="flex-content">
+                    @if ($module_documentation)
+                        <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                            class="documentation-module">
+                            <a title="Dokumentasi Modul"
+                                href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                <i aria-label="Module Documentation" class="fa fa-file"></i>
+                            </a>
                         </div>
                     @endif
-                @endif
+                    @if ($daily_products->isNotEmpty())
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn btn-primary" href="{{ route('dailyproduct_create') }}">Tambah
+                                    Daily Produk</a>
+                            </div>
+                        @endif
+                    @endif
+                </div>
             </div>
             <hr>
             <div style="font-size: 13px;" class="alert alert-info">
@@ -347,7 +358,6 @@
                                 <div>
                                     <h3>Belum ada produk</h3>
                                     @if (!$user_permission_forbidden)
-                                        <p class="text-secondary">Tambah data produk anda</p>
                                         <a class="btn btn-primary" href="{{ 'dailyproduct_create' }}">Tambah
                                             Produk</a>
                                     @endif

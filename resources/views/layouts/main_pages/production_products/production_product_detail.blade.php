@@ -51,8 +51,15 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="card-headrr">
+                        <div class="card-header">
                             &nbsp; <a class="btn btn-primary" href="{{ route('production_products') }}">Kembali</a>
+
+                            <br>
+                            <br>
+                            <div class="form-group">
+                                <label for=""><strong>Total Biaya Produksi</strong></label>
+                                <input class="form-control" type="text" value="{{'Rp.' . number_format($production->first()->total_cost) }}" readonly>
+                            </div>
 
                         </div>
                         <div class="card-body">
@@ -128,21 +135,23 @@
                                                             cellspacing="0">
 
                                                             <tr>
-
-                                                                <th>Berat Produk </th>
-                                                                <th>Total berat produk</th>
-                                                                <th>Total Biaya Produksi per Produk</th>
-                                                                {{-- FIX THIS HPP CALCULATED --}}
-                                                                {{-- <th>HPP</th> --}}
-
+                                                                <th>HPP</th>
+                                                                <th>Biaya Produksi per Produk</th>
                                                             </tr>
 
                                                             <tr>
-                                                                <td>{{ $prdc->product_weight . ' ' . $prdc->product_weight_type }}
-                                                                </td>
-                                                                <td>{{ $prdc->product_weight_total ?: '-' }}</td>
                                                                 <td>
-                                                                    {{ $prdc->budget_total !== null ? 'Rp.' . number_format((float) $prdc->budget_total) : '-' }}
+                                                                    @if($prdc->hpp)
+                                                                    {{ 'Rp.' . number_format($prdc->hpp) }}
+                                                                    @else
+                                                                    <a href="{{ route('add_ingredients', $prdc->product) }}"><i class="fa fa-edit"></i></a>
+                                                                    @endif</td>
+                                                                <td>
+                                                                     @if($prdc->hpp)
+                                                                    {{ 'Rp.' . number_format($prdc->hpp * $prdc->actual_quantity) }}
+                                                                    @else
+                                                                    <span class="text-danger">HPP belum ada untuk produk ini</span>
+                                                                    @endif
                                                                 </td>
 
                                                                 {{-- <td>
@@ -226,8 +235,8 @@
 
                             <div class="form-group">
                                 <label for=""><strong>Total Target</strong></label>
-                                <input type="text" value="{{ $prdc->qty_target_total }}" class="form-control"
-                                    readonly>
+                                <input type="text" name="target_total" value="{{ $prdc->qty_target_total }}"
+                                    class="form-control" readonly>
                             </div>
                             <br>
                             <div class="form-group">

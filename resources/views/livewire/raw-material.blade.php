@@ -14,14 +14,32 @@
                     <div class="title">
                         Master Data / <a href="{{ route('raw_material') }}">Bahan Baku</a>
                     </div>
-
-                    @if ($raw_material->isNotEmpty())
-                        @if (!$user_permission_forbidden)
-                            <div class="button-add-product">
-                                <a class="btn btn-primary" href="{{ route('material_create') }}">Tambah Bahan Baku</a>
+                    <div style="display: flex;gap:10px;" class="flex-content">
+                        @if ($module_documentation)
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
                             </div>
                         @endif
-                    @endif
+
+                        <div style="display: flex; gap:10px;" class="flex-content">
+                            @if ($raw_material->isNotEmpty())
+                                @if (!$user_permission_forbidden)
+                                    <div class="button-add-product">
+                                        <a class="btn btn-info" href="{{ route('unit_material') }}">
+                                            Satuan Unit</a>
+                                    </div>
+                                    <div class="button-add-product">
+                                        <a class="btn btn-primary" href="{{ route('material_create') }}">Tambah Bahan
+                                            Baku</a>
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 <div class="card-header">
@@ -51,21 +69,9 @@
                                             <th>No</th>
                                             @if (!$user_permission_forbidden)
                                                 <th>Aksi</th>
-                                                <th>Lainnya</th>
                                             @endif
-                                            <th>Kode Bahan Baku</th>
-                                            <th>Bahan Baku</th>
-                                            <th>Stok</th>
-                                            <th>Harga
-                                            </th>
-                                            <th>Massa</th>
-                                            <th>Status</th>
-                                            <th>Kategori</th>
-                                            <th>Tanggal Expired</th>
-                                            <th>Created at</th>
-                                            <th>Created by</th>
-                                            <th>Updated at</th>
-                                            <th>Updated by</th>
+                                            <th>Detail Bahan Baku</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
 
@@ -78,19 +84,6 @@
                                             <tr>
                                                 <td>{{ $no++ }}</td>
                                                 @if (!$user_permission_forbidden)
-                                                    <td>
-                                                        <div style="display: flex; gap:10px;" class="btn-action">
-                                                            <a
-                                                                href="{{ route('material_update', $raw->material_code) }}"><i
-                                                                    class="fa fa-edit"></i></a>
-
-                                                            @if ($checking_material_usages->where('material_code', $raw->material_code)->isEmpty())
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteModal{{ $raw->material_code }}"><i
-                                                                        class="fa fa-trash"></i></a>
-                                                            @endif
-                                                        </div>
-                                                    </td>
 
                                                     <td>
                                                         <table style="font-size: 14px; color:black;"
@@ -98,16 +91,33 @@
                                                             cellspacing="0">
 
                                                             <tr>
-                                                                <th>Penggunaan</th>
-                                                                <th>Riwayat PO</th>
+                                                                <th>Aksi</th>
+                                                                 <td>
+                                                                    <div style="display: flex; gap:10px;" class="btn-action">
+                                                                        <a
+                                                                            href="{{ route('material_update', $raw->material_code) }}"><i
+                                                                                class="fa fa-edit"></i></a>
+
+                                                                        @if ($checking_material_usages->where('material_code', $raw->material_code)->isEmpty())
+                                                                            <a href="#" data-toggle="modal"
+                                                                                data-target="#deleteModal{{ $raw->material_code }}"><i
+                                                                                    class="fa fa-trash"></i></a>
+                                                                        @endif
+                                                                    </div>
+                                                                 </td>
                                                             </tr>
 
                                                             <tr>
+                                                                <th>Penggunaan</th>
                                                                 <td> <a
                                                                         href="{{ route('raw_material_usages', $raw->material_code) }}"><i
                                                                             class="fas fa-eye"></i></a>
                                                                 </td>
-                                                                <td> <a
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Riawayat PO</th>
+                                                                 <td> <a
                                                                         href="{{ route('history_raw_material', $raw->material_code) }}"><i
                                                                             class="fas fa-list"></i></a></td>
                                                             </tr>
@@ -115,30 +125,99 @@
                                                         </table>
                                                     </td>
                                                 @endif
-                                                <td>{{ $raw->material_code }}</td>
-                                                <td>{{ $raw->material_name }}</td>
-                                                <td>{{ $raw->quantity }}</td>
+
+
                                                 <td>
-                                                    @if ($raw->price == null)
-                                                        <span>-</span>
-                                                    @else
-                                                        {{ 'Rp.' . number_format($raw->price) }}
-                                                    @endif
+                                                    <table class="table table-bordered">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th>Kode</th>
+                                                                <td>{{ $raw->material_code }}</td>
+                                                            </tr>
+
+                                                             <tr>
+                                                                <th>Bahan Baku</th>
+                                                                <td>{{ $raw->material_name }}</td>
+                                                            </tr>
+
+                                                             <tr>
+                                                                <th>Stok</th>
+                                                                <td>{{ $raw->quantity ?: '-' }}</td>
+                                                            </tr>
+
+                                                             <tr>
+                                                                <th>Harga</th>
+                                                                 <td>
+                                                                    @if ($raw->price == null)
+                                                                        <span>-</span>
+                                                                    @else
+                                                                        {{ 'Rp.' . number_format($raw->price) }}
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Purchase Unit</th>
+                                                                   <td>{{ $raw->purchase_unit }}</td>
+                                                            </tr>
+
+                                                            
+                                                            <tr>
+                                                                <th>Inventory Unit</th>
+                                                                   <td>{{ $raw->inventory_unit }}</td>
+                                                            </tr>
+
+                                                            
+                                                            <tr>
+                                                                <th>Status</th>
+                                                                    <td>
+                                                                        @if ($raw->status_name == 'Ready')
+                                                                            <p class="text-success">Ready </p>
+                                                                        @else
+                                                                            <p class="text-danger">Kosong </p>
+                                                                        @endif
+                                                                    </td>
+                                                            </tr>
+
+                                                             <tr>
+                                                                <th>Kategori</th>
+                                                                   <td>{{ $raw->category_name }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Tanggal Expired</th>
+                                                                   <td>{{ $raw->expired_date }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+
                                                 </td>
-                                                <td>{{ $raw->material_type }}</td>
                                                 <td>
-                                                    @if ($raw->status_name == 'Ready')
-                                                        <p class="text-success">Ready </p>
-                                                    @else
-                                                        <p class="text-danger">Kosong </p>
-                                                    @endif
+                                                     <table class="table table-bordered">
+                                                         <tbody>
+
+                                                            <tr>
+                                                                <th>Dibuat pada</th>
+                                                                   <td>{{ $raw->created_at }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Dibuat oleh</th>
+                                                                   <td>{{ $raw->created_by }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Diubah pada</th>
+                                                                   <td>{{ $raw->updated_at }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Diubah oleh</th>
+                                                                   <td>{{ $raw->created_by }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </td>
-                                                <td>{{ $raw->category_name }}</td>
-                                                <td>{{ $raw->expired_date }}</td>
-                                                <td>{{ $raw->created_at }}</td>
-                                                <td>{{ $raw->created_by }}</td>
-                                                <td>{{ $raw->updated_at }}</td>
-                                                <td>{{ $raw->updated_by }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

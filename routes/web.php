@@ -31,15 +31,16 @@ use App\Http\Controllers\Api\PurchaseOrderController;
 use App\Http\Controllers\Api\RequestForgotPassword;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\VariantCategory;
+use App\http\Controllers\Api\ModulesDocumentation;
+use App\Http\Controllers\Api\FraudAnalysis;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\Cors;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProductsController as ControllersProductsController;
 use App\Http\Controllers\ShowProducts;
 use App\Http\Controllers\OmdbApiServices;
-
-
-
+use App\Models\ModuleDocumentation;
+use Illuminate\Support\Facades\View;
 
 Route::get('dashboard', function () {
     return view('layouts.main_pages.home_page');
@@ -76,7 +77,7 @@ Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest
 Route::get('omdb_services', [OmdbApiServices::class, 'index']);
 Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
 
-Route::middleware('customer')->group(function () {
+Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile')->middleware('route_access');
     Route::get('profile-menu', [CustomerController::class, 'menu'])->name('profile-menu');
     Route::get('history-transactions', [CustomerController::class, 'history_transaction'])->name('history-transaction')->middleware('route_access');
@@ -94,6 +95,8 @@ Route::middleware('customer')->group(function () {
     Route::post('redeem-reward', [CustomerController::class, 'redeem_reward'])->name('redeem-reward');
     Route::get('rewards-history', [CustomerController::class,'rewards_customer_history'])->name('rewards-history')->middleware('route_access');
     Route::get('get_stock/{rewards_code}', [CustomerController::class,'get_stock'])->name('get_stock');
+    Route::get('/invoice_cust/{transaction_code}/print', [CustomerController::class, 'download_pdf_cust']);
+    Route::put('generate_qr_code', [CustomerController::class, 'generate_qr_code'])->name('generate_qr_code');
 });
 
 
@@ -117,7 +120,7 @@ Route::put('change-password-proccess/{email}', [RequestForgotPassword::class, 'c
 
 
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('dashboard_main', [HomepageController::class, 'index'])->name('dashboard_main');
     Route::get('profile_information', [ProfileController::class, 'user_profile'])->name('profile_information');
     Route::put('profile_update/{id}', [ProfileController::class, 'update'])->name('profile_update');
@@ -160,8 +163,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/products_data', function () {
         return view('pages.product-data');
     })->name('products_data')->middleware('route_access');
+    Route::put('update_status_product/{product_code}', [ProductsController::class, 'update_status_product'])->name('update_status_product');
+    Route::get('product_price/{product_code}', [ProductsController::class, 'add_product_price_layout'])->name('product_price')->middleware('route_access');
+    Route::put('product_price_save/{product_code}', [ProductsController::class, 'add_product_price'])->name('product_price_save');
+    Route::get('product_price_update/{product_code}', [ProductsController::class, 'update_product_price_layout'])->name('product_price_update');
+    Route::put('product_price_edit/{product_code}', [ProductsController::class, 'update_product_price'])->name('product_price_edit');
     Route::get('add_ingredients/{product_code}', [ProductsController::class, 'add_ingredients_layouts'])->name('add_ingredients')->middleware('route_access');
     Route::post('save_ingredients', [ProductsController::class, 'save_ingredients'])->name('save_ingredients');
+    Route::get('product-price-history/{product_code}/{variant?}', [ProductsController::class, 'product_price_history'])->name('product-price-history');
+    Route::get('bill-of-material/{product}', [ProductsController::class, 'bill_of_material'])->name('bill-of-material');
+    Route::get('bill-of-material-detail/{ingredients_code}', [ProductsController::class, 'bill_of_material_detail'])->name('bill-of-material-detail');
+    Route::put('update_status_bom/{ingredients_code}', [ProductsController::class, 'update_status_bom'])->name('update_status_bom');
 
     Route::get('add_product_variant/{product_code}', [ProductsController::class, 'add_product_variant_layout'])->name('add_product_variant');
     Route::get('update_variant/{variant_code}', [ProductsController::class, 'update_variant_layout'])->name('update_variant')->middleware('route_access');
@@ -233,6 +245,12 @@ Route::middleware('auth')->group(function () {
     })->name('raw_material')->middleware('route_access');
     Route::get('history_raw_material/{material_code}', [RawMaterialController::class, 'history_raw_material'])->name('history_raw_material')->middleware('route_access');
     Route::get('raw_material_usages/{material_code}', [RawMaterialController::class, 'raw_material_usages'])->name('raw_material_usages')->middleware('route_access');
+    Route::post('unit_material_save', [RawMaterialController::class, 'unit_material_save'])->name('unit_material_save');
+    Route::get('unit_material', [RawMaterialController::class, 'unit_material'])->name('unit_material');
+    Route::get('unit_material_create', [RawMaterialController::class, 'unit_material_create'])->name('unit_material_create');
+    Route::get('unit_material_edit/{id}', [RawMaterialController::class, 'unit_material_edit'])->name('unit_material_edit');
+    Route::put('unit_material_update/{id}', [RawMaterialController::class, 'unit_material_update'])->name('unit_material_update');
+    Route::delete('unit_material_delete/{id}', [RawMaterialController::class, 'unit_material_delete'])->name('unit_material_delete');
 
     // Items
     Route::apiResource('master_items', App\Http\Controllers\Api\ItemsController::class)->middleware('route_access');
@@ -248,8 +266,8 @@ Route::middleware('auth')->group(function () {
 
     // Production Product Route
     Route::apiResource('master_production_product', App\Http\Controllers\Api\ProductionProductController::class);
-    Route::get('production_create', [ProductionProductController::class, 'create'])->name('production_create')->middleware('route_access');
-    Route::get('production_update/{production_code}', [ProductionProductController::class, 'edit'])->name('production_update')->middleware('route_access');
+    Route::get('production_create', [ProductionProductController::class, 'create'])->name('production_create');
+    Route::get('production_update/{production_code}', [ProductionProductController::class, 'edit'])->name('production_update');
     Route::put('production_edit/{production_code}', [ProductionProductController::class, 'update'])->name('production_edit');
     Route::delete('production_delete/{production_code}', [ProductionProductController::class, 'destroy'])->name('production_delete');
     Route::put('update_target_production/{production_code}', [ProductionProductController::class, 'update_target_production'])->name('update_target_production');
@@ -269,7 +287,8 @@ Route::middleware('auth')->group(function () {
 
     // Central Stock Products
     Route::apiResource('central_stock_products', App\Http\Controllers\Api\CentralStockProductsController::class)->middleware('route_access');
-
+    Route::get('detail-info-product/{product}/{variant?}', [CentralStockProductsController::class, 'product_info'])->name('detail-info-product');
+    Route::get('detail-info-distribution/{product}/{variant?}', [CentralStockProductsController::class, 'product_info_distribution'])->name('detail-info-distribution');
 
     // Distribution Stock to Stores
     Route::apiResource('distribution_products', App\Http\Controllers\Api\DistributionProducts::class)->middleware('route_access');
@@ -303,16 +322,21 @@ Route::middleware('auth')->group(function () {
     Route::get('variant_category_create', [VariantCategory::class,'create'])->name('variant_category_create');
     Route::get('variant_category_update/{id}', [VariantCategory::class,'edit'])->name('variant_category_update');
     Route::put('variant_category_edit/{id}', [VariantCategory::class,'update'])->name('variant_category_edit');
+    Route::delete('delete_variant_category/{id}', [VariantCategory::class,'delete_variant_category'])->name('delete_variant_category');
 
     // Route for Transactions
     Route::apiResource('transaction', App\Http\Controllers\Api\TransactionController::class)->middleware('route_access');
-    Route::get('transaction_create', [TransactionController::class, 'transaction_create_layout'])->name('transaction_create')->middleware('route_access');
+    Route::get('transaction_create', [TransactionController::class, 'transaction_create_layout'])->name('transaction_create');
     Route::get('invoice_detail/{transaction_code}', [TransactionController::class, 'invoice'])->name('invoice_detail');
+    Route::get('/invoice/{transaction_code}/print', [TransactionController::class, 'download_pdf']);
     Route::get('/show_promo_code', [TransactionController::class, 'show_promo_code'])->name('show_promo_code');
     Route::get('/search_customer', [TransactionController::class,'show_customer'])->name('search_customer');
     Route::get('/filter_transaction', [TransactionController::class, 'filter_transaction'])->name('filter_transaction');
     Route::post('export_transaction_excel', [TransactionController::class, 'download_excel'])->name('export_transaction_excel');
-
+    
+    
+    Route::apiResource('fraud-analysis', App\Http\Controllers\Api\FraudAnalysis::class);
+    Route::put('update_fraud_transaction/{fraud_code}', [FraudAnalysis::class, 'update_status_fraud'])->name('update_fraud_transaction');
 
     // Route Shopping Cart 
     Route::post('/cart/add', [ShoppingCartController::class, 'add'])->name('cart_add');
@@ -363,6 +387,16 @@ Route::middleware('auth')->group(function () {
     Route::post('category_supplier_save', [SupplierController::class, 'category_supplier_save'])->name('category_supplier_save');
     Route::get('category_supplier_update/{id}', [SupplierController::class, 'category_supplier_update'])->name('category_supplier_update')->middleware('route_access');
     Route::put('category_supplier_edit/{id}', [SupplierController::class, 'category_supplier_edit'])->name('category_supplier_edit');
-});
+
+    // Route for modules documentation:
+    Route::apiResource('modules_documentation', App\Http\Controllers\Api\ModulesDocumentation::class)->middleware('route_access');
+    Route::get('module_create', [ModulesDocumentation::class, 'module_create'] )->name('module_create')->middleware('route_access');
+    Route::get('module_update/{url_path}', [ModulesDocumentation::class, 'edit'] )->name('module_update')->middleware('route_access');
+    Route::put('module_edit/{url_path}', [ModulesDocumentation::class, 'update'] )->name('module_edit');
+    Route::delete('delete_module/{url_path}', [ModulesDocumentation::class, 'destroy'])->name('delete_module');
+    Route::get('show_module_documentation/{url_path}', [ModulesDocumentation::class, 'show_module'])->name('show_module_documentation');
+
+    Route::get('log_user_activities', [RegisteredUserController::class, 'log_users_activities'])->name('log_user_activities');
+}); 
 
 require __DIR__ . '/auth.php';

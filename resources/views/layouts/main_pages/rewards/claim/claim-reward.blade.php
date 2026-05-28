@@ -32,6 +32,17 @@
                             <div class="title">
                                 Master Data / <a href="{{ route('master_category.index') }}">Klaim Reward</a>
                             </div>
+
+                            @if ($module_documentation)
+                                <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                    class="documentation-module">
+                                    <a title="Dokumentasi Modul"
+                                        href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                        <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                    </a>
+                                </div>
+                            @endif
+
                         </div>
 
                         <ul class="nav nav-tabs" id="expenseTab" role="tablist">
@@ -140,7 +151,8 @@
                                                             <img width="70" height="70"
                                                                 src="{{ asset('assets/front_end/assets/img/null.png') }}"
                                                                 alt="">
-                                                            <div style="display: block;" class="text-content">
+                                                            <div style="display: block;align-self: center;"
+                                                                class="text-content">
                                                                 <h3>Belum ada Redeem Reward</h3>
                                                             </div>
                                                         </div>

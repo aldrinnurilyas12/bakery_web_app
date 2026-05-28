@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
 
 class ProductionProductController extends Controller
 {
@@ -46,13 +47,57 @@ class ProductionProductController extends Controller
 
 
         $products = DB::table('v_products as vp')
-        ->select('vp.product_code', 'vp.product as product_name', 'pv.variant_code','vc.name as category', 'vp.product_variant')
-        ->leftJoin('product_variant as pv', 'vp.product_code', '=', 'pv.product')
-        ->leftJoin('variant_category as vc', 'pv.variant_type', '=', 'vc.id')
-        ->whereNotIn('category',['Coffee', 'Soft_Drinks'])->get();
+            ->select(
+                'vp.product_code',
+                'vp.product as product_name',
+                'vp.product_type',
+                'pv.variant_code',
+                'vc.name as category',
+                'vp.product_variant',
+                'vp.price'
+            )
+            ->leftJoin('product_variant as pv', 'vp.product_code', '=', 'pv.product')
+            ->leftJoin('variant_category as vc', 'pv.variant_type', '=', 'vc.id')
+            ->where(function($q){
+                $q->whereNull('vc.name')
+                ->orWhereNotIn('vc.name', ['Coffee', 'Soft_Drinks']);
+            })
+            ->where('vp.price', '!=', 0)
+            ->get();
+
+
+        $production_hour = Carbon::now('Asia/Jakarta')->hour;
+        $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $position = $GLOBAL_ENV->position_name ?? null;
+
+        $NOT_ALLOWED_USER = in_array($position, [
+            'IT Developer',
+            'Manager',
+            'Supervisor',
+            'Casheer'
+        ]);
+
+        if($NOT_ALLOWED_USER){
+            session()->flash('failed_message', 'Tidak bisa akses!');
+            return redirect()->back();
+        }
+
+        if($production_hour < 4){
+            session()->flash('failed_message', 'Sistem belum buka!');
+            return redirect()->back();
+        }
+
+        if($production_hour >=8){
+            session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+            return redirect()->back();
+        }
+
+
         $variant_category = DB::table('variant_category')->get();
-        $raw_materials = DB::table('raw_material')->get();
-        return view('layouts.main_pages.production_products.create.production_create', compact('products', 'raw_materials', 'variant_category'));
+        $raw_materials = DB::table('raw_material as rm')
+        ->leftJoin('material_unit_category as muc', 'rm.purchase_unit', '=', 'muc.id')->get();
+        $units = DB::table('material_unit_category')->get();
+        return view('layouts.main_pages.production_products.create.production_create', compact('products', 'raw_materials', 'variant_category', 'units'));
     }
 
     /**
@@ -67,6 +112,7 @@ class ProductionProductController extends Controller
             'raw_material.*' => 'exists:raw_material,material_code',
             'production_type' => 'required',
             'quantity_used' => 'array',
+            'unit' => 'array',
             'production_date' => 'required'
         ],
         [
@@ -85,6 +131,7 @@ class ProductionProductController extends Controller
         $rawMaterials = $request->raw_material;
         $quantities   = $request->quantity_used;
         $productInput = $request->product;
+        $unit          = $request->unit;
         $qty_target = $request->qty_target_total ?? [];
 
 
@@ -110,12 +157,19 @@ class ProductionProductController extends Controller
         foreach($rawMaterials as $rawCode) {
             RawMaterialUsages::create([
                 'production_code' => $production->production_code,
-                'quantity_used' =>(int) ($quantities[$rawCode] ?? 0),
                 'raw_material' => $rawCode,
+                'quantity_used' =>(int) ($quantities[$rawCode] ?? 0),
+                'unit' => (int) ($unit[$rawCode]),
                 'created_by' => $created_by,
                 'created_at' => now()
             ]);
         }
+
+        UserLogActivity::log(
+                module: 'Production Product',
+                method_type: 'CREATE',
+                description: "user create new production product: {$production->production_code}"      
+        );
 
         session()->flash('message_success', 'Data Produksi Produk berhasil disimpan!');
         return redirect()->route('production_products');
@@ -191,6 +245,10 @@ class ProductionProductController extends Controller
 
         // BUAT VALIDASI JIKA INPUT ACTUAL QUANTITY TIDAK MELEBIHAN DARI TARGET QUANTITY TABEL PRODUCTION_PRODUCT_DETAIL
 
+        if($rq->actual_quantity > $rq->target_total){
+            session()->flash('failed_message', 'Jumlah actual quantity melebihi total target!');
+            return redirect()->back();
+        }
 
         if($rq->waste_confirmation == 'yes'){
             ProductionProductDetailModel::where('id', $rq->id)->update([
@@ -203,8 +261,6 @@ class ProductionProductController extends Controller
                 'reject_quantity' =>(int) 0
             ]);
         }
-
-
         session()->flash('message_success', 'Data Produksi Produk berhasil disimpan!');
         return redirect()->back();
     }
@@ -287,6 +343,12 @@ class ProductionProductController extends Controller
                     'quantity' => $qty,
                 ]);
             }
+
+            UserLogActivity::log(
+                module: 'Product Waste',
+                method_type: 'CREATE',
+                description: "user create production product waste: {$wasteCode}"      
+            );
         session()->flash('message_success', 'Berhasil menyimpan data!');
         return redirect()->route('production-detail', $production);
     }
@@ -303,7 +365,7 @@ class ProductionProductController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id, Request $request)
-    {  
+    { 
         date_default_timezone_set('Asia/Jakarta');
         $time = (int) date('H');
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
@@ -380,6 +442,12 @@ class ProductionProductController extends Controller
                 );
             }
         });
+
+        UserLogActivity::log(
+                module: 'Production Product',
+                method_type: 'UPDATE',
+                description: "user update production product: {$request->production_code}"      
+        );
         
         session()->flash('message_success', 'Data Produksi Produk berhasil disimpan!');
         return redirect()->route('production_products');
@@ -422,35 +490,35 @@ class ProductionProductController extends Controller
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik; 
         
         
-        $checking_production_available = DB::table('production_products_detail')
-        ->where('production_code', $request->production_code)
-        ->where(function($q){
-            $q->whereNull('actual_quantity')
-                ->orWhereNull('reject_quantity');
-        })->exists();
+        $checking_production_available = false;
 
+        if ($request->status == 5) {
+            $checking_production_available = DB::table('production_products_detail')
+                ->where('production_code', $request->production_code)
+                ->where(function($q){
+                    $q->whereNull('actual_quantity')
+                    ->orWhereNull('reject_quantity');
+                })
+                ->exists();
+        }
 
         $production_detail = DB::table('production_products_detail')
-        ->where('production_code', $request->production_code)->get();
+            ->where('production_code', $request->production_code)
+            ->get();
 
         $check_null = DB::table('production_products_detail')
-        ->where('production_code', $request->production_code)
-        ->whereNull('actual_quantity')
-        ->exists();
+            ->where('production_code', $request->production_code)
+            ->whereNull('actual_quantity')
+            ->exists();
 
-       
-        if($request->status == null){
+
+        if ($request->status == null) {
             session()->flash('failed_message', 'Status Produksi harus dipilih');
             return redirect()->back();
         }
 
-        if($checking_production_available){
+        if ($checking_production_available) {
             session()->flash('failed_message', 'Masih ada produk yang belum diperbarui status jumlah produksinya');
-             return redirect()->route('production-detail', $request->production_code);
-        }
-
-        if($check_null && $request->status == 5){
-            session()->flash('failed_message', 'Anda harus update target Produksi Produk dahulu!');
             return redirect()->route('production-detail', $request->production_code);
         }
 
@@ -467,7 +535,7 @@ class ProductionProductController extends Controller
                     'production' => $production->production_code,
                     'product' => $production->product,
                     'variant' => $production->variant,
-                    'qty_produced' => $production->qty_target_total,
+                    'qty_produced' => $production->actual_quantity,
                     'qty_available' => $production->actual_quantity,
                     'created_at' => $production->created_at
                 ]);
@@ -480,6 +548,11 @@ class ProductionProductController extends Controller
             ]);
         }
 
+        UserLogActivity::log(
+                module: 'Production Product',
+                method_type: 'UPDATE',
+                description: "user update production product status: {$request->production_code}"      
+        );
        
     
         session()->flash('message_success', 'Data Produksi Produk berhasil diperbarui!');
@@ -495,6 +568,12 @@ class ProductionProductController extends Controller
         if($production){
             $production->delete();
         }
+
+        UserLogActivity::log(
+                module: 'Production Product',
+                method_type: 'DELETE',
+                description: "user delete production product: {$request->production_code}"      
+        );
         session()->flash('message_success', 'Data Produksi Produk berhasil dihapus!');
         return redirect()->route('production_products');
     }
@@ -751,6 +830,12 @@ class ProductionProductController extends Controller
              }
         }
 
+        UserLogActivity::log(
+                module: 'Product Waste',
+                method_type: 'CREATE',
+                description: "user create new product waste: {$codeWastes->waste_code}"      
+        );
+
         session()->flash('message_success', 'Data Produk Waste berhasil disimpan!');
         return redirect()->route('product-wastes');
 
@@ -867,6 +952,11 @@ class ProductionProductController extends Controller
         $delete = ProductWaste::where('waste_code', $request->waste_code)->first();
 
         if($delete){
+            UserLogActivity::log(
+                module: 'Product Waste',
+                method_type: 'DELETE',
+                description: "user delete product waste: {$request->waste_code}"      
+            );
             $delete->delete();
         }
         session()->flash('message_success', 'Data Produk Waste berhasil dihapus!');

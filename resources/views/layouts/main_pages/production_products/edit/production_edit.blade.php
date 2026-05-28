@@ -90,7 +90,7 @@
                                                     <td>{{ '[' . $raw->material_code . '] ' . ' - ' . $raw->material_name }}
                                                     </td>
                                                     <td>{{ $raw->quantity }}</td>
-                                                    <td>{{ $raw->material_type }}</td>
+                                                    <td>{{ $raw->purchase_unit }}</td>
 
                                                     <td>
                                                         <input class="form-control quantity-input" type="number"

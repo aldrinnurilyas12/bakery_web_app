@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
 
 
 class RewardsController extends Controller
@@ -115,6 +116,12 @@ class RewardsController extends Controller
             }
         }
 
+        UserLogActivity::log(
+                module: 'Rewards',
+                method_type: 'CREATE',
+                description: "user create new rewards: {$rewards_code}"      
+        );
+
         session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->route('rewards');
     }
@@ -213,6 +220,12 @@ class RewardsController extends Controller
                 unlink($dropPicture);
             }
         }
+
+        UserLogActivity::log(
+                module: 'Rewards',
+                method_type: 'UPDATE',
+                description: "user update rewards: {$rewards_code}"      
+        );
         session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->route('rewards');
     }
@@ -233,6 +246,12 @@ class RewardsController extends Controller
                 'stock' => $request->stock,
                 'status' => $request->status
         ]);
+
+         UserLogActivity::log(
+                module: 'Rewards',
+                method_type: 'UPDATE',
+                description: "user update rewards store: {$request->reward_store_code}"      
+        );
 
         session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->route('rewards');
@@ -261,6 +280,12 @@ class RewardsController extends Controller
             'updated_at' => now()
         ]);
 
+         UserLogActivity::log(
+                module: 'Rewards',
+                method_type: 'UPDATE',
+                description: "user nonactive rewards: {$request->reward}"      
+        );
+
         session()->flash('message_success', 'Data reward berhasil disimpan!');
         return redirect()->back();
     }
@@ -268,6 +293,7 @@ class RewardsController extends Controller
     public function claim_reward_layouts(Request $request)
     {
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
         $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
         if($user_permission_forbidden){
             session()->flash('failed_message', 'Tidak bisa akses');
@@ -280,7 +306,9 @@ class RewardsController extends Controller
                     ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
                     ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
                     ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
-                    ->orderBy('created_at', 'DESC')->get();
+                    ->where('rws.store', $store)
+                    ->orderBy('created_at', 'DESC')
+                    ->get();
         
         $reward_data_claimed = DB::table('redeem_reward as rr')
                     ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
@@ -290,6 +318,7 @@ class RewardsController extends Controller
                     ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
                     ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
                     ->where('rr.status', 11)
+                    ->where('rws.store', $store)
                     ->orderBy('created_at', 'DESC')->get();
 
         $reward_data_unclaimed = DB::table('redeem_reward as rr')
@@ -300,6 +329,7 @@ class RewardsController extends Controller
                     ->leftJoin('employee as e', 'rr.redeem_by', '=', 'e.nik')
                     ->leftJoin('status_category as sc', 'rr.status', '=', 'sc.id')
                     ->where('rr.status', 12)
+                    ->where('rws.store', $store)
                     ->orderBy('created_at', 'DESC')->get();
    
         return view('layouts.main_pages.rewards.claim.claim-reward', compact('reward_data','reward_data_claimed', 'reward_data_unclaimed'));
@@ -316,6 +346,12 @@ class RewardsController extends Controller
             'redeem_by' => $redeem_by,
             'updated_at' => now()
         ]);
+
+         UserLogActivity::log(
+                module: 'Rewards',
+                method_type: 'UPDATE',
+                description: "user claim rewards: {$request->redeem_code}"      
+        );
         session()->flash('message_success', 'Reward berhasil diklaim!');
         return redirect()->back();
     }
@@ -360,6 +396,12 @@ class RewardsController extends Controller
             if (file_exists($dropPicture)) {
                     unlink($dropPicture);
                 }
+
+            UserLogActivity::log(
+                module: 'Rewards',
+                method_type: 'DELETE',
+                description: "user delete rewards: {$request->reward_code}"      
+            );
 
             session()->flash('message_success', 'Data reward berhasil dihapus!');
             return redirect()->route('rewards');

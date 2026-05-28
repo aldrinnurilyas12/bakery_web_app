@@ -17,9 +17,12 @@ class ProductsModel extends Model
         'price',
         'discount',
         'price_after_discount',
+        'price_effective_from',
         'product_weight',
+        'product_type',
         'product_weight_type',
         'product_variant',
+        'product_status',
         'description',
         'created_by',
         'updated_by'

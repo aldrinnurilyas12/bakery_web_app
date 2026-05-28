@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\VariantCategoryModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\UserLogActivity;
 
 class VariantCategory extends Controller
 {
@@ -50,6 +51,11 @@ class VariantCategory extends Controller
             'created_at' => now(),
             'updated_at' => null
         ]);
+        UserLogActivity::log(
+                module: 'Variant Category',
+                method_type: 'CREATE',
+                description: "user create new variant category: {$request->name}"      
+        );
 
         session()->flash('message_success', 'Data Kategori Varian berhasil disimpan!');
         return redirect()->route('variant_category.index');
@@ -82,8 +88,26 @@ class VariantCategory extends Controller
             'updated_at' => now() 
         ]);
 
+         UserLogActivity::log(
+                module: 'Variant Category',
+                method_type: 'UPDATE',
+                description: "user update variant category: {$request->name}"      
+        );
+
         session()->flash('message_success', 'Data Kategori Varian berhasil disimpan!');
         return redirect()->route('variant_category.index');
+    }
+
+
+    public function delete_variant_category($id)
+    {
+       $category = VariantCategoryModel::find($id);
+
+        if($category){
+            $category->delete();
+            session()->flash('message_success', 'Data Kategori Varian berhasil dihapus!');
+            return redirect()->back();
+        }
     }
 
     /**

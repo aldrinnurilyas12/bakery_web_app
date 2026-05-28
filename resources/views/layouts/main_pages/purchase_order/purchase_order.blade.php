@@ -33,14 +33,25 @@
                             <div class="title">
                                 Master Data / <a href="{{ route('master_category.index') }}">Purchasing Order</a>
                             </div>
-                            @if ($purchase_order->isNotEmpty())
-                                @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('po_create') }}">Tambah
-                                            Purchase Order</a>
-                                    </div>
+                            <div style="display: flex;gap:10px;" class="flex-content">
+                                @if ($purchase_order->isNotEmpty())
+                                    @if ($module_documentation)
+                                        <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                            class="documentation-module">
+                                            <a
+                                                href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                                <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                            </a>
+                                        </div>
+                                    @endif
+                                    @if (!$user_permission_forbidden)
+                                        <div class="button-add-product">
+                                            <a class="btn btn-primary" href="{{ route('po_create') }}">Tambah
+                                                Purchase Order</a>
+                                        </div>
+                                    @endif
                                 @endif
-                            @endif
+                            </div>
                         </div>
                         <div class="card-body">
                             @if ($purchase_order->isNotEmpty())
@@ -96,7 +107,12 @@
                                                     <td style="font-weight: bold;">{{ $po->purchase_code }}</td>
                                                     <td>{{ $po->supplier_name }}</td>
                                                     <td>{{ $po->purchase_date }}</td>
-                                                    <td>{{ $po->status_name }}</td>
+                                                    <td>
+                                                        @if ($po->status_name == 'Success')
+                                                            <span class="text-success">{{ $po->status_name }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
                                                     <td>{{ 'Rp.' . number_format($po->total_amount) }}</td>
                                                     <td>
                                                         @if ($po->delivery == 'Y')
@@ -189,7 +205,8 @@
                                         <th>No</th>
                                         <th>Kode Item</th>
                                         <th>Nama Item</th>
-                                        <th>Qty</th>
+                                        <th>Jumlah</th>
+                                        <th>Satuan Unit</th>
                                         <th>Harga</th>
                                         <th>Subtotal</th>
                                     </tr>
@@ -211,6 +228,7 @@
                                                 <td>{{ $pds->item }}</td>
                                                 <td>{{ $pds->item_name ?: '-' }}</td>
                                                 <td>{{ $pds->quantity }}</td>
+                                                <td>{{ $pds->inventory_unit_name }}</td>
                                                 <td>{{ 'Rp.' . number_format($pds->price) }}</td>
                                                 <td>{{ 'Rp.' . number_format($pds->subtotal) }}</td>
                                             </tr>

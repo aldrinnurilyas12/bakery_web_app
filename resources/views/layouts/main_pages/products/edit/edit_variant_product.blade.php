@@ -8,6 +8,7 @@
     <title>Kencana Bakery - Ubah Variant Produk</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
@@ -28,11 +29,21 @@
                         <div class="form-group">
                             <label><strong>Kode Variant</strong></label>
                             <input type="text" class="form-control" value="{{ $variant->variant_code }}" readonly>
+                            <input type="text" class="form-control" name="product_code"
+                                value="{{ $variant->product_code }}" readonly hidden>
                         </div>
                         <div class="form-group">
                             <label><strong>Nama Produk</strong></label>
                             <input type="text" class="form-control"
                                 value="{{ '[' . $variant->product_code . ']' . ' - ' . $variant->product }}" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>HPP Produk</strong></label>
+                            <input type="text" class="form-control"
+                                value="{{ 'Rp.' . number_format($variant->hpp) }}" readonly>
+                            <input name="hpp" type="text" class="form-control"
+                                value="{{ $variant->hpp }}" hidden readonly>
                         </div>
 
                         <div class="form-group">
@@ -66,21 +77,39 @@
 
                         <div class="form-group">
                             <label><strong>Harga Variant Produk</strong></label>
-                            <input type="text" inputmode="numeric" name="variant_price" class="form-control"
+                            <input type="number" inputmode="numeric" name="variant_price_after" class="form-control"
                                 value="{{ $variant->variant_price }}">
-                            <x-input-error :messages="$errors->get('variant_price')" class="text-danger" />
+                            <x-input-error :messages="$errors->get('variant_price_after')" class="text-danger" />
+                            <input type="text" inputmode="numeric" name="variant_price_before" class="form-control"
+                                value="{{ $variant->variant_price }}" hidden>
+                            <x-input-error :messages="$errors->get('variant_price_before')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Diskon</strong></label>
-                            <input type="text" inputmode="numeric" name="variant_discount" class="form-control"
+                            <input type="number" inputmode="numeric" name="variant_discount_after" class="form-control"
                                 value="{{ $variant->variant_discount }}">
+                            <input type="text" inputmode="numeric" name="variant_discount_before"
+                                class="form-control" value="{{ $variant->variant_discount }}" hidden>
                         </div>
 
                         <div class="form-group">
                             <label><strong>Harga setelah diskon</strong></label>
-                            <input type="text" inputmode="numeric" name="variant_price_after_discount"
+                            <input type="text" inputmode="numeric" name="variant_price_after_discount_after"
                                 class="form-control" value="{{ $variant->variant_price_after_discount }}" readonly>
+                            <input type="text" inputmode="numeric" name="variant_price_after_discount_before"
+                                class="form-control" value="{{ $variant->variant_price_after_discount }}" readonly
+                                hidden>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Tanggal Harga Efektif</strong></label>
+                            <input type="date" name="price_effective_from_after" class="form-control"
+                                value="{{ old('business_effective_date', $variant->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                autocomplete="off">
+                            <input type="date" name="price_effective_from_before" class="form-control"
+                                value="{{ old('business_effective_date', $variant->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                autocomplete="off" hidden>
                         </div>
 
 
@@ -98,6 +127,29 @@
         </div>
     </div>
 </body>
+
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
+
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 
 <style>
@@ -110,9 +162,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const priceInput = document.querySelector('input[name="variant_price"]');
-        const discountInput = document.querySelector('input[name="variant_discount"]');
-        const priceAfterInput = document.querySelector('input[name="variant_price_after_discount"]');
+        const priceInput = document.querySelector('input[name="variant_price_after"]');
+        const discountInput = document.querySelector('input[name="variant_discount_after"]');
+        const priceAfterInput = document.querySelector('input[name="variant_price_after_discount_after"]');
 
         function calculateDiscount() {
             let price = parseFloat(priceInput.value) || 0;
@@ -120,7 +172,7 @@
             if (discount > 0) {
                 fixPrice = price - (price * (discount / 100));
             } else if (discount === 0) {
-                fixPrice = 0;
+                fixPrice = price;
             }
 
             priceAfterInput.value = fixPrice;

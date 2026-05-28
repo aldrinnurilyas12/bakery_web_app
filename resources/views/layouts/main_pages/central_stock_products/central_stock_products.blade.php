@@ -42,9 +42,8 @@
                                             <tr>
                                                 <th>No</th>
                                                 <th>Produk</th>
-                                                <th>Varian</th>
-                                                <th>Total Produksi</th>
-                                                <th>Total Tersedia</th>
+                                                <th>Aksi</th>
+                                                <th>Info Produk</th>
                                                 {{-- <th>Total Distribusi</th> --}}
                                             </tr>
                                         </thead>
@@ -55,11 +54,87 @@
                                             @foreach ($central_stock as $key => $stock)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td>{{ $stock->product }}</td>
-                                                    <td> {{ $stock->variant ?: '-' }} </td>
-                                                    <td>{{ $stock->total_produced }}</td>
-                                                    <td>{{ $stock->total_available }}</td>
-                                                    {{-- <td>{{ $stock->total_distributed }}</td> --}}
+                                                    <td>{{ $stock->product }}
+                                                        &nbsp;
+                                                        @if ($stock->variant)
+                                                            <span style="font-weight:bold;">
+                                                                [{{ $stock->variant ?: '-' }}]</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+                                                                <th>Detail produk</th>
+                                                                <th>Info Distribusi </th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td>
+                                                                    @if ($stock->variant)
+                                                                        <a
+                                                                            href="{{ route('detail-info-product', [
+                                                                                'product' => $stock->product_code,
+                                                                                'variant' => $stock->variant_code,
+                                                                            ]) }}"><i
+                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                    @else
+                                                                        <a
+                                                                            href="{{ route('detail-info-product', $stock->product_code) }}"><i
+                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if ($stock->variant)
+                                                                        <a
+                                                                            href="{{ route('detail-info-distribution', [
+                                                                                'product' => $stock->product_code,
+                                                                                'variant' => $stock->variant_code,
+                                                                            ]) }}"><i
+                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                    @else
+                                                                        <a
+                                                                            href="{{ route('detail-info-distribution', $stock->product_code) }}"><i
+                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
+                                                        </table>
+                                                    </td>
+
+
+
+
+                                                    <td>
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+                                                                <th>Total produksi</th>
+                                                                <th>Total tersedia </th>
+                                                                <th>Total Distribusi</th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td> {{ $stock->total_produced }}</a>
+                                                                </td>
+                                                                <td>{{ $stock->total_available }}
+                                                                </td>
+                                                                <td>
+                                                                    @if ($stock->total_distribution)
+                                                                        {{ $stock->total_distribution }}
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
+                                                        </table>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

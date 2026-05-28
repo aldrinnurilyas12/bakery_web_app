@@ -29,12 +29,15 @@
                                 Transaksi / <a href="{{ route('transaction.index') }}">Transaksi</a>
                             </div>
 
-                            @if ($main_transaction->isNotEmpty())
-                                <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('transaction_create') }}">Tambah
-                                        Transaksi</a>
-                                </div>
-                            @endif
+                            <div style="display: flex;gap:10px;" class="flex-content">
+
+                                @if ($main_transaction->isNotEmpty())
+                                    <div class="button-add-product">
+                                        <a class="btn btn-primary" href="{{ route('transaction_create') }}">Tambah
+                                            Transaksi</a>
+                                    </div>
+                                @endif
+                            </div>
 
                         </div>
                         <hr>
@@ -204,7 +207,7 @@
                                             <img width="70" height="70"
                                                 src="{{ asset('assets/front_end/assets/img/null.png') }}"
                                                 alt="">
-                                            <div style="display: block;" class="text-content">
+                                            <div style="display: block;align-content: center;" class="text-content">
                                                 <h3>Belum ada transaksi</h3>
                                                 @if (!$user_permission_forbidden)
                                                     <p class="text-secondary">Buat transaksi pertama anda</p>
@@ -263,7 +266,7 @@
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
                                                     <td>{{ $items->product_code }}</td>
-                                                    <td>{{ $items->product }}</td>
+                                                    <td>{{ $items->product_name }}</td>
                                                     <td>{{ $items->quantity_per_product }}</td>
                                                 </tr>
                                             @endif

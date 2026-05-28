@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GetPointMemberTransaction as ModelsGetPointMemberTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\UserLogActivity;
 
 class GetPointMemberTransaction extends Controller
 {
@@ -64,6 +65,11 @@ class GetPointMemberTransaction extends Controller
         ];
 
         ModelsGetPointMemberTransaction::create($data);
+         UserLogActivity::log(
+                module: 'Point Member Setting',
+                method_type: 'CREATE',
+                description: "user create point member"      
+        );
 
         session()->flash('message_success', 'Data Point Berhasil disimpan!');
         return redirect()->route('point_member_setting.index');
@@ -101,6 +107,11 @@ class GetPointMemberTransaction extends Controller
             'status' => $request->status,
             'updated_at' => now()
         ]);
+         UserLogActivity::log(
+                module: 'Point Member Setting',
+                method_type: 'UPDATE',
+                description: "user update point member"      
+        );
 
         session()->flash('message_success', 'Perubahan status berhasil!');
         return redirect()->back();

@@ -13,7 +13,6 @@ class PromoCampaign extends Model
     protected $fillable = [
         'promo_name',
         'promo_code',
-        'product',
         'min_transaction',
         'description',
         'status',

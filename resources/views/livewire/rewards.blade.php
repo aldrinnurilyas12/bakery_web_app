@@ -23,15 +23,27 @@
                         Master Data / <a href="{{ route('master_products.index') }}">Rewards Data Store</a>
                     </div>
 
-                    @if ($rewards->isNotEmpty())
-                        @if (!$user_permission_forbidden)
-                            <div style="display: flex;gap:10px;" class="button-add-product">
-                                <a class="btn btn-info" href="{{ route('master_rewards.index') }}">Master Data
-                                    Rewards</a>
-                                <a class="btn btn-primary" href="{{ route('rewards_create') }}">Tambah Rewards</a>
+                    <div style="display: flex;gap:10px;" class="flex-content">
+                        @if ($module_documentation)
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
                             </div>
                         @endif
-                    @endif
+
+                        @if ($rewards->isNotEmpty())
+                            @if (!$user_permission_forbidden)
+                                <div style="display: flex;gap:10px;" class="button-add-product">
+                                    <a class="btn btn-info" href="{{ route('master_rewards.index') }}">Master Data
+                                        Rewards</a>
+                                    <a class="btn btn-primary" href="{{ route('rewards_create') }}">Tambah Rewards</a>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
                 </div>
                 @if (!$filter_forbidden_access)
                     <div class="card-header">
@@ -96,9 +108,16 @@
                                                     <p
                                                         style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
                                                         Point:
-                                                        {{ $reward->point }} &nbsp;
+                                                        {{ $reward->point }}
+                                                        <br>
                                                         <span>Kuota:
                                                             {{ $reward->stock }}</span>
+                                                        &nbsp;
+                                                        <span>Available:
+                                                            {{ $reward->total_available }}</span>
+                                                        &nbsp;
+                                                        <span>Redeem:
+                                                            {{ $reward->total_redeem }}</span>
                                                     </p>
                                                     <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
                                                         class="status">

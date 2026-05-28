@@ -10,6 +10,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use App\Services\UserLogActivity;
 
 
 class DailyProducts extends Controller
@@ -90,6 +91,12 @@ class DailyProducts extends Controller
             'product_daily' => 'Y'
         ]);
 
+         UserLogActivity::log(
+            module: 'Products Daily',
+            method_type: 'CREATE',
+            description: "user create product_daily: {$daily_code}"      
+        );
+
 
         session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
         return redirect()->back();
@@ -159,6 +166,12 @@ class DailyProducts extends Controller
             'updated_by' => $updated_by
         ]);
 
+         UserLogActivity::log(
+            module: 'Products Daily',
+            method_type: 'UPDATE',
+            description: "user update product_daily: {$request->daily_code}"      
+        );
+
         session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
         return redirect()->route('dailyproducts_data');
     }
@@ -184,6 +197,12 @@ class DailyProducts extends Controller
             'pd.updated_at' => now(),
             'pd.updated_by' => $updated_by
         ]);
+
+         UserLogActivity::log(
+            module: 'Products Daily',
+            method_type: 'UPDATE',
+            description: "user nonactive product_daily"      
+        );
         
         session()->flash('message_success', 'Data Daily Produk berhasil disimpan!');
         return redirect()->back();
@@ -201,6 +220,12 @@ class DailyProducts extends Controller
         if($daily_product){
             $daily_product->delete();
         }
+
+        UserLogActivity::log(
+            module: 'Products Daily',
+            method_type: 'DELETE',
+            description: "user delete product_daily : {$request->daily_code}"      
+        );
         session()->flash('message_success', 'Data Daily Produk berhasil dihapus!');
         return redirect()->route('dailyproducts_data');
 

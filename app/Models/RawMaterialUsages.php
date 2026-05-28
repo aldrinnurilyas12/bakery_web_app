@@ -12,8 +12,9 @@ class RawMaterialUsages extends Model
     protected $table = 'raw_material_usages';
     protected $fillable = [
         'production_code',
-        'quantity_used',
         'raw_material',
+        'quantity_used',
+        'unit',
         'created_by',
         'updated_by'
     ];

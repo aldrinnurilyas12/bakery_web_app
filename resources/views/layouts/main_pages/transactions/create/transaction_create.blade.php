@@ -31,7 +31,7 @@
                             <h4><strong>Transaksi</strong></h4>
                             <div class="btn-back">
 
-                                <a style="color:black;text-decoration:none;" href="{{ route('dashboard_main') }}"><i
+                                <a class="btn btn-primary" style="text-decoration:none;" href="{{ route('transaction.index') }}"><i
                                         class="fa fa-arrow-left"></i>&nbsp; kembali</a>
                             </div>
                         </div>
@@ -51,7 +51,7 @@
                                 </div>
                             </div>
                             <br>
-                            <div class="transaction-history">
+                            <div style="display:flex; gap:20px; justify-content: space-between;" class="transaction-history">
                                 <a class="text-primary" href="{{ route('transaction.index') }}"><i
                                         class="fa fa-list"></i>&nbsp;Riwayat
                                     Transaksi</a>
@@ -60,8 +60,18 @@
                     </div>
                     <hr>
 
+                    {{-- @php
+                        $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
+                            ->leftJoin('voucher as v', 'v.voucher_code', '=', 'vu.voucher_code')
+                            ->where('vu.voucher_code', 'VOUCHER5709f86f')
+                            ->where('vu.voucher_used', 'Y')
+                            ->count('vu.voucher_code');
+                        dd($voucherQuotaUsedTotal);
+                    @endphp --}}
+
                     @if ($category_data)
                         <div class="main-container-content">
+
                             <div class="container-content">
                                 <div class="tab-content" id="tab-content">
                                     <div style="width: 90%;" class="filter-content">
@@ -94,317 +104,338 @@
                                     @endphp --}}
 
                                     <hr>
-                                    <div class="tab-pane active" id="tab-all" role="tabpanel"
-                                        aria-labelledby="tab-all">
-                                        <div class="card-body">
-                                            <div class="tab-pane fade show active" id="tab-all" role="tabpanel"
-                                                aria-labelledby="tab-all-tab">
-                                                <div class="card-body">
-                                                    <div class="content-product-show">
-                                                        <div class="products-card"
-                                                            style="display: flex; flex-wrap: wrap; gap: 20px;">
-
-                                                            @foreach ($all_products as $product)
-                                                                @php
-                                                                    $products_images = DB::table('product_images')
-                                                                        ->where('product_code', $product->product_code)
-                                                                        ->first();
-                                                                @endphp
-                                                                <div style="position: left;" class="card"
-                                                                    style="width: 200px;">
-                                                                    @if ($product->product_code == $products_images->product_code)
-                                                                        <img class="card-img"
-                                                                            src="{{ asset('storage/' . $products_images->images) }}"
-                                                                            alt="">
-                                                                    @else
-                                                                    @endif
-                                                                    <p class="product-name">
-                                                                        <strong>{{ $product->product }}</strong>
-                                                                    </p>
-                                                                    @if ($product->category)
-                                                                        <div style="display: flex; gap:6px;"
-                                                                            class="category-class">
-                                                                            <small
-                                                                                class="text-secondary">{{ $product->category }}</small>
-                                                                            @if ($product->variant_type)
-                                                                                &dot;
+                                    @if ($all_products->isNotEmpty())
+                                        <div class="tab-pane active" id="tab-all" role="tabpanel"
+                                            aria-labelledby="tab-all">
+                                            <div class="card-body">
+                                                <div class="tab-pane fade show active" id="tab-all" role="tabpanel"
+                                                    aria-labelledby="tab-all-tab">
+                                                    <div class="card-body">
+                                                        <div class="content-product-show">
+                                                            <div class="products-card"
+                                                                style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                                                @foreach ($all_products as $product)
+                                                                    @php
+                                                                        $products_images = DB::table('product_images')
+                                                                            ->where(
+                                                                                'product_code',
+                                                                                $product->product_code,
+                                                                            )
+                                                                            ->first();
+                                                                    @endphp
+                                                                    <div style="position: left;" class="card"
+                                                                        style="width: 200px;">
+                                                                        @if ($product->product_code == $products_images->product_code)
+                                                                            <img class="card-img"
+                                                                                src="{{ asset('storage/' . $products_images->images) }}"
+                                                                                alt="">
+                                                                        @else
+                                                                        @endif
+                                                                        <p class="product-name">
+                                                                            <strong>{{ $product->product }}</strong>
+                                                                        </p>
+                                                                        @if ($product->category)
+                                                                            <div style="display: flex; gap:6px;"
+                                                                                class="category-class">
                                                                                 <small
-                                                                                    class="text-info">{{ $product->variant_type }}</small>
-                                                                            @endif
-                                                                        </div>
-                                                                    @else
-                                                                    @endif
-
-                                                                    @if ($product->variant_code == null)
-                                                                        @if ($product->price_after_discount)
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
-                                                                                </p>
-                                                                                <small
-                                                                                    class="discount">{{ '-' . $product->discount . '%' }}</small>
+                                                                                    class="text-secondary">{{ $product->category }}</small>
+                                                                                @if ($product->variant_type)
+                                                                                    &dot;
+                                                                                    <small
+                                                                                        class="text-info">{{ $product->variant_type }}</small>
+                                                                                @endif
                                                                             </div>
                                                                         @else
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->price) }}
-                                                                                </p>
-                                                                            </div>
                                                                         @endif
-                                                                        <div id="availableStock" class="stok">
-                                                                            <p>Stok:
-                                                                                <span>{{ $product->stock_available }}</span>
-                                                                            </p>
-                                                                            {{-- <p>Terjual:
+
+                                                                        @if ($product->variant_code == null)
+                                                                            @if ($product->price_after_discount)
+                                                                                <div class="price">
+                                                                                    <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                                    </p>
+                                                                                    <small
+                                                                                        class="discount">{{ '-' . $product->discount . '%' }}</small>
+                                                                                </div>
+                                                                            @else
+                                                                                <div class="price">
+                                                                                    <p>{{ 'Rp.' . number_format($product->price) }}
+                                                                                    </p>
+                                                                                </div>
+                                                                            @endif
+                                                                            <div id="availableStock" class="stok">
+                                                                                <p>Stok:
+                                                                                    <span>{{ $product->stock_available }}</span>
+                                                                                </p>
+                                                                                {{-- <p>Terjual:
                                                                             {{ $product->sold }}
                                                                         </p> --}}
-                                                                        </div>
-                                                                    @else
-                                                                        @if ($product->variant_price_after_discount)
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->variant_price_after_discount) }}
-                                                                                </p>
-                                                                                <small
-                                                                                    class="discount">{{ '-' . $product->variant_discount . '%' }}</small>
                                                                             </div>
                                                                         @else
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->variant_price) }}
+                                                                            @if ($product->variant_price_after_discount)
+                                                                                <div class="price">
+                                                                                    <p>{{ 'Rp.' . number_format($product->variant_price_after_discount) }}
+                                                                                    </p>
+                                                                                    <small
+                                                                                        class="discount">{{ '-' . $product->variant_discount . '%' }}</small>
+                                                                                </div>
+                                                                            @else
+                                                                                <div class="price">
+                                                                                    <p>{{ 'Rp.' . number_format($product->variant_price) }}
+                                                                                    </p>
+                                                                                </div>
+                                                                            @endif
+                                                                            <div id="availableStock" class="stok">
+                                                                                <p>Stok:
+                                                                                    <span>{{ $product->stock_available }}</span>
                                                                                 </p>
-                                                                            </div>
-                                                                        @endif
-                                                                        <div id="availableStock" class="stok">
-                                                                            <p>Stok:
-                                                                                <span>{{ $product->stock_available }}</span>
-                                                                            </p>
-                                                                            {{-- <p>Terjual:
+                                                                                {{-- <p>Terjual:
                                                                             {{ $product->sold }}
                                                                         </p> --}}
+                                                                            </div>
+                                                                        @endif
+
+                                                                        <div class="btn-add-cart">
+                                                                            <form class="form-general"
+                                                                                action="{{ route('cart_add') }}"
+                                                                                method="POST">
+                                                                                @csrf
+                                                                                <input type="hidden" name="product"
+                                                                                    value="{{ $product->product_code }}">
+                                                                                <input type="hidden" name="variant"
+                                                                                    value="{{ $product->variant_code }}">
+                                                                                <input type="hidden"
+                                                                                    name="variant_type"
+                                                                                    value="{{ $product->variant_type }}">
+                                                                                <input type="hidden"
+                                                                                    name="product_name"
+                                                                                    value="{{ $product->product }}">
+                                                                                <input type="hidden"
+                                                                                    name="stock_available"
+                                                                                    value="{{ $product->stock_available }}">
+
+                                                                                @if ($product->variant_code)
+                                                                                    @if ($product->variant_discount)
+                                                                                        <input type="hidden"
+                                                                                            name="price"
+                                                                                            value="{{ $product->variant_price_after_discount }}">
+                                                                                    @else
+                                                                                        <input type="hidden"
+                                                                                            name="price"
+                                                                                            value="{{ $product->variant_price }}">
+                                                                                    @endif
+                                                                                @else
+                                                                                    @if ($product->discount)
+                                                                                        <input type="hidden"
+                                                                                            name="price"
+                                                                                            value="{{ $product->price_after_discount }}">
+                                                                                    @else
+                                                                                        <input type="hidden"
+                                                                                            name="price"
+                                                                                            value="{{ $product->price }}">
+                                                                                    @endif
+                                                                                @endif
+                                                                                @if ($product->stock_available)
+                                                                                    <button class="btn-general"
+                                                                                        type="submit"><span
+                                                                                            class="btn-text">Tambah</span>
+                                                                                        <span
+                                                                                            class="spinner"></span></button>
+                                                                                @else
+                                                                                    <button style="width:100%;"
+                                                                                        class="btn btn-secondary"
+                                                                                        type="button">Kosong</button>
+                                                                                @endif
+                                                                            </form>
                                                                         </div>
-                                                                    @endif
-
-                                                                    <div class="btn-add-cart">
-                                                                        <form class="form-general"
-                                                                            action="{{ route('cart_add') }}"
-                                                                            method="POST">
-                                                                            @csrf
-                                                                            <input type="hidden" name="product"
-                                                                                value="{{ $product->product_code }}">
-                                                                            <input type="hidden" name="variant"
-                                                                                value="{{ $product->variant_code }}">
-                                                                            <input type="hidden" name="variant_type"
-                                                                                value="{{ $product->variant_type }}">
-                                                                            <input type="hidden" name="product_name"
-                                                                                value="{{ $product->product }}">
-                                                                            <input type="hidden"
-                                                                                name="stock_available"
-                                                                                value="{{ $product->stock_available }}">
-
-                                                                            @if ($product->variant_code)
-                                                                                @if ($product->variant_discount)
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->variant_price_after_discount }}">
-                                                                                @else
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->variant_price }}">
-                                                                                @endif
-                                                                            @else
-                                                                                @if ($product->discount)
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->price_after_discount }}">
-                                                                                @else
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->price }}">
-                                                                                @endif
-                                                                            @endif
-                                                                            @if ($product->stock_available)
-                                                                                <button class="btn-general"
-                                                                                    type="submit"><span
-                                                                                        class="btn-text">Tambah</span>
-                                                                                    <span
-                                                                                        class="spinner"></span></button>
-                                                                            @else
-                                                                                <button style="width:100%;"
-                                                                                    class="btn btn-secondary"
-                                                                                    type="button">Kosong</button>
-                                                                            @endif
-                                                                        </form>
                                                                     </div>
-                                                                </div>
-                                                            @endforeach
-
+                                                                @endforeach
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
-
-
                                         </div>
-                                    </div>
+                                    @else
+                                        <div style="height: 50vh; display:flex; justify-content:center;border:1px solid gray;border-radius:10px;"
+                                            class="empty-transaction">
 
-
-                                    {{-- TAB PER CATEGORY --}}
-
-                                    @if ($all_products->isNotEmpty())
-                                        @foreach ($category_data as $ctg)
-                                            @php
-                                                $filtered_products = $all_products->where(
-                                                    'category',
-                                                    $ctg->category_name,
-                                                );
-                                            @endphp
-                                            <div class="tab-pane fade" id="tab-{{ $ctg->category_name }}"
-                                                role="tabpanel" aria-labelledby="tab-{{ $ctg->category_name }}-tab">
-                                                <div class="card-body">
-                                                    <div class="products-card"
-                                                        style="display: flex; flex-wrap: wrap; gap: 20px;">
-                                                        @if ($filtered_products->isNotEmpty())
-                                                            @foreach ($filtered_products as $product)
-                                                                @php
-                                                                    $products_images = DB::table('product_images')
-                                                                        ->where('product_code', $product->product_code)
-                                                                        ->first();
-                                                                @endphp
-                                                                <div style="position: left;" class="card"
-                                                                    style="width: 200px;">
-                                                                    @if ($product->product_code == $products_images->product_code)
-                                                                        <img class="card-img"
-                                                                            src="{{ asset('storage/' . $products_images->images) }}"
-                                                                            alt="">
-                                                                    @else
-                                                                    @endif
-                                                                    <p><strong>{{ $product->product }}</strong>
-                                                                    </p>
-
-                                                                    @if ($product->category)
-                                                                        <div style="display: flex; gap:6px;"
-                                                                            class="category-class">
-                                                                            <small
-                                                                                class="category">{{ $product->category }}</small>
-                                                                            @if ($product->variant_type)
-                                                                                &dot;
-                                                                                <small
-                                                                                    class="text-info">{{ $product->variant_type }}</small>
-                                                                            @endif
-                                                                        </div>
-                                                                    @else
-                                                                    @endif
-
-                                                                    @if ($product->variant_code == null)
-                                                                        @if ($product->price_after_discount)
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
-                                                                                </p>
-                                                                                <small
-                                                                                    class="discount">{{ '-' . $product->discount . '%' }}</small>
-                                                                            </div>
-                                                                        @else
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->price) }}
-                                                                                </p>
-                                                                            </div>
-                                                                        @endif
-                                                                        <div id="availableStock" class="stok">
-                                                                            <p>Stok:
-                                                                                <span>
-                                                                                    {{ $product->stock_available }}</span>
-                                                                            </p>
-                                                                            {{-- <p>Terjual:
-                                                                            {{ $product->sold }}
-                                                                        </p> --}}
-                                                                        </div>
-                                                                    @else
-                                                                        @if ($product->variant_price_after_discount)
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->variant_price_after_discount) }}
-                                                                                </p>
-                                                                                <small
-                                                                                    class="discount">{{ '-' . $product->variant_discount . '%' }}</small>
-                                                                            </div>
-                                                                        @else
-                                                                            <div class="price">
-                                                                                <p>{{ 'Rp.' . number_format($product->variant_price) }}
-                                                                                </p>
-                                                                            </div>
-                                                                        @endif
-                                                                        <div id="availableStock" class="stok">
-                                                                            <p>Stok:
-                                                                                <span>{{ $product->stock_available }}</span>
-                                                                            </p>
-                                                                            {{-- <p>Terjual:
-                                                                            {{ $product->sold }}
-                                                                        </p> --}}
-                                                                        </div>
-                                                                    @endif
-
-
-
-                                                                    <div class="btn-add-cart">
-                                                                        <form class="form-general"
-                                                                            action="{{ route('cart_add') }}"
-                                                                            method="POST">
-                                                                            @csrf
-                                                                            <input type="hidden" name="product"
-                                                                                value="{{ $product->product_code }}">
-                                                                            <input type="hidden" name="variant"
-                                                                                value="{{ $product->variant_code }}">
-                                                                            <input type="hidden" name="variant_type"
-                                                                                value="{{ $product->variant_type }}">
-                                                                            <input type="hidden" name="product_name"
-                                                                                value="{{ $product->product }}">
-                                                                            <input type="hidden"
-                                                                                name="stock_available"
-                                                                                value="{{ $product->stock_available }}">
-
-                                                                            @if ($product->variant_code)
-                                                                                @if ($product->discount)
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->variant_price_after_discount }}">
-                                                                                @else
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->variant_price }}">
-                                                                                @endif
-                                                                            @else
-                                                                                @if ($product->discount)
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->price_after_discount }}">
-                                                                                @else
-                                                                                    <input type="hidden"
-                                                                                        name="price"
-                                                                                        value="{{ $product->price }}">
-                                                                                @endif
-                                                                            @endif
-                                                                            @if ($product->stock_available)
-                                                                                <button class="btn-general"
-                                                                                    type="submit"><span
-                                                                                        class="btn-text">Tambah</span>
-                                                                                    <span
-                                                                                        class="spinner"></span></button>
-                                                                            @else
-                                                                                <button style="width:100%;"
-                                                                                    class="btn btn-secondary"
-                                                                                    type="button">Kosong</button>
-                                                                            @endif
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            @endforeach
-                                                        @else
-                                                            <p>Data tidak ada</p>
-                                                        @endif
+                                            <div style="display: flex;" class="empty-content">
+                                                <div style="display: flex; gap:20px;margin:auto;">
+                                                    <img width="70" height="70"
+                                                        src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                        alt="">
+                                                    <div style="display: block;align-self: center;"
+                                                        class="text-content">
+                                                        <h3>Produk belum ada</h3>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    @else
-                                        <p>Data tidak ada</p>
+
+                                        </div>
                                     @endif
+
+                                    {{-- TAB PER CATEGORY --}}
+
+
+                                    @foreach ($category_data as $ctg)
+                                        @php
+                                            $filtered_products = $all_products->where('category', $ctg->category_name);
+                                        @endphp
+                                        <div class="tab-pane fade" id="tab-{{ $ctg->category_name }}"
+                                            role="tabpanel" aria-labelledby="tab-{{ $ctg->category_name }}-tab">
+                                            <div class="card-body">
+                                                <div class="products-card"
+                                                    style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                                    @if ($filtered_products->isNotEmpty())
+                                                        @foreach ($filtered_products as $product)
+                                                            @php
+                                                                $products_images = DB::table('product_images')
+                                                                    ->where('product_code', $product->product_code)
+                                                                    ->first();
+                                                            @endphp
+                                                            <div style="position: left;" class="card"
+                                                                style="width: 200px;">
+                                                                @if ($product->product_code == $products_images->product_code)
+                                                                    <img class="card-img"
+                                                                        src="{{ asset('storage/' . $products_images->images) }}"
+                                                                        alt="">
+                                                                @else
+                                                                @endif
+                                                                <p><strong>{{ $product->product }}</strong>
+                                                                </p>
+
+                                                                @if ($product->category)
+                                                                    <div style="display: flex; gap:6px;"
+                                                                        class="category-class">
+                                                                        <small
+                                                                            class="category">{{ $product->category }}</small>
+                                                                        @if ($product->variant_type)
+                                                                            &dot;
+                                                                            <small
+                                                                                class="text-info">{{ $product->variant_type }}</small>
+                                                                        @endif
+                                                                    </div>
+                                                                @else
+                                                                @endif
+
+                                                                @if ($product->variant_code == null)
+                                                                    @if ($product->price_after_discount)
+                                                                        <div class="price">
+                                                                            <p>{{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                            </p>
+                                                                            <small
+                                                                                class="discount">{{ '-' . $product->discount . '%' }}</small>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="price">
+                                                                            <p>{{ 'Rp.' . number_format($product->price) }}
+                                                                            </p>
+                                                                        </div>
+                                                                    @endif
+                                                                    <div id="availableStock" class="stok">
+                                                                        <p>Stok:
+                                                                            <span>
+                                                                                {{ $product->stock_available }}</span>
+                                                                        </p>
+                                                                        {{-- <p>Terjual:
+                                                                            {{ $product->sold }}
+                                                                        </p> --}}
+                                                                    </div>
+                                                                @else
+                                                                    @if ($product->variant_price_after_discount)
+                                                                        <div class="price">
+                                                                            <p>{{ 'Rp.' . number_format($product->variant_price_after_discount) }}
+                                                                            </p>
+                                                                            <small
+                                                                                class="discount">{{ '-' . $product->variant_discount . '%' }}</small>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="price">
+                                                                            <p>{{ 'Rp.' . number_format($product->variant_price) }}
+                                                                            </p>
+                                                                        </div>
+                                                                    @endif
+                                                                    <div id="availableStock" class="stok">
+                                                                        <p>Stok:
+                                                                            <span>{{ $product->stock_available }}</span>
+                                                                        </p>
+                                                                        {{-- <p>Terjual:
+                                                                            {{ $product->sold }}
+                                                                        </p> --}}
+                                                                    </div>
+                                                                @endif
+
+
+
+                                                                <div class="btn-add-cart">
+                                                                    <form class="form-general"
+                                                                        action="{{ route('cart_add') }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="product"
+                                                                            value="{{ $product->product_code }}">
+                                                                        <input type="hidden" name="variant"
+                                                                            value="{{ $product->variant_code }}">
+                                                                        <input type="hidden" name="variant_type"
+                                                                            value="{{ $product->variant_type }}">
+                                                                        <input type="hidden" name="product_name"
+                                                                            value="{{ $product->product }}">
+                                                                        <input type="hidden" name="stock_available"
+                                                                            value="{{ $product->stock_available }}">
+
+                                                                        @if ($product->variant_code)
+                                                                            @if ($product->discount)
+                                                                                <input type="hidden" name="price"
+                                                                                    value="{{ $product->variant_price_after_discount }}">
+                                                                            @else
+                                                                                <input type="hidden" name="price"
+                                                                                    value="{{ $product->variant_price }}">
+                                                                            @endif
+                                                                        @else
+                                                                            @if ($product->discount)
+                                                                                <input type="hidden" name="price"
+                                                                                    value="{{ $product->price_after_discount }}">
+                                                                            @else
+                                                                                <input type="hidden" name="price"
+                                                                                    value="{{ $product->price }}">
+                                                                            @endif
+                                                                        @endif
+                                                                        @if ($product->stock_available)
+                                                                            <button class="btn-general"
+                                                                                type="submit"><span
+                                                                                    class="btn-text">Tambah</span>
+                                                                                <span class="spinner"></span></button>
+                                                                        @else
+                                                                            <button style="width:100%;"
+                                                                                class="btn btn-secondary"
+                                                                                type="button">Kosong</button>
+                                                                        @endif
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    @else
+                                                        <div style="height: 50vh; display:flex; justify-content:center;border:1px solid gray;border-radius:10px;"
+                                                            class="empty-transaction">
+
+                                                            <div style="display: flex;" class="empty-content">
+                                                                <div style="display: flex; gap:20px;margin:auto;">
+                                                                    <img width="70" height="70"
+                                                                        src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                                        alt="">
+                                                                    <div style="display: block;align-self: center;"
+                                                                        class="text-content">
+                                                                        <h3>Produk belum ada</h3>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
 
                                     <div class="pagination">
                                         {{ $all_products->links() }}
@@ -413,6 +444,7 @@
 
                                 </div>
                             </div>
+
 
                             {{-- transaction-card --}}
                             <div class="transaction-card">
@@ -581,29 +613,11 @@
                                             <input style="margin:0;" type="text" class="form-control"
                                                 name="promo_code" placeholder="Masukan kode disini..."
                                                 value="{{ old('promo_code') }}" id="promo_code_input">
+
+                                            <input hidden style="margin:0;" type="text" class="form-control"
+                                                name="code_voucher" placeholder="Masukan kode disini..."
+                                                value="{{ old('code_voucher') }}" id="show-code-voucher">
                                             <br>
-
-                                            {{-- TAMPILKAN JUGA DISINI --}}
-
-                                            {{-- @php
-                                                $show_voucher = DB::table('customer_vouchers as cv')
-                                                    ->select(
-                                                        'v.voucher_code',
-                                                        'v.discount',
-                                                        'v.nominal',
-                                                        'cv.customer',
-                                                        'cv.voucher_used',
-                                                        'v.end_date',
-                                                    )
-                                                    ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
-                                                    ->leftJoin('customer as c', 'cv.customer', '=', 'c.customer_code')
-                                                    ->where('cv.voucher', 'VOUCHER54d9308a')
-                                                    ->where('cv.customer', 'cust26021320c4f0')
-                                                    ->first();
-
-                                                dd($show_voucher);
-
-                                            @endphp --}}
 
                                             <div class="btn-submit">
                                                 <button id="btn-submit-check-result"
@@ -620,7 +634,7 @@
                                         <div class="payment-method">
                                             <label for=""><strong>Metode Bayar</strong></label>
                                             <div class="open-pay-method">
-                                                <select class="form-control" name="payment_type" id=""
+                                                <select class="form-control" name="payment_type" id="paymentType"
                                                     required>
                                                     <option value="">=== Pilih Metode Bayar ===</option>
                                                     @foreach ($payment_type as $pay)
@@ -633,7 +647,7 @@
 
                                         </div>
                                         <hr>
-                                        <div class="payment-amount">
+                                        <div id="showPaymentAmount" class="payment-amount">
                                             <div style="margin-bottom: 10px;" class="amount">
                                                 <label for=""><strong>Bayar</strong></label>
                                                 <small>*Hanya berlaku untuk jenis pembayaran Cash/Tunai</small>
@@ -948,10 +962,15 @@
 
                         $('#show-nominal').show();
                         $('#show-voucher-code').empty();
+                        $('#show-code-voucher').val('');
 
                         // Reset voucher object
                         voucher.type = null;
                         voucher.value = 0;
+
+                        if (response.data.voucher_code) {
+                            $('#show-code-voucher').val(response.data.voucher_code)
+                        }
 
                         // Set voucher based on response data
                         if (response.data.discount) {
@@ -1049,6 +1068,7 @@
 
             $('#promo_code_input').val('');
             $('#show-voucher-code').empty();
+            $('#show-code-voucher').val('');
             $('#show-nominal').hide();
 
             // Update grand total after removing voucher
@@ -1124,6 +1144,27 @@
                 console.log('Customer deselected'); // Debugging
             }
         });
+    });
+
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const paymentType = document.getElementById("paymentType");
+        const showPaymentAmount = document.getElementById("showPaymentAmount");
+
+        function togglePaymentAmount() {
+            if (paymentType.value === "1") {
+                showPaymentAmount.style.display = "block";
+            } else {
+                showPaymentAmount.style.display = "none";
+            }
+        }
+
+        // jalankan saat pertama load (kalau ada value default)
+        togglePaymentAmount();
+
+        // jalankan saat select berubah
+        paymentType.addEventListener("change", togglePaymentAmount);
     });
 </script>
 

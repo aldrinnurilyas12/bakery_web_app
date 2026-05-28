@@ -54,32 +54,40 @@ class LoginRequest extends FormRequest
         // Jika pengguna tidak ditemukan
         if (!$user_available) {
             RateLimiter::hit($this->throttleKey());
-            return redirect()->route('login_kencana_bakery')->with(
-                'failed_message',
-                'Email/Username dan kata sandi tidak sesuai!'
-             );
+           return back()
+                ->withErrors([
+                    'login' => 'Email/Username dan kata sandi tidak sesuai!'
+                ])
+                ->with('failed_message', 'Email/Username dan kata sandi tidak sesuai!')
+                ->withInput();
         }
 
 
         if ($user_available->is_active == null) {
             RateLimiter::hit($this->throttleKey());
-            return redirect()->route('login_kencana_bakery')->with(
-                'failed_message',
-                'Email belum diaktivasi!'
-             );
+            return back()
+                ->withErrors([
+                    'login' => 'Email belum diaktivasi!'
+                ])
+                ->with('failed_message', 'Email belum diaktivasi!')
+                ->withInput();
         }elseif($user_available->is_active == 'N'){
             RateLimiter::hit($this->throttleKey());
-            return redirect()->route('login_kencana_bakery')->with(
-                'failed_message',
-                'Akun anda sudah tidak aktif silahkan hubungi IT!'
-             );
+            return back()
+                ->withErrors([
+                    'login' => 'Akun sudah tidak aktif silahkan hubungi IT!'
+                ])
+                ->with('failed_message', 'Akun sudah tidak aktif silahkan hubungi IT!')
+                ->withInput();
         
         } elseif (!Auth::attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-             return redirect()->route('login_kencana_bakery')->with(
-                'failed_message',
-                'Kata sandi salah, silahkan coba lagi!'
-             );
+            return back()
+                ->withErrors([
+                    'login' => 'Kata sandi salah!'
+                ])
+                ->with('failed_message', 'Kata sandi salah!')
+                ->withInput();
         }
 
         // Jika semua pemeriksaan berhasil, login pengguna
@@ -101,23 +109,29 @@ class LoginRequest extends FormRequest
 
         if (!$user) {
             RateLimiter::hit($this->throttleKey());
-            return redirect()->route('login_app')->with(
-                'failed_message',
-                'Email atau nomor telepon tidak sesuai!'
-             );
+            return back()
+                ->withErrors([
+                    'login' => 'Email/Username dan no hp tidak sesuai!'
+                ])
+                ->with('failed_message', 'Email/Username dan no hp tidak sesuai!')
+                ->withInput();
         } elseif ($user->status == 8) {
             RateLimiter::hit($this->throttleKey());
-             return redirect()->route('login_app')->with(
-                'failed_message',
-                'Akun anda sudah tidak aktif!'
-             );
+            return back()
+                ->withErrors([
+                    'login' => 'Akun sudah tidak aktif'
+                ])
+                ->with('failed_message', 'Akun sudah tidak aktif')
+                ->withInput();
 
         } elseif (!Auth::guard('customer')->attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-             return redirect()->route('login_app')->with(
-                'failed_message',
-                'Kata sandi salah, silahkan coba lagi!'
-             );
+             return back()
+                ->withErrors([
+                    'login' => 'Kata sandi salah!'
+                ])
+                ->with('failed_message', 'Kata sandi salah!')
+                ->withInput();
         }
 
         RateLimiter::clear($this->throttleKey());

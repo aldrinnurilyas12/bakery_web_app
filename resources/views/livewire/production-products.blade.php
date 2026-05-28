@@ -28,14 +28,26 @@
                         Master Data / <a href="{{ route('production_products') }}">Produksi Produk</a>
                     </div>
 
-                    @if ($production_products->isNotEmpty())
-                        @if (!$user_permission_forbidden)
-                            <div class="button-add-product">
-                                <a class="btn btn-primary" href="{{ route('production_create') }}">Tambah Produksi
-                                    Produk</a>
+                    <div style="display: flex;gap:10px;" class="flex-content">
+                        @if (request()->has('filter_production_product') || !empty($module_documentation ?? null))
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
                             </div>
                         @endif
-                    @endif
+
+                        @if ($production_products->isNotEmpty())
+                            @if (!$user_permission_forbidden)
+                                <div class="button-add-product">
+                                    <a class="btn btn-primary" href="{{ route('production_create') }}">Tambah Produksi
+                                        Produk</a>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
                 </div>
                 @if (!$filter_forbidden_access)
                     <div class="card-header">
@@ -331,6 +343,7 @@
 
         $raw_material = DB::table('raw_material_usages as r')
             ->leftJoin('raw_material as rw', 'r.raw_material', '=', 'rw.material_code')
+             ->leftJoin('material_unit_category as muc', 'r.unit', '=', 'muc.id')
             ->get();
 
         $total_raw_usage = DB::table('raw_material_usages as r')
@@ -365,7 +378,7 @@
                                         <tr>
                                             <td>{{ $no++ }}</td>
                                             <td>{{ $raw->material_name }}</td>
-                                            <td>{{ $raw->quantity_used . ' ' . $raw->material_type }}</td>
+                                            <td>{{ $raw->quantity_used . ' ' . $raw->unit_name }}</td>
                                         </tr>
                                     @else
                                     @endif

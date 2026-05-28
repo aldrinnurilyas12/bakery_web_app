@@ -30,7 +30,7 @@
                         <div class="form-group">
                             <label><strong>Kode promo</strong></label>
                             <input type="text" name="promo_code" class="form-control"
-                                value="{{ $promo->promo_code }}" autocomplete="off">
+                                value="{{ $promo->promo_code }}" autocomplete="off" readonly>
                             <x-input-error :messages="$errors->get('promo_code')" class="text-danger" />
                         </div>
 

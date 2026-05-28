@@ -16,6 +16,7 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
 
 class Voucher extends Controller
 {
@@ -109,8 +110,14 @@ class Voucher extends Controller
             'created_at' => now()
 
         ]);
+
+         UserLogActivity::log(
+                module: 'E-Vouchers',
+                method_type: 'CREATE',
+                description: "user create new e-voucher: {$request->voucher_name}"      
+        );
         session()->flash('message_success', 'Data Voucher berhasil disimpan!');
-        return redirect()->route('voucher');
+        return redirect()->route('voucher_data');
 
 
     }
@@ -132,6 +139,7 @@ class Voucher extends Controller
         ->leftJoin('status_category as sc', 'rv.status', '=', 'sc.id')
         ->leftJoin('store as st', 'rv.store', '=', 'st.store_code')
         ->get();
+        
 
         return view('layouts.main_pages.voucher.redeem_voucher', compact('redeem_vouchers'));
     }
@@ -191,6 +199,11 @@ class Voucher extends Controller
             'updated_by' => $updated_by,
             'updated_at' => now()
         ]);
+         UserLogActivity::log(
+                module: 'E-Vouchers',
+                method_type: 'UPDATE',
+                description: "user update e-voucher: {$request->voucher_name}"      
+        );
 
         session()->flash('message_success', 'Data Voucher berhasil disimpan!');
         return redirect()->route('voucher');
@@ -205,6 +218,11 @@ class Voucher extends Controller
             'updated_by' => $updated_by,
             'updated_at' => now()
         ]);
+        UserLogActivity::log(
+                module: 'E-Vouchers',
+                method_type: 'UPDATE',
+                description: "user nonactive e-voucher: {$request->voucher_code}"      
+        );
         session()->flash('message_success', 'Data E-Voucher berhasil disimpan!');
         return redirect()->route('voucher');
     }
@@ -223,6 +241,12 @@ class Voucher extends Controller
                     unlink($dropQrCode);
                 }
         }
+
+         UserLogActivity::log(
+                module: 'E-Vouchers',
+                method_type: 'DELETE',
+                description: "user delete e-voucher: {$request->voucher_code}"      
+        );
 
         session()->flash('message_success', 'Data Voucher berhasil disimpan!');
         return redirect()->route('voucher');

@@ -8,6 +8,7 @@ use App\Models\SupplierModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Services\UserLogActivity;
 
 class SupplierController extends Controller
 {
@@ -50,6 +51,11 @@ class SupplierController extends Controller
             'supplier_category' => $rq->supplier_category,
             'status' => 7
         ]);
+        UserLogActivity::log(
+                module: 'Supplier',
+                method_type: 'CREATE',
+                description: "user create new supplier: {$rq->store}"      
+        );
 
         session()->flash('message_success', 'Data Supplier berhasil disimpan!');
         return redirect()->route('supplier.index');
@@ -96,6 +102,12 @@ class SupplierController extends Controller
             'status' => $rq->status
         ]);
 
+        UserLogActivity::log(
+                module: 'Supplier',
+                method_type: 'UPDATE',
+                description: "user update supplier: {$rq->store}"      
+        );
+
         session()->flash('message_success', 'Data Supplier berhasil disimpan!');
         return redirect()->route('supplier.index');
     }
@@ -127,6 +139,12 @@ class SupplierController extends Controller
             'description' => $request->description
         ]);
 
+        UserLogActivity::log(
+                module: 'Supplier',
+                method_type: 'CREATE',
+                description: "user create category supplier: {$rq->category_name}"      
+        );
+
         session()->flash('message_success', 'Data Supplier berhasil disimpan!');
         return redirect()->route('supplier_category');
 
@@ -153,6 +171,11 @@ class SupplierController extends Controller
             'category_name' =>$request->category_name,
             'description' => $request->description
         ]);
+        UserLogActivity::log(
+                module: 'Supplier',
+                method_type: 'UPDATE',
+                description: "user update category supplier: {$rq->category_name}"      
+        );
 
          session()->flash('message_success', 'Data Supplier berhasil disimpan!');
         return redirect()->route('supplier_category');

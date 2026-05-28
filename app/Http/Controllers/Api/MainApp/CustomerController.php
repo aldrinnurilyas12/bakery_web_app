@@ -16,6 +16,14 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+use BaconQrCode\Writer;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\EpsImageBackEnd;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use Illuminate\Support\Facades\File;
 
 class CustomerController extends Controller
 {
@@ -56,7 +64,52 @@ class CustomerController extends Controller
         $customer = DB::table('v_customers')->where('customer_code', $CUSTOMER_LOGIN_SESSION)->first();
        $birth_date = Carbon::parse($customer->birth_date);
 
+      
         return view('layouts.main_views.customer_views.profile', compact('customer', 'birth_date'));
+    }
+
+    public function generate_qr_code(Request $request)
+    {
+        
+        $date = Carbon::now()->format('ymd');
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 6);
+        $customer_code =  $request->customer_code;
+        $customer_data_qr_code  = [
+            'customer_code' => $customer_code,
+            'name' => $request->name
+        ];
+        
+        $folderPath = 'qr_customer';
+         if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0755, true);
+        }
+    
+        $fileName = uniqid() . '.svg';
+        $qrCodePath = $folderPath . '/' . $fileName;
+       
+        $renderer = new ImageRenderer(
+            new RendererStyle(400),
+            new SvgImageBackEnd()
+        );
+
+        $writer = new Writer($renderer);
+        $svgOutput = $writer->writeString(json_encode($customer_data_qr_code));
+
+        Storage::disk('public')->put($qrCodePath, $svgOutput);
+
+        if($customer_code){
+            CustomerModel::where('customer_code', $customer_code)->update([
+                'qr_code' => $qrCodePath,
+                'updated_at' => now()
+            ]);
+        }else{
+            session()->flash('failed_message', 'Gagal update data!');
+            return redirect()->back();
+        }
+
+        session()->flash('message_success', 'Berhasil generate kode QR!');
+        return redirect()->back();
     }
 
     public function menu() : View 
@@ -101,15 +154,18 @@ class CustomerController extends Controller
 
     public function invoice(Request $request)
     {
+        $customer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
          $invoice = DB::table('v_transaction')
         ->where('transaction_code', $request->transaction_code)
+        ->where('customer_code', $customer)
             ->first();
-        $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)->get();
+        $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)
+        ->where('customer_code', $customer)->get();
         
-        if(!$invoice){
-            session()->flash('failed_message', 'Tidak ada Invoice!');
+        if(!$invoice || !$invoices){
             return redirect()->back();
         }
+
 
 
         return view('layouts.main_views.customer_views.invoice', compact('invoice', 'invoices'));
@@ -150,25 +206,42 @@ class CustomerController extends Controller
 
     public function reward_detail(Request $request)
     {
-        $reward = DB::table('rewards as r')
-            ->join('rewards_store as rs', 'r.rewards_code', '=', 'rs.reward')
-            ->select('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date',DB::raw('SUM(rs.stock) as total_stock'), 'r.created_at')
-            ->where('rs.status', 7)
+        $reward = DB::table('v_rewards as r')
+            ->select('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date',DB::raw('SUM(r.total_available) as total_stock'), 'r.created_at')
+            ->where('r.status_name', 'Active')
             ->where('r.rewards_code', $request->rewards_code)
             ->groupBy('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date', 'r.created_at')
             ->orderBy('r.created_at', 'DESC')->first();
 
-        $reward_store = DB::table('rewards_store as rs')
-        ->leftJoin('store as s', 'rs.store', '=','s.store_code')->select('s.store_code','s.store_name')
-        ->where('rs.reward', $reward->rewards_code)->get();
-
         if(!$reward){
-             session()->flash('failed_message', 'Tidak ada Reward!');
+            session()->flash('failed_message', 'Tidak ada Reward!');
             return redirect()->back();
         }
 
+        if($reward->end_date < now()){
+            session()->flash('failed_message', 'Rewards sudah tidak ada!');
+            return redirect()->back();
+        }
+
+
+         $reward_store = DB::table('rewards_store as rs')
+        ->leftJoin('store as s', 'rs.store', '=','s.store_code')->select('s.store_code','s.store_name')
+        ->where('rs.reward', $reward->rewards_code)->get();
+
         return view('layouts.main_views.customer_views.reward-detail', compact('reward', 'reward_store'));
     }
+
+    public function download_pdf_cust(Request $request, $id)
+    {
+        $transaction_code = $request->transaction_code;
+         $invoice = DB::table('v_transaction')
+                ->where('transaction_code', $request->transaction_code)
+                ->first();
+        $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)->get();
+        $pdf = Pdf::loadView('layouts.main_views.customer_views.invoice', compact('invoices', 'invoice'));
+        return $pdf->download('invoice_'. $transaction_code . '.pdf');
+    }
+
 
 
     public function change_password_layout() 
@@ -389,11 +462,18 @@ class CustomerController extends Controller
         $unique_code = substr($uuid, 0, 6);
         $redeem_code = 'REDEEM' . $unique_code;
 
-        $reward_exists = DB::table('rewards_store')->where('reward_store_code', $reward_code_store)->first();
+        $reward_exists = DB::table('v_rewards')
+            ->where('reward_store_code', $reward_code_store)->first();
        
-        if($reward_exists->stock == null || $reward_exists->stock == 0)
+        if($reward_exists->total_available == null || $reward_exists->total_available == 0)
         {
            session()->flash('failed_message', 'Maaf, Kuota Reward ini sudah habis!');
+            return redirect()->back(); 
+        }
+
+        if($reward_exists->end_date < now())
+        {
+           session()->flash('failed_message', 'Maaf, Masa berlaku Reward ini sudah habis!');
             return redirect()->back(); 
         }
 
@@ -412,7 +492,7 @@ class CustomerController extends Controller
             ]);
 
             
-            RewardsStoreModel::where('reward_store_code', $reward_code_store)->decrement('stock', 1);
+            // RewardsStoreModel::where('reward_store_code', $reward_code_store)->decrement('stock', 1);
         
             CustomerModel::where('customer_code', $customer_code)->update([
                 'point' => $result_point
@@ -427,10 +507,10 @@ class CustomerController extends Controller
 
     public function get_stock(Request $request)
     {
-        $data = DB::table('rewards_store')
-        ->select('stock', 'reward_store_code')
-        ->where('reward', $request->rewards_code)
-        ->where('store', $request->store)->first();
+        $data = DB::table('v_rewards')
+        ->select('total_available', 'reward_store_code')
+        ->where('rewards_code', $request->rewards_code)
+        ->where('store_code', $request->store)->first();
 
         return response()->json([
             'data' => $data,

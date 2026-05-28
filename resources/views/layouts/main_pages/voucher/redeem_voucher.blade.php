@@ -32,6 +32,16 @@
                             <div class="title">
                                 Master Data / <a href="{{ route('master_category.index') }}">Redeem E-Vouchers</a>
                             </div>
+                            @if ($module_documentation)
+                                <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                    class="documentation-module">
+                                    <a title="Dokumentasi Modul"
+                                        href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                        <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                    </a>
+                                </div>
+                            @endif
+
                         </div>
                         <div class="card-body">
                             @if ($redeem_vouchers->isNotEmpty())

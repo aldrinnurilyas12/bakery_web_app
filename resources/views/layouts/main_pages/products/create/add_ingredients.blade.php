@@ -23,13 +23,13 @@
             <main>
                 <br>
                 <div class="container-fluid px-4">
-                    <h4>Tambah Ingredients Produk</h4>
+                    <h4>Tambah Ingredients Produk (Bill of Material)</h4>
                     <form id="formGeneralMaster" action="{{ route('save_ingredients') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <hr>
                         <div class="form-group">
-                            <label><strong>Kode Produk</strong></label>
+                            <label><strong>SKU Produk</strong></label>
                             <input type="text" name="product" class="form-control"
                                 value="{{ $products->product_code }}" readonly>
                         </div>
@@ -38,32 +38,43 @@
                             <input type="text" class="form-control" value="{{ $products->product_name }}" readonly>
                         </div>
 
+                         <div class="form-group">
+                            <label><strong>Unit Produk</strong></label>
+                            <input type="text" class="form-control" value="{{ $products->type_name ?: '-' }}" readonly>
+                        </div>
+
                         <div class="form-group">
                             <label><strong>Pilih Bahan Baku</strong></label>
                             <div style="color: black; height: 400px;background: white;overflow: auto;"
                                 class="modal-body">
                                 <div class="table-responsive">
-                                    <table style="font-size: 14px; color:black;" class="table" id="dataTable"
+                                    <table style="font-size: 14px; color:black;" class="table" 
                                         width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
                                                 <th>Pilih</th>
                                                 <th>Bahan Baku</th>
-                                                <th>Qty</th>
-                                                <th>Massa</th>
+                                                <th>Harga</th>
+                                                <th>Satuan Unit</th>
+                                                <th>Isi Satuan</th>
+                                                <th>Harga satuan</th>
+                                                <th>Harga per unit</th>
+                                                <th>Jumlah Penggunaan</th>
+                                                <th>Subtotal</th>
+                                                <th>Unit</th>
                                             </tr>
                                         </thead>
 
                                         <tbody>
-                                            <?php $no = 1; ?>
+                                            <?php $no = 1;
+                                            ?>
                                             @foreach ($raw_materials as $raw)
                                                 <tr style="width: 200px;">
                                                     <td><?php echo $no++; ?></td>
                                                     <td>
                                                         @if ($raw->quantity == 0)
-                                                            <a
-                                                                href="{{ route('material_update', $raw->material_code) }}"><i
+                                                            <a href="{{ route('po_create') }}"><i
                                                                     class="fa fa-edit"></i></a>
                                                         @else
                                                             <input class="allowed-checkbox" type="checkbox"
@@ -73,37 +84,62 @@
                                                     </td>
                                                     <td>{{ '[' . $raw->material_code . '] ' . ' - ' . $raw->material_name }}
                                                     </td>
-
+                                                    <td style="text-align: center;">
+                                                        @if ($raw->price)
+                                                           <span id="price"> {{ 'Rp.' . number_format($raw->price) }}</span>
+                                                        @else
+                                                            <span>-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $raw->purchase_unit_name }}</td>
                                                     <td>
-                                                        <input class="form-control"
+                                                        @if ($raw->qty_ratio)
+                                                            {{ $raw->qty_ratio ?: '-' }}
+                                                        @else
+                                                            <span>-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if (in_array($raw->inventory_unit_name, ['Butir', 'Pcs', 'Pack', 'Dus', 'Lusin', 'Kaleng']))
+                                                            <span>-</span>
+                                                        @else
+                                                           <span id="price_unit">Rp.</span> {{ $raw->price / 1000 }}
+                                                            <input type="hidden" class="price_unit" value="{{ $raw->price / 1000 }}">
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($raw->qty_ratio)
+                                                            <span id="price_satuan">Rp.</span>{{ $raw->price / $raw->qty_ratio }}
+                                                             <input type="hidden" class="price_satuan" value="{{ $raw->price / $raw->qty_ratio }}">
+                                                        @else
+                                                            <span>-</span>
+                                                        @endif
+
+                                                    @if($raw->price)
+                                                    <td>
+                                                        <input class="form-control quantity"
                                                             name="quantity[{{ $raw->material_code }}]" type="number">
 
                                                         <x-input-error :messages="$errors->get('quantity_used.' . $raw->material_code)" class="text-danger" />
                                                     </td>
-                                                    <td>
+                                                    @else
+                                                    <td style="text-align: center;">-</td>
+                                                    @endif
 
-                                                        <select name="weight[{{ $raw->material_code }}]"
-                                                            class="form-control" id="">
-                                                            <option value="">=== Pilih Massa Bahan Baku ===
-                                                            </option>
-                                                            <option value="pcs">Pcs</option>
-                                                            <option value="miligram">Miligram</option>
-                                                            <option value="gram">Gram</option>
-                                                            <option value="kilogram">Kilogram</option>
-                                                            <option value="quintal">Quintal</option>
-                                                            <option value="ton">Ton</option>
-                                                            <option value="sachet">Sachet</option>
-                                                            <option value="pack">Pack</option>
-                                                            <option value="liter">Liter</option>
-                                                            <option value="mililiter">Mililiter</option>
+                                                     <td>
+                                                        <input type="text" name="subtotal[{{ $raw->material_code }}]"  class="form-control subtotal" id="" readonly>
+                                                    </td>
+                                                    <td>
+                                                        <select name="unit[{{ $raw->material_code }}]"
+                                                            class="form-control">
+                                                            <option value="">== Pilih ==</option>
+                                                            @foreach ($material_unit as $unit)
+                                                                        <option value="{{ $unit->id }}">
+                                                                            {{ $unit->unit_name }}
+                                                                        </option>
+                                                            @endforeach
                                                         </select>
                                                     </td>
-
-                                                    {{-- <td>
-                                                        <input class="disallowed-checkbox" type="checkbox"
-                                                            name="disallowed[]" value="{{ $raw->id }}"
-                                                            {{ in_array($raw->id, $disallowedData) ? 'checked' : '' }}>
-                                                    </td>  --}}
                                                 </tr>
                                             @endforeach
 
@@ -115,6 +151,14 @@
                             <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
                         </div>
 
+                        <div class="form-group">
+                              <label><strong>Total HPP</strong></label>
+                            <div style="display:flex;" class="result-hpp">
+                                <span style="background: gray; color:black;padding:4px;text-align: center;">Rp</span>
+                                <input class="form-control" type="text" id="resultHpp" name="hpp" readonly>
+                            </div>
+                            
+                        </div>
 
 
                         <div style="display: block; gap:20px;" class="button-groupe">
@@ -124,7 +168,6 @@
                                 <span class="spinner"></span></button>
                         </div>
                         <br>
-                        <a style="width:100%;" class="btn btn-info" href="{{ route('products_data') }}">Kembali</a>
                     </form>
                     <br>
                     <br>
@@ -206,6 +249,69 @@
             });
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const qtyInputs = document.querySelectorAll('.quantity');
+
+    qtyInputs.forEach(function(input) {
+
+        input.addEventListener('input', function () {
+
+            let row = this.closest('tr');
+
+            // ambil quantity
+            let qty = parseFloat(this.value) || 0;
+
+            // ambil price_unit
+            let priceUnitElement = row.querySelector('.price_unit');
+
+            // ambil price_satuan
+            let priceSatuanElement = row.querySelector('.price_satuan');
+
+            let priceUnit = 0;
+            let priceSatuan = 0;
+
+            if (priceUnitElement) {
+                priceUnit = parseFloat(priceUnitElement.value) || 0;
+            }
+
+            if (priceSatuanElement) {
+                priceSatuan = parseFloat(priceSatuanElement.value) || 0;
+            }
+
+            // jika price_unit kosong gunakan price_satuan
+            let finalPrice = priceUnit > 0 ? priceUnit : priceSatuan;
+
+            // hitung subtotal
+            let subtotal = finalPrice * qty;
+
+            // tampilkan subtotal per row
+            let subtotalInput = row.querySelector('.subtotal');
+
+            if (subtotalInput) {
+                subtotalInput.value = subtotal.toFixed(0);
+            }
+
+            // hitung grand total
+            let grandTotal = 0;
+
+            document.querySelectorAll('.subtotal').forEach(function(sub) {
+
+                let value = sub.value.replace(/\./g, '').replace(',', '.');
+
+                grandTotal += parseFloat(value) || 0;
+            });
+
+            // tampilkan ke resultHpp
+            document.getElementById('resultHpp').value =
+                grandTotal.toFixed(0);
+
+        });
+
+    });
+
+});
 </script>
 
 </html>

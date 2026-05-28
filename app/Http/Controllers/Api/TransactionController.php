@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Exports\TransactionExport;
 use App\Http\Controllers\Controller;
 use App\Mail\GetVoucherInfoCustomer;
+use App\Models\FraudTransactions;
+use App\Models\FraudTransactionTimeline;
 use App\Models\ItemsCategoryModel;
 use App\Models\ProductsModel;
 use App\Models\RedeemRewardModel;
@@ -25,6 +27,9 @@ use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\UserLogActivity;
+
 
 class TransactionController extends Controller
 {
@@ -34,11 +39,15 @@ class TransactionController extends Controller
     public function index(Request $request): View
     {
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
+        $USER_STORE = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code; 
+
+
         $show_transaction = DB::table('v_transaction')
         ->select('transaction_code', DB::raw('GROUP_CONCAT(product_name) as product_name'),'customer_code','name','email', 'casheer' , 'quantity_per_product','grand_total', 'transaction_date')
         ->groupBy('transaction_code', 'customer_code','name','email','casheer','quantity_per_product','grand_total', 'transaction_date')
         ->orderBy('transaction_date', 'DESC')->get();
-        $main_transaction = DB::table('v_main_transactions')->orderBy('transaction_date', 'DESC')
+
+        $main_transaction = DB::table('v_main_transactions')->where('store_code', $USER_STORE)->orderBy('transaction_date', 'DESC')
         ->whereDate('transaction_date', now()->format('Y-m-d'))->paginate(500);
 
         $show_items = DB::table('transactions_detail as td')
@@ -144,6 +153,17 @@ class TransactionController extends Controller
 
     }
 
+    public function download_pdf(Request $request, $id)
+    {
+        $transaction_code = $request->transaction_code;
+         $invoice = DB::table('v_transaction')
+                ->where('transaction_code', $request->transaction_code)
+                ->first();
+        $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)->get();
+        $pdf = Pdf::loadView('layouts.main_pages.invoice.invoice', compact('invoices', 'invoice'));
+        return $pdf->download('invoice_'. $transaction_code . '.pdf');
+    }
+
 
     public function download_excel(Request $request)
     {
@@ -185,7 +205,8 @@ class TransactionController extends Controller
 
 
     $show_voucher =DB::table('customer_vouchers as cv')
-                    ->select('v.voucher_code','v.discount', 'v.nominal', 'cv.customer', 'cv.voucher_used','cv.status', 'v.end_date')
+                    ->select('v.voucher_code','v.discount', 'v.nominal', 'cv.customer', 
+                    'cv.voucher_used','cv.status', 'v.end_date')
                     ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
                     ->leftJoin('customer as c','cv.customer', '=', 'c.customer_code')
                     ->where('cv.customer_voucher_code', $voucher_code)
@@ -261,6 +282,31 @@ class TransactionController extends Controller
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik .'-'. app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->name;
 
 
+        // OPERATIONAL HOURS
+
+        $transaction_hour = Carbon::now('Asia/Jakarta')->hour;
+        $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $position = $GLOBAL_ENV->position_name ?? null;
+
+        $NOT_ALLOWED_USER = in_array($position, [
+            'Manager',
+            'Supervisor'
+        ]);
+
+        if($NOT_ALLOWED_USER){
+            session()->flash('failed_message', 'Tidak bisa akses!');
+            return redirect()->back();
+        }
+
+        if($transaction_hour < 8){
+            session()->flash('failed_message', 'Sistem belum buka!');
+            return redirect()->back();
+        }
+
+        if($transaction_hour >=21){
+            session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+            return redirect()->back();
+        }
         // section cart:
         $cart_value = Session::get('cart', []);
 
@@ -295,9 +341,8 @@ class TransactionController extends Controller
         return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products','show_promo','grand_total', 'price_total', 'qty', 'cart_value', 'all_products', 'category_data', 'itemProducts', 'payment_type', 'casheer'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // MASTER MODULE TRANSACTIONS:
+
     public function store(Request $request)
     {
        $request->validate([
@@ -313,31 +358,37 @@ class TransactionController extends Controller
         $unique_code = substr($uuid, 0, 6);
         $inv_date = Carbon::now()->format('Ymd');
         $transaction_code = 'INV' . $inv_date . $unique_code;
+        
 
         $productCode = $request->product;
         $variants = $request->variant ?? [];
         $qtyProducts = $request->quantity_per_product;
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $IT_GUY = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name == 'IT Developer';
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
         $store_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
         $customer = $request->customer;
         $voucher_code = $request->promo_code;
-        $voucher_quota = DB::table('voucher')->where('voucher_code', $voucher_code)->value('quota');
+        $codeVoucher = $request->code_voucher;
+        $payment_type = $request->payment_type;
+        $voucher_quota = DB::table('voucher')->where('voucher_code', $codeVoucher)->value('quota');
         $voucherExpired = VoucherModel::where('voucher_code', $voucher_code)->where('status', 7)->value('end_date');
         $date = now()->format('Ymd');
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 5);
         $customerVoucher = 'VOUCHER'. $date . $unique_code;
+        $outlet_operational = now()->hour;
         
         // HITUNG TOTAL VOUCHER YANG SUDAH DIGUNAKAN
         $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
                     ->leftJoin('voucher as v', 'v.voucher_code', '=', 'vu.voucher_code')
-                    ->where('vu.voucher_code', $voucher_code)->where('vu.voucher_used', 'Y')->count('vu.voucher_code');
+                    ->where('vu.voucher_code', $codeVoucher)->where('vu.voucher_used', 'Y')->count('vu.voucher_code');
 
-
+        // perbaiki bagian ini
         $checkCustomerVoucherUsed =DB::table('transactions_voucher as tv')
                     ->leftJoin('transactions as t', 'tv.transaction_code', '=', 't.transaction_code')
-                    ->where('tv.voucher_code', $voucher_code)
+                    ->where('tv.customer_voucher', $codeVoucher)
                     ->where('t.customer', $customer)->first();
 
         if($voucher_code){
@@ -358,6 +409,10 @@ class TransactionController extends Controller
             }
         }
 
+        if(empty($payment_type)){
+            session()->flash('failed_voucher', 'Pilih dahulu metode pembayaran');
+            return redirect()->back();
+        }
 
         $main_transaction = TransactionModel::create([
             'transaction_code' => $transaction_code,
@@ -366,7 +421,7 @@ class TransactionController extends Controller
             'casheer' => $casheer,
             'customer' => $request->customer,
             'status' => 5,
-            'store' => $store,
+            'store' => $store_code,
             'payment_type' => $request->payment_type,
             'payment_changes' => $request->payment_changes,
             'transaction_date' => now(),
@@ -376,7 +431,7 @@ class TransactionController extends Controller
 
      
         foreach ($productCode as $index => $productId) {
-               TransactionDetail::create([
+             $transaction_detail =  TransactionDetail::create([
                     'transaction_code' => $main_transaction->transaction_code,
                     'product' => $productId,
                     'variant' => $variants[$index] ?? null,
@@ -386,9 +441,84 @@ class TransactionController extends Controller
                 ]);
         }
 
-        if($voucher_code){
 
-          
+        // FRAUD TRANSACTIONS IDENTIFICATION => RULE -> OUTSIDE_OPERATIONAL_HOURS
+        // fraud status info = 1 => Fraud, 2 => NotFraud, 3 => fraud_detected
+
+        // fraud => empty payment_method
+        if(empty($payment_type)){
+              $fraud =  FraudTransactions::create([
+                    'fraud_code' => 'FRD'. '-' . $inv_date . '-' . $unique_code,
+                    'transaction' => $transaction_code,
+                    'fraud_type' => 8,
+                    'fraud_status_info' => '3',
+                    'severity_level' => 'medium',
+                    'status' => 22,
+                    'created_at' => now()
+                ]);
+
+                FraudTransactionTimeline::create([
+                    'fraud' => $fraud->fraud_code,
+                    'status' => $fraud->status
+                ]);
+        }
+
+        // fraud => empty product 
+        if (empty($productCode) && empty($qtyProducts))
+            {
+              $fraud = FraudTransactions::create([
+                    'fraud_code' => 'FRD'. '-' . $inv_date . '-' . $unique_code,
+                    'transaction' => $transaction_code,
+                    'fraud_type' => 6,
+                    'fraud_status_info' => '3',
+                    'severity_level' => 'high',
+                    'status' => 22,
+                    'created_at' => now()
+                ]);
+
+                FraudTransactionTimeline::create([
+                    'fraud' => $fraud->fraud_code,
+                    'status' => $fraud->status
+                ]);
+        }
+
+        // fraud => outside operational outlet hour
+        if($outlet_operational > 22 || $outlet_operational < 8){
+            if($IT_GUY){    
+              $fraud = FraudTransactions::create([
+                    'fraud_code' => 'FRD'. '-' . $inv_date . '-' . $unique_code,
+                    'transaction' => $transaction_code,
+                    'fraud_type' => null,
+                    'fraud_status_info' => '3',
+                    'severity_level' => null,
+                    'status' => 24 ,
+                    'notes' => 'Sedang testing/maintenance system',
+                    'it_testing' => 'Y',
+                    'it_testing_by' => $user,
+                    'created_at' => now()
+                ]);
+
+            }else{
+                 $fraud = FraudTransactions::create([
+                    'fraud_code' => 'FRD'. '-' . $inv_date . '-' . $unique_code,
+                    'transaction' => $transaction_code,
+                    'fraud_type' => 1,
+                    'fraud_status_info' => '3',
+                    'severity_level' => 'high',
+                    'status' => 22,
+                    'created_at' => now()
+                ]);
+
+                FraudTransactionTimeline::create([
+                    'fraud' => $fraud->fraud_code,
+                    'status' => $fraud->status
+                ]);
+            }
+        }
+
+
+
+        if($voucher_code){
             VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
                 'voucher_used' => 'Y',
                 'status' => 8,
@@ -396,26 +526,26 @@ class TransactionController extends Controller
             ]);
 
           $redeemVoucher =  VoucherRedeem::create([
-                'voucher_code' => $voucher_code,
-                'customer_voucher' => $customerVoucher,
+                'voucher_code' => $codeVoucher,
+                'customer_voucher' => $voucher_code,
                 'customer' => $customer,
                 'redeem_date' => now(),
                 'casheer' => $casheer,
                 'status' => 17,
                 'store' => $store_code,
+                'created_at' => now(),
                 'created_by' => $casheer
             ]);
 
             TransactionsVouchers::create([
                 'transaction_code' => $main_transaction->transaction_code,
-                'voucher_code' => $voucher_code,
+                'voucher_code' => $codeVoucher,
                 'customer_voucher' => $redeemVoucher->customer_voucher,
                 'status' => 8,
                 'voucher_used' => 'Y',
                 'used_at' => now(),
                 'created_at' => now(),
-                'created_by' => $casheer,
-                'created_at' => now()
+                'created_by' => $casheer
             ]);
         }
         
@@ -489,7 +619,7 @@ class TransactionController extends Controller
 
                                 Mail::to($customer_email->email)->sendNow(new GetVoucherInfoCustomer([
                                     'name' => $customer_email->name,
-                                    'voucher_name' => $get_voucher->voucher_code,
+                                    'voucher_code' => $get_voucher->voucher_code,
                                     'voucher_name' => $get_voucher->voucher_name,
                                     'email' => $customer_email->email
                                 ]));
@@ -498,6 +628,12 @@ class TransactionController extends Controller
                     }
             }
         }
+
+        UserLogActivity::log(
+                module: 'Transaction',
+                method_type: 'CREATE',
+                description: "user create new transaction: {$main_transaction->transaction_code}"      
+        );
 
         Session::forget('cart');
         session()->flash('message_success', 'Transaksi berhasil!');

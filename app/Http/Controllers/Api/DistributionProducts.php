@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\CentralStockProductsModel;
 use App\Models\DistributionProductsDetailModel;
 use App\Models\DistributionProductsModel;
+use App\Models\InventoryMovementModel;
 use App\Models\ProductWaste;
 use App\Models\ProductWasteDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use App\Services\UserLogActivity;
 
 class DistributionProducts extends Controller
 {
@@ -57,6 +59,7 @@ class DistributionProducts extends Controller
             $uuid = (string) Str::uuid();
             $unique_code = substr($uuid, 0, 6);
             $distribution_code = 'DS-'.$date.'-'. $unique_code;
+            $inventoryCode = 'INVTR-'.$date.'-'. $unique_code;
             $emp =app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         DB::beginTransaction();
@@ -139,7 +142,22 @@ class DistributionProducts extends Controller
             $stock->decrement('qty_available', $totalRequestQty);
         }
 
+        InventoryMovementModel::create([
+            'inventory_code_reference' => $inventoryCode,
+            'distribution' => $distribution->distribution_code,
+            'movement_type' => 2,
+            'references_type' => 'OUT',
+            'movement_date' => now(),
+            'status' => 5
+        ]);
+
         DB::commit();
+
+         UserLogActivity::log(
+                module: 'Dsitribution Product',
+                method_type: 'CREATE',
+                description: "user create new distribution product: {$distribution->distribution_code}"      
+        );
 
         return redirect()->route('distribution_products.index')
             ->with('message_success', 'Data Distribusi Produk berhasil disimpan!');
@@ -189,6 +207,11 @@ class DistributionProducts extends Controller
         $wasteCode = 'WASTE' . $unique_code;
         $user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
+        if($request->received_quantity > $request->distribution_total){
+            session()->flash('failed_message', 'Jumlah Received melebihi total distribusi!');
+            return redirect()->back(); 
+        }
+
 
         if($request->waste_confirmation == 'yes'){
             DistributionProductsDetailModel::where('distribution_store_code', $request->distribution_store_code)->update([
@@ -209,6 +232,12 @@ class DistributionProducts extends Controller
                         'updated_at' =>now()
                 ]);
         }
+
+         UserLogActivity::log(
+                module: 'Distribution Product',
+                method_type: 'UPDATE',
+                description: "user update distribution product: {$request->distribution_store_code}"      
+        );
 
         session()->flash('message_success', 'Berhasil menyimpan data!');
         return redirect()->back();
@@ -310,6 +339,12 @@ class DistributionProducts extends Controller
                 ]);
              }
         }
+
+        UserLogActivity::log(
+                module: 'Product Waste',
+                method_type: 'CREATE',
+                description: "user create product waste distribution: {$codeWastes->waste_code}"      
+        );
 
         session()->flash('message_success', 'Berhasil menyimpan data!');
         return redirect()->route('distribution_detail', $request->distribution_code);

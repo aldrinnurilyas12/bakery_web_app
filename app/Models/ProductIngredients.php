@@ -11,7 +11,9 @@ class ProductIngredients extends Model
     protected $table = 'product_ingredients';
     protected $fillable = [
         'ingredients_code',
-        'product'
+        'product',
+        'hpp',
+        'status'
 
     ];
 }

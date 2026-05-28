@@ -13,14 +13,24 @@
                     <div class="title">
                         Master Data / <a href="{{ route('master_products.index') }}">Voucher Data</a>
                     </div>
-
-                    @if ($vouchers->isNotEmpty())
-                        @if (!$user_permission_forbidden)
-                            <div class="button-add-product">
-                                <a class="btn btn-primary" href="{{ route('voucher_create') }}">Tambah Voucher</a>
+                    <div style="display: flex;gap:10px;" class="flex-content">
+                        @if ($module_documentation)
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
                             </div>
                         @endif
-                    @endif
+                        @if ($vouchers->isNotEmpty())
+                            @if (!$user_permission_forbidden)
+                                <div class="button-add-product">
+                                    <a class="btn btn-primary" href="{{ route('voucher_create') }}">Tambah Voucher</a>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -58,13 +68,15 @@
                                                         <br>
                                                         <span>Kuota:
                                                             {{ $voucher->quota }}</span> &nbsp;
+                                                        <span>Tersedia:
+                                                            {{ $voucher->total_available }}</span> &nbsp;
                                                         <span>Redeem:
-                                                            0</span>
+                                                            {{ $voucher->total_redeem }}</span>
                                                     </p>
 
                                                     <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
                                                         class="status">
-                                                        @if ($voucher->status == 8)
+                                                        @if ($voucher->status_name == 'Inactive')
                                                             <div style="display: flex; gap:10px; margin-bottom: 5px;"
                                                                 class="text-info-status">
                                                                 <p style="margin-bottom: 0;">Status: <span
@@ -105,7 +117,7 @@
                                             <div class="card-footer d-flex align-items-center justify-content-between">
 
 
-                                                @if ($voucher->status == 8)
+                                                @if ($voucher->status_name == 'Inactive')
                                                     {{-- <a class="btn btn-success" href="#" data-toggle="modal"
                                                         data-target="#deleteModalVoucher{{ $voucher->voucher_code }}">Aktifkan
                                                         Kembali
@@ -162,7 +174,7 @@
                     </div>
 
                     <div class="modal-body">
-                        @if ($voucher->status == 8)
+                        @if ($voucher->status_name == 'Inactive')
                             Apakah anda yakin ingin aktifkan E-Voucher
                             {{ $voucher->voucher_code . ' - ' . $voucher->voucher_name }}
                             ?
@@ -178,7 +190,7 @@
                             @csrf
                             @method('PUT')
                             <div class="form-group">
-                                @if ($voucher->status == 8)
+                                @if ($voucher->status_name == 'Inactive')
                                     <input type="checkbox" name="status" value="7">
                                     <label for="">Aktifkan</label>
                                 @else
@@ -188,7 +200,7 @@
                             </div>
                             <br>
 
-                            @if ($voucher->status == 8)
+                            @if ($voucher->status_name == 'Inactive')
                                 <button id="btnMaster" type="submit" class="btn-general"><span
                                         class="btn-text">Aktifkan</span>
                                     <span class="spinner"></span></button>

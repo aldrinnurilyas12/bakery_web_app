@@ -23,7 +23,8 @@
                     <h1 class="mt-4">Dashboard</h1>
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Welcome back, &nbsp;</li>
-                        {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
+                        {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }} <span>&nbsp; | &nbsp; </span>
+                         <li>{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name }}</li>
                     </ol>
                     <div class="row">
                         <div class="col-xl-3 col-md-6">

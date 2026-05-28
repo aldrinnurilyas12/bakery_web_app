@@ -13,14 +13,25 @@
                     <div class="title">
                         Master Data / <a href="{{ route('master_products.index') }}">Promo Campaign</a>
                     </div>
-
-                    @if ($promo_campaign->isNotEmpty())
-                        @if (!$user_permission_forbidden)
-                            <div class="button-add-product">
-                                <a class="btn btn-primary" href="{{ route('promo_create') }}">Tambah Promo</a>
+                    <div style="display: flex;gap:10px;" class="flex-content">
+                        @if ($module_documentation)
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
                             </div>
                         @endif
-                    @endif
+
+                        @if ($promo_campaign->isNotEmpty())
+                            @if (!$user_permission_forbidden)
+                                <div class="button-add-product">
+                                    <a class="btn btn-primary" href="{{ route('promo_create') }}">Tambah Promo</a>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
                 </div>
 
                 <div class="card-body">

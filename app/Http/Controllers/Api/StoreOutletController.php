@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
 
 class StoreOutletController extends Controller
 {
@@ -71,6 +72,12 @@ class StoreOutletController extends Controller
             'status' => 7
         ]);
 
+        UserLogActivity::log(
+                module: 'Store',
+                method_type: 'CREATE',
+                description: "user create new store: {$request->store_name}"      
+        );
+
         session()->flash('message_success', 'Data Outlet/Store berhasil disimpan');
         return redirect()->back();
     }
@@ -130,6 +137,12 @@ class StoreOutletController extends Controller
         OutletStoreModel::where('store_code', $request->store_code)
         ->update($data);
 
+        UserLogActivity::log(
+                module: 'Store',
+                method_type: 'UPDATE',
+                description: "user update store: {$request->store_name}"      
+        );
+
         session()->flash('message_success', 'Data Outlet/Store berhasil diperbarui');
         return redirect()->route('store.index');
     }
@@ -140,6 +153,12 @@ class StoreOutletController extends Controller
             'status' => $request->status,
             'updated_at' => now()
         ]);
+
+        UserLogActivity::log(
+                module: 'Store',
+                method_type: 'UPDATE',
+                description: "user update status store: {$request->store_name}"      
+        );
         session()->flash('message_success', 'Data Outlet/Store berhasil disimpan');
         return redirect()->back();
     }
@@ -152,6 +171,12 @@ class StoreOutletController extends Controller
             'head_of_branch' => null,
             'updated_at' => now()
         ]);
+
+        UserLogActivity::log(
+                module: 'Store',
+                method_type: 'DELETE',
+                description: "user delete head of store: {$request->store_code}"      
+        );
         session()->flash('message_success', 'Data Outlet/Store berhasil disimpan');
         return redirect()->back();
         

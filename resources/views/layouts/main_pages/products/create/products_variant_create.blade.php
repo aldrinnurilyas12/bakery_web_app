@@ -29,7 +29,7 @@
                         @csrf
                         <hr>
                         <div class="form-group">
-                            <label><strong>Kode Produk</strong></label>
+                            <label><strong>SKU Produk</strong></label>
                             <input type="text" name="product" class="form-control"
                                 value="{{ $products->product_code }}" readonly>
                         </div>
@@ -41,6 +41,13 @@
                         <div class="form-group">
                             <label><strong>Kategori Produk</strong></label>
                             <input type="text" class="form-control" value="{{ $products->category }}" readonly>
+                        </div>
+
+                          <div class="form-group">
+                            <label><strong>HPP Produk</strong></label>
+                            <input type="text" class="form-control" value="{{ 'Rp.' . number_format($products->hpp) }}" readonly>
+                            <input hidden type="text" name="hpp" class="form-control" value="{{ $products->hpp }}" readonly>
+                            
                         </div>
 
                         @if ($products->category == 'Coffee' || $products->category == 'Soft_Drinks')
@@ -57,7 +64,7 @@
                         @else
                             <div class="form-group">
                                 <label><strong>Tipe Variant</strong></label>
-                                <select name="variant_type" class="form-control">
+                                <select name="variant_type" class="form-control" required>
                                     <option value="">=== Pilih tipe variant ===</option>
                                     @foreach ($variant_category_bakery as $ctg)
                                         <option value="{{ $ctg->id }}">{{ $ctg->name }}</option>
@@ -69,22 +76,29 @@
 
                         <div class="form-group">
                             <label><strong>Harga Variant Produk</strong></label>
-                            <input type="text" inputmode="numeric" name="variant_price" class="form-control"
-                                value="{{ old('variant_price') }}">
+                            <input type="number" inputmode="numeric" name="variant_price" class="form-control"
+                                value="{{ old('variant_price') }}" placeholder="Masukan harga variant" required>
                             <x-input-error :messages="$errors->get('variant_price')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Diskon</strong></label>
                             <small class="text-danger">*Masukan 0 jika tidak discount</small>
-                            <input type="text" inputmode="numeric" name="variant_discount" class="form-control"
-                                value="{{ old('variant_discount') }}">
+                            <input type="number" inputmode="numeric" placeholder="Masukan diskon (opsi)" name="variant_discount" class="form-control"
+                                value="{{ old('variant_discount') }}" required>
                         </div>
 
                         <div class="form-group">
                             <label><strong>Harga setelah diskon</strong></label>
                             <input type="text" inputmode="numeric" name="variant_price_after_discount"
                                 class="form-control" value="{{ old('variant_price_after_discount') }}" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Tanggal Harga Efektif</strong></label>
+                            <input type="date" name="price_effective_from" class="form-control"
+                                value="{{ old('price_effective_from') }}" autocomplete="off" required>
+                            <x-input-error :messages="$errors->get('price_effective_from')" class="text-danger" />
                         </div>
 
 
@@ -94,8 +108,7 @@
                                     Data</span>
                                 <span class="spinner"></span></button>
                         </div>
-                        <br>
-                        <a style="width:100%;" class="btn btn-info" href="{{ route('products_data') }}">Kembali</a>
+
                     </form>
                     <br>
                     <br>
@@ -117,6 +130,16 @@
             title: 'Berhasil',
             text: "{{ Session::get('message_success') }}",
             icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
             timer: 2000,
             confirmButtonText: 'OK'
         });
@@ -151,7 +174,7 @@
             if (discount > 0) {
                 fixPrice = price - (price * (discount / 100));
             } else if (discount === 0) {
-                fixPrice = 0;
+                fixPrice = price;
             }
 
             priceAfterInput.value = fixPrice;

@@ -8,6 +8,7 @@ use App\Models\EmployeeModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
 
 class EmployeeController extends Controller
 {
@@ -82,6 +83,12 @@ class EmployeeController extends Controller
             'created_by' => $created_by
 
         ]);
+
+         UserLogActivity::log(
+                module: 'Employee',
+                method_type: 'CREATE',
+                description: "user create employee: {$request->nik}"      
+        );
 
         if($data){
              session()->flash('message_success', 'Data karyawan berhasil disimpan!');
@@ -166,6 +173,11 @@ class EmployeeController extends Controller
        ]);
 
          if($update_data){
+            UserLogActivity::log(
+                module: 'Employee',
+                method_type: 'UPDATE',
+                description: "user update employee: {$request->nik}"      
+            );
              session()->flash('message_success', 'Data karyawan berhasil diperbarui!');
             return redirect()->route('master_employee.index');
         }
@@ -187,6 +199,11 @@ class EmployeeController extends Controller
        ]);
 
          if($update_data){
+            UserLogActivity::log(
+                module: 'Employee',
+                method_type: 'CREATE',
+                description: "user update employee profil: {$request->nik}"      
+            );
              session()->flash('message_success', 'Data berhasil diperbarui!');
             return redirect()->back();
         }
@@ -205,6 +222,12 @@ class EmployeeController extends Controller
             'deleted_at' => now(),
             'deleted_by' => $updated_by
         ]);
+
+        UserLogActivity::log(
+                module: 'Employee',
+                method_type: 'UPDATE',
+                description: "user nonactive employee: {$request->nik}"      
+        );
 
         session()->flash('message_success', 'Data berhasil diperbarui!');
         return redirect()->back();

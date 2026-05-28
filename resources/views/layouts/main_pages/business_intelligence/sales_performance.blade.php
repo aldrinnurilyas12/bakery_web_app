@@ -131,7 +131,7 @@
                                                                 @foreach ($group as $item)
                                                                     <tr>
                                                                         <td>{{ $item->store ?? '-' }}</td>
-                                                                        <td>0</td>
+                                                                        <td>{{ $item->total_product ?? '-' }}</td>
                                                                         <td>{{ $item->total_sold ?? 0 }}</td>
                                                                         <td>{{ $item->total_cost ? 'Rp.' . number_format($item->total_cost) : '0' }}
                                                                         </td>

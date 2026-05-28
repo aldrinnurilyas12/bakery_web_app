@@ -12,6 +12,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 
 </head>
@@ -69,24 +70,20 @@
                                         @endif
                                         <div class="col-xl-4">
                                             <ul class="list-unstyled">
-                                                <li><i class="fas fa-circle" style="color:#84B0CA ;"></i> <span
-                                                        class="fw-bold">Tanggal
+                                                <li><span class="fw-bold">Tanggal
                                                         Transaksi: </span>{{ $invoice->transaction_date }}</li>
                                                 @if ($invoice->status == 'Completed')
-                                                    <li><i class="fas fa-circle" style="color:#84B0CA ;"></i> <span
-                                                            class="me-1 fw-bold">Status:</span><span
+                                                    <li><span class="me-1 fw-bold">Status:</span><span
                                                             class="badge bg-success text-white">
                                                             Sukses</span></li>
                                                 @else
-                                                    <li><i class="fas fa-circle" style="color:#84B0CA ;"></i> <span
-                                                            class="me-1 fw-bold">Status:</span><span
+                                                    <li><span class="me-1 fw-bold">Status:</span><span
                                                             class="badge bg-danger text-white">
                                                             Gagal</span></li>
                                                 @endif
 
                                                 @if ($invoice->voucher_code_used)
-                                                    <li><i class="fas fa-circle" style="color:#84B0CA ;"></i> <span
-                                                            class="me-1 fw-bold">Kode Promo:</span><span
+                                                    <li><span class="me-1 fw-bold">Kode Promo:</span><span
                                                             class="badge bg-success text-white">{{ $invoice->voucher_code_used }}</span>
                                                     </li>
                                                 @endif
@@ -165,7 +162,7 @@
                                                 @if ($invoice->total_amount)
                                                     <li class="text-muted ms-3"><span
                                                             class="text-black me-4">Subtotal:</span>
-                                                        <br>{{ 'Rp.' . number_format($invoice->grand_total) }}
+                                                        <br>{{ 'Rp.' . number_format($invoice->subtotal_transaction) }}
                                                     </li>
                                                     <li class="text-muted ms-3"><span class="text-black me-4">Total
                                                             Amount:</span>
@@ -186,6 +183,10 @@
                                                         </li>
                                                     @endif
                                                 @else
+                                                    <li class="text-muted ms-3"><span
+                                                            class="text-black me-4">Subtotal:</span>
+                                                        <br>{{ 'Rp.' . number_format($invoice->subtotal_transaction) }}
+                                                    </li>
                                                 @endif
                                                 <hr>
                                                 {{-- <li class="text-muted ms-3"><span class="text-black me-4">Bayar:</span> <br>{{"Rp." . number_format($invoice->amount)}}</li>
@@ -202,7 +203,7 @@
                                             </ul>
                                             <p class="text-black float-start"><span class="text-black me-3"> Grand
                                                     Total</span><span style="font-size: 25px; font-weight:bold;"><br>
-                                                    <td>{{ 'Rp.' . number_format($invoice->grand_total) }}</td>
+                                                    {{ 'Rp.' . number_format($invoice->grand_total) }}
                                                 </span></p>
                                         </div>
                                     </div>
@@ -212,10 +213,18 @@
                                             <div style="display: flex; gap:10px;" class="btn-btn-invoice">
                                                 <a class="btn btn-primary"
                                                     href="{{ route('history-transaction') }}">Kembali</a>
-                                                <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                    class="btn btn-primary text-capitalize"
-                                                    style="background-color:#1abc8b; border:none;">
-                                                    <i class="fas fa-file"></i>Cetak Invoice</button>
+                                                <button onclick="window.print()" type="button" data-mdb-button-init
+                                                    data-mdb-ripple-init class="btn btn-primary text-capitalize"
+                                                    style="background-color:#ac0017; border:none;">
+                                                    <i class="fa fa-print"></i> Cetak Invoice</button>
+
+                                                <a class="btn btn-primary text-capitalize"
+                                                    style="background-color:#ac0017; border:none;"
+                                                    href="{{ url('/invoice_cust/' . $invoice->transaction_code . '/print') }}"
+                                                    target="_blank">
+                                                    <i class="fa fa-file"></i>
+                                                    PDF
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -229,6 +238,81 @@
         </div>
     </div>
 </body>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        color: #333;
+    }
+
+    .header {
+        margin-bottom: 20px;
+    }
+
+    .title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .text-primary {
+        color: #0d6efd;
+    }
+
+    .section {
+        margin-bottom: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table th {
+        background: #84B0CA;
+        color: white;
+        padding: 8px;
+        text-align: left;
+    }
+
+    table td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+
+    .summary {
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .summary td {
+        border: none;
+        padding: 4px 0;
+    }
+
+    .grand-total {
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>
 
 @if (Session::has('message_success'))
     <script>

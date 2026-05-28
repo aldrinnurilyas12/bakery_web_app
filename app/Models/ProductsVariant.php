@@ -15,6 +15,7 @@ class ProductsVariant extends Model
         'variant_price',
         'variant_discount',
         'variant_price_after_discount',
+        'price_effective_from',
         'variant_type',
         'created_at'
     ];

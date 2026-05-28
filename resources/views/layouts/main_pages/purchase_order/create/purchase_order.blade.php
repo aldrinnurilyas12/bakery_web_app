@@ -74,7 +74,14 @@
                                                 <th>Tgl Expired</th>
                                                 <th>Harga (satuan)</th>
                                                 <th>Jumlah Item (hanya angka)</th>
+                                                <th>Qty Ratio (jumlah isi dalam pembelian) &nbsp;
+                                                    <span> <a href="#" data-toggle="modal"
+                                                            data-target="#showInfo"><i
+                                                                class="fas fa-info-circle"></i></a></span>
+                                                </th>
                                                 <th>Subtotal</th>
+
+
 
                                             </tr>
                                         </thead>
@@ -118,19 +125,84 @@
                                                         @endif
                                                     </td>
 
-                                                    <td><input type="number" class="form-control price"
-                                                            name="price[{{ $item->item_code }}]" id=""
-                                                            value="{{ old('price.' . $item->item_code) }}">
+                                                    <td>
+                                                        <div style="display: flex;" class="input-group">
+                                                            <span style="text-align: center;" class="input-group-text">
+                                                                Rp
+                                                            </span>
+                                                            <input type="number" class="form-control price"
+                                                                name="price[{{ $item->item_code }}]" id=""
+                                                                value="{{ old('price.' . $item->item_code) }}">
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <input class="form-control quantity"
-                                                            name="quantity[{{ $item->item_code }}]" type="number"
-                                                            value="{{ old('quantity.' . $item->item_code) }}">
-
-                                                        <x-input-error :messages="$errors->get('quantity.' . $item->item_code)" class="text-danger" />
-
+                                                        <div style="display: flex;" class="input-group">
+                                                            <input class="form-control quantity"
+                                                                name="quantity[{{ $item->item_code }}]" type="number"
+                                                                value="{{ old('quantity.' . $item->item_code) }}">
+                                                            <span style="text-align: center;" class="input-group-text">
+                                                                {{ $item->purchase_unit ?? '-' }}
+                                                            </span>
+                                                            <x-input-error :messages="$errors->get('quantity.' . $item->item_code)" class="text-danger" />
+                                                        </div>
                                                     </td>
+                                                    @php
+                                                        $allowed_inv_unit = [
+                                                            'Butir',
+                                                            'Pcs',
+                                                            'Pack',
+                                                            'Box',
+                                                            'Bungkus',
+                                                            'Dus',
+                                                            'Lusin',
+                                                            'Kaleng',
+                                                        ];
 
+                                                        $not_allowed = [
+                                                            'Kilogram',
+                                                            'Gram',
+                                                            'Miligram',
+                                                            'Liter',
+                                                            'Quintal',
+                                                        ];
+                                                    @endphp
+
+                                                    @if ($item->inventory_unit)
+                                                        {{-- semua unit yang memang langsung tidak boleh --}}
+                                                        @if (in_array($item->inventory_unit, $not_allowed))
+                                                            <td style="text-align: center;">-</td>
+                                                        @else
+                                                            <td>
+                                                                <div style="display: flex;" class="input-group">
+                                                                    <input class="form-control quantity"
+                                                                        name="qty_ratio[{{ $item->item_code }}]"
+                                                                        type="number"
+                                                                        value="{{ old('qty_ratio.' . $item->item_code) }}">
+
+                                                                    <span class="input-group-text">
+                                                                        {{ $item->inventory_code ?? '-' }}
+                                                                    </span>
+
+                                                                    <x-input-error :messages="$errors->get(
+                                                                        'qty_ratio.' . $item->item_code,
+                                                                    )"
+                                                                        class="text-danger" />
+                                                                </div>
+                                                            </td>
+                                                        @endif
+                                                    @elseif($item->inventory_unit == null)
+                                                        @if ($item->material_code)
+                                                            <td style="text-align: center;">
+                                                                <small class="text-danger">*tidak ada satuan
+                                                                    inventory
+                                                                    <a
+                                                                        href="{{ route('material_update', $item->material_code) }}"><i
+                                                                            class="fa fa-edit"></i> ubah</a></small>
+                                                            </td>
+                                                        @else
+                                                            <td style="text-align: center;">-</td>
+                                                        @endif
+                                                    @endif
                                                     <td>
                                                         <input class="form-control subTotal" type="number" readonly>
                                                         <x-input-error :messages="$errors->get('quantity.' . $item->item_code)" class="text-danger" />
@@ -188,6 +260,38 @@
                     <br>
                 </div>
             </main>
+
+
+            <div wire:ignore class="modal fade" id="showInfo" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Informasi Kuantitas Ratio pembelian bahan
+                                baku</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Misalkan purchase order Bahan baku Telur ayam:</p>
+                            <p>Dalam 1 Kg = 15 Butir telur => maka isi 15 setiap membeli 1 kg</p>
+                            <br>
+                            <small class="text-danger">*Harga dan isi setiap pembelian bahan baku tentative
+                                (berubah-ubah) tergantung situasi pasar</small>
+
+
+                        </div>
+                        <div class="modal-footer">
+
+                            <button id="btn-delete-general" type="button" data-dismiss="modal" aria-label="Close"
+                                class="btn-general-delete"><span class="btn-text">Tutup</span>
+                                <span class="spinner"></span></button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
 </body>
 
 
@@ -271,6 +375,10 @@
     });
 </script>
 
+<script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');

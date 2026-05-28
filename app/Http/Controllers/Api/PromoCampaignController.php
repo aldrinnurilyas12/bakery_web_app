@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
 
 class PromoCampaignController extends Controller
 {
@@ -94,6 +95,12 @@ class PromoCampaignController extends Controller
                 'created_at' => now()
             ]);
         }
+
+        UserLogActivity::log(
+                module: 'Promo Campaign',
+                method_type: 'CREATE',
+                description: "user create promo campaign: {$promo->promo_code}"      
+        );
         session()->flash('message_success', 'Data Promo berhasil disimpan!');
         return redirect()->route('promo_campaign');
     }
@@ -130,32 +137,10 @@ class PromoCampaignController extends Controller
      */
     public function update(Request $request, string $id)
     {
-         $request->validate([
-            'promo_name' => 'required',
-            'promo_code' => 'required',
-            'quota' => 'required',
-            'status' => 'required',
-            'description' => 'required',
-            'min_transaction' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-        ],
-        [
-            'promo_name.required' => 'Masukan nama promo',
-            'promo_code.required' => 'Masukan kode promo',
-            'min_transaction.required' => 'Masukan minimal transaksi',
-            'quota.required' => 'Kuota promo harus diisi',
-            'status.required' => 'Pilih status',
-            'description.required' => 'Deskripsi harus diisi',
-            'start_date.required' => 'Tanggal awal promo harus diisi',
-            'end_date.required' => 'Tanggal akhir promo harus diisi',
-        ]);
-
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         PromoCampaign::where('promo_code', $request->promo_code)->update([
             'promo_name' => $request->promo_name,
-            'product' => $request->product,
             'min_transaction' => $request->min_transaction,
             'status' => $request->status,
             'quota' => $request->quota,
@@ -164,6 +149,13 @@ class PromoCampaignController extends Controller
             'end_date' => $request->end_date,
             'updated_by' => $updated_by
         ]);
+
+         UserLogActivity::log(
+                module: 'Promo Campaign',
+                method_type: 'UPDATE',
+                description: "user update promo campaign: {$request->promo_name}"      
+        );
+
         session()->flash('message_success', 'Data Promo berhasil disimpan!');
         return redirect()->route('promo_campaign');
     }
@@ -175,9 +167,27 @@ class PromoCampaignController extends Controller
     {
        $promo = PromoCampaign::where('promo_code', $request->promo_code)->first();
 
+        $promo_image = PromoCampaignImages::where('promo_code', $request->promo_code)->first();
+
+            // Hapus file gambar (jika ada)
+
+
         if($promo){
+            if ($promo_image->images) {
+                $dropPicture = public_path('storage/' . $promo_image->images);
+
+                if (file_exists($dropPicture)) {
+                    unlink($dropPicture);
+                }
+            }
+            UserLogActivity::log(
+                module: 'Promo Campaign',
+                method_type: 'DELETE',
+                description: "user delete promo campaign: {$promo->promo_name}"      
+            );
             $promo->delete();
         }
+
          session()->flash('message_success', 'Data Promo berhasil disimpan!');
         return redirect()->back();
     }

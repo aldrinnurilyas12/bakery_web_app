@@ -31,7 +31,7 @@
                             <select class="form-control" name="nik" id="emp_nik">
                                 <option value="">=== Pilih Karyawan ===</option>
                                 @foreach ($employee as $emp)
-                                    <option value="{{ $emp->nik }}">{{ $emp->nik . ' - ' . $emp->name }}</option>
+                                    <option value="{{ $emp->nik }}">{{ $emp->nik . ' - ' . $emp->name }} &nbsp; <span style="font-weight: bold;">[{{ $emp->position_name }}]</span> </option>
                                 @endforeach
 
                             </select>

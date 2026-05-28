@@ -115,7 +115,7 @@
                         <div class="container-products">
                             <div class="menu-list">
                                 <div class="menu-list">
-                                    @if ($rewards->isNotEmpty())
+                                    @if ($unclaimed_rewards->isNotEmpty())
                                         @foreach ($unclaimed_rewards as $reward)
                                             <div style="display:flex; flex-wrap: wrap; justify-content: right;"
                                                 class="image-display">

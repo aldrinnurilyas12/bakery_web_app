@@ -19,9 +19,41 @@ class CentralStockProductsController extends Controller
         return view('layouts.main_pages.central_stock_products.central_stock_products', compact('central_stock'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    
+    public function product_info($product, $variant = null)
+    {
+
+        $query = DB::table('production_products_detail as ppd')
+        ->join('production_products as pp', 'ppd.production_code', '=', 'pp.production_code')
+        ->where('ppd.product', $product)
+        ->where('pp.status', '=', 5);
+
+        if($variant){
+            $query->where('ppd.variant', $variant);
+        }
+
+        $detail_product = $query->get();
+        return view('layouts.main_pages.central_stock_products.product-detail-info', compact('detail_product'));
+    }
+
+     public function product_info_distribution($product, $variant = null)
+    {
+
+        $query = DB::table('distribution_products_detail as dpd')
+        ->join('distribution_products as dp', 'dpd.distribution', '=', 'dp.distribution_code')
+        ->join('store as st', 'dpd.store', '=', 'st.store_code')
+        ->where('dpd.product', $product)
+        ->where('dp.status', '=', 19);
+
+        if($variant){
+            $query->where('dpd.variant', $variant);
+        }
+
+        $detail_product = $query->get();
+        return view('layouts.main_pages.central_stock_products.distribution-detail-info', compact('detail_product'));
+    }
+
+
     public function create()
     {
         //

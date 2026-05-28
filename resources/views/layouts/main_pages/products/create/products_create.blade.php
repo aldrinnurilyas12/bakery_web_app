@@ -29,14 +29,15 @@
                         <div class="form-group">
                             <label><strong>Nama Produk</strong></label>
                             <input type="text" name="product_name" class="form-control"
-                                value="{{ old('product_name') }}" placeholder="Masukan nama Produk" autocomplete="off">
+                                value="{{ old('product_name') }}" placeholder="Masukan nama Produk" autocomplete="off"
+                                required>
                             <x-input-error :messages="$errors->get('product_name')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Kategori Produk</strong></label>
                             @if ($product_category->isNotEmpty())
-                                <select class="form-control" name="category_id">
+                                <select class="form-control" name="category_id" required>
                                     <option value="">==== Pilih Kategori Produk ====</option>
                                     @foreach ($product_category as $item)
                                         <option value="{{ $item->id }}"
@@ -53,6 +54,25 @@
 
 
                         <div class="form-group">
+                            <label><strong>Tipe Produk</strong></label>
+                            @if ($product_types->isNotEmpty())
+                                <select class="form-control" name="product_type" required>
+                                    <option value="">==== Pilih Tipe Produk ====</option>
+                                    @foreach ($product_types as $item)
+                                        <option value="{{ $item->id }}"
+                                            data-name="{{ strtolower($item->type_name) }}">
+                                            {{ $item->type_name }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <p class="text-secondary">Anda belum buat data tipe produk, <a
+                                        href="{{ route('category_create') }}">Buat tipe produk</a> </p>
+                            @endif
+                            <x-input-error :messages="$errors->get('product_type')" class="text-danger" />
+                        </div>
+
+
+                        {{-- <div class="form-group">
                             <label for=""><strong>Apakah Produk ini memiliki Variant? *(Minuman :Hot/Ice) atau
                                     (Makanan :
                                     Besar/Sedang/Kecil)</strong></label>
@@ -70,9 +90,10 @@
                                 </div>
                             </div>
                             <x-input-error :messages="$errors->get('product_variant')" class="text-danger" />
-                        </div>
+                        </div> --}}
+                        
 
-                        <div id="normalPrice" class="price-form-group">
+                        {{-- <div id="normalPrice" class="price-form-group">
                             <div class="form-group">
                                 <label><strong>Harga Produk</strong></label>
                                 <input type="text" name="price" class="form-control" value="{{ old('price') }}"
@@ -83,8 +104,8 @@
                             <div class="form-group">
                                 <label><strong>Diskon (%) (optional)</strong></label>
                                 <small class="text-danger">*Masukan 0 jika produk tidak diskon</small>
-                                <input type="text" name="discount" class="form-control" value="{{ old('discount') }}"
-                                    autocomplete="off">
+                                <input type="text" name="discount" class="form-control"
+                                    value="{{ old('discount') }}" autocomplete="off">
                             </div>
 
                             <div class="form-group">
@@ -92,43 +113,53 @@
                                 <input type="text" name="price_after_discount" class="form-control"
                                     value="{{ old('price_after_discount') }}" autocomplete="off" readonly>
                             </div>
-                        </div>
+
+                            <div class="form-group">
+                                <label><strong>Tanggal Harga Efektif</strong></label>
+                                <input type="date" name="price_effective_from" class="form-control"
+                                    value="{{ old('price_effective_from') }}" autocomplete="off">
+                            </div>
+                        </div> --}}
+
                         <div class="form-group">
                             <label><strong>Berat Produk</strong></label>
                             <input type="number" name="product_weight" class="form-control"
                                 value="{{ old('product_weight') }}" placeholder="Masukan berat Produk (optional)"
-                                autocomplete="off">
+                                autocomplete="off" required>
                             <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Massa Produk</strong></label>
-                            <select name="product_weight_type" class="form-control" id="">
-                                <option value="">=== Pilih Massa Produk ===</option>
-                                <option value="mg">Miligram</option>
-                                <option value="gr">Gram</option>
-                                <option value="kg">Kilogram</option>
-                                <option value="l">Liter</option>
-                                <option value="ml">Mililiter</option>
+                            <label><strong>Unit Produk</strong></label>
+                            <select name="product_weight_type" class="form-control" id="" required>
+                                <option value="">=== Pilih Unit Produk ===</option>
+                                @foreach ($unit_category as $unit )
+                                    <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Deskripsi Produk</strong></label>
-                            <textarea class="form-control" name="description" id="" cols="30" rows="4"></textarea>
+                            <textarea class="form-control" name="description" id="" cols="30" rows="4">
+                                {{ old('description') }}
+                            </textarea>
                         </div>
 
 
                         <div class="form-group">
                             <label><strong>Gambar/Foto Produk</strong></label>
-                            <input type="file" name="images" class="form-control">
+                            <input type="file" name="images" class="form-control" required>
                             <x-input-error :messages="$errors->get('images')" class="text-danger" />
                         </div>
 
 
                         <hr class="hr-menu">
                         <h4>Reward Point Rule</h4>
+                        <small class="text-danger">*Point adalah point produk yang digunakan saat pelanggan melakukan
+                            transaksi</small> <br>
+                        <small class="text-info">*Kosongkan point jika produk tidak memiliki point</small>
                         <hr>
 
                         <div class="form-group">
@@ -150,88 +181,6 @@
                                 autocomplete="off">
                         </div>
 
-
-                        <hr class="hr-menu">
-                        <h4>Produk Ingredients</h4>
-                        <hr>
-
-                        <div class="form-group">
-                            <label><strong>Pilih Bahan Baku</strong></label>
-                            <div style="color: black; height: 400px;background: white;overflow: auto;"
-                                class="modal-body">
-                                <div class="table-responsive">
-                                    <table style="font-size: 14px; color:black;" class="table" id="dataTable"
-                                        width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Pilih</th>
-                                                <th>Bahan Baku</th>
-                                                <th>Qty</th>
-                                                <th>Massa</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            <?php $no = 1; ?>
-                                            @foreach ($raw_materials as $raw)
-                                                <tr style="width: 200px;">
-                                                    <td><?php echo $no++; ?></td>
-                                                    <td>
-                                                        @if ($raw->quantity == 0)
-                                                            <a
-                                                                href="{{ route('material_update', $raw->material_code) }}"><i
-                                                                    class="fa fa-edit"></i></a>
-                                                        @else
-                                                            <input class="allowed-checkbox" type="checkbox"
-                                                                name="raw_material[{{ $raw->material_code }}]"
-                                                                value="{{ $raw->material_code }}">
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ '[' . $raw->material_code . '] ' . ' - ' . $raw->material_name }}
-                                                    </td>
-
-                                                    <td>
-                                                        <input class="form-control"
-                                                            name="quantity[{{ $raw->material_code }}]"
-                                                            type="number">
-
-                                                        <x-input-error :messages="$errors->get('quantity_used.' . $raw->material_code)" class="text-danger" />
-                                                    </td>
-                                                    <td>
-
-                                                        <select name="weight[{{ $raw->material_code }}]"
-                                                            class="form-control" id="">
-                                                            <option value="">=== Pilih Massa Bahan Baku ===
-                                                            </option>
-                                                            <option value="pcs">Pcs</option>
-                                                            <option value="miligram">Miligram</option>
-                                                            <option value="gram">Gram</option>
-                                                            <option value="kilogram">Kilogram</option>
-                                                            <option value="quintal">Quintal</option>
-                                                            <option value="ton">Ton</option>
-                                                            <option value="sachet">Sachet</option>
-                                                            <option value="pack">Pack</option>
-                                                            <option value="liter">Liter</option>
-                                                            <option value="mililiter">Mililiter</option>
-                                                        </select>
-                                                    </td>
-
-                                                    {{-- <td>
-                                                        <input class="disallowed-checkbox" type="checkbox"
-                                                            name="disallowed[]" value="{{ $raw->id }}"
-                                                            {{ in_array($raw->id, $disallowedData) ? 'checked' : '' }}>
-                                                    </td>  --}}
-                                                </tr>
-                                            @endforeach
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <x-input-error :messages="$errors->get('raw_material')" class="text-danger" />
-                            <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
-                        </div>
 
                         <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Tambah
                                 Produk</span>
@@ -268,7 +217,7 @@
             if (discount > 0) {
                 fixPrice = price - (price * (discount / 100));
             } else if (discount === 0) {
-                fixPrice = 0;
+                fixPrice = price;
             }
 
             priceAfterInput.value = fixPrice;

@@ -289,7 +289,8 @@
 
                             <div class="form-group">
                                 <label><strong>Total Distribusi Produk</strong></label>
-                                <input type="text" class="form-control" value="{{ $dst->quantity }}" readonly>
+                                <input type="text" name="distribution_total" class="form-control"
+                                    value="{{ $dst->quantity }}" readonly>
                             </div>
 
                             <div class="form-group">

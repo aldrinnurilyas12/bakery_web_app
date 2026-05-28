@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EmployeeModel;
 use App\Models\ShopModel;
 use App\Models\User;
+use App\Models\UserLogActivities;
 use App\Models\UsersRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Auth\Events\Registered;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
+use App\Services\UserLogActivity;
 
 class RegisteredUserController extends Controller
 {
@@ -38,7 +40,7 @@ class RegisteredUserController extends Controller
 
         $employee = DB::table('v_employee as ve')
         ->leftJoin('users as u', 've.nik', '=', 'u.nik')
-        ->select('ve.nik', 've.name')->get();
+        ->select('ve.nik', 've.name', 've.position_name')->get();
 
         $role = DB::table('role')->get();
          return view('layouts.main_pages.users.create.users_create_account', compact('employee', 'role'));
@@ -134,6 +136,12 @@ class RegisteredUserController extends Controller
             ]);
        }
 
+       UserLogActivity::log(
+                module: 'User',
+                method_type: 'CREATE',
+                description: "user create new user: {$user->nik}"      
+        );
+
         session()->flash('message_success', 'Berhasil daftar akun!');
         return redirect()->back();
 
@@ -154,14 +162,10 @@ class RegisteredUserController extends Controller
     public function update(Request $request) {
 
          $request->validate([
-            'nik' => 'required',
-            'username' => 'required',
             'email' => 'required',
             'role' => 'required'
         ],
         [
-            'nik.required' => 'Pilih Karyawan dahulu',
-            'username.required' => 'Username harus diisi',
             'email.required' => 'Alamat Email harus diisi',
             'role.required' => 'Pilih Role dahulu'
         ]);
@@ -178,6 +182,12 @@ class RegisteredUserController extends Controller
             'role' => $request->role
         ]);
 
+        UserLogActivity::log(
+                module: 'User',
+                method_type: 'UPDATE',
+                description: "user update user: {$request->nik}"      
+        );
+
          
             session()->flash('message_success', 'Data pengguna berhasil diperbarui!');
             return redirect()->route('users_data');
@@ -193,14 +203,32 @@ class RegisteredUserController extends Controller
             'updated_by' =>  $updated_by
         ]);
 
+        UserLogActivity::log(
+                module: 'User',
+                method_type: 'UPDATE',
+                description: "user update active: {$request->nik}"      
+        );
+
         session()->flash('message_success', 'Data pengguna berhasil diperbaui!');
         return redirect()->back();
+    }
+
+    public function log_users_activities(Request $request)
+    {
+        $user_log = DB::table('user_log_activities as ula')->leftJoin('employee as e', 'ula.user', '=', 'e.nik')->orderBy('ula.created_at', 'DESC')->get();
+
+        return view('layouts.main_pages.users.user_log_activities', compact('user_log'));
     }
 
     public function destroy($id) {
         $user = User::find($id);
         
         if($user) {
+            UserLogActivity::log(
+                module: 'User',
+                method_type: 'DELETE',
+                description: "user delete admin account: {$user->nik}"      
+            );
             $user->delete();
              session()->flash('message_success', 'Data pengguna berhasil dihapus!');
             return redirect()->back();
@@ -215,6 +243,11 @@ class RegisteredUserController extends Controller
        $user_role = UsersRole::where('role', $request->user_role_id)->first();
 
         if($user_role){
+            UserLogActivity::log(
+                module: 'USER',
+                method_type: 'DELETE',
+                description: "user delete Role"      
+            );
             $user_role->delete();
             session()->flash('message_success', 'Data Role pengguna berhasil dihapus!');
             return redirect()->back();

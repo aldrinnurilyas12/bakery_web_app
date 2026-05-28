@@ -41,6 +41,13 @@
                                 @endif
                             @endif
                         </div>
+                        <hr>
+                        <div style="font-size: 13px;" class="alert alert-info">
+                            <ul>
+                                <li>Kategori tidak bisa dihapus jika sudah ada di master products
+                                </li>
+                            </ul>
+                        </div>
                         <div class="card-body">
                             @if ($category_data->isNotEmpty())
                                 <div class="table-responsive">
@@ -71,9 +78,11 @@
                                                                 <a href="{{ route('category_update', $category->id) }}"><i
                                                                         class="fas fa-edit"></i></a>
 
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#deleteModal{{ $category->id }}"><i
-                                                                        class="fas fa-trash"></i></a>
+                                                                @if ($category->total_used == 0)
+                                                                    <a href="#" data-toggle="modal"
+                                                                        data-target="#deleteModal{{ $category->id }}"><i
+                                                                            class="fas fa-trash"></i></a>
+                                                                @endif
                                                             </div>
                                                         </td>
                                                     @endif
@@ -143,6 +152,10 @@
         </div>
     @endforeach
 </body>
+
+
+</script>
+
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

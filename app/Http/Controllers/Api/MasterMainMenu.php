@@ -8,6 +8,7 @@ use App\Models\MasterSubMenuModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\DB;
+use App\Services\UserLogActivity;
 
 class MasterMainMenu extends Controller
 {
@@ -73,6 +74,12 @@ class MasterMainMenu extends Controller
             'description' => $request->description
         ]);
 
+        UserLogActivity::log(
+                module: 'Main Menu Admin',
+                method_type: 'CREATE',
+                description: "user create main menu: {$request->menu_name}"      
+        );
+
         session()->flash('message_success', 'Berhasil menambahkan Menu Utama!');
         return redirect()->route('master_main_menu.index');
     }
@@ -117,6 +124,12 @@ class MasterMainMenu extends Controller
             'status' => $request->status,
             'description' => $request->description
         ]);
+
+        UserLogActivity::log(
+                module: 'Main Menu Admin',
+                method_type: 'UPDATE',
+                description: "user update main menu: {$request->menu_name}"      
+        );
 
         session()->flash('message_success', 'Berhasil perbarui data Menu Utama!');
         return redirect()->route('master_main_menu.index');
@@ -164,6 +177,11 @@ class MasterMainMenu extends Controller
         $submenu_id = MasterSubMenuModel::find($id);
 
         if($submenu_id){
+            UserLogActivity::log(
+                module: 'Submenu Admin',
+                method_type: 'DELETE',
+                description: "user delete submenu: {$submenu_id->submenu_name}"      
+            );
             $submenu_id->delete();
             session()->flash('message_success', 'Berhasil hapus submenu!');
             return redirect()->back();
@@ -217,6 +235,12 @@ class MasterMainMenu extends Controller
             'status' => 7
         ]);
 
+        UserLogActivity::log(
+                module: 'Submenu Admin',
+                method_type: 'CREATE',
+                description: "user create submenu: {$request->submenu_name}"      
+        );
+
         session()->flash('message_success', 'Berhasil menambahkan Submenu');
         return redirect()->route('submenu_list', ['id' => $request->main_menu]);
     }
@@ -261,6 +285,12 @@ class MasterMainMenu extends Controller
             'description' => $request->description,
             'status' => $request->status
         ]);
+
+        UserLogActivity::log(
+                module: 'Submenu Admin',
+                method_type: 'UPDATE',
+                description: "user update submenu: {$request->submenu_name}"      
+        );
         session()->flash('message_success', 'Berhasil perbarui Submenu');
          return redirect()->route('submenu_list', ['id' => $request->main_menu]);
     }
@@ -271,6 +301,12 @@ class MasterMainMenu extends Controller
             'status' => $rq->status,
         ]);
 
+        UserLogActivity::log(
+                module: 'Submenu Admin',
+                method_type: 'UPDATE',
+                description: "user update submenu status"      
+        );
+
         session()->flash('message_success', 'Berhasil perbarui Submenu');
          return redirect()->back();
     }
@@ -280,6 +316,12 @@ class MasterMainMenu extends Controller
         DB::table('submenu')->update([
             'status' => $rq->status,
         ]);
+
+        UserLogActivity::log(
+                module: 'Submenu Admin',
+                method_type: 'UPDATE',
+                description: "user update submenu status"      
+        );
 
         session()->flash('message_success', 'Berhasil perbarui Submenu');
          return redirect()->back();

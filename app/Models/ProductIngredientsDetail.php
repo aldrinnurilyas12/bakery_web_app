@@ -13,6 +13,7 @@ class ProductIngredientsDetail extends Model
         'ingredients',
         'raw_material',
         'quantity',
-        'weight'
+        'unit',
+        'subtotal'
     ];
 }

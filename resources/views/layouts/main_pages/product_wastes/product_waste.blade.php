@@ -33,12 +33,25 @@
                                 Master Data / <a href="{{ route('production_products') }}">Produk Waste</a>
                             </div>
 
-                            <div style="display:flex;gap:20px;" class="btn">
-                                <a class="btn btn-warning" href="{{ route('product-waste-data') }}">Lihat Tabel
-                                    Data</a>
-                                <a class="btn btn-primary" href="{{ route('product-waste-create') }}">Tambah data</a>
-                            </div>
+                            <div style="display: flex;gap:10px;" class="flex-content">
+                                @if ($module_documentation)
+                                    <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                        class="documentation-module">
+                                        <a title="Dokumentasi Modul"
+                                            href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                            <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                        </a>
+                                    </div>
+                                @endif
 
+
+                                <div style="display:flex;gap:20px;" class="btn">
+                                    <a class="btn btn-warning" href="{{ route('product-waste-data') }}">Lihat Tabel
+                                        Data</a>
+                                    <a class="btn btn-primary" href="{{ route('product-waste-create') }}">Tambah
+                                        data</a>
+                                </div>
+                            </div>
 
                         </div>
 

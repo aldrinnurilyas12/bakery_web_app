@@ -243,12 +243,12 @@
             }
             return response.json();
         }).then(data => {
-            if (data.data && data.data.stock === 0 && data.data.reward_store_code) {
+            if (data.data && data.data.total_available === 0 && data.data.reward_store_code) {
                 showStock.innerText = 'Habis';
                 showStock.style.color = 'red';
                 hiddenAllStock.hidden = true;
-            } else if (data.data && data.data.stock !== null && data.data.reward_store_code) {
-                showStock.innerText = data.data.stock;
+            } else if (data.data && data.data.total_available !== null && data.data.reward_store_code) {
+                showStock.innerText = data.data.total_available;
                 document.getElementById('showRewardCodeStore').value = data.data.reward_store_code;
                 hiddenAllStock.hidden = true;
 

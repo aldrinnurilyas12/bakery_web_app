@@ -70,9 +70,9 @@
                                                                     href="{{ route('variant_category_update', $category->id) }}"><i
                                                                         class="fas fa-edit"></i></a>
 
-                                                                {{-- <a href="#" data-toggle="modal"
+                                                                <a href="#" data-toggle="modal"
                                                                     data-target="#deleteModal{{ $category->id }}"><i
-                                                                        class="fas fa-trash"></i></a> --}}
+                                                                        class="fas fa-trash"></i></a>
                                                             </div>
                                                         </td>
                                                     @endif
@@ -113,7 +113,7 @@
         </div>
     </div>
 
-    {{-- @foreach ($variant_category as $category)
+    @foreach ($variant_category as $category)
         <div wire:ignore class="modal fade" id="deleteModal{{ $category->id }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel{{ $category->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -125,9 +125,9 @@
                         </button>
                     </div>
                     <div class="modal-body">Apakah anda yakin ingin menghapus Kategori Varian
-                        {{ $category->category_name }} ?</div>
+                        {{ $category->name }} ?</div>
                     <div class="modal-footer">
-                        <form action="{{ route('master_category.destroy', $category->id) }}" method="POST">
+                        <form action="{{ route('delete_variant_category', $category->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">Hapus</button>
@@ -136,7 +136,7 @@
                 </div>
             </div>
         </div>
-    @endforeach --}}
+    @endforeach
 </body>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

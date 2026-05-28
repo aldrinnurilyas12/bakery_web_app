@@ -41,51 +41,50 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Harga Bahan Baku (satuan)</strong></label>
-                            <input type="text" name="price" class="form-control" value="{{ $raw_material->price }}"
-                                placeholder="Masukan harga bahan baku (satuan)" autocomplete="off">
-                            <x-input-error :messages="$errors->get('price')" class="text-danger" />
-                        </div>
+                            <label><strong>Pilih Purchase Unit Bahan Baku</strong></label>
+                            <select name="purchase_unit" class="form-control">
 
-                        {{-- <div class="form-group">
-                            <label><strong>Stok</strong></label>
-                            <input type="text" name="quantity" class="form-control"
-                                value="{{ $raw_material->quantity }}" placeholder="Masukan stok bahan baku"
-                                autocomplete="off">
-                            <x-input-error :messages="$errors->get('quantity')" class="text-danger" />
-                        </div> --}}
+                                @foreach ($material_unit as $unit)
+                                    <option value="{{ $unit->id }}"
+                                        {{ $raw_material->purchase_unit == $unit->id ? 'selected' : '' }}>
+                                        {{ $unit->unit_name }}</option>
+                                @endforeach
 
-
-                        <div class="form-group">
-                            <label><strong>Pilih Massa Bahan Baku</strong></label>
-                            <select name="material_type" class="form-control">
-                                <option value="pcs" {{ $raw_material->material_type == 'pcs' ? 'selected' : '' }}>Pcs
-                                </option>
-                                <option value="miligram"
-                                    {{ $raw_material->material_type == 'miligram' ? 'selected' : '' }}>Miligram</option>
-                                <option value="gram" {{ $raw_material->material_type == 'gram' ? 'selected' : '' }}>
-                                    Gram</option>
-                                <option value="kilogram"
-                                    {{ $raw_material->material_type == 'kilogram' ? 'selected' : '' }}>Kilogram
-                                </option>
-                                <option value="quintal"
-                                    {{ $raw_material->material_type == 'quintal' ? 'selected' : '' }}>Quintal</option>
-                                <option value="ton" {{ $raw_material->material_type == 'ton' ? 'selected' : '' }}>
-                                    Ton</option>
-                                <option value="sachet"
-                                    {{ $raw_material->material_type == 'sachet' ? 'selected' : '' }}>Sachet</option>
-                                <option value="pack" {{ $raw_material->material_type == 'pack' ? 'selected' : '' }}>
-                                    Pack</option>
-                                <option value="box" {{ $raw_material->material_type == 'box' ? 'selected' : '' }}>
-                                    Box</option>
-                                <option value="liter" {{ $raw_material->material_type == 'liter' ? 'selected' : '' }}>
-                                    Liter</option>
-                                <option value="mililiter"
-                                    {{ $raw_material->material_type == 'mililiter' ? 'selected' : '' }}>
-                                    Mililiter</option>
                             </select>
-                            <x-input-error :messages="$errors->get('material_type')" class="text-danger" />
+                            <x-input-error :messages="$errors->get('purchase_unit')" class="text-danger" />
                         </div>
+
+
+                        @if ($raw_material->inventory_unit == null)
+                            <div class="form-group">
+                                <label><strong>Pilih Inventory Unit Bahan Baku</strong></label>
+                                <small class="text-danger">*belum pilih inventory unit untuk bahan baku ini</small>
+                                <select name="inventory_unit" class="form-control">
+                                    <option>=== Pilih Inventory Unit ===</option>
+                                    @foreach ($material_unit as $unit)
+                                        <option value="{{ $unit->id }}"
+                                            {{ $raw_material->inventory_unit == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->unit_name }}</option>
+                                    @endforeach
+
+                                </select>
+                                <x-input-error :messages="$errors->get('purchase_unit')" class="text-danger" />
+                            </div>
+                        @else
+                            <div class="form-group">
+                                <label><strong>Pilih Inventory Unit Bahan Baku</strong></label>
+                                <select name="inventory_unit" class="form-control">
+
+                                    @foreach ($material_unit as $unit)
+                                        <option value="{{ $unit->id }}"
+                                            {{ $raw_material->inventory_unit == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->unit_name }}</option>
+                                    @endforeach
+
+                                </select>
+                                <x-input-error :messages="$errors->get('purchase_unit')" class="text-danger" />
+                            </div>
+                        @endif
 
 
                         <div class="form-group">
@@ -100,25 +99,6 @@
                             <x-input-error :messages="$errors->get('material_category')" class="text-danger" />
                         </div>
 
-                        <div class="form-group">
-                            <label><strong>Status Bahan Baku</strong></label>
-                            <select name="status" class="form-control" id="">
-                                @foreach ($status as $sts)
-                                    <option value="{{ $sts->id }}"
-                                        {{ $sts->id == $raw_material->status ? 'selected' : '' }}>
-                                        {{ $sts->status_name }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('status')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Tanggal Expired Bahan Baku</strong></label>
-                            <input type="date" name="expired_date"
-                                value="{{ old('expired_date', $raw_material->expired_date ? $expired_date->format('Y-m-d') : null) }}"
-                                class="form-control" autocomplete="off">
-                            <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
-                        </div>
 
                         <div class="form-group">
                             <label><strong>Diperbarui pada</strong></label>

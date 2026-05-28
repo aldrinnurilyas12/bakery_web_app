@@ -32,14 +32,27 @@
                             <div class="title">
                                 Master Data / <a href="{{ route('master_category.index') }}">Distribusi Produk</a>
                             </div>
-                            @if ($distribution->isNotEmpty())
-                                @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('distribution_create') }}">Buat
-                                            Distribusi Produk</a>
+                            <div style="display: flex;gap:10px;" class="flex-content">
+
+                                @if ($module_documentation)
+                                    <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                        class="documentation-module">
+                                        <a title="Dokumentasi Modul"
+                                            href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                            <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                        </a>
                                     </div>
                                 @endif
-                            @endif
+
+                                @if ($distribution->isNotEmpty())
+                                    @if (!$user_permission_forbidden)
+                                        <div class="button-add-product">
+                                            <a class="btn btn-primary" href="{{ route('distribution_create') }}">Buat
+                                                Distribusi Produk</a>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
                         </div>
                         <div class="card-body">
                             @if ($distribution->isNotEmpty())
@@ -57,7 +70,6 @@
                                                 <th>Dibuat pada</th>
                                                 <th>Dibuat oleh</th>
                                                 <th>Diubah pada</th>
-                                                <th>Diubah oleh</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -95,12 +107,12 @@
                                                         </td>
                                                     @endif
                                                     <td>{{ $dst->distribution_code }}</td>
-                                                    <td>{{ $dst->distribution_date }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($dst->distribution_date)->format('Y-m-d') }}
+                                                    </td>
                                                     <td> {{ $dst->status_name ?: '-' }} </td>
                                                     <td>{{ $dst->created_at }}</td>
                                                     <td>{{ $dst->emp_name }}</td>
                                                     <td>{{ $dst->updated_at }}</td>
-                                                    <td>{{ $dst->employee_name }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -134,33 +146,6 @@
         </div>
     </div>
 
-    {{-- @foreach ($dst_data as $dst)
-        <div wire:ignore class="modal fade" id="deleteModal{{ $dst->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $dst->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Hapus data kategori produk</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Apakah anda yakin ingin menghapus Kategori
-                        {{ $dst->category_name }} ?</div>
-                    <div class="modal-footer">
-                        <form class="form-delete" action="{{ route('master_category.destroy', $dst->id) }}"
-                            method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
-                                    class="btn-text">Hapus</span>
-                                <span class="spinner"></span></button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach --}}
 </body>
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>

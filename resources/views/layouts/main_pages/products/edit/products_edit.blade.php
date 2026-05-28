@@ -28,7 +28,7 @@
 
                         <hr>
                         <div class="form-group">
-                            <label><strong>Kode Produk</strong></label>
+                            <label><strong>SKU Produk</strong></label>
                             <input type="text" class="form-control" name="product_code"
                                 value="{{ $products->product_code }}" readonly>
                         </div>
@@ -53,6 +53,47 @@
                         </div>
 
                         <div class="form-group">
+                            <label><strong>Tipe Produk</strong></label>
+                            <select class="form-control" name="product_type" id="">
+                                {{-- <option value="">==== Pilih Kategori Produk ====</option> --}}
+                                @foreach ($product_type as $type)
+                                    <option value="{{ $type->id }}"
+                                        {{ $type->type_name == $products->product_type ? 'selected' : '' }}>
+                                        {{ $type->type_name }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('product_type')" class="text-danger" />
+                        </div>
+
+                        @if($products->product_status)
+                         <div class="form-group">
+                                <label><strong>Status Produk</strong></label>
+                                <select class="form-control" name="product_status" id="">
+                                    @foreach ($status as $sts)
+                                        <option value="{{ $sts->id }}"
+                                            {{ $sts->status_name == $products->product_status ? 'selected' : '' }}>
+                                            {{ $sts->status_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                            </div>
+                        @elseif($products->product_status == null)
+                        <div class="form-group">
+                                <label><strong>Status Produk</strong></label>
+                                <select class="form-control" name="product_status" id="">
+                                    <option value="">== Pilih Status ===</option>
+                                    @foreach ($status as $sts)
+                                        <option value="{{ $sts->id }}">
+                                            {{ $sts->status_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                            </div>
+                        @endif
+
+                        <div class="form-group">
                             <label for=""><strong>Apakah Produk ini memiliki Variant? *(Minuman :Hot/Ice) atau
                                     (Makanan :
                                     Besar/Sedang/Kecil)</strong></label>
@@ -74,54 +115,63 @@
                             </div>
                         </div>
 
-                        <div class="form-price-group" id="normalPrice">
-                            <div class="form-group">
-                                <label><strong>Harga Produk</strong></label>
-                                <input id="priceProduct" type="text" inputmode="numeric" name="price"
-                                    class="form-control" value="{{ $products->price }}">
-                                <x-input-error :messages="$errors->get('price')" class="text-danger" />
-                            </div>
 
-                            <div class="form-group">
-                                <label><strong>Diskon</strong></label>
-                                <input id="discountProduct" type="text" inputmode="numeric" name="discount"
-                                    class="form-control" value="{{ $products->discount }}">
-                            </div>
+                        @if ($products->product_variant == 'N')
+                            <div class="form-price-group" id="normalPrice">
+                                <div class="form-group">
+                                    <label><strong>Harga Produk</strong></label>
+                                    <input id="priceProduct" type="text" inputmode="numeric" name="price_after"
+                                        class="form-control" value="{{ $products->price }}">
+                                    <input type="text" inputmode="numeric" name="price_before" class="form-control"
+                                        value="{{ $products->price }}" hidden>
+                                    <x-input-error :messages="$errors->get('price')" class="text-danger" />
+                                </div>
 
-                            <div class="form-group">
-                                <label><strong>Harga setelah diskon</strong></label>
-                                <input id="discountPriceProduct" type="text" inputmode="numeric"
-                                    name="price_after_discount" class="form-control"
-                                    value="{{ $products->price_after_discount }}" readonly>
-                            </div>
+                                <div class="form-group">
+                                    <label><strong>Diskon</strong></label>
+                                    <input id="discountProduct" type="text" inputmode="numeric" name="discount_after"
+                                        class="form-control" value="{{ $products->discount }}">
+                                    <input type="text" inputmode="numeric" name="discount_before"
+                                        class="form-control" value="{{ $products->discount }}" hidden>
+                                </div>
 
+                                <div class="form-group">
+                                    <label><strong>Harga setelah diskon</strong></label>
+                                    <input id="discountPriceProduct" type="text" inputmode="numeric"
+                                        name="price_after_discount_after" class="form-control"
+                                        value="{{ $products->price_after_discount }}" readonly>
+                                    <input type="text" inputmode="numeric" name="price_after_discount_before"
+                                        class="form-control" value="{{ $products->price_after_discount }}" readonly
+                                        hidden>
+                                </div>
 
-                            <div class="form-group">
-                                <label><strong>Berat Produk (optional)</strong></label>
-                                <input type="text" inputmode="numeric" name="product_weight" class="form-control"
-                                    value="{{ $products->product_weight }}">
-                                <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
+                                <div class="form-group">
+                                    <label><strong>Tanggal Harga Efektif</strong></label>
+                                    <input type="date" name="price_effective_from_after" class="form-control"
+                                        value="{{ old('business_effective_date', $products->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                        autocomplete="off">
+                                    <input type="date" name="price_effective_from_before" class="form-control"
+                                        value="{{ old('business_effective_date', $products->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                        autocomplete="off" hidden>
+                                </div>
+
                             </div>
+                        @endif
+
+                        <div class="form-group">
+                            <label><strong>Berat Produk (optional)</strong></label>
+                            <input type="text" inputmode="numeric" name="product_weight" class="form-control"
+                                value="{{ $products->product_weight }}">
+                            <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Pilih Massa Bahan Baku</strong></label>
-                            <select name="product_weight_type" class="form-control">
-                                <option value="mg" {{ $products->product_weight_type == 'mg' ? 'selected' : '' }}>
-                                    Miligram
-                                </option>
-                                <option value="gr" {{ $products->product_weight_type == 'gr' ? 'selected' : '' }}>
-                                    Gram
-                                </option>
-                                <option value="kg" {{ $products->product_weight_type == 'kg' ? 'selected' : '' }}>
-                                    Kilogram
-                                </option>
-                                <option value="ml" {{ $products->product_weight_type == 'ml' ? 'selected' : '' }}>
-                                    Mililiter
-                                </option>
-                                <option value="l" {{ $products->product_weight_type == 'l' ? 'selected' : '' }}>
-                                    Liter
-                                </option>
+                            <label><strong>Unit Produk</strong></label>
+                            <select name="product_weight_type" class="form-control" id="" required>
+                                @foreach ($unit_category as $unit )
+                                    <option value="{{ $unit->id }}"
+                                    {{ $products->product_weight_type == $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
+                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />
                         </div>
@@ -252,9 +302,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const priceInput = document.querySelector('input[name="price"]');
-        const discountInput = document.querySelector('input[name="discount"]');
-        const priceAfterInput = document.querySelector('input[name="price_after_discount"]');
+        const priceInput = document.querySelector('input[name="price_after"]');
+        const discountInput = document.querySelector('input[name="discount_after"]');
+        const priceAfterInput = document.querySelector('input[name="price_after_discount_after"]');
 
         function calculateDiscount() {
             let price = parseFloat(priceInput.value) || 0;
@@ -262,7 +312,7 @@
             if (discount > 0) {
                 fixPrice = price - (price * (discount / 100));
             } else if (discount === 0) {
-                fixPrice = 0;
+                fixPrice = price;
             }
 
             priceAfterInput.value = fixPrice;

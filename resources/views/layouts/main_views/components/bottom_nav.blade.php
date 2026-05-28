@@ -50,7 +50,7 @@
                         <div>
                             <i style="background: #bb0239; padding:6px; border-radius: 4px;color:white;"
                                 class="fa fa-qrcode"></i><br>
-                            <small style="color:black;" class="icon-text">QR Code</small>
+                            <small style="color:black;" class="icon-text">QR</small>
                         </div>
                     </a>
                 @endif

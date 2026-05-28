@@ -86,18 +86,24 @@
 
                                                     @foreach ($stores as $store)
                                                         <td>
-                                                            <input class="form-control" type="number"
-                                                                name="product[{{ $loop->parent->index }}][store][{{ $store->store_code }}]"
-                                                                min="0" max="{{ $product->total_available }}"
-                                                                id="qty_{{ $loop->parent->index }}_{{ $store->store_code }}"
-                                                                oninput="validateTotal({{ $loop->parent->index }})"
-                                                                value="{{ old('product.' . $loop->parent->index . '.store.' . $store->store_code) }}">
+                                                            @if ($product->total_available == 0)
+                                                                <input type="number" placeholder="Stok Kosong"
+                                                                    class="form-control" readonly>
+                                                            @else
+                                                                <input class="form-control" type="number"
+                                                                    name="product[{{ $loop->parent->index }}][store][{{ $store->store_code }}]"
+                                                                    min="0"
+                                                                    max="{{ $product->total_available }}"
+                                                                    id="qty_{{ $loop->parent->index }}_{{ $store->store_code }}"
+                                                                    oninput="validateTotal({{ $loop->parent->index }})"
+                                                                    value="{{ old('product.' . $loop->parent->index . '.store.' . $store->store_code) }}">
 
-                                                            <small
-                                                                id="error_{{ $loop->parent->index }}_{{ $store->store_code }}"
-                                                                style="color:red; display:none;">
-                                                                Jumlah melebihi stok
-                                                            </small>
+                                                                <small
+                                                                    id="error_{{ $loop->parent->index }}_{{ $store->store_code }}"
+                                                                    style="color:red; display:none;">
+                                                                    Jumlah melebihi stok
+                                                                </small>
+                                                            @endif
                                                         </td>
                                                     @endforeach
 

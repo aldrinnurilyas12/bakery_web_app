@@ -7,10 +7,20 @@
         $IT_GUY =
             app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name ==
             'IT Developer';
+        $cashier = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name ==
+            'Casheer';
         $main_menu = DB::table('main_menu')->where('location', 'admin')->get();
 
+
+
+
         if (!$IT_GUY) {
-            $submenu = DB::table('submenu')->where('status', 7)->where('main_menu', '<>', 10)->get();
+            if($cashier){
+                $submenu = DB::table('submenu')->whereIn('main_menu', ['1', '2','3', '5','9'])
+                            ->whereNotIn('id', ['9','15', '16', '26', '29','33','34', '36','37', '94'])->get();
+            }else{
+                $submenu = DB::table('submenu')->where('status', 7)->where('main_menu', '<>', 10)->get();
+            }
         } else {
             $submenu = DB::table('submenu')->where('main_menu', '<>', 10)->get();
         }

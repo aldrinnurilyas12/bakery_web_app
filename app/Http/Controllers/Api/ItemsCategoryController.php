@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\NewProductCategoryCreated as EventsNewProductCategoryCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Models\ItemsCategoryModel;
+use App\Services\UserLogActivity;
+use Events\App\Events\NewProductCategoryCreated;
 
 class ItemsCategoryController extends Controller
 {
@@ -18,6 +21,14 @@ class ItemsCategoryController extends Controller
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
         $category_data = DB::table('product_category')->get();
+
+        $category_data = ItemsCategoryModel::leftJoin('products as p', 'product_category.id', '=', 'p.category_id')
+            ->select(
+                'product_category.*',
+                DB::raw('COUNT(p.category_id) as total_used')
+            )
+            ->groupBy('product_category.id')
+            ->get();
 
         return view('layouts.main_pages.category.category', compact('category_data'));
     }
@@ -52,10 +63,18 @@ class ItemsCategoryController extends Controller
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
 
 
-        ItemsCategoryModel::create([
+       $category = ItemsCategoryModel::create([
             'category_name' => $request->category_name,
             'icon' => $request->icon
         ]);
+
+        UserLogActivity::log(
+            module: 'Product Category',
+            method_type: 'CREATE',
+            description: "user create new category"      
+        );
+
+        broadcast(new EventsNewProductCategoryCreated($category))->toOthers();
 
         session()->flash('message_success', 'Data kategori berhasil disimpan!');
         return redirect()->route('master_category.index');
@@ -87,7 +106,14 @@ class ItemsCategoryController extends Controller
 
         if (!$checking_category && $category_data->isEmpty()) {
             return view('errors.404');
+            
         }
+
+        UserLogActivity::log(
+            module: 'Product Category',
+            method_type: 'UPDATE',
+            description: "user update category: {$category_data->first()->category_name}"      
+        );
         return view('layouts.main_pages.category.edit.category_edit', compact('category_data'));
     }
 
@@ -111,6 +137,12 @@ class ItemsCategoryController extends Controller
             'updated_at' => now()
         ]);
 
+         UserLogActivity::log(
+            module: 'Product Category',
+            method_type: 'UPDATE',
+            description: "user update category: {$request->category_name}"      
+        );
+
         if ($update_data) {
             session()->flash('message_success', 'Data kategori berhasil diperbarui!');
             return redirect()->route('master_category.index');
@@ -123,8 +155,15 @@ class ItemsCategoryController extends Controller
     public function destroy(string $id)
     {
         $categoryId = ItemsCategoryModel::find($id);
+        $category_data = DB::table('product_category')->where('id', $id)->get();
 
+        
         if ($categoryId) {
+            UserLogActivity::log(
+                module: 'Product Category',
+                method_type: 'DELETE',
+                description: "user delete category: {$category_data->first()->category_name}"      
+            );
             $categoryId->delete();
         }
 

@@ -83,13 +83,27 @@
         <div class="container">
             <div class="container-fluid">
 
-                <div class="qr-code">
-                    <div class="show-qrcode">
-                        <a class="terms" href="#" data-toggle="modal" data-target="#openqr">
-                            <img src="{{ url('storage/' . $customer->qr_code) }}" alt="">
-                        </a>
+
+                @if (!empty($customer->qr_code) && file_exists(storage_path('app/public/' . $customer->qr_code)))
+                    <div class="qr-code">
+                        <div class="show-qrcode">
+                            <a class="terms" href="#" data-toggle="modal" data-target="#openqr">
+                                <img src="{{ url('storage/' . $customer->qr_code) }}" alt="">
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @else
+                    <div style="display: flex; justify-content: center;margin-top:20px;" class="generate-qr-code">
+                        <form method="POST" action="{{ route('generate_qr_code', $customer->customer_code) }}">
+                            @csrf
+                            @method('PUT')
+                            <input type="text" name="customer_code" value="{{ $customer->customer_code }}" hidden>
+                            <button type="submit" id="generateqr" class="btn btn-primary"><i class="fa fa-qrcode"
+                                    style="font-size:15px"></i> Generate QR</button>
+                        </form>
+                    </div>
+                @endif
+
 
                 <h4 style="font-size: 1.6rem;"><strong>Profil Pengguna</strong></h4>
                 <hr class="hr-menu">

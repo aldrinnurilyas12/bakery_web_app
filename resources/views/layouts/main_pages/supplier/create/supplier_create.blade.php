@@ -27,13 +27,13 @@
                         <div class="form-group">
                             <label><strong>Nama Perusahaan Supplier</strong></label>
                             <input type="text" name="store" class="form-control" value="{{ old('store') }}"
-                                placeholder="Masukan nama perusahaan supplier" autocomplete="off">
+                                placeholder="Masukan nama perusahaan supplier" autocomplete="off" required>
                             <x-input-error :messages="$errors->get('store')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Kategori Supplier</strong></label>
-                            <select class="form-control" name="supplier_category" id="">
+                            <select class="form-control" name="supplier_category" id="" required>
                                 <option value="">=== Kategori Supplier ===</option>
                                 @foreach ($supplier_category as $ctg)
                                     <option value="{{ $ctg->id }}">{{ $ctg->category_name }}</option>
@@ -45,7 +45,8 @@
 
                         <div class="form-group">
                             <label><strong>Alamat Perusahaan Supplier</strong></label>
-                            <textarea name="address" class="form-control" value="{{ old('address') }}" autocomplete="off">
+                            <textarea name="address" class="form-control" autocomplete="off" required>
+                                {{ old('address') }}
                             </textarea>
                             <x-input-error :messages="$errors->get('address')" class="text-danger" />
                         </div>
@@ -53,14 +54,16 @@
                         <div class="form-group">
                             <label><strong>No.Telepon</strong></label>
                             <input type="number" name="phone_number" class="form-control"
-                                value="{{ old('phone_number') }}" placeholder="Masukan no telepon" autocomplete="off">
+                                value="{{ old('phone_number') }}" placeholder="Masukan no telepon" autocomplete="off"
+                                required>
                             <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Nama Penanggung Jawab Perusahaan Supplier</strong></label>
                             <input type="text" name="pic" class="form-control" value="{{ old('pic') }}"
-                                placeholder="Masukan nama penanggung jawab perusahaan supplier" autocomplete="off">
+                                placeholder="Masukan nama penanggung jawab perusahaan supplier" autocomplete="off"
+                                required>
                             <x-input-error :messages="$errors->get('pic')" class="text-danger" />
                         </div>
 

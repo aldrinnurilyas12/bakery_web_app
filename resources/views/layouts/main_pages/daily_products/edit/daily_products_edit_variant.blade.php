@@ -27,7 +27,7 @@
 
                         <hr>
                         <div class="form-group">
-                            <label><strong>Kode Produk</strong></label>
+                            <label><strong>SKU Produk</strong></label>
                             <input type="text" class="form-control" value="{{ $product->product_code }}" readonly>
                         </div>
                         <div class="form-group">

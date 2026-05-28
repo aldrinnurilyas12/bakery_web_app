@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ItemsModel;
+use App\Models\MaterialUnitModel;
 use App\Models\RawMaterial;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Services\UserLogActivity;
+
 
 class RawMaterialController extends Controller
 {
@@ -32,7 +35,8 @@ class RawMaterialController extends Controller
             return redirect()->back();
         }
         $material_category = DB::table('raw_material_category')->get();
-        return view('layouts.main_pages.raw_material.create.raw_material_create', compact('material_category'));
+        $material_unit = MaterialUnitModel::all();
+        return view('layouts.main_pages.raw_material.create.raw_material_create', compact('material_category', 'material_unit'));
     }
 
     /**
@@ -42,15 +46,13 @@ class RawMaterialController extends Controller
     {
         $request->validate([
             'material_name'=> 'required',
-            'material_type'=> 'required',
-            'material_category'=> 'required',
-            'expired_date'=> 'required'
+            'purchase_unit'=> 'required',
+            'material_category'=> 'required'
         ],
         [
             'material_name.required' => 'Nama bahan baku harus diisi',
-            'material_type.required' => 'Tipe bahan baku harus diisi',
-            'material_category.required' => 'Kategori bahan baku harus diisi',
-            'expired_date.required' => 'Tanggal kadaluarsa harus diisi'
+            'purchase_unit.required' => 'Tipe bahan baku harus diisi',
+            'material_category.required' => 'Kategori bahan baku harus diisi'
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
@@ -65,10 +67,10 @@ class RawMaterialController extends Controller
        $raw = RawMaterial::create([
             'material_code' =>$material_code,
             'material_name' =>$request->material_name,
-            'material_type' =>$request->material_type,
+            'purchase_unit' =>$request->purchase_unit,
+            'inventory_unit' =>$request->inventory_unit,
             'material_category' => $request->material_category,
-            'expired_date' =>$request->expired_date,
-            'status' => 4,
+            'status' => 6,
             'created_by' =>$created_by,
             'created_at' => now()
 
@@ -79,10 +81,16 @@ class RawMaterialController extends Controller
             'raw_material'=> $raw->material_code,
             'name' => $raw->material_name,
             'item_category' => 1,
-            'weight_type' => $raw->material_type,
+            'weight_type' => $raw->purchase_unit,
             'created_at' => now(),
             'created_by' => $created
         ]);
+
+        UserLogActivity::log(
+                module: 'Raw Material',
+                method_type: 'CREATE',
+                description: "user create new raw material: {$raw->material_name}"      
+        );
 
         session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
         return redirect()->route('raw_material');
@@ -110,11 +118,14 @@ class RawMaterialController extends Controller
         $raw_material = DB::table('raw_material as rm')
                             ->leftJoin('status_category as s','rm.status', '=', 's.id')
                             ->leftJoin('raw_material_category as ctg', 'rm.material_category', '=', 'ctg.id')
-                            ->where('material_code', $request->material_code)->first();
+                            ->leftJoin('purchase_order_detail as pod', 'rm.material_code', '=', 'pod.raw_material')
+                            ->where('material_code', $request->material_code)
+                            ->orderBy('pod.created_at', 'DESC')->first();
         $status = DB::table('status_category')->whereIn('id', ['4', '6'])->get();
         $material_category = DB::table('raw_material_category')->get();
+        $material_unit = DB::table('material_unit_category')->get();
         $expired_date = Carbon::Parse($raw_material->expired_date);
-        return view('layouts.main_pages.raw_material.edit.raw_material_edit', compact('raw_material','material_category', 'status', 'expired_date'));
+        return view('layouts.main_pages.raw_material.edit.raw_material_edit', compact('raw_material','material_category', 'status', 'expired_date', 'material_unit'));
     }
 
     /**
@@ -124,32 +135,32 @@ class RawMaterialController extends Controller
     {
         $request->validate([
             'material_name'=> 'required',
-            'price'=> 'required',
-            'material_type'=> 'required',
+            'purchase_unit'=> 'required',
             'material_category'=> 'required',
-            'expired_date'=> 'required'
         ],
         [
             'material_name.required' => 'Nama bahan baku harus diisi',
-            'price.required' => 'Harga bahan baku harus diisi',
-            'material_type.required' => 'Tipe bahan baku harus diisi',
+            'purchase_unit.required' => 'Tipe bahan baku harus diisi',
             'material_category.required' => 'Kategori bahan baku harus diisi',
-            'expired_date.required' => 'Tanggal kadaluarsa harus diisi'
         ]);
 
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
 
         RawMaterial::where('material_code', $request->material_code)->update([
             'material_name' =>$request->material_name,
-            'price' =>$request->price,
-            'material_type' =>$request->material_type,
+            'purchase_unit' =>$request->purchase_unit,
+            'inventory_unit' => $request->inventory_unit,
             'material_category' =>$request->material_category,
-            'expired_date' =>$request->expired_date,
-            'status' => $request->status,
             'updated_by' =>$updated_by,
             'updated_at' => now()
 
         ]);
+
+        UserLogActivity::log(
+                module: 'Raw Material',
+                method_type: 'UPDATE',
+                description: "user update raw material: {$request->material_name}"      
+        );
 
         session()->flash('message_success', 'Data Bahan Baku berhasil disimpan!');
         return redirect()->route('raw_material');
@@ -165,6 +176,107 @@ class RawMaterialController extends Controller
         ->orderBy('created_at', 'DESC')->get();
         return view('layouts.main_pages.raw_material.history_raw_material_po', compact('history'));
     }
+
+    public function unit_material(Request $rq)
+    {
+       $unit_material = MaterialUnitModel::leftJoin('raw_material as rm', 'material_unit_category.id', '=', 'rm.purchase_unit')
+            ->select(
+                'material_unit_category.*',
+                DB::raw('COUNT(rm.id) as total_used')
+            )
+            ->groupBy('material_unit_category.id')
+            ->get();
+
+        
+        return view('layouts.main_pages.raw_material.unit_material', compact('unit_material'));
+    }
+
+    public function unit_material_create(Request $rq)
+    {
+
+        return view('layouts.main_pages.raw_material.create.unit_material_create');
+    }
+
+    public function unit_material_save(Request $rq){
+       
+        $rq->validate([
+            'unit_code' => 'required|max:5',
+            'unit_name' => 'required'
+        ],
+        [
+            'unit_code.required' => 'Kode satuan unit harus diisi',
+            'unit_name.required' => 'Nama satuan unit harus diisi'
+        ]);
+
+        $data = [
+            'unit_code' => Str::upper($rq->unit_code),
+            'unit_name' => $rq->unit_name,
+            'created_at' => now(),
+            'updated_at' => null
+        ];
+
+        MaterialUnitModel::create($data);
+        UserLogActivity::log(
+                module: 'Raw Material',
+                method_type: 'CREATE',
+                description: "user create new unit material: {$rq->unit_name}"      
+        );
+
+        session()->flash('message_success', 'Data satuan unit berhasil disimpan!');
+        return redirect()->route('unit_material');
+    }
+
+    public function unit_material_edit(Request $rq)
+    {
+        $unit_material = MaterialUnitModel::where('id', $rq->id)->first();
+        return view('layouts.main_pages.raw_material.edit.unit_material_update', compact('unit_material'));
+    }
+
+    public function unit_material_update(Request $rq)
+    {
+        $rq->validate([
+            'unit_code' => 'required|max:5',
+            'unit_name' => 'required'
+        ],
+        [
+            'unit_code.required' => 'Kode satuan unit harus diisi',
+            'unit_name.required' => 'Nama satuan unit harus diisi'
+        ]);
+
+        $data = [
+            'unit_code' => Str::upper($rq->unit_code),
+            'unit_name' => $rq->unit_name,
+            'updated_at' => now()
+        ];
+
+        MaterialUnitModel::where('id', $rq->id)->update($data);
+        UserLogActivity::log(
+                module: 'Raw Material',
+                method_type: 'UPDATE',
+                description: "user update unit material: {$rq->unit_name}"      
+        );
+
+        session()->flash('message_success', 'Data satuan unit berhasil disimpan!');
+        return redirect()->route('unit_material');
+    }
+
+    public function unit_material_delete($id)
+    {
+        $unit = MaterialUnitModel::find($id);
+
+        if($unit){
+            UserLogActivity::log(
+                module: 'Raw Material',
+                method_type: 'DELETE',
+                description: "user delete unit material"      
+             );
+            $unit->delete();
+        }
+        session()->flash('message_success', 'Data satuan unit berhasil dihapus!');
+        return redirect()->route('unit_material');
+    }
+
+
 
     public function raw_material_usages(Request $rq)
     {
@@ -182,6 +294,11 @@ class RawMaterialController extends Controller
         $raw_material = RawMaterial::where('material_code', $request->material_code)->first();
 
         if($raw_material){
+            UserLogActivity::log(
+                module: 'Raw Material',
+                method_type: 'DELETE',
+                description: "user delete raw material: {$request->material_code}"      
+            );
             $raw_material->delete();
         }
         session()->flash('message_success', 'Data Bahan Baku berhasil dihapus!');
