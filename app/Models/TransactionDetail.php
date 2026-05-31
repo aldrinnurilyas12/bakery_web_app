@@ -13,6 +13,7 @@ class TransactionDetail extends Model
         'transaction_code',
         'product',
         'variant',
+        'price',
         'quantity_per_product',
         'created_by',
         'updated_by'

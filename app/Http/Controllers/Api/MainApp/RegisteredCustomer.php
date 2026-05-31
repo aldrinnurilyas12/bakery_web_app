@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\MainApp;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountEmailVerification;
 use App\Models\CustomerModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -16,6 +17,7 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\EpsImageBackEnd;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use Illuminate\Support\Facades\Mail;
 
 class RegisteredCustomer extends Controller
 {
@@ -100,7 +102,7 @@ class RegisteredCustomer extends Controller
 
         
 
-       $customer = CustomerModel::create([
+       $data = CustomerModel::create([
             'customer_code' => $customer_code,
             'name' => $request->name,
             'address' => $request->address,
@@ -110,19 +112,32 @@ class RegisteredCustomer extends Controller
             'phone_number' => $request->phone_number,
             'qr_code' => $qrCodePath,
             'member_date' => Carbon::now()->format('y-m-d'),
-            'status' => 7,
+            'status' => 8,
+            'account_email_verified' => 'N',
+            'account_email_verified_at' => null,
             'created_at' => now()
         ]);
 
-        $token = $customer->createToken('auth_token')->plainTextToken;
+        Mail::to($request->email)->sendNow(new AccountEmailVerification([
+            'email' => $data->email,
+            'customer_code' => $data->customer_code,
+            'name' => $data->name
+        ]));
 
-        // return response()->json([
-        //     'data' => $customer,
-        //     'token' => $token,
-        //     'token_type' => 'Bearer'
-        // ]);
+        session()->flash('message_success', 'Berhasil daftar akun, Silahkan Verifikasi akun anda.');
+        return redirect()->route('login_app');
+    }
 
-        session()->flash('message_success', 'Berhasil daftar akun!');
+    public function account_verification($customer_code)
+    {
+
+        CustomerModel::where('customer_code', $customer_code)->update([
+            'account_email_verified' => 'Y',
+            'account_email_verified_at' => now(),
+            'status' => 7,
+            'updated_at' => now()
+        ]);
+        session()->flash('message_success', 'Akun berhasil diverifikasi, silahkan login kembali.');
         return redirect()->route('login_app');
     }
 

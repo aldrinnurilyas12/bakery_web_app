@@ -24,6 +24,7 @@ class CheckRouteAccess
     {
 
         $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $CUSTOMER_ENV =  app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer();
 
         $position = $GLOBAL_ENV->position_name ?? null;
 
@@ -37,11 +38,11 @@ class CheckRouteAccess
         $routeName = $request->segment(1);
         $route = DB::table('submenu')->where('submenu_link', $routeName)->first();
         $operational_hours = Carbon::now('Asia/Jakarta')->hour;
-
-
-        
-
         $module_documentation = ModuleDocumentation::where('url_path', $routeName)->first();
+
+        if($CUSTOMER_ENV){
+            return $next($request);
+        }
 
         if (!$ALLOWED_USER) {
             // termasuk yang tidak punya position_name (global env)
@@ -50,10 +51,10 @@ class CheckRouteAccess
                 return redirect()->back();
             }
 
-            if($operational_hours < 8  || $operational_hours > 21){
+            if($operational_hours < 9  || $operational_hours > 21){
              session()->flash('failed_message', 'Maaf tidak bisa akses, Jam operasional : 08:00 s.d 21:00.');
             return redirect()->back();
-        }
+            }
         }
 
         View::share('module_documentation', $module_documentation);

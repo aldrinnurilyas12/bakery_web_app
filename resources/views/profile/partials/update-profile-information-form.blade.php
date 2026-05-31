@@ -44,104 +44,163 @@
 
 
                         <form id="formGeneralMaster" method="POST"
-                            action="{{ route('user_profile_update', $employee->nik) }}" enctype="multipart/form-data">
+                            action="{{ route('user_profile_update', $employee->id) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
 
-                            <div class="form-group">
-                                <label><strong>NIK</strong></label>
-                                <input type="text" name="nik" class="form-control" value="{{ $employee->nik }}"
-                                    readonly>
-                                @if ($errors->has('nik'))
-                                    <span class="text-danger">{{ $errors->first('nik') }}</span>
-                                @endif
-                            </div>
+                            <table class="table table-bordered">
+                                <tbody>
 
-                            <div class="form-group">
-                                <label><strong>Nama Karyawan</strong></label>
-                                <input type="text" name="name" class="form-control" value="{{ $employee->name }}">
-                                @if ($errors->has('name'))
-                                    <span class="text-danger">{{ $errors->first('name') }}</span>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Tanggal Lahir</strong></label>
-                                <input class="form-control" type="date"
-                                    value="{{ old('birth_date', $employee->birth_date ? $birth_date->format('Y-m-d') : null) }}"
-                                    name="birth_date" autocomplete="off">
-                                @if ($errors->has('birth_date'))
-                                    <span class="text-danger">{{ $errors->first('birth_date') }}</span>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Alamat</strong></label>
-                                <input type="text" name="address" class="form-control"
-                                    value="{{ $employee->address }}">
-                                @if ($errors->has('address'))
-                                    <span class="text-danger">{{ $errors->first('address') }}</span>
-                                @endif
-                            </div>
+                                    <tr>
+                                        <th>NIK Karyawan</th>
+                                        <td>
+                                           <input type="text" name="nik" class="form-control"
+                                                value="{{ $employee->nik }}" readonly>
+                                            @if ($errors->has('nik'))
+                                                <span class="text-danger">{{ $errors->first('nik') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
 
 
-                            <div class="form-group">
-                                <label><strong>No. Handphone</strong></label>
-                                <input type="text" name="phone_number" class="form-control"
-                                    value="{{ $employee->phone_number }}">
-                                @if ($errors->has('phone_number'))
-                                    <span class="text-danger">{{ $errors->first('phone_number') }}</span>
-                                @endif
-                            </div>
+                                    <tr>
+                                        <th>Nama Karyawan</th>
+                                        <td>
+                                            <input type="text" name="name" class="form-control" value="{{ $employee->name }}">
+                                            @if ($errors->has('name'))
+                                            <span class="text-danger">{{ $errors->first('name') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
 
-                            <div class="form-group">
-                                <label><strong>Email</strong></label>
-                                <input type="email" name="email" class="form-control"
-                                    value="{{ $employee->email }}">
-                            </div>
+                                    <tr>
+                                        <th>Tanggal Lahir</th>
+                                        <td>
+                                            <input class="form-control" type="date"
+                                                value="{{ old('birth_date', $employee->birth_date ? $birth_date->format('Y-m-d') : null) }}"
+                                                name="birth_date" autocomplete="off">
+                                            @if ($errors->has('birth_date'))
+                                                <span class="text-danger">{{ $errors->first('birth_date') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
 
-                            <div class="form-group">
-                                <label><strong>Kantor</strong></label>
-                                <input type="text" class="form-control" name="branch"
-                                    value="{{ $employee->store_id }}" hidden>
-                                <input type="text" class="form-control" value="{{ $employee->store_name }}"
-                                    readonly>
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Posisi</strong></label>
-                                <input type="text" class="form-control" name="position"
-                                    value="{{ $employee->position_code }}" hidden>
-                                <input type="text" class="form-control" value="{{ $employee->position_name }}"
-                                    readonly>
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Username Akun</strong></label>
-                                <input type="text" name="username" class="form-control"
-                                    value="{{ $employee->username }}" readonly>
-                                @if ($errors->has('username'))
-                                    <span class="text-danger">{{ $errors->first('username') }}</span>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Tanggal Masuk Karyawan</strong></label>
-                                <input type="text" name="start_date" class="form-control"
-                                    value="{{ $employee->start_date }}" readonly>
-                            </div>
+                                    <tr>
+                                        <th>Alamat Rumah</th>
+                                        <td>
+                                            <input type="text" name="address" class="form-control"
+                                                value="{{ $employee->address }}">
+                                            @if ($errors->has('address'))
+                                                <span class="text-danger">{{ $errors->first('address') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
 
 
+                                    <tr>
+                                        <th>No.HP/Telepon</th>
+                                        <td>
+                                            <input type="text" name="phone_number" class="form-control"
+                                                value="{{ $employee->phone_number }}">
+                                            @if ($errors->has('phone_number'))
+                                                <span class="text-danger">{{ $errors->first('phone_number') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
 
-                            <div class="form-group">
-                                <label><strong>Tanggal Buat Akun</strong></label>
-                                <input type="text" class="form-control" value="{{ $employee->created_at }}"
-                                    readonly>
-                            </div>
 
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>
+                                            <input type="email" name="email" class="form-control"
+                                            value="{{ $employee->email }}">
+                                        </td>
+                                    </tr>
 
+                                    <tr>
+                                        <th>Kantor</th>
+                                        <td>{{ $employee->store_name }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>Posisi</th>
+                                        <td>{{ $employee->position_name }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>Username Akun</th>
+                                        <td>{{ $employee->username }}</td>
+                                    </tr>
+
+                                     <tr>
+                                        <th>Tanggal masuk</th>
+                                        <td>{{ $employee->start_date }}</td>
+                                    </tr>
+
+                                     <tr>
+                                        <th>Tanggal buat akun</th>
+                                        <td>{{ $employee->created_at }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                             <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
                                     Data</span>
+                                <span class="spinner"></span></button>
+                        </form>
+
+                        <br>
+                        <br>
+                    </div>
+
+
+                    <div class="container-fluid px-4">
+                        <h4><strong>Ubah Kata Sandi</strong></h4>
+                        <hr>
+
+
+                        <form id="formGeneralMaster" method="POST"
+                            action="{{ route('change_password_employee', $employee->nik) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            <table class="table table-bordered">
+                                <tbody>
+
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>
+                                            <input placeholder="Masukan email anda" type="text" name="input_email" class="form-control" autocomplete="off">
+                                            @if ($errors->has('input_email'))
+                                                <span class="text-danger">{{ $errors->first('input_email') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+
+
+                                    <tr>
+                                        <th>Kata sandi baru</th>
+                                        <td>
+                                            <input type="password" name="password" class="form-control" placeholder="Masukan kata sandi baru">
+                                            @if ($errors->has('password'))
+                                            <span class="text-danger">{{ $errors->first('password') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th>Konfirmasi Kata sandi</th>
+                                        <td>
+                                            <input type="password" name="confirm_password" class="form-control" placeholder="Konfirmasi kata sandi">
+                                            @if ($errors->has('confirm_password'))
+                                            <span class="text-danger">{{ $errors->first('confirm_password') }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                       
+
+                                </tbody>
+                            </table>
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Ubah kata sandi</span>
                                 <span class="spinner"></span></button>
                         </form>
 
@@ -151,6 +210,30 @@
                 </section>
             </main>
 </body>
+
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
+
+
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');

@@ -52,6 +52,7 @@ Route::get('product_detail/{product_code}', [ShowProducts::class, 'product_detai
 // ROUTE FOR MAIN APP:
 Route::get('login_app', [RegisteredCustomer::class, 'login_layouts'])->name('login_app');
 Route::get('register_account', [RegisteredCustomer::class, 'register_layouts'])->name('register_account');
+Route::get('account_verification/{customer_code}', [RegisteredCustomer::class, 'account_verification'])->name('account_verification');
 Route::get('home', [MainAppHomePageController::class, 'homepage'])->name('home');
 Route::get('product/{code}', [MainAppHomePageController::class, 'product_detail'])->name('product');
 Route::get('rewards-catalogue', [CustomerController::class, 'rewards_catalogue'])->name('rewards-catalogue');
@@ -134,11 +135,12 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('users_edit/{nik}' , [RegisteredUserController::class, 'edit_users_layout'])->name('users_edit')->middleware('route_access');
     Route::put('users_update/{nik}' , [RegisteredUserController::class, 'update'])->name('users_update');
     Route::delete('users_delete/{id}' , [RegisteredUserController::class, 'destroy'])->name('users_delete');
-    Route::put('user_profile_update/{nik}', [EmployeeController::class, 'update_user_profile'])->name('user_profile_update');
+    Route::put('user_profile_update/{id}', [EmployeeController::class, 'update_user_profile'])->name('user_profile_update');
     Route::put('user_active_update/{nik}', [RegisteredUserController::class, 'update_user_active'])->name('user_active_update');
     Route::get('get_email/{emp_nik}', [RegisteredUserController::class,'get_email']);
     Route::delete('delete_role/{user_role_id}', [RegisteredUserController::class, 'delete_role'])->name('delete_role');
-
+    Route::get('user_account_verification/{nik}', [RegisteredUserController::class, 'account_verification'])->name('user_account_verification');
+    
     Route::apiResource('point_member_setting', App\Http\Controllers\Api\GetPointMemberTransaction::class)->middleware('route_access');
     Route::get('point_create', [GetPointMemberTransaction::class, 'create'])->name('point_create')->middleware('route_access');
     Route::put('point_update_status/{id}', [GetPointMemberTransaction::class, 'update'])->name('point_update_status');
@@ -150,8 +152,10 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::apiResource('master_employee', App\Http\Controllers\Api\EmployeeController::class)->middleware('route_access');
     Route::get('employee_create', [EmployeeController::class, 'create'])->name('employee_create');
     Route::get('employee_edit/{nik}', [EmployeeController::class, 'employee_edit_layout'])->name('employee_edit')->middleware('route_access');
-    Route::put('update_employee/{nik}', [EmployeeController::class, 'update'])->name('update_employee');
+    Route::put('update_employee/{id}', [EmployeeController::class, 'update'])->name('update_employee');
     Route::put('employee_update_status/{nik}', [EmployeeController::class, 'employee_nonactive'])->name('employee_update_status');
+    Route::put('change_password_employee/{nik}', [EmployeeController::class, 'update_password_employee'])->name('change_password_employee');
+
 
     // Products Route
     Route::apiResource('master_products', App\Http\Controllers\Api\ProductsController::class);

@@ -261,10 +261,17 @@ class CustomerController extends Controller
 
         $customer_email = $request->email;
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
+        $password = $request->password;
+        $confirm_password = $request->confirm_password;
         $matching_customer_email = DB::table('customer')->where('customer_code', $customer_code)->where('email', $customer_email)->first();
 
         if(!$matching_customer_email){
             session()->flash('failed_message', 'Alamat email anda tidak sesuai!');
+            return redirect()->back();
+        }
+
+        if($confirm_password != $password){
+            session()->flash('failed_message', 'Konfirmasi Kata sandi tidak sesuai!');
             return redirect()->back();
         }
 

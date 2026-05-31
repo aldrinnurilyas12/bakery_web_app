@@ -19,6 +19,17 @@
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>
+                 <hr>
+                        <div style="font-size: 13px;" class="alert alert-info">
+                            <ul>
+                                <li>Setiap pembuatan akun user/pengguna harap hubungi pihak internal IT
+                                </li>
+                                 <li>Gunakan kata sandi tanggal lahir sebagai default
+                                </li>
+                                 <li>Aktivasi akun pengguna melalui email yang sudah dikirim
+                                </li>
+                            </ul>
+                        </div>
                 <br>
                 <div class="container-fluid px-4">
                     <h4>Buat Akun Pengguna</h4>
@@ -66,9 +77,10 @@
 
 
                         <div id="showPassword" class="form-group">
-                            <label><strong>Buat Kata Sandi</strong></label>
-                            <input class="form-control" type="password" name="password" placeholder="Masukan kata sandi"
-                                autocomplete="off">
+                            <label><strong>Kata Sandi default</strong></label>
+                            <small>*kata sandi default adalah Tanggal Lahir (format: ddmmyyyy => 12012001)</small>
+                            <input class="form-control" type="password" id="showBirthDate" name="password" placeholder="kata sandi akan muncul otomatis disini"
+                                autocomplete="off" readonly>
                             <x-input-error :messages="$errors->get('password')" class="text-danger" />
                         </div>
                         <div style="display: flex; gap:20px;" class="btn-grouped">
@@ -90,10 +102,12 @@
 
         const usernameField = document.getElementById('showUsername');
         const passwordField = document.getElementById('showPassword');
+         const birthdateField = document.getElementById('showBirthDate');
 
         if (!emp_nik) {
             document.getElementById('showEmail').value = '';
             document.getElementById('showUsername').value = '';
+             document.getElementById('showBirthDate').value = '';
             return;
         }
 
@@ -109,9 +123,15 @@
             if (data.username) {
                 document.getElementById('showUsername').value = data.username;
                 usernameField.readOnly = true;
-                passwordField.hidden = true;
+                passwordField.hidden = false;
 
             }
+
+            if(data.birth_date){
+                document.getElementById('showBirthDate').value = data.birth_date;
+                birthdateField.readOnly = true;
+            }
+
             if (data.username == null) {
                 document.getElementById('showUsername').value = '';
                 usernameField.readOnly = false;

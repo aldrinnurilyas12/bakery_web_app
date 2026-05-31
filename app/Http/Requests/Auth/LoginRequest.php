@@ -71,7 +71,15 @@ class LoginRequest extends FormRequest
                 ])
                 ->with('failed_message', 'Email belum diaktivasi!')
                 ->withInput();
-        }elseif($user_available->is_active == 'N'){
+        }elseif($user_available->account_verified == 'N' || $user_available->account_verified_at == null){
+            RateLimiter::hit($this->throttleKey());
+            return back()
+                ->withErrors([
+                    'login' => 'Anda belum aktivasi akun anda!'
+                ])
+                ->with('failed_message', 'Anda belum aktivasi akun anda!')
+                ->withInput();
+        }elseif($user_available->is_active == 8){
             RateLimiter::hit($this->throttleKey());
             return back()
                 ->withErrors([
@@ -122,6 +130,14 @@ class LoginRequest extends FormRequest
                     'login' => 'Akun sudah tidak aktif'
                 ])
                 ->with('failed_message', 'Akun sudah tidak aktif')
+                ->withInput();
+        }elseif ($user->account_email_verified == 'N' || $user->account_email_verified_at == null) {
+            RateLimiter::hit($this->throttleKey());
+            return back()
+                ->withErrors([
+                    'login' => 'Akun anda belum diverifikasi'
+                ])
+                ->with('failed_message', 'Akun anda belum diverifikasi')
                 ->withInput();
 
         } elseif (!Auth::guard('customer')->attempt([$field => $login, 'password' => $this->input('password')], $this->boolean('remember'))) {

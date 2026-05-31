@@ -12,7 +12,7 @@
         </div>
     </div>
     <div style="display: flex; justify-content: left;font-weight: bold;" class="d-flex-center">
-        <h2 style="font-weight: bold;font-size: 20px;">Lupa password</h2>
+        <h2 style="font-weight: bold;font-size: 20px;">Lupa kata sandi</h2>
     </div>
 
     <form id="formGeneral" method="POST" action="{{ route('check-email-otp') }}">

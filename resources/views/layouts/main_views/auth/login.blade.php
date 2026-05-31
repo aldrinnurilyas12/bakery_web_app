@@ -25,9 +25,9 @@
         </div>
 
         <div class="form-group">
-            <label>Password</label>
+            <label>Kata sandi</label>
             <div style="position: relative;">
-                <input id="password" type="password" name="password" placeholder="Masukan password anda" required
+                <input id="password" type="password" name="password" placeholder="Masukan kata sandi anda" required
                     autocomplete="off">
                 <i class="fas fa-eye" id="togglePassword"
                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
@@ -67,7 +67,7 @@
     </div>
 
     <div class="link">
-        <a style="text-decoration:underline;" href="{{ route('forgot-password-help') }}">Lupa password?</a>
+        <a style="text-decoration:underline;" href="{{ route('forgot-password-help') }}">Lupa kata sandi?</a>
     </div>
 
 

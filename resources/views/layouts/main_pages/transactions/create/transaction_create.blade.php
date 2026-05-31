@@ -515,6 +515,7 @@
                                                                 value="{{ $cart['product'] }}">
                                                             <input name="variant[]" type="hidden"
                                                                 value="{{ $cart['variant'] }}">
+                                                            <input type="hidden" name="product_price[]" value="{{ $cart['price'] }}">
 
                                                             <small class="text-info" style="margin-bottom: 0;"
                                                                 class="item-price">

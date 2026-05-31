@@ -350,6 +350,7 @@ class TransactionController extends Controller
         'product.*' => 'required|exists:products,product_code',
         'variant' => 'nullable|array',
         'variant.*' => 'nullable|string',
+        'product_price' => 'array',
         'quantity_per_product' => 'required|array',
         'quantity_per_product.*' => 'required|integer|min:1',
         ]);
@@ -360,14 +361,16 @@ class TransactionController extends Controller
         $transaction_code = 'INV' . $inv_date . $unique_code;
         
 
-        $productCode = $request->product;
-        $variants = $request->variant ?? [];
-        $qtyProducts = $request->quantity_per_product;
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         $IT_GUY = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name == 'IT Developer';
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
         $store_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
+
+        $productCode = $request->product;
+        $variants = $request->variant ?? [];
+        $price = $request->product_price;
+        $qtyProducts = $request->quantity_per_product;
         $customer = $request->customer;
         $voucher_code = $request->promo_code;
         $codeVoucher = $request->code_voucher;
@@ -435,6 +438,7 @@ class TransactionController extends Controller
                     'transaction_code' => $main_transaction->transaction_code,
                     'product' => $productId,
                     'variant' => $variants[$index] ?? null,
+                    'price' => $price[$index],
                     'quantity_per_product' => $qtyProducts[$index],
                     'created_by' => $casheer,
                     'created_at' => now()
@@ -640,12 +644,19 @@ class TransactionController extends Controller
         return redirect()->route('invoice_detail', $main_transaction->transaction_code);
     }
 
-    public function invoice(Request $request): View
+    public function invoice(Request $request)
     {
         $invoice = DB::table('v_transaction')
         ->where('transaction_code', $request->transaction_code)
             ->first();
         $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)->get();
+
+        if(!$invoice || !$invoice){
+
+            session()->flash('failed_message', 'Invoice tidak ada!');
+            return redirect()->back();
+
+        }
         
         return view('layouts.main_pages.invoice.invoice', compact('invoice', 'invoices'));
     }

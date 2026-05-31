@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\VerificationUsersAccount;
 use App\Models\EmployeeModel;
 use App\Models\ShopModel;
 use App\Models\User;
@@ -18,6 +19,8 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use App\Services\UserLogActivity;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class RegisteredUserController extends Controller
 {
@@ -68,11 +71,12 @@ class RegisteredUserController extends Controller
 
     public function get_email($emp_nik)
     {
-       $emp = DB::table('employee as e')->select('e.email', 'u.username')
+       $emp = DB::table('employee as e')->select('e.email', 'u.username',  DB::raw("DATE_FORMAT(e.birth_date, '%d%m%Y') as birth_date"))
                 ->leftJoin('users as u', 'e.nik', '=', 'u.nik')->where('e.nik', $emp_nik)->first();
         return response()->json([
             'email'=> $emp->email,
-            'username' => $emp->username
+            'username' => $emp->username,
+            'birth_date' => $emp->birth_date
         ]);
     }
 
@@ -101,6 +105,7 @@ class RegisteredUserController extends Controller
       
         $role = $request->role;
         $nik = $request->nik;
+        // $birth_date = Carbon::parse($request->birth_date)->format('Ymd');
 
         $users_exists = DB::table('users')->where('nik', $nik)->exists();
         $checking_role_exist = DB::table('users_role')->where('role', $role)->where('user', $nik)->exists();
@@ -114,11 +119,13 @@ class RegisteredUserController extends Controller
        
 
        if(!$users_exists){
-            $user = User::create([
+            $data = User::create([
                 'nik' => $nik,
                 'username' => $request->username,
                 'email' => $request->email,
-                'is_active' => 'Y',
+                'is_active' => 8,
+                'account_verified' => 'N',
+                'account_verified_at' => null,
                 'password' => Hash::make($request->password),
                 'created_at' => now(),
                 'created_by' => $created_by
@@ -127,7 +134,7 @@ class RegisteredUserController extends Controller
 
             $user_role = UsersRole::create([
                 'role' => $role,
-                'user' => $user->nik
+                'user' => $data->nik
             ]);
        }else{
             $user_role = UsersRole::create([
@@ -136,13 +143,19 @@ class RegisteredUserController extends Controller
             ]);
        }
 
+        Mail::to($request->email)->sendNow(new VerificationUsersAccount([
+            'email' => $data->email,
+            'nik' => $data->nik,
+            'name' => $data->name
+        ]));
+
        UserLogActivity::log(
                 module: 'User',
                 method_type: 'CREATE',
-                description: "user create new user: {$user->nik}"      
+                description: "user create new user: {$data->nik}"      
         );
 
-        session()->flash('message_success', 'Berhasil daftar akun!');
+        session()->flash('message_success', 'Berhasil daftar akun, silahkan aktivasi akun melalui Email.');
         return redirect()->back();
 
     }
@@ -211,6 +224,19 @@ class RegisteredUserController extends Controller
 
         session()->flash('message_success', 'Data pengguna berhasil diperbaui!');
         return redirect()->back();
+    }
+
+     public function account_verification($nik)
+    {
+
+        User::where('nik', $nik)->update([
+            'account_verified' => 'Y',
+            'account_verified_at' => now(),
+            'is_active' => 7,
+            'updated_at' => now()
+        ]);
+        session()->flash('message_success', 'Akun berhasil diverifikasi, silahkan login kembali.');
+        return redirect()->route('login_kencana_bakery');
     }
 
     public function log_users_activities(Request $request)

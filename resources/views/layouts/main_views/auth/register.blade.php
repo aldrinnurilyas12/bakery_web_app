@@ -11,7 +11,7 @@
         </div>
     </div>
     <div style="display: flex; justify-content: left;" class="d-flex-center">
-        <h2 style="font-weight: bold;font-size: 20px;">Register Account</h2>
+        <h2 style="font-weight: bold;font-size: 20px;">Daftar akun</h2>
     </div>
 
     <form id="formGeneral" method="POST" action="{{ route('register_member_account') }}">

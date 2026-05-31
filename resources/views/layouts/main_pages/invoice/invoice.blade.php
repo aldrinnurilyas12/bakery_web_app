@@ -107,18 +107,11 @@
                                             <td>{{ $inv->product_name }}</td>
                                             <td>{{ $inv->quantity_per_product }}</td>
                                             <td>
-                                                @if ($inv->variant_price)
-                                                    {{ 'Rp.' . number_format($inv->variant_price) }}
-                                                @else
-                                                    {{ 'Rp.' . number_format($inv->price) }}
-                                                @endif
+                                                {{ 'Rp.' . number_format($inv->price) }}
+
                                             </td>
                                             <td>
-                                                @if ($inv->variant_price)
-                                                    {{ 'Rp.' . number_format($inv->variant_price * $inv->quantity_per_product) }}
-                                                @else
-                                                    {{ 'Rp.' . number_format($inv->price * $inv->quantity_per_product) }}
-                                                @endif
+                                                {{ 'Rp.' . number_format($inv->price * $inv->quantity_per_product) }}
                                             </td>
 
                                         </tr>

@@ -88,6 +88,7 @@
 
                 <div class="tab-pane fade" id="tab-insight" role="tabpanel">
                     <div class="container-products">
+                        @if ($history_transaction->isNotEmpty())
                         <div class="row">
                             <!-- Line Chart -->
                             <div class="col-md-12">
@@ -99,6 +100,9 @@
                                 </div>
                             </div>
                         </div>
+                        @else
+                         <p style="text-align: center;margin:0 auto;">Tidak ada transaksi.</p>
+                        @endif
                     </div>
 
 

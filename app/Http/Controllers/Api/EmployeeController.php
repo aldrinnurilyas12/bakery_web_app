@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EmployeeModel;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Carbon\Carbon;
 use App\Services\UserLogActivity;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
@@ -157,7 +159,7 @@ class EmployeeController extends Controller
 
         
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
-        $update_data = DB::table('employee')->where('nik', $request->nik)->update([
+        $update_data = DB::table('employee')->where('id', $request->id)->update([
             'nik' => $request->nik,
             'name' =>$request->name,
             'address' => $request->address,
@@ -187,8 +189,16 @@ class EmployeeController extends Controller
 
     public function update_user_profile(Request $request)
     {
+        $request->validate([
+            'nik' => 'max:16',
+        ],
+        [
+            'nik.max' => 'NIK Harus 16 digit'
+        ]);
+    
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
-        $update_data = DB::table('employee')->where('nik', $request->nik)->update([
+        $update_data = DB::table('employee')->where('id', $request->id)->update([
+            'nik' => $request->nik,
             'name' =>$request->name,
             'address' => $request->address,
             'phone_number' => $request->phone_number,
@@ -209,6 +219,48 @@ class EmployeeController extends Controller
         }
 
 
+    }
+
+    public function update_password_employee(Request $request) 
+    {
+        $request->validate([
+            'input_email' => 'required',
+            'password' => 'required',
+            'confirm_password' => 'required'
+        ],
+        [
+            'input_email.required' => 'Alamat email harus diisi',
+            'password.required' => 'Kata sandi harus diisi',
+            'confirm_password.required' => 'Kata sandi harus diisi'
+        ]
+        );
+
+        $employee_email = $request->input_email;
+        $password = $request->password;
+        $confirm_password = $request->confirm_password;
+
+        $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $employee_email = DB::table('users')->where('nik', $nik)->where('email', $employee_email)->first();
+
+        if(!$employee_email){
+            session()->flash('failed_message', 'Alamat email anda tidak sesuai!');
+            return redirect()->back();
+        }
+
+        if($confirm_password != $password){
+            session()->flash('failed_message', 'Konfirmasi kata sandi tidak sesuai!');
+            return redirect()->back();
+        }
+
+        if($employee_email)
+        { 
+            User::where('nik', $nik)->update([
+                'password' => Hash::make($password),
+                'updated_at' => now()
+            ]);
+            session()->flash('message_success', 'Berhasil merubah kata sandi!');
+            return redirect()->back();
+        }
     }
 
     /**

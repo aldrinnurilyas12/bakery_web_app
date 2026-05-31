@@ -24,7 +24,7 @@
                     <hr>
 
 
-                    <form id="formGeneralMaster" action="{{ route('update_employee', $employee->nik) }}" method="POST"
+                    <form id="formGeneralMaster" action="{{ route('update_employee', $employee->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -32,7 +32,7 @@
                         <div class="form-group">
                             <label><strong>NIK Karyawan</strong></label>
                             <input class="form-control" type="number" name="nik" value="{{ $employee->nik }}"
-                                placeholder="Masukan NIK Karyawan" id="" autocomplete="off">
+                                placeholder="Masukan NIK Karyawan" id="" autocomplete="off" readonly>
                             <x-input-error :messages="$errors->get('nik')" class="text-danger" />
                         </div>
 

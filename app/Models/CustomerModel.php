@@ -24,6 +24,8 @@ class CustomerModel extends Authenticatable
         'qr_code',
         'member_date',
         'status',
+        'account_email_verified',
+        'account_email_verified_at',
         'created_at',
     ];
 

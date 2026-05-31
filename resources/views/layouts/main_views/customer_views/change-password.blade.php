@@ -44,11 +44,22 @@
                         </div>
 
                         <div class="form-group">
-                            <label for=""><strong>Kata Sandi Baru </strong></label>
+                            <label for=""><strong>Kata sandi baru </strong></label>
                             <div style="position: relative;">
                                 <input id="password" type="password" name="password" class="form-control"
                                     placeholder="Buat kata sandi baru">
                                 <i class="fas fa-eye" id="togglePassword"
+                                    style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                                </i>
+                            </div>
+                        </div>
+
+                         <div class="form-group">
+                            <label for=""><strong>Konfirmasi kata sandi </strong></label>
+                            <div style="position: relative;">
+                                <input id="confirm_password" type="password" name="confirm_password" class="form-control"
+                                    placeholder="Konfirmasi kata sandi">
+                                <i class="fas fa-eye" id="toggleConfirmPassword"
                                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                                 </i>
                             </div>
@@ -211,7 +222,9 @@
     });
 
     const toggle = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const password = document.getElementById('password');
+    const confirm_password = document.getElementById('confirm_password');
 
     toggle.addEventListener('click', function() {
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -221,6 +234,15 @@
         this.classList.toggle('fa-eye');
         this.classList.toggle('fa-eye-slash');
     });
+
+    toggleConfirmPassword.addEventListener('click', function(){
+        const type_confirm = confirm_password.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirm_password.setAttribute('type', type_confirm);
+
+        // ganti icon
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    })
 </script>
 
 
