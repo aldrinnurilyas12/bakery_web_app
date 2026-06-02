@@ -15,6 +15,7 @@ class MasterSubMenuModel extends Model
         'main_menu',
         'icon',
         'status',
+        'allow_access_outside_operational_hours',
         'description'
     ];
 }

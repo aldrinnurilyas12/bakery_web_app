@@ -61,8 +61,9 @@
                                                 <th>Submenu</th>
                                                 <th>Submenu Link</th>
                                                 <th>Status</th>
+                                                <th>Akses diluar jam operasional</th>
                                                 <th>Icon</th>
-                                                <th>Status</th>
+                                                <th>Deskripsi</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -96,6 +97,17 @@
                                                             <span class="text-success">Aktif</span>
                                                         @else
                                                             <span class="text-danger">Nonaktif</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($sub->allow_access_outside_operational_hours)
+                                                            @if($sub->allow_access_outside_operational_hours == 'Y')
+                                                                <span class="text-success">Ya</span>
+                                                            @else
+                                                                <span class="text-danger">Tidak</span>
+                                                            @endif
+                                                        @else
+                                                        <span>-</span>
                                                         @endif
                                                     </td>
                                                     <td><i class="{{ $sub->icon }} "></i>

@@ -123,12 +123,18 @@
                         <input class="form-control" type="date"
                             value="{{ old('birth_date', $customer->birth_date ? $birth_date->format('Y-m-d') : null) }}"
                             name="birth_date" autocomplete="off">
+                        @if(!$customer->birth_date)
+                            <small class="text-danger">*Harap masukan tanggal lahir</small>
+                        @endif
                         <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
                     </div>
 
                     <div class="form-group">
                         <label><strong>Alamat</strong></label>
                         <input type="text" name="address" class="form-control" value="{{ $customer->address }}">
+                         @if(!$customer->address)
+                            <small class="text-danger">*Harap masukan alamat</small>
+                        @endif
                         <x-input-error :messages="$errors->get('address')" class="text-danger" />
                     </div>
 
@@ -137,6 +143,9 @@
                         <label><strong>No. Handphone</strong></label>
                         <input type="text" name="phone_number" class="form-control"
                             value="{{ $customer->phone_number }}">
+                        @if(!$customer->phone_number)
+                            <small class="text-danger">*Harap masukan nomor handphone</small>
+                        @endif
                         <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
                     </div>
 

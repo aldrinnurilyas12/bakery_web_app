@@ -12,7 +12,7 @@
         </div>
     </div>
     <div style="display: flex; justify-content: left;font-weight: bold;" class="d-flex-center">
-        <h2 style="font-weight: bold;font-size: 20px;">Login</h2>
+        <h2 style="font-weight: bold;font-size: 20px;">Login Kencana Bakery</h2>
     </div>
 
     <form id="formGeneral" method="POST" action="{{ route('login_execute') }}">
@@ -38,6 +38,9 @@
         <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Login</span>
             <span class="spinner"></span></button>
     </form>
+    <a class="btn-login-google" href="{{ route('google.login')}}"><img style="width:20px;height:20px;" src="{{ asset('assets\front_end\assets\icons\google_icon.png') }}" alt="">  Login dengan akun google</span>
+    </a>
+            <span class="spinner"></span></button>
     <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
     @if (Session::has('message_success'))
         <script>

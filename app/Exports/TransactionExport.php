@@ -27,6 +27,7 @@ class TransactionExport implements FromCollection, WithHeadings, WithTitle, With
     public function collection()
     {
          $query = DB::table('v_main_transactions')
+            ->where('transaction_type', '=', 'SALE')
             ->orderBy('transaction_date', 'DESC');
 
         if($this->filter_transaction == 'today'){
@@ -57,7 +58,7 @@ class TransactionExport implements FromCollection, WithHeadings, WithTitle, With
             'ID Pelanggan',
             'Pelanggan',
             'Kasir',
-            'Pakai Reward',
+            'Jenis Transaksi',
             'Tanggal',
             'Created_at',
             'Updated_at'

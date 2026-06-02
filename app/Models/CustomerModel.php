@@ -26,6 +26,7 @@ class CustomerModel extends Authenticatable
         'status',
         'account_email_verified',
         'account_email_verified_at',
+        'google_id',
         'created_at',
     ];
 

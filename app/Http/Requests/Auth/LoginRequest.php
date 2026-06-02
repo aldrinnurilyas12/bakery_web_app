@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use App\Mail\VerificationUsersAccount;
+use Illuminate\Support\Facades\Mail;
+
 
 class LoginRequest extends FormRequest
 {
@@ -47,6 +51,7 @@ class LoginRequest extends FormRequest
 
         $login = $this->only('login')['login'];
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $email = filter_var($login, FILTER_VALIDATE_EMAIL) ? $login : null;
 
         // Mencari pengguna berdasarkan email atau username
         $user_available = User::where($field, $login)->first();
@@ -72,13 +77,25 @@ class LoginRequest extends FormRequest
                 ->with('failed_message', 'Email belum diaktivasi!')
                 ->withInput();
         }elseif($user_available->account_verified == 'N' || $user_available->account_verified_at == null){
-            RateLimiter::hit($this->throttleKey());
-            return back()
-                ->withErrors([
-                    'login' => 'Anda belum aktivasi akun anda!'
-                ])
-                ->with('failed_message', 'Anda belum aktivasi akun anda!')
+
+            $HasRegistered = DB::table('users as u')
+                            ->select('u.nik', 'e.name', 'u.email')
+                            ->join('employee as e', 'u.nik', '=', 'e.nik')
+                            ->where('u.email', $user_available->email)->first();
+
+            if($HasRegistered){
+                Mail::to($user_available->email)->sendNow(new VerificationUsersAccount([
+                    'email' => $email,
+                    'nik' => $HasRegistered->nik,
+                    'name' => $HasRegistered->name
+                ]));
+
+                RateLimiter::hit($this->throttleKey());
+                 return back()
+                ->with('message_success', 'Silahkan verifikasi akun anda melalui email anda!')
                 ->withInput();
+            }
+
         }elseif($user_available->is_active == 8){
             RateLimiter::hit($this->throttleKey());
             return back()

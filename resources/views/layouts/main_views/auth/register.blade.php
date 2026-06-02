@@ -2,7 +2,7 @@
 
 @section('title', 'Kencana Bakery | Daftar Akun')
 <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 @section('content')
     <div style="display: flex; justify-content: center;" class="d-flex-center">
         <div class="img-logo">
@@ -54,7 +54,12 @@
 
         <div class="form-group">
             <label>Kata Sandi</label>
-            <input type="password" name="password" autocomplete="off" placeholder="Buat kata sandi anda">
+            <div style="position: relative;">
+                <input id="password" type="password" name="password" autocomplete="off" placeholder="Buat kata sandi anda">
+                <i class="fas fa-eye" id="togglePassword"
+                        style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                </i>
+            </div>
             <x-input-error :messages="$errors->get('password')" class="text-danger" />
         </div>
 
@@ -148,5 +153,29 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const toggle = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+
+        toggle.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // ganti icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const alert = document.querySelector('.alert');
+            if (alert) {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500); // Menghapus elemen setelah fade out
+                }, 4000); // Waktu tampilan alert, dalam milidetik (3 detik)
+            }
+        });
+    </script>
 @endsection
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>

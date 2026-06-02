@@ -20,6 +20,12 @@ class EmployeeController extends Controller
     public function index()
     {
         $v_employee = DB::table('v_employee')->get();
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager', 'Casheer']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
 
         return view('layouts.main_pages.employee.employee_data', compact('v_employee'));
     }
@@ -30,7 +36,7 @@ class EmployeeController extends Controller
     public function create() 
     {
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
-        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager']);
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager', 'Casheer']);
         if($user_permission_forbidden){
             session()->flash('failed_message', 'Tidak bisa akses');
             return redirect()->back();

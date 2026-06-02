@@ -118,7 +118,7 @@
                                                 <th>Kembalian</th>
                                                 <th>Grand Total</th>
                                                 <th>Pelanggan</th>
-                                                <th>Pakai Reward</th>
+                                                <th>Jenis Transaksi</th>
                                                 <th>Store</th>
                                                 <th>Kasir</th>
                                                 <th>Created at</th>
@@ -177,8 +177,8 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if ($transaction->reward_transaction_used)
-                                                            {{ $transaction->reward_transaction_used }}
+                                                        @if ($transaction->transaction_type)
+                                                            {{ $transaction->transaction_type }}
                                                         @else
                                                             -
                                                         @endif

@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\PurchaseOrderController;
 use App\Http\Controllers\Api\RequestForgotPassword;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\VariantCategory;
+use App\Http\Controllers\GoogleOauthController;
 use App\http\Controllers\Api\ModulesDocumentation;
 use App\Http\Controllers\Api\FraudAnalysis;
 use Illuminate\Support\Facades\Route;
@@ -75,8 +76,13 @@ Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest
 
 
 // for testing get API Eksternal
-Route::get('omdb_services', [OmdbApiServices::class, 'index']);
-Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
+// Route::get('omdb_services', [OmdbApiServices::class, 'index']);
+// Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
+
+// OAuth Google:
+Route::get('/auth/google', [GoogleOauthController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/callback', [GoogleOauthController::class, 'callback']);
+
 
 Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile')->middleware('route_access');
@@ -117,7 +123,7 @@ Route::get('otp-confirmation', [RequestForgotPassword::class, 'otp_confirmation'
 Route::post('otp-proccess', [RequestForgotPassword::class, 'otp_auth_confirmation'])->name('otp-proccess');
 Route::get('change-password', [RequestForgotPassword::class, 'change_password_layouts'])->name('change-password')->middleware('route_access');
 Route::put('change-password-proccess/{email}', [RequestForgotPassword::class, 'change_password_proccess'])->name('change-password-proccess');
-
+Route::get('user_account_verification/{nik}', [RegisteredUserController::class, 'account_verification'])->name('user_account_verification');
 
 
 
@@ -139,8 +145,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('user_active_update/{nik}', [RegisteredUserController::class, 'update_user_active'])->name('user_active_update');
     Route::get('get_email/{emp_nik}', [RegisteredUserController::class,'get_email']);
     Route::delete('delete_role/{user_role_id}', [RegisteredUserController::class, 'delete_role'])->name('delete_role');
-    Route::get('user_account_verification/{nik}', [RegisteredUserController::class, 'account_verification'])->name('user_account_verification');
-    
+
     Route::apiResource('point_member_setting', App\Http\Controllers\Api\GetPointMemberTransaction::class)->middleware('route_access');
     Route::get('point_create', [GetPointMemberTransaction::class, 'create'])->name('point_create')->middleware('route_access');
     Route::put('point_update_status/{id}', [GetPointMemberTransaction::class, 'update'])->name('point_update_status');

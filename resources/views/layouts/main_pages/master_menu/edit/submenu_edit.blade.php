@@ -62,6 +62,15 @@
                         </div>
 
                         <div class="form-group">
+                            <label><strong>Akses diluar jam operasional</strong></label>
+                            <select class="form-control" name="allow_access_outside_operational_hours" id="">
+                                <option value="Y" {{ $submenu->allow_access_outside_operational_hours == 'Y' ? 'selected' : '' }}>Ya</option>
+                                <option value="N" {{ $submenu->allow_access_outside_operational_hours == 'N' ? 'selected' : '' }}>Tidak</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('allow_access_outside_operational_hours')" class="text-danger" />
+                        </div>
+
+                        <div class="form-group">
                             <label><strong>Icon</strong></label>
                             <input type="text" name="icon" class="form-control"
                                 placeholder="Masukan icon contoh : fa fa-users" value="{{ $submenu->icon }}"

@@ -10,6 +10,7 @@
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
@@ -180,20 +181,30 @@
                                     <tr>
                                         <th>Kata sandi baru</th>
                                         <td>
-                                            <input type="password" name="password" class="form-control" placeholder="Masukan kata sandi baru">
-                                            @if ($errors->has('password'))
-                                            <span class="text-danger">{{ $errors->first('password') }}</span>
-                                            @endif
+                                             <div style="position: relative;">
+                                                <input id="password" type="password" name="password" class="form-control" autocomplete="off" placeholder="Masukan kata sandi baru">
+                                                <i class="fas fa-eye" id="togglePassword"
+                                                    style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                                                </i>
+                                                @if ($errors->has('password'))
+                                                <span class="text-danger">{{ $errors->first('password') }}</span>
+                                                @endif
+                                             </div>
                                         </td>
                                     </tr>
 
                                     <tr>
                                         <th>Konfirmasi Kata sandi</th>
                                         <td>
-                                            <input type="password" name="confirm_password" class="form-control" placeholder="Konfirmasi kata sandi">
-                                            @if ($errors->has('confirm_password'))
-                                            <span class="text-danger">{{ $errors->first('confirm_password') }}</span>
-                                            @endif
+                                             <div style="position: relative;">
+                                                <input id="confirmPassword" type="password" name="confirm_password" autocomplete="off" class="form-control" placeholder="Konfirmasi kata sandi">
+                                                <i class="fas fa-eye" id="toggleConfirmPassword"
+                                                    style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                                                </i>
+                                                @if ($errors->has('confirm_password'))
+                                                <span class="text-danger">{{ $errors->first('confirm_password') }}</span>
+                                                @endif
+                                             </div>
                                         </td>
                                     </tr>
                        
@@ -210,6 +221,21 @@
                 </section>
             </main>
 </body>
+
+<script>
+       const toggle = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+
+        toggle.addEventListener('click', function() {
+             console.log('ICON PASSWORD DIKLIK');
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            // ganti icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+</script>
 
 @if (Session::has('message_success'))
     <script>
@@ -232,8 +258,6 @@
         });
     </script>
 @endif
-
-
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
@@ -274,16 +298,5 @@
     }
 </style>
 
-@if (Session::has('message_success'))
-    <script>
-        Swal.fire({
-            title: 'Berhasil',
-            text: "{{ Session::get('message_success') }}",
-            icon: 'success',
-            timer: 2000,
-            confirmButtonText: 'OK'
-        });
-    </script>
-@endif
 
 </html>

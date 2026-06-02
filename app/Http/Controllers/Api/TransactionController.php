@@ -14,6 +14,7 @@ use App\Models\TransactionDetail;
 use App\Models\TransactionDetailInformationModel;
 use App\Models\TransactionModel;
 use App\Models\TransactionsVouchers;
+use App\Models\TransactionTestingModel;
 use App\Models\VoucherCustomer;
 use App\Models\VoucherModel;
 use App\Models\VoucherRedeem;
@@ -48,7 +49,8 @@ class TransactionController extends Controller
         ->orderBy('transaction_date', 'DESC')->get();
 
         $main_transaction = DB::table('v_main_transactions')->where('store_code', $USER_STORE)->orderBy('transaction_date', 'DESC')
-        ->whereDate('transaction_date', now()->format('Y-m-d'))->paginate(500);
+        ->whereDate('transaction_date', now()->format('Y-m-d'))
+        ->where('transaction_type' , '=', 'SALE')->paginate(500);
 
         $show_items = DB::table('transactions_detail as td')
                                     ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
@@ -106,6 +108,7 @@ class TransactionController extends Controller
 
         if($request->filter_transaction){
            $query = DB::table('v_main_transactions')
+            ->where('transaction_type', '=', 'SALE')
             ->orderBy('transaction_date', 'DESC');
 
             if ($request->filter_transaction) {
@@ -165,37 +168,35 @@ class TransactionController extends Controller
     }
 
 
-    public function download_excel(Request $request)
-    {
+   public function download_excel(Request $request)
+{
     $filter = $request->filter_transaction;
 
-    $query = DB::table('v_main_transactions')
-        ->orderBy('transaction_date', 'DESC');
+    $date = now()->format('d-m-Y');
 
-    if ($filter === 'today') {
-        $query->whereDate('transaction_date', Carbon::today());
-        $date = Carbon::today()->format('d-m-Y');
+    switch ($filter) {
+        case 'today':
+            $date = now()->format('d-m-Y');
+            break;
+
+        case 'week':
+            $start = now()->startOfWeek();
+            $end   = now()->endOfWeek();
+
+            $date = $start->format('d-m-Y') . '_sd_' . $end->format('d-m-Y');
+            break;
+
+        case 'month':
+            $date = now()->format('F_Y');
+            break;
     }
 
-    if ($filter === 'week') {
-        $query->whereBetween('transaction_date', [
-            Carbon::now()->startOfWeek(),
-            Carbon::now()->endOfWeek()
-        ]);
+    $filename = "Data_transaksi_{$date}.xlsx";
 
-        $start = Carbon::now()->startOfWeek();
-        $end   = Carbon::now()->endOfWeek();
-        $date = $start->format('d-m-Y') . '_sd_' . $end->format('d-m-Y');
-    }
-
-    if ($filter === 'month') {
-        $query->whereMonth('transaction_date', Carbon::now()->month)
-              ->whereYear('transaction_date', Carbon::now()->year);
-        $date = Carbon::now()->format('F_Y');
-    }
-      $filename = 'Data_transaksi_'.$date. '.xlsx';
-
-     return Excel::download(new TransactionExport($filter), $filename);
+    return Excel::download(
+        new TransactionExport($filter),
+        $filename
+    );
 }
 
 
@@ -417,32 +418,71 @@ class TransactionController extends Controller
             return redirect()->back();
         }
 
-        $main_transaction = TransactionModel::create([
-            'transaction_code' => $transaction_code,
-            'total_amount' => $request->total_amount,
-            'grand_total' => $request->grand_total,
-            'casheer' => $casheer,
-            'customer' => $request->customer,
-            'status' => 5,
-            'store' => $store_code,
-            'payment_type' => $request->payment_type,
-            'payment_changes' => $request->payment_changes,
-            'transaction_date' => now(),
-            'created_by' => $casheer,
-            'created_at' => now()
-        ]);
+        if(!$IT_GUY){
+            $main_transaction = TransactionModel::create([
+                'transaction_code' => $transaction_code,
+                'total_amount' => $request->total_amount,
+                'grand_total' => $request->grand_total,
+                'casheer' => $casheer,
+                'customer' => $request->customer,
+                'status' => 5,
+                'store' => $store_code,
+                'payment_type' => $request->payment_type,
+                'payment_changes' => $request->payment_changes,
+                'transaction_type' => "SALE", 
+                'transaction_date' => now(),
+                'created_by' => $casheer,
+                'created_at' => now()
+            ]);
 
-     
-        foreach ($productCode as $index => $productId) {
-             $transaction_detail =  TransactionDetail::create([
-                    'transaction_code' => $main_transaction->transaction_code,
-                    'product' => $productId,
-                    'variant' => $variants[$index] ?? null,
-                    'price' => $price[$index],
-                    'quantity_per_product' => $qtyProducts[$index],
-                    'created_by' => $casheer,
-                    'created_at' => now()
-                ]);
+        
+            foreach ($productCode as $index => $productId) {
+                $transaction_detail =  TransactionDetail::create([
+                        'transaction_code' => $main_transaction->transaction_code,
+                        'product' => $productId,
+                        'variant' => $variants[$index] ?? null,
+                        'price' => $price[$index],
+                        'quantity_per_product' => $qtyProducts[$index],
+                        'created_by' => $casheer,
+                        'created_at' => now()
+                    ]);
+            }
+        }elseif($IT_GUY){
+             $main_transaction = TransactionModel::create([
+                'transaction_code' => $transaction_code,
+                'total_amount' => $request->total_amount,
+                'grand_total' => $request->grand_total,
+                'casheer' => $casheer,
+                'customer' => $request->customer,
+                'status' => 5,
+                'store' => $store_code,
+                'payment_type' => $request->payment_type,
+                'payment_changes' => $request->payment_changes,
+                'transaction_type' => "TEST", 
+                'transaction_date' => now(),
+                'created_by' => $casheer,
+                'created_at' => now()
+            ]);
+
+        
+            foreach ($productCode as $index => $productId) {
+                $transaction_detail =  TransactionDetail::create([
+                        'transaction_code' => $main_transaction->transaction_code,
+                        'product' => $productId,
+                        'variant' => $variants[$index] ?? null,
+                        'price' => $price[$index],
+                        'quantity_per_product' => $qtyProducts[$index],
+                        'created_by' => $casheer,
+                        'created_at' => now()
+                    ]);
+            }
+
+            TransactionTestingModel::create([
+                'transaction' => $main_transaction->transaction_code,
+                'testing_date' => now(),
+                'testing_by' =>$user,
+                'is_testing' => 'Y'
+            ]);
         }
 
 
@@ -521,36 +561,37 @@ class TransactionController extends Controller
         }
 
 
+        if(!$IT_GUY){
+            if($voucher_code){
+                VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
+                    'voucher_used' => 'Y',
+                    'status' => 8,
+                    'updated_at' => now()
+                ]);
 
-        if($voucher_code){
-            VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
-                'voucher_used' => 'Y',
-                'status' => 8,
-                'updated_at' => now()
-            ]);
+            $redeemVoucher =  VoucherRedeem::create([
+                    'voucher_code' => $codeVoucher,
+                    'customer_voucher' => $voucher_code,
+                    'customer' => $customer,
+                    'redeem_date' => now(),
+                    'casheer' => $casheer,
+                    'status' => 17,
+                    'store' => $store_code,
+                    'created_at' => now(),
+                    'created_by' => $casheer
+                ]);
 
-          $redeemVoucher =  VoucherRedeem::create([
-                'voucher_code' => $codeVoucher,
-                'customer_voucher' => $voucher_code,
-                'customer' => $customer,
-                'redeem_date' => now(),
-                'casheer' => $casheer,
-                'status' => 17,
-                'store' => $store_code,
-                'created_at' => now(),
-                'created_by' => $casheer
-            ]);
-
-            TransactionsVouchers::create([
-                'transaction_code' => $main_transaction->transaction_code,
-                'voucher_code' => $codeVoucher,
-                'customer_voucher' => $redeemVoucher->customer_voucher,
-                'status' => 8,
-                'voucher_used' => 'Y',
-                'used_at' => now(),
-                'created_at' => now(),
-                'created_by' => $casheer
-            ]);
+                TransactionsVouchers::create([
+                    'transaction_code' => $main_transaction->transaction_code,
+                    'voucher_code' => $codeVoucher,
+                    'customer_voucher' => $redeemVoucher->customer_voucher,
+                    'status' => 8,
+                    'voucher_used' => 'Y',
+                    'used_at' => now(),
+                    'created_at' => now(),
+                    'created_by' => $casheer
+                ]);
+            }
         }
         
     
@@ -572,9 +613,11 @@ class TransactionController extends Controller
 
         $get_point = $check_point ? $check_point->point : 0;
 
-         DB::table('customer')
-        ->where('customer_code', $main_transaction->customer)
-        ->increment('point', $totalPoints + $get_point);
+        if(!$IT_GUY){
+            DB::table('customer')
+            ->where('customer_code', $main_transaction->customer)
+            ->increment('point', $totalPoints + $get_point);
+        }
 
 
         $customerTransaction = DB::table('transactions')
@@ -610,23 +653,25 @@ class TransactionController extends Controller
                     if($getAmount >= $get_voucher->min_transaction) {
                         if(!$checkingQuotaVoucher && $get_voucher){
                             if(!$voucherExpired) {
-                                VoucherCustomer::create([
-                                    'customer' => $main_transaction->customer,
-                                    'voucher' => $get_voucher->voucher_code,
-                                    'customer_voucher_code' =>$customerVoucher,
-                                    'transaction' => $main_transaction->transaction_code,
-                                    'status' => 7,
-                                    'voucher_used' => 'N',
-                                    'created_by' => $casheer,
-                                    'created_at' => now()
-                                ]);
+                                if(!$IT_GUY){    
+                                    VoucherCustomer::create([
+                                        'customer' => $main_transaction->customer,
+                                        'voucher' => $get_voucher->voucher_code,
+                                        'customer_voucher_code' =>$customerVoucher,
+                                        'transaction' => $main_transaction->transaction_code,
+                                        'status' => 7,
+                                        'voucher_used' => 'N',
+                                        'created_by' => $casheer,
+                                        'created_at' => now()
+                                    ]);
 
-                                Mail::to($customer_email->email)->sendNow(new GetVoucherInfoCustomer([
-                                    'name' => $customer_email->name,
-                                    'voucher_code' => $get_voucher->voucher_code,
-                                    'voucher_name' => $get_voucher->voucher_name,
-                                    'email' => $customer_email->email
-                                ]));
+                                    Mail::to($customer_email->email)->sendNow(new GetVoucherInfoCustomer([
+                                        'name' => $customer_email->name,
+                                        'voucher_code' => $get_voucher->voucher_code,
+                                        'voucher_name' => $get_voucher->voucher_name,
+                                        'email' => $customer_email->email
+                                    ]));
+                                }
                             }
                         }
                     }

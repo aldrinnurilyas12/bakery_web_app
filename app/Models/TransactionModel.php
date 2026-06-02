@@ -20,7 +20,7 @@ class TransactionModel extends Model
         'store',
         'payment_type',
         'payment_changes',
-        'reward_transaction_used',
+        'transaction_type',
         'transaction_date',
         'created_by',
         'updated_by'

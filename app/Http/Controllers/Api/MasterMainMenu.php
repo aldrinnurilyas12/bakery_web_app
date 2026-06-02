@@ -161,7 +161,7 @@ class MasterMainMenu extends Controller
             return redirect()->back();
         }
 
-       $submenu = DB::table('submenu as s')->select('mm.id','mm.menu_name','s.id as submenu_id', 's.submenu_name','s.submenu_link', 's.icon','s.status','s.description', 's.created_at','s.updated_at')
+       $submenu = DB::table('submenu as s')->select('mm.id','mm.menu_name','s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours', 's.icon','s.status','s.description', 's.created_at','s.updated_at')
                 ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
                 ->where('s.main_menu', $request->id)->get();
                 
@@ -209,14 +209,16 @@ class MasterMainMenu extends Controller
             'submenu_link' => 'required',
             'main_menu' => 'required',
             'icon' => 'required',
-            'description' => 'required'
+            'description' => 'required',
+            'allow_access_outside_operational_hours' => 'required'
         ],
         [
             'submenu_name.required' => 'Nama Submenu harus diisi',
             'submenu_link.required' => 'Link Submenu harus diisi',
             'main_menu.required' => 'Menu utama harus diisi',
             'icon.required' => 'Icon harus diisi',
-            'description.required' => 'Deskripsi submenu harus diisi'
+            'description.required' => 'Deskripsi submenu harus diisi',
+            'allow_access_outside_operational_hours.required' => 'Harus dipilih'
         ]);
 
         $authSession =  (app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->role_name == 'IT Developer');
@@ -232,7 +234,8 @@ class MasterMainMenu extends Controller
             'main_menu' => $request->main_menu,
             'icon' => $request->icon,
             'description' => $request->description,
-            'status' => 7
+            'status' => 7,
+            'allow_access_outside_operational_hours' => $request->allow_access_outside_operational_hours
         ]);
 
         UserLogActivity::log(
@@ -256,7 +259,7 @@ class MasterMainMenu extends Controller
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $submenu = DB::table('submenu as s')
         ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
-        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link', 's.icon','s.status', 's.description','mm.id', 'mm.menu_name', 's.updated_at')
+        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours', 's.icon','s.status', 's.description','mm.id', 'mm.menu_name', 's.updated_at')
         ->where('s.id', $request->submenu_id)
         ->first();
         return view('layouts.main_pages.master_menu.edit.submenu_edit', compact('submenu', 'status'));
@@ -283,7 +286,8 @@ class MasterMainMenu extends Controller
             'submenu_link' => $request->submenu_link,
             'icon' => $request->icon,
             'description' => $request->description,
-            'status' => $request->status
+            'status' => $request->status,
+            'allow_access_outside_operational_hours' => $request->allow_access_outside_operational_hours
         ]);
 
         UserLogActivity::log(
