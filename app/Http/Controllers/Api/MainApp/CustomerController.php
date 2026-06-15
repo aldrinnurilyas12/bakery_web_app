@@ -196,10 +196,10 @@ class CustomerController extends Controller
                 ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
                 ->where('customer',$CUSTOMER_LOGIN_SESSION)->where('cv.voucher_used', 'N')->orderBy('cv.created_at', 'DESC')->get();
 
-            $vouchers_used = DB::table('customer_vouchers as cv')
+        $vouchers_used = DB::table('customer_vouchers as cv')
                 ->leftJoin('voucher as v', 'cv.voucher', '=', 'v.voucher_code')
                 ->where('customer',$CUSTOMER_LOGIN_SESSION)->where('cv.voucher_used', 'Y')->orderBy('cv.created_at', 'DESC')->get();
-
+       
         return view('layouts.main_views.customer_views.customer-voucher', compact('vouchers', 'vouchers_used'));
     }
 

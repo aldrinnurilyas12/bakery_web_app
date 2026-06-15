@@ -16,6 +16,7 @@ class VoucherCustomer extends Model
         'transaction',
         'status',
         'voucher_used',
+        'voucher_path',
         'created_by',
         'updated_by'
     ];

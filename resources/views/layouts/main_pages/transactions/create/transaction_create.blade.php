@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
-
+    <script src="https://cdn.jsdelivr.net/gh/schmich/instascan-builds/instascan.min.js"></script>
 </head>
 
 <body class="sb-nav-fixed">
@@ -603,6 +603,10 @@
                                                 <div id="showCustomer" class="show-customer">
 
                                                 </div>
+                                                <hr>
+                                                 <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                                        data-target="#openQrCustomer"><i class="fa fa-qrcode"></i> Open QR</a>
+
                                             </div>
                                         </div>
                                         <hr>
@@ -625,9 +629,11 @@
                                                     style="background-color: #212529;" class="btn btn-dark"
                                                     type="button">Pakai
                                                 </button>
+                                                <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                                        data-target="#openQrVoucher"><i class="fa fa-qrcode"></i> Open QR</a>
 
                                                 <button id="btn-remove-voucher" class="btn btn-danger"
-                                                    type="button">Hapus Voucher
+                                                    type="button"><i class="fa fa-trash"></i> Hapus Voucher
                                                 </button>
                                             </div>
                                         </div>
@@ -755,6 +761,53 @@
         @endif
     </div>
     </main>
+
+
+    <div style="z-index: 999999;"  class="modal fade" id="openQrCustomer" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-qrcode"></i> QR Pelanggan</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                         <video id="preview-qrcodecustomer" width="300" height="300" autoplay></video>
+                    </div>
+                    <div class="modal-footer">
+                            <button id="btn-delete-general" type="button" data-dismiss="modal" class="btn-general-delete"><span
+                                    class="btn-text">Tutup</span>
+                                <span class="spinner"></span></button>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    {{-- OPEN QR for Vouchers --}}
+
+    <div style="z-index: 999999;" class="modal fade" id="openQrVoucher" tabindex="-1" role="dialog"
+            aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-qrcode"></i> QR E-Voucher</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <video id="preview-qrvoucher" width="300" height="300"  autoplay playsinline></video>
+                    </div>
+                    <div class="modal-footer">
+                            <button id="btn-delete-general" type="button" data-dismiss="modal" class="btn-general-delete"><span
+                                    class="btn-text">Tutup</span>
+                                <span class="spinner"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
 </body>
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/main/transaction.js') }}"></script>
@@ -763,6 +816,8 @@
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+
+
 
 
 <script>
@@ -1170,6 +1225,320 @@
 </script>
 
 
+{{-- script for preview-qrcode voucher --}}
+<script>
+let scanner = null;
+let scanned = false;
+
+function stopScanner() {
+    if (scanner) {
+        try {
+            scanner.stop();
+        } catch (e) {}
+        scanner = null;
+    }
+
+    let video = document.getElementById('preview-qrvoucher');
+    if (video && video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
+}
+
+// FORCE CLOSE MODAL
+function forceCloseModal() {
+    let modal = document.getElementById('openQrVoucher');
+
+    $('#openQrVoucher').modal('hide');
+
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+}
+
+$('#openQrVoucher').on('hidden.bs.modal', function () {
+    stopScanner();
+});
+
+$('#openQrVoucher').on('shown.bs.modal', function () {
+
+    let video = document.getElementById('preview-qrvoucher');
+
+    stopScanner();
+    scanned = false;
+
+    scanner = new Instascan.Scanner({
+        video: video,
+        scanPeriod: 2,
+        mirror: false
+    });
+
+    scanner.addListener('scan', function (content) {
+
+        if (scanned) return;
+        scanned = true;
+
+        console.log('QR:', content);
+
+        let voucher = '';
+
+        try {
+            const data = JSON.parse(content);
+            if (data && data.voucher_code) {
+                voucher = data.voucher_code;
+            }
+        } catch (e) {
+            voucher = '';
+        }
+
+        // =========================
+        // ❌ TIDAK ADA VOUCHER
+        // =========================
+        if (!voucher) {
+
+            document.getElementById('promo_code_input').value = '';
+
+            alert('Kode Voucher Tidak ada, silakan scan lagi');
+
+            // 🔥 RESET SCAN SUPAYA BISA SCAN ULANG
+            scanned = false;
+
+            return; // ❗ CAMERA & MODAL TETAP JALAN
+        }
+
+        // =========================
+        // ✔ VOUCHER VALID
+        // =========================
+        document.getElementById('promo_code_input').value = voucher;
+
+        // STOP CAMERA + CLOSE MODAL
+        setTimeout(() => {
+
+            stopScanner();
+            forceCloseModal();
+
+        }, 50);
+
+    });
+
+    Instascan.Camera.getCameras()
+        .then(function (cameras) {
+
+            if (!cameras || cameras.length === 0) {
+                alert('Kamera tidak ditemukan');
+                return;
+            }
+
+            let selected = cameras[0];
+
+            cameras.forEach(c => {
+                if (c.name && c.name.toLowerCase().includes('back')) {
+                    selected = c;
+                }
+            });
+
+            return scanner.start(selected);
+        })
+        .catch(function (e) {
+            console.error('Camera error:', e);
+            alert('Gagal akses kamera: ' + e);
+        });
+});
+</script>
+
+
+
+
+{{-- preview-qrcodecustomer --}}
+<script>
+    let scannerx = null;
+let scannedz = false;
+
+function stopScanner() {
+    if (scannerx) {
+        try {
+            scannerx.stop();
+        } catch (e) {}
+        scannerx = null;
+    }
+
+    const video = document.getElementById('preview-qrcodecustomer');
+    if (video && video.srcObject) {
+        video.srcObject.getTracks().forEach(t => t.stop());
+        video.srcObject = null;
+    }
+}
+
+// SEARCH CUSTOMER (tetap sama)
+function searchCustomer(keyword) {
+    if (keyword.length < 2) {
+        $('#showCustomer').html('');
+        return;
+    }
+
+    $.ajax({
+        url: '/search_customer',
+        type: 'GET',
+        data: { keyword: keyword },
+        success: function(data) {
+            let html = '';
+
+            if (data.length > 0) {
+                data.forEach(function(customer) {
+                    if (customer.status == 7) {
+                        html += `
+                        <div>
+                            <strong>${customer.name} [${customer.email}] &nbsp;
+                            <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="radio">
+                            Pilih</strong><br>
+                            <small>Aktif</small>
+                        </div>`;
+                    } else {
+                        html += `
+                        <div>
+                            <strong>${customer.name} [${customer.email}] &nbsp;
+                            <span class="text-danger"> Tidak aktif</span></strong><br>
+                        </div>`;
+                    }
+                });
+            } else {
+                html = '<div class="text-muted">Data tidak ditemukan</div>';
+            }
+
+            $('#showCustomer').html(html);
+        }
+    });
+}
+
+// RADIO SELECT
+$('#showCustomer').on('change', '.customer-checkbox', function() {
+    let selectedCustomerCode = $(this).val();
+    let customerInput = $('input[name="customer"]');
+
+    customerInput.val($(this).is(':checked') ? selectedCustomerCode : '');
+});
+
+// MODAL CLEANUP ONLY
+$('#openQrCustomer').on('hidden.bs.modal', function () {
+    stopScanner();
+});
+
+// OPEN MODAL
+$('#openQrCustomer').on('shown.bs.modal', function () {
+
+    scannedz = false;
+
+    const video = document.getElementById('preview-qrcodecustomer');
+
+    stopScanner();
+
+    setTimeout(() => {
+
+        scannerx = new Instascan.Scanner({
+            video: video,
+            scanPeriod: 5,
+            mirror: false
+        });
+
+        scannerx.addListener('scan', function (content) {
+
+            if (scannedz) return;
+            scannedz = true;
+
+            console.log('QR:', content);
+
+            let code = '';
+
+            try {
+                const data = JSON.parse(content);
+
+                if (data && data.customer_code) {
+                    code = data.customer_code;
+                }
+            } catch (e) {
+                code = '';
+            }
+
+            // =========================
+            // ❌ TIDAK ADA CUSTOMER CODE
+            // =========================
+            if (!code) {
+
+                alert('Customer Code tidak ada');
+
+                // 🔥 RESET SCAN FLAG supaya bisa scan lagi
+                scannedz = false;
+
+                return; // ❗ JANGAN STOP CAMERA / JANGAN CLOSE MODAL
+            }
+
+            // =========================
+            // ✔ VALID CODE
+            // =========================
+            document.getElementById('search-customer').value = code;
+
+            setTimeout(() => {
+                searchCustomer(code);
+            }, 300);
+
+        });
+
+        Instascan.Camera.getCameras()
+            .then(function (cameras) {
+
+                if (!cameras || cameras.length === 0) {
+                    alert('Kamera tidak ditemukan / izin belum diberikan');
+                    return;
+                }
+
+                let selected = cameras[0];
+
+                for (let c of cameras) {
+                    if (c.name && c.name.toLowerCase().includes('back')) {
+                        selected = c;
+                    }
+                }
+
+                return scannerx.start(selected);
+            })
+            .catch(function (e) {
+                console.error('Camera error:', e);
+                alert('Tidak bisa akses kamera: ' + e.message);
+            });
+
+    }, 800);
+});
+
+</script>
+
+
+
+<style>
+    .modal-body{
+        display:flex;
+        justify-content:center;
+    }
+
+    #preview-qrcodecustomer {
+        display: flex;
+        justify-content: center;
+        border-radius: 10px;
+        height: auto;
+        border: 1px solid #ccc;
+    }
+
+     #preview-qrvoucher {
+        display: flex;
+        justify-content: center;
+        border-radius: 10px;
+        height: auto;
+        border: 1px solid #ccc;
+    }
+</style>
 
 
 @if (Session::has('message_success'))
@@ -1204,10 +1573,8 @@
             showConfirmButton: true
         });
     </script>
-@endif
 
-
-@if (Session::has('success_empty_cart'))
+@elseif (Session::has('success_empty_cart'))
     <script>
         Swal.fire({
             title: 'Berhasil',

@@ -54,24 +54,36 @@ class GoogleOauthController extends Controller
 
         Storage::disk('public')->put($qrCodePath, $svgOutput);
 
-        
+   
+        $customer = ModelsCustomerModel::where('email', $googleUser->getEmail())->first();
 
-        $user = ModelsCustomerModel::updateOrCreate([
-            'email'=> $googleUser->getEmail(),
+        $isNew = false;
 
-        ], 
-        [
-            'customer_code' => $customer_code,
-            'name' => $googleUser->getName(),
-            'google_id' => $googleUser->getId(),
-            'status' => 7,
-            'qr_code' => $qrCodePath,
-            'member_date' => Carbon::now()->format('y-m-d'),
-            'account_email_verified' => 'Y',
-            'account_email_verified_at' => now()
-        ]);
+        if (!$customer) {
+            $customer = new ModelsCustomerModel();
+            $customer->customer_code = $customer_code;
+            $customer->account_email_verified = 'Y';
+            $customer->account_email_verified_at = now();
+            $isNew = true;
+        }
 
-        Auth::guard('customer')->login($user);
+        // field yang SELALU di-update
+        $customer->email = $googleUser->getEmail();
+        $customer->name = $googleUser->getName();
+        $customer->google_id = $googleUser->getId();
+        $customer->status = 7;
+        $customer->qr_code = $qrCodePath;
+        $customer->member_date = Carbon::now()->format('y-m-d');
+
+        // hanya set jika user baru
+        if ($isNew) {
+            $customer->account_email_verified = 'Y';
+            $customer->account_email_verified_at = now();
+        }
+
+        $customer->save();
+
+        Auth::guard('customer')->login($customer);
 
         return redirect()->route('home');
     }

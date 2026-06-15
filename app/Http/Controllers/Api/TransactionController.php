@@ -30,6 +30,12 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\UserLogActivity;
+use Illuminate\Support\Facades\Storage;
+use BaconQrCode\Writer;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\EpsImageBackEnd;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 
 
 class TransactionController extends Controller
@@ -304,7 +310,7 @@ class TransactionController extends Controller
             return redirect()->back();
         }
 
-        if($transaction_hour >=21){
+        if($transaction_hour >=23){
             session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
             return redirect()->back();
         }
@@ -653,7 +659,30 @@ class TransactionController extends Controller
                     if($getAmount >= $get_voucher->min_transaction) {
                         if(!$checkingQuotaVoucher && $get_voucher){
                             if(!$voucherExpired) {
-                                if(!$IT_GUY){    
+                                if(!$IT_GUY){ 
+                                    
+                                    $uuid = (string) Str::uuid();
+                                    $unique_code = substr($uuid, 0, 8);
+                                    $voucher_data_qr_code  = [
+                                        'voucher_code' => $customerVoucher
+                                    ];
+                                    $folderPath = 'qrcode_voucher_customer';
+                                    if (!Storage::disk('public')->exists($folderPath)) {
+                                        Storage::disk('public')->makeDirectory($folderPath);
+                                    }
+
+                                    $fileName = uniqid() . '.svg';
+                                    $qrCodePath = $folderPath . '/' . $fileName;
+                                    $renderer = new ImageRenderer(
+                                        new RendererStyle(400),
+                                        new SvgImageBackEnd()
+                                    );
+
+                                    $writer = new Writer($renderer);
+                                    $svgOutput = $writer->writeString(json_encode($voucher_data_qr_code));
+
+                                    Storage::disk('public')->put($qrCodePath, $svgOutput);
+
                                     VoucherCustomer::create([
                                         'customer' => $main_transaction->customer,
                                         'voucher' => $get_voucher->voucher_code,
@@ -661,6 +690,7 @@ class TransactionController extends Controller
                                         'transaction' => $main_transaction->transaction_code,
                                         'status' => 7,
                                         'voucher_used' => 'N',
+                                        'voucher_path' => $qrCodePath,
                                         'created_by' => $casheer,
                                         'created_at' => now()
                                     ]);

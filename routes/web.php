@@ -343,7 +343,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('/filter_transaction', [TransactionController::class, 'filter_transaction'])->name('filter_transaction');
     Route::post('export_transaction_excel', [TransactionController::class, 'download_excel'])->name('export_transaction_excel');
     
-    
+    // Route Fraud Transactions
     Route::apiResource('fraud-analysis', App\Http\Controllers\Api\FraudAnalysis::class);
     Route::put('update_fraud_transaction/{fraud_code}', [FraudAnalysis::class, 'update_status_fraud'])->name('update_fraud_transaction');
 
@@ -385,6 +385,13 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::apiResource('business_intelligence', App\Http\Controllers\Api\BusinessIntelligence::class)->middleware('route_access');
     Route::get('data_analytics', [BusinessIntelligence::class, 'data_analytics_layouts'])->name('data_analytics')->middleware('route_access');
     Route::get('sales_performance', [BusinessIntelligence::class, 'sales_performance'])->name('sales_performance')->middleware('route_access');
+    Route::get('business_reports', [BusinessIntelligence::class, 'main_reports_layouts'])->name('business_reports')->middleware('route_access');
+    Route::get('generate_reports', [BusinessIntelligence::class, 'generate_reports'])->name('generate_reports');
+    Route::get('download_transaction_report', [BusinessIntelligence::class, 'exportPdfTransaction'])->name('download_transaction_report');
+    Route::get('download_products_daily_report', [BusinessIntelligence::class, 'exportPdfProductDaily'])->name('download_products_daily_report');
+    Route::get('download_production_product_report', [BusinessIntelligence::class, 'exportPdfProductionProduct'])->name('download_production_product_report');
+    Route::get('download_distribution_report', [BusinessIntelligence::class, 'exportPdfDistributionProduct'])->name('download_distribution_report');
+
 
     // Route for Supplier
     Route::apiResource('supplier', App\Http\Controllers\Api\SupplierController::class)->middleware('route_access');

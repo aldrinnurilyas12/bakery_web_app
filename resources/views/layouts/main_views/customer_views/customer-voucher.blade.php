@@ -56,7 +56,7 @@
                     <div class="tab-pane fade show active" id="tab-used" role="tabpanel">
                         <div class="container-products">
                             <div class="menu-list">
-                                @if ($vouchers->isNotEmpty())
+                                @if ($vouchers_used->isNotEmpty())
                                     @foreach ($vouchers_used as $voucher)
                                         <div class="card-reward">
                                             <div class="body-reward"
@@ -65,7 +65,7 @@
                                                     <div style="display:flex; flex-wrap: wrap; justify-content: space-between;"
                                                         class="image-display">
                                                         <img width="90" height="90"
-                                                            src="{{ url('storage/' . $voucher->qr_code) }}"
+                                                            src="{{ url('storage/' . $voucher->voucher_path) }}"
                                                             alt="">
                                                         <span>
                                                             @if ($voucher->voucher_used == 'Y')
@@ -152,9 +152,14 @@
                                                 <div style="flex-wrap:wrap; gap:10px;" class="image-content">
                                                     <div style="display:flex; flex-wrap: wrap; justify-content: space-between;"
                                                         class="image-display">
-                                                        <img width="90" height="90"
-                                                            src="{{ url('storage/' . $voucher->qr_code) }}"
-                                                            alt="">
+                                                        @if($voucher->voucher_path)
+                                                            <a href="#" data-toggle="modal"
+                                                                            data-target="#showQrCode{{ $voucher->customer_voucher_code }}">
+                                                                <img width="90" height="90"
+                                                                    src="{{ url('storage/' . $voucher->voucher_path) }}"
+                                                                    alt="">
+                                                            </a>
+                                                        @endif
                                                         <span>
                                                             @if ($voucher->voucher_used == 'Y')
                                                                 <span class="badge badge-success">Terpakai </span>
@@ -270,6 +275,26 @@
                     </div>
                 </div>
             </div>
+
+
+        @foreach ($vouchers as $voucher)
+            <div wire:ignore class="modal fade" id="showQrCode{{ $voucher->customer_voucher_code }}" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel{{ $voucher->customer_voucher_code }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    
+                        <div style="justify-content: center; display:flex;" class="modal-body">
+                            <img width="250" height="250" src="{{ url('storage/' . $voucher->voucher_path) }}" alt="">
+                        </div>
+                        <div class="modal-footer">
+                                <button id="btn-general" type="button" data-dismiss="modal" class="btn-general"><span>Tutup</span>
+                                    <span class="spinner"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+
 
             @if (auth()->guard('customer')->check())
                 @php
