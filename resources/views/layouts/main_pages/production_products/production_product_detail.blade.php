@@ -241,7 +241,7 @@
                             <br>
                             <div class="form-group">
                                 <label for=""><strong>Jumlah Aktual (Produk Jadi)</strong></label>
-                                <input type="text" name="actual_quantity" class="form-control">
+                                <input type="text" name="actual_quantity" class="form-control" required>
                             </div>
                             <br>
                             <div id="showWasteConfirmation" class="form-group">

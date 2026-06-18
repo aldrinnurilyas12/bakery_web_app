@@ -30,7 +30,7 @@
 <h2>Laporan Transaksi</h2>
 
 <p>
-    Store: {{ $store->store_name ?? '-' }} <br>
+    Store: {{ $store_name->store_name ?? '-' }} <br>
     Periode: {{ $start_date }} - {{ $end_date }} <br>
     Tgl.cetak: {{ now() }} <br>
     Dicetak oleh: {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik . ' - ' .app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->name }}

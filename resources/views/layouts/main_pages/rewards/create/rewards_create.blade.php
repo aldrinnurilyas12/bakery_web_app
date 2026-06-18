@@ -21,7 +21,18 @@
             <main>
                 <br>
                 <div class="container-fluid px-4">
-                    <h4>Tambah Data Rewards</h4>
+                    <div style="display: flex; justify-content: space-between;" class="flex-content">
+                        <h4>Tambah Data Rewards</h4>
+                         @if ($module_documentation)
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                     <hr>
                     <div style="font-size: 13px;" class="alert alert-info">
                         <ul>

@@ -533,7 +533,7 @@ class TransactionController extends Controller
         }
 
         // fraud => outside operational outlet hour
-        if($outlet_operational > 22 || $outlet_operational < 8){
+        if($outlet_operational > 21 || $outlet_operational < 8){
             if($IT_GUY){    
               $fraud = FraudTransactions::create([
                     'fraud_code' => 'FRD'. '-' . $inv_date . '-' . $unique_code,
@@ -566,7 +566,7 @@ class TransactionController extends Controller
             }
         }
 
-
+        // Testing by IT
         if(!$IT_GUY){
             if($voucher_code){
                 VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
@@ -600,37 +600,38 @@ class TransactionController extends Controller
             }
         }
         
-    
-    // PROSEDUR GET POINT FOR CUSTOMERS WHEN TRANSACTIONS :
-    
-        $totalPoints = DB::table('transactions_detail as td')
-                ->join('products_point as pp', function($join){
+        // PROSEDUR GET POINT FOR CUSTOMERS WHEN TRANSACTIONS :
+
+            $totalPoints = DB::table('transactions_detail as td')
+                ->leftJoin('products_point as pp', function ($join) {
                     $join->on('td.product', '=', 'pp.product')
-                    ->where('pp.status', 7);
+                        ->where('pp.status', 7);
                 })
                 ->where('td.transaction_code', $main_transaction->transaction_code)
-                ->selectRaw('SUM(pp.point * td.quantity_per_product) as total')
-                ->value('total') ?? 0;
+                ->selectRaw('COALESCE(SUM(pp.point * td.quantity_per_product), 0) as total')
+                ->value('total');
         
-        $check_point = DB::table('point_member_transactions')
-                        ->where('status', 7)
-                        ->orderBy('created_at', 'DESC')
-                        ->first();
+            
+            $check_point = DB::table('point_member_transactions')
+                ->where('status', 7)
+                ->orderBy('created_at', 'DESC')
+                ->first();
 
-        $get_point = $check_point ? $check_point->point : 0;
+            $get_point = $check_point->point;
 
-        if(!$IT_GUY){
-            DB::table('customer')
-            ->where('customer_code', $main_transaction->customer)
-            ->increment('point', $totalPoints + $get_point);
-        }
-
+            $finalPoint = ((int) $totalPoints) + ((int) $get_point);
+            
+            $affected = DB::table('customer')
+            ->where('customer_code', $customer)
+            ->update([
+                'point' => DB::raw("COALESCE(point, 0) + $finalPoint")
+            ]);
+        
 
         $customerTransaction = DB::table('transactions')
         ->where('customer', $main_transaction->customer)
         ->first();
-                
-
+            
         // PROSEDUR PEMBAGIAN E-VOUCHER ke CUSTOMER 
         $getAmount = $main_transaction->grand_total;
         $get_voucher = DB::table('voucher')

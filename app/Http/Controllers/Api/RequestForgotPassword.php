@@ -44,7 +44,7 @@ class RequestForgotPassword extends Controller
 
         if(!$checking_email_exists){
             session()->flash('failed_message', 'Email anda tidak ditemukan!');
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }else{
 
 

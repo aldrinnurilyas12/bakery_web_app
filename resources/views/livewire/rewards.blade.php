@@ -24,15 +24,6 @@
                     </div>
 
                     <div style="display: flex;gap:10px;" class="flex-content">
-                        @if ($module_documentation)
-                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
-                                class="documentation-module">
-                                <a title="Dokumentasi Modul"
-                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
-                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
-                                </a>
-                            </div>
-                        @endif
 
                         @if ($rewards->isNotEmpty())
                             @if (!$user_permission_forbidden)

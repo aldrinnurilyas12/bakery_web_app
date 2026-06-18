@@ -127,7 +127,7 @@
                                                     <th>Pilih</th>
                                                     <th>Bahan Baku</th>
                                                     <th>Stok</th>
-                                                    <th>Unit</th>
+                                                    <th>Penggunaan dalam Unit</th>
                                                     <th>Jumlah Pemakaian (hanya angka)</th>
 
                                                 </tr>

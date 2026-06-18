@@ -72,7 +72,7 @@ class RegisteredCustomer extends Controller
              
         ]);
 
-        $date = Carbon::now()->format('ymd');
+        $date = Carbon::now()->format('Ymd');
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
         $customer_code = 'cust'. $date . $unique_code;

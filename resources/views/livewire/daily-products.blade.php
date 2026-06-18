@@ -221,11 +221,17 @@
                                                                     <small
                                                                         class="text-warning">{{ $product->expired_status }}</small>
                                                                 </div>
-                                                            @elseif($product->expired_status == 'Sudah Expired')
+                                                            @elseif($product->expired_status == 'Expired')
                                                                 <div style="background: none; border: 1px solid rgb(255, 0, 0); border-radius: 2px; padding:2px;width:max-content;font-size:14px;"
                                                                     class="expired-status">
                                                                     <small
                                                                         class="text-danger">{{ $product->expired_status }}</small>
+                                                                </div>
+                                                            @else
+                                                                <div style="background: none; border: 1px solid rgb(8, 255, 136); border-radius: 2px; padding:2px;width:max-content;font-size:14px;"
+                                                                    class="expired-status">
+                                                                    <small
+                                                                        class="text-success">{{ $product->expired_status }}</small>
                                                                 </div>
                                                             @endif
                                                         @else

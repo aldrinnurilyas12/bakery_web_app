@@ -601,12 +601,15 @@
                                                 </div>
                                                 <hr>
                                                 <div id="showCustomer" class="show-customer">
-
                                                 </div>
                                                 <hr>
-                                                 <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                                        data-target="#openQrCustomer"><i class="fa fa-qrcode"></i> Open QR</a>
-
+                                                <div style="display: flex;gap:10px;" class="button-qrcode">
+                                                    <a class="btn btn-primary" href="#" data-toggle="modal" data-target="#openQrCustomer"><i class="fa fa-qrcode"></i> Open QR</a>
+                                                    <button id="btn-remove-customer-code" class="btn btn-danger"
+                                                    type="button"><i class="fa fa-trash"></i> Bersihkan
+                                                    </button>
+                                                </div>
+                               
                                             </div>
                                         </div>
                                         <hr>
@@ -1158,16 +1161,26 @@
                         data.forEach(function(customer) {
                             if (customer.status == 7)
                                 html += `
-                             <div>
-                            <strong>${customer.name} [${customer.email}] &nbsp;  <input class="customer-checkbox" name="customer" value="${customer.customer_code}" type="radio">
-                                Pilih</strong><br>
-                            <small>Aktif</small>
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th style="padding:8px;">
+                                                <strong>${customer.name} [${customer.email}]</strong>
+                                            </th>
+                                            <td style="text-align:center;">
+                                                <input style="width:20px; height:20px;" class="customer-checkbox" name="customer" value="${customer.customer_code}" type="radio">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
                             `;
                             else
                                 html += `
                              <div>
                             <strong>${customer.name} [${customer.email}] &nbsp;
                                <span class="text-danger"> Tidak aktif</span></strong><br>
+                            </div>
                             `;
 
                         });
@@ -1348,14 +1361,16 @@ $('#openQrVoucher').on('shown.bs.modal', function () {
             alert('Gagal akses kamera: ' + e);
         });
 });
-</script>
 
 
+ $('#btn-remove-customer-code').on('click', function() {
+            $('#search-customer').val('');
+            $('#showCustomer').empty();
+        });
 
+// Scanner for QR Cod Customer:
 
-{{-- preview-qrcodecustomer --}}
-<script>
-    let scannerx = null;
+let scannerx = null;
 let scannedz = false;
 
 function stopScanner() {

@@ -57,7 +57,7 @@ class CheckRouteAccess
                     return redirect()->back();
                 }
 
-                if($operational_hours < 9  || $operational_hours > 23){
+                if($operational_hours < 9  || $operational_hours > 21){
                 session()->flash('failed_message', 'Maaf tidak bisa akses, Jam operasional : 08:00 s.d 21:00.');
                 return redirect()->back();
                 }

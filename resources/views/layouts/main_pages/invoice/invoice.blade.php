@@ -199,7 +199,7 @@
                         <div class="row">
                             <div class="col-xl-10">
                                 <div style="display: flex; gap:10px;" class="btn-btn-invoice">
-                                    <a class="btn btn-primary" href="{{ route('transaction.index') }}">Kembali</a>
+                                    <a class="btn btn-primary" href="{{ route('transaction_create') }}">Kembali</a>
                                     <button onclick="window.print()" type="button" data-mdb-button-init
                                         data-mdb-ripple-init class="btn btn-primary text-capitalize"
                                         style="background-color:#ac0017; border:none;">

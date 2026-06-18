@@ -255,6 +255,7 @@
                                             <th>Kode Produk</th>
                                             <th>Nama Produk</th>
                                             <th>Quantity</th>
+                                            <th>Harga</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -268,6 +269,7 @@
                                                     <td>{{ $items->product_code }}</td>
                                                     <td>{{ $items->product_name }}</td>
                                                     <td>{{ $items->quantity_per_product }}</td>
+                                                     <td>{{ "Rp." . number_format($items->price) }}</td>
                                                 </tr>
                                             @endif
                                         @endforeach

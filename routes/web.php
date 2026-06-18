@@ -391,7 +391,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('download_products_daily_report', [BusinessIntelligence::class, 'exportPdfProductDaily'])->name('download_products_daily_report');
     Route::get('download_production_product_report', [BusinessIntelligence::class, 'exportPdfProductionProduct'])->name('download_production_product_report');
     Route::get('download_distribution_report', [BusinessIntelligence::class, 'exportPdfDistributionProduct'])->name('download_distribution_report');
-
+    Route::get('filter_dashboard', [BusinessIntelligence::class, 'filter_dashboard'])->name('filter_dashboard');
 
     // Route for Supplier
     Route::apiResource('supplier', App\Http\Controllers\Api\SupplierController::class)->middleware('route_access');

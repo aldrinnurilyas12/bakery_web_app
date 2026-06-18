@@ -26,10 +26,10 @@ class Rewards extends Component
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
 
         if(empty($this->filter)){
-             $filteredProduction->where('store_id',$store);
+             $filteredProduction->orderBy('created_at', 'DESC')->where('store_id',$store);
         }
         elseif (!empty($this->filter) && $this->filter !== 'all') {
-            $filteredProduction->where('store_id', $this->filter);
+            $filteredProduction->orderBy('created_at', 'DESC')->where('store_id', $this->filter);
         } 
 
         $this->rewards = $filteredProduction->get();

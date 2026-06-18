@@ -39,7 +39,7 @@
                         <div class="form-group">
                             <label for=""><strong>Alamat email anda</strong></label>
                             <input type="email" name="email" class="form-control" value="{{ old('email') }}"
-                                placeholder="Masukan alamat email anda" autocomplete="off">
+                                placeholder="Masukan alamat email anda" autocomplete="off" required>
                             <x-input-error :messages="$errors->get('email')" class="text-danger" />
                         </div>
 
@@ -47,7 +47,8 @@
                             <label for=""><strong>Kata sandi baru </strong></label>
                             <div style="position: relative;">
                                 <input id="password" type="password" name="password" class="form-control"
-                                    placeholder="Buat kata sandi baru">
+                                    placeholder="Buat kata sandi baru" required>
+                                <x-input-error :messages="$errors->get('password')" class="text-danger" />
                                 <i class="fas fa-eye" id="togglePassword"
                                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                                 </i>
@@ -58,7 +59,8 @@
                             <label for=""><strong>Konfirmasi kata sandi </strong></label>
                             <div style="position: relative;">
                                 <input id="confirm_password" type="password" name="confirm_password" class="form-control"
-                                    placeholder="Konfirmasi kata sandi">
+                                    placeholder="Konfirmasi kata sandi" required>
+                                 <x-input-error :messages="$errors->get('confirm_password')" class="text-danger" />
                                 <i class="fas fa-eye" id="toggleConfirmPassword"
                                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                                 </i>

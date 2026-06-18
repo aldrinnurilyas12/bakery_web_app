@@ -71,7 +71,7 @@ class CustomerController extends Controller
     public function generate_qr_code(Request $request)
     {
         
-        $date = Carbon::now()->format('ymd');
+        $date = Carbon::now()->format('Ymd');
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
         $customer_code =  $request->customer_code;
@@ -252,10 +252,14 @@ class CustomerController extends Controller
     public function update_customer_password(Request $request) 
     {
         $request->validate([
-            'email' => 'required'
+            'email' => 'required',
+            'password' => 'required',
+            'confirm_password' => 'required'
         ],
         [
-            'email.required' => 'Alamat email harus diisi'
+            'email.required' => 'Alamat email harus diisi',
+            'password.required' => 'Kata sandi harus diisi',
+            'confirm_password.required' => 'Konfirmasi kata sandi harus diisi'
         ]
         );
 
@@ -267,12 +271,12 @@ class CustomerController extends Controller
 
         if(!$matching_customer_email){
             session()->flash('failed_message', 'Alamat email anda tidak sesuai!');
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
 
         if($confirm_password != $password){
             session()->flash('failed_message', 'Konfirmasi Kata sandi tidak sesuai!');
-            return redirect()->back();
+            return redirect()->back()->withInput();
         }
 
         if($matching_customer_email)

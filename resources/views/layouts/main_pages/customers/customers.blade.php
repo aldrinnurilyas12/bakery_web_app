@@ -36,14 +36,11 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Kode Customer</th>
-                                                <th>Customer</th>
+                                                <th>Kode Pelanggan</th>
+                                                <th>Nama</th>
                                                 <th>Email</th>
                                                 <th>Alamat</th>
-                                                <th>Total Transaksi</th>
-                                                <th>Total Spent</th>
-                                                <th>Total Voucher</th>
-                                                <th>Total Point</th>
+                                                <th>Detail Transaksi</th>
                                                 <th>Created at</th>
                                                 <th>Updated at</th>
                                             </tr>
@@ -58,17 +55,31 @@
                                                     <td>{{ $customer->customer_code }}</td>
                                                     <td>{{ $customer->name }}</td>
                                                     <td>{{ $customer->email }}</td>
-                                                    <td>{{ $customer->address }}</td>
-                                                    <td>{{ $customer->transaction_total }}</td>
+                                                    <td>{{ $customer->address ?: '-' }}</td>
                                                     <td>
-                                                        @if ($customer->spent_money == 0 || null)
-                                                            <span>-</span>
-                                                        @else
-                                                            {{ 'Rp.' . number_format($customer->spent_money) }}
-                                                        @endif
+                                                        <table class="table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                                            <thead>
+                                                                <th>Total Transaksi</th>
+                                                                <th>Total Spent</th>
+                                                                <th>Total Voucher</th>
+                                                                <th>Total Point</th>
+                                                            </thead>
+                                                            <tbody>
+                                                               <tr style="text-align: center;">
+                                                                    <td>{{ $customer->transaction_total }}</td>
+                                                                    <td>
+                                                                        @if ($customer->spent_money == 0 || null)
+                                                                            <span>-</span>
+                                                                        @else
+                                                                            {{ 'Rp.' . number_format($customer->spent_money ?:'-') }}
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>{{ $customer->total_voucher ?:'-' }}</td>
+                                                                    <td>{{ $customer->point ?:'-' }}</td>
+                                                               </tr>
+                                                            </tbody>
+                                                        </table>
                                                     </td>
-                                                    <td>{{ $customer->total_voucher }}</td>
-                                                    <td>{{ $customer->point }}</td>
                                                     <td>{{ $customer->created_at }}</td>
                                                     <td>{{ $customer->updated_at }}</td>
                                                 </tr>

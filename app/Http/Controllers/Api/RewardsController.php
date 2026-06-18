@@ -22,11 +22,7 @@ class RewardsController extends Controller
      */
     public function index()
     {
-        $store = OutletStoreModel::where('status', 7)->get();
-        $rewards = DB::table('rewards')->get();
-        $store_reward = DB::table('v_rewards')->get();
-
-        return view('layouts.main_pages.rewards.rewards', compact('rewards', 'store', 'store_reward'));
+       
     }
 
     /**

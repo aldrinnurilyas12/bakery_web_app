@@ -21,7 +21,435 @@ class BusinessIntelligence extends Controller
 
     public function data_analytics_layouts()
     {
-        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics');
+
+
+        $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $position = $GLOBAL_ENV->position_name ?? null;
+
+        $NOT_ALLOWED_USER = in_array($position, [
+            'Casheer'
+        ]);
+
+        if($NOT_ALLOWED_USER){
+            session()->flash('failed_message', 'Tidak bisa akses!');
+            return redirect()->back();
+        }
+
+
+        $total_transaction = DB::table('v_main_transactions')->select('transaction_code')->where('transaction_type', 'SALE')->count();
+        $total_product = DB::table('products')->select('product_code')->count();
+        $total_customer = DB::table('customer')
+        ->where('account_email_verified', 'Y')
+        ->select('customer_code')->count();
+        $total_category = DB::table('product_category as pc')
+            ->join('products as p', 'pc.id', '=', 'p.category_id')
+            ->distinct('pc.id')
+            ->count('pc.id');
+        $stores = DB::table('store')->where('status', 7)->get();
+
+        $total_transaction_line_chart = DB::table('v_main_transactions')
+        ->selectRaw('MONTH(transaction_date) as month, COUNT(transaction_code) as total')
+        ->where('transaction_type', 'SALE')
+        ->groupByRaw('MONTH(transaction_date)')
+        ->orderByRaw('MONTH(transaction_date)')
+        ->get();
+
+        $revenue_products = DB::table('products as p')
+            ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
+            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->select(
+                DB::raw('MONTH(t.transaction_date) as month'),
+                'p.product_name',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.price * td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_revenue
+                ")
+            )
+            ->groupBy(
+                DB::raw('MONTH(t.transaction_date)'),
+                'p.product_name'
+            )
+            ->orderBy(DB::raw('MONTH(t.transaction_date)'))
+            ->get();
+
+        $total_sales_category = DB::table('products as p')
+            ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
+            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->join('product_category as pc', 'p.category_id', '=', 'pc.id')
+            ->select(
+                DB::raw('MONTH(t.transaction_date) as month'),
+                'pc.category_name',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_sales_category
+                ")
+            )
+            ->groupBy(
+                DB::raw('MONTH(t.transaction_date)'),
+                'pc.category_name'
+            )
+            ->orderBy(DB::raw('MONTH(t.transaction_date)'))
+        ->get();
+
+
+       
+        $total_sales_payment_method = DB::table('transactions as t')
+            ->join('payment_category as pc', 't.payment_type', '=', 'pc.id')
+            ->select(
+                'pc.payment_category',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN t.grand_total
+                            ELSE 0
+                        END
+                    ) as total_revenue_payment_method
+                ")
+            )
+            ->where('t.transaction_type', 'SALE')
+            ->groupBy(
+                'pc.payment_category'
+            )
+            ->get();
+
+        $top_sales_products = DB::table('products as p')
+            ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
+            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->select(
+                'p.product_name',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.price * td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_revenue
+                "),
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_sales
+                ")
+            )
+            ->where('t.transaction_type', 'SALE')
+            ->groupBy(
+                DB::raw('MONTH(t.transaction_date)'),
+                'p.product_name'
+            )
+            ->orderBy(DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) 
+                "), 'DESC')
+            ->limit(10)->get();
+        
+
+        
+        
+
+       
+        $labels = [];
+        $data = [];
+        $products_revenue = [];
+
+        $monthNames = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar',
+            4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Agu', 9 => 'Sep',
+            10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+
+        $products_data = DB::table('products')->select('product_name')->get();
+        $category_products = DB::table('product_category')->select('category_name')->get();
+        $payment_category = DB::table('payment_category')->select('payment_category')->get();
+
+
+        // Total Transactions :
+
+        foreach ($total_transaction_line_chart as $item) {
+            $labels[] = $monthNames[$item->month];
+            $data[] = $item->total;
+        }
+
+        // Total Revenue Products:
+
+        foreach ($products_data as $product) {
+            $labels_products[] = $product->product_name;
+
+            $revenue = $revenue_products
+                ->where('product_name', $product->product_name)
+                ->sum('total_revenue');
+
+            $products_revenue[] = (float) $revenue;
+        }
+
+        // Product Category Pie Chart
+
+        foreach ($category_products as $ctg) {
+            $labels_category[] = $ctg->category_name;
+
+            $revenue = $total_sales_category
+                ->where('category_name', $ctg->category_name)
+                ->sum('total_sales_category');
+
+            $category_total[] = (float) $revenue;
+        }
+
+        // Total revenue by Payment Method:
+
+        foreach ($payment_category as $ctg) {
+            $labels_paymethod[] = $ctg->payment_category;
+
+            $revenue = $total_sales_payment_method
+                ->where('payment_category', $ctg->payment_category)
+                ->sum('total_revenue_payment_method');
+
+            $paycategory_total[] = (float) $revenue;
+        }
+
+        // Top sales Products:
+        // foreach ($products_data as $product) {
+        //     $labels_products[] = $product->product_name;
+
+        //     $revenue = $top_sales_products
+        //         ->where('product_name', $product->product_name)
+        //         ->sum('total_revenue');
+
+        //     $top_sales_products[] = (float) $revenue;
+        // }
+
+
+        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_product', 'total_customer', 'total_category', 'stores', 'labels', 'data', 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products'));
+    }
+
+    public function filter_dashboard(Request $request){
+
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $store_select = $request->store;
+
+        $total_transaction = DB::table('v_main_transactions')->select('transaction_code')
+            ->where('transaction_type', 'SALE')
+            ->where('store_code', $store_select)
+            ->whereDate('transaction_date', '>=', $start_date)
+            ->whereDate('transaction_date', '<=', $end_date)->count();
+        $total_product = DB::table('products')->select('product_code')->count();
+        $total_customer = DB::table('customer')
+        ->where('account_email_verified', 'Y')
+        ->select('customer_code')->count();
+        $total_category = DB::table('product_category as pc')
+            ->join('products as p', 'pc.id', '=', 'p.category_id')
+            ->distinct('pc.id')
+            ->count('pc.id');
+        $stores = DB::table('store')->where('status', 7)->get();
+
+        $total_transaction_line_chart = DB::table('v_main_transactions')
+        ->selectRaw('MONTH(transaction_date) as month, COUNT(transaction_code) as total')
+        ->where('transaction_type', 'SALE')
+        ->where('store_code', $store_select)
+        ->whereDate('transaction_date', '>=', $start_date)
+        ->whereDate('transaction_date', '<=', $end_date)
+        ->groupByRaw('MONTH(transaction_date)')
+        ->orderByRaw('MONTH(transaction_date)')
+        ->get();
+
+        $revenue_products = DB::table('products as p')
+            ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
+            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->select(
+                DB::raw('MONTH(t.transaction_date) as month'),
+                'p.product_name',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.price * td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_revenue
+                ")
+            )
+            ->where('t.transaction_type', 'SALE')
+            ->where('t.store', $store_select)
+            ->whereDate('t.transaction_date', '>=', $start_date)
+            ->whereDate('t.transaction_date', '<=', $end_date)
+            ->groupBy(
+                DB::raw('MONTH(t.transaction_date)'),
+                'p.product_name'
+            )
+            ->orderBy(DB::raw('MONTH(t.transaction_date)'))
+            ->get();
+
+        
+        $total_sales_category = DB::table('products as p')
+            ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
+            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->join('product_category as pc', 'p.category_id', '=', 'pc.id')
+            ->select(
+                DB::raw('MONTH(t.transaction_date) as month'),
+                'pc.category_name',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_sales_category
+                ")
+            )
+            ->where('t.transaction_type', 'SALE')
+            ->where('t.store', $store_select)
+            ->whereDate('t.transaction_date', '>=', $start_date)
+            ->whereDate('t.transaction_date', '<=', $end_date)
+            ->groupBy(
+                DB::raw('MONTH(t.transaction_date)'),
+                'pc.category_name'
+            )
+            ->orderBy(DB::raw('MONTH(t.transaction_date)'))
+            ->get();
+
+        $total_sales_payment_method = DB::table('transactions as t')
+            ->join('payment_category as pc', 't.payment_type', '=', 'pc.id')
+            ->select(
+                'pc.payment_category',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN t.grand_total
+                            ELSE 0
+                        END
+                    ) as total_revenue_payment_method
+                ")
+            )
+            ->where('t.transaction_type', 'SALE')
+            ->where('t.store', $store_select)
+            ->whereDate('t.transaction_date', '>=', $start_date)
+            ->whereDate('t.transaction_date', '<=', $end_date)
+            ->groupBy(
+                'pc.payment_category'
+            )
+            ->get();
+
+         $top_sales_products = DB::table('products as p')
+            ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
+            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->select(
+                'p.product_name',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.price * td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_revenue
+                "),
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) as total_sales
+                ")
+            )
+            ->where('t.transaction_type', 'SALE')
+            ->where('t.store', $store_select)
+            ->whereDate('t.transaction_date', '>=', $start_date)
+            ->whereDate('t.transaction_date', '<=', $end_date)
+            ->groupBy(
+                DB::raw('MONTH(t.transaction_date)'),
+                'p.product_name'
+            )
+            ->orderBy(DB::raw("
+                    SUM(
+                        CASE
+                            WHEN t.transaction_type = 'SALE'
+                            THEN td.quantity_per_product
+                            ELSE 0
+                        END
+                    ) 
+                "), 'DESC')
+            ->limit(10)->get();
+
+
+        $labels = [];
+        $data = [];
+
+        $monthNames = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar',
+            4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Agu', 9 => 'Sep',
+            10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+
+        $products_data = DB::table('products')->select('product_name')->get();
+        $category_products = DB::table('product_category')->select('category_name')->get();
+         $payment_category = DB::table('payment_category')->select('payment_category')->get();
+
+        // Filter by Total Transaction:
+        foreach ($total_transaction_line_chart as $item) {
+            $labels[] = $monthNames[$item->month];
+            $data[] = $item->total;
+        }
+
+        // Filter by Revenue Products
+         foreach ($products_data as $product) {
+            $labels_products[] = $product->product_name;
+
+            $revenue = $revenue_products
+                ->where('product_name', $product->product_name)
+                ->sum('total_revenue');
+
+            $products_revenue[] = (float) $revenue;
+        }
+
+        // Filter by Sales by Category:
+         foreach ($category_products as $ctg) {
+            $labels_category[] = $ctg->category_name;
+
+            $revenue = $total_sales_category
+                ->where('category_name', $ctg->category_name)
+                ->sum('total_sales_category');
+
+            $category_total[] = (float) $revenue;
+        }
+
+        // Filter Revenue by Payment Method:
+
+         foreach ($payment_category as $ctg) {
+            $labels_paymethod[] = $ctg->payment_category;
+
+            $revenue = $total_sales_payment_method
+                ->where('payment_category', $ctg->payment_category)
+                ->sum('total_revenue_payment_method');
+
+            $paycategory_total[] = (float) $revenue;
+        }
+        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_product', 'total_customer', 'total_category', 'stores', 'labels', 'data', 'total_transaction_line_chart', 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products'));
     }
 
     public function sales_performance(Request $rq)
@@ -88,10 +516,12 @@ class BusinessIntelligence extends Controller
             ->whereDate('transaction_date', '<=', $end_date)
             ->where('transaction_type', 'SALE')
             ->where('store_code', $store_select)->get();
+        
+        $store_name = DB::table('store')->where('store_code', $store_select)->first();
 
         $pdf = Pdf::loadView(
             'layouts.main_pages.business_intelligence.reports.pdf.transaction_pdf',
-            compact('transaction', 'start_date', 'end_date', 'store_select')
+            compact('transaction', 'start_date', 'end_date', 'store_name')
         );
 
        return $pdf->download('transaction_'. $print_date . '.pdf');

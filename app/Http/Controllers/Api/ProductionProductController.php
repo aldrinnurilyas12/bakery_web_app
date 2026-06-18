@@ -87,10 +87,10 @@ class ProductionProductController extends Controller
             return redirect()->back();
         }
 
-        if($production_hour >=8){
-            session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
-            return redirect()->back();
-        }
+        // if($production_hour >=8){
+        //     session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+        //     return redirect()->back();
+        // }
 
 
         $variant_category = DB::table('variant_category')->get();
@@ -506,6 +506,7 @@ class ProductionProductController extends Controller
             ->where('production_code', $request->production_code)
             ->get();
 
+
         $check_null = DB::table('production_products_detail')
             ->where('production_code', $request->production_code)
             ->whereNull('actual_quantity')
@@ -530,16 +531,18 @@ class ProductionProductController extends Controller
                     'updated_at' => now()
             ]);
 
-            foreach($production_detail as $production){
-                CentralStockProductsModel::create([
-                    'production' => $production->production_code,
-                    'product' => $production->product,
-                    'variant' => $production->variant,
-                    'qty_produced' => $production->actual_quantity,
-                    'qty_available' => $production->actual_quantity,
-                    'created_at' => $production->created_at
-                ]);
-            }  
+                // data stock produk masuk ke tabel stock central
+                foreach ($production_detail as $production) {
+                    CentralStockProductsModel::create([
+                        'production' => $production->production_code,
+                        'product' => $production->product,
+                        'variant' => $production->variant,
+                        'qty_produced' => $production->actual_quantity,
+                        'qty_available' => $production->actual_quantity,
+                        'created_at' => $production->created_at
+                    ]);
+                }
+            
         }else{
             ProductionProduct::where('production_code', $request->production_code)->update([
                     'status' => $request->status,

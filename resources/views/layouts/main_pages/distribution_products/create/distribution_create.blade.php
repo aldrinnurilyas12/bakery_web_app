@@ -80,8 +80,13 @@
                                                     </td>
 
                                                     <td>
+                                                        @if ($product->total_available == 0)
+                                                        <input type="number" placeholder="Stok Kosong"
+                                                                    class="form-control" readonly>
+                                                        @else
                                                         <input class="form-control" type="date"
                                                             name="product[{{ $loop->index }}][expired_date]">
+                                                        @endif
                                                     </td>
 
                                                     @foreach ($stores as $store)
