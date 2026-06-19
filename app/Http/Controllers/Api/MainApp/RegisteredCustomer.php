@@ -58,7 +58,8 @@ class RegisteredCustomer extends Controller
             'email' => 'required|unique:customer,email',
             'birth_date' => 'required',
             'password' => 'required',
-            'phone_number' => 'required|numeric|unique:customer,phone_number'
+            'phone_number' => 'required|numeric|unique:customer,phone_number',
+            'g-recaptcha-response' => 'required'
         ],
         [
             'phone_number.unique' => 'Nomor telepon sudah digunakan.',
@@ -68,7 +69,8 @@ class RegisteredCustomer extends Controller
             'birth_date.required' => 'Tanggal lahir harus diisi.',
             'address.required' => 'alamat harus diisi.',
             'name.required' => 'Nama harus diisi',
-            'password.required' => 'Kata sandi harus diisi'
+            'password.required' => 'Kata sandi harus diisi',
+            'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
              
         ]);
 
@@ -76,6 +78,24 @@ class RegisteredCustomer extends Controller
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0, 6);
         $customer_code = 'cust'. $date . $unique_code;
+
+        // Verifikasi reCAPTCHA
+         $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+                [
+                    'secret'   => config('services.recaptcha.secret_key'),
+                    'response' => $this->input('g-recaptcha-response'),
+                    'remoteip' => $this->ip(),
+                ]
+            );
+
+        $result = $response->json();
+
+        if (!($result['success'] ?? false)) {
+            return back()->withErrors([
+                        'captcha' => 'Verifikasi reCAPTCHA gagal.',
+                    ])->withInput();
+        }
 
         // QR CODE CUSTOMER:
         $customer_data_qr_code  = [

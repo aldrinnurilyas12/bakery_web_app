@@ -52,6 +52,14 @@
 
                 </div>
 
+                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+                 </div>
+                @error('g-recaptcha-response')
+                    <div class="text-danger mt-2">
+                        {{ $message }}
+                    </div>
+                @enderror
+
                 <div class="button-group">
                     <button id="btnGeneral" class="btn-general" type="submit">Login
                         <span class="spinner"></span>
@@ -107,6 +115,7 @@
         this.classList.toggle('fa-eye-slash');
     });
 </script>
+ <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');

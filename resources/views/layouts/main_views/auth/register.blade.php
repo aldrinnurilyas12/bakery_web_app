@@ -63,6 +63,14 @@
             <x-input-error :messages="$errors->get('password')" class="text-danger" />
         </div>
 
+         <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+        </div>
+         @error('g-recaptcha-response')
+            <div class="text-danger mt-2">
+                {{ $message }}
+            </div>
+        @enderror
+
 
         <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Register Your Account</span>
             <span class="spinner"></span></button>
@@ -177,5 +185,6 @@
             }
         });
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endsection
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>

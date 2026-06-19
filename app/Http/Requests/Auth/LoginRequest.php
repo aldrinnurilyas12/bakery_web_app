@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Mail\VerificationUsersAccount;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 
 class LoginRequest extends FormRequest
@@ -55,6 +56,26 @@ class LoginRequest extends FormRequest
 
         // Mencari pengguna berdasarkan email atau username
         $user_available = User::where($field, $login)->first();
+
+
+         // Verifikasi reCAPTCHA
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+                [
+                    'secret'   => config('services.recaptcha.secret_key'),
+                    'response' => $this->input('g-recaptcha-response'),
+                    'remoteip' => $this->ip(),
+                ]
+            );
+
+        $result = $response->json();
+
+        if (!($result['success'] ?? false)) {
+            return back()->withErrors([
+                        'captcha' => 'Verifikasi reCAPTCHA gagal.',
+                    ])->withInput();
+        }
+
 
         // Jika pengguna tidak ditemukan
         if (!$user_available) {
@@ -124,13 +145,41 @@ class LoginRequest extends FormRequest
 
     public function customer_login_request(): RedirectResponse
     {
+
+        $this->validate([
+            'login' => 'required',
+            'password' => 'required',
+            'g-recaptcha-response' => 'required'
+        ],
+        [
+            'login.required' => 'Harap masukan email atau nomor handphone anda',
+            'password.required' => 'Harap masukan kata sandi',
+            'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
+        ]);
+
         $this->ensureIsNotRateLimited();
 
         $login = $this->input('login');
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone_number';
-        
-
         $user = CustomerModel::where($field, $login)->first();
+
+        // Verifikasi reCAPTCHA
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+                [
+                    'secret'   => config('services.recaptcha.secret_key'),
+                    'response' => $this->input('g-recaptcha-response'),
+                    'remoteip' => $this->ip(),
+                ]
+            );
+
+        $result = $response->json();
+
+        if (!($result['success'] ?? false)) {
+            return back()->withErrors([
+                        'captcha' => 'Verifikasi reCAPTCHA gagal.',
+                    ])->withInput();
+        }
 
         if (!$user) {
             RateLimiter::hit($this->throttleKey());

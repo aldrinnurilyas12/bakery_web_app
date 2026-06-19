@@ -21,25 +21,38 @@
         <div class="form-group">
             <label>Email atau nomor handphone</label>
             <input type="text" name="login" value="{{ old('login') }}" placeholder="Masukan email anda atau no.hp"
-                required autocomplete="off">
+                 autocomplete="off" required>
+            <x-input-error :messages="$errors->get('login')" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Kata sandi</label>
             <div style="position: relative;">
-                <input id="password" type="password" name="password" placeholder="Masukan kata sandi anda" required
-                    autocomplete="off">
+                <input id="password" type="password" name="password" placeholder="Masukan kata sandi anda" 
+                    autocomplete="off" required>
+                <x-input-error :messages="$errors->get('password')" class="text-danger" />
                 <i class="fas fa-eye" id="togglePassword"
                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                 </i>
             </div>
         </div>
 
+         <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+        </div>
+         @error('g-recaptcha-response')
+            <div class="text-danger mt-2">
+                {{ $message }}
+            </div>
+         @enderror
+
         <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Login</span>
             <span class="spinner"></span></button>
     </form>
     <a class="btn-login-google" href="{{ route('google.login')}}"><img style="width:20px;height:20px;" src="{{ asset('assets\front_end\assets\icons\google_icon.png') }}" alt="">  Login dengan akun google</span>
     </a>
+
+
+
             <span class="spinner"></span></button>
     <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
     @if (Session::has('message_success'))
@@ -104,6 +117,7 @@
             }
         });
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 
 @endsection
