@@ -50,6 +50,15 @@
                                 class="group-like">
                                 <p style="margin-bottom: 10px;" class="text-secondary">{{ $product->category }}</p>
 
+                                &middot;
+                                @if ($product->rating == 0)
+                                @else
+                                    <div style="display: flex; gap:5px;" class="star">
+                                        <img style="width:15px;height:15px;margin-top:3px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
+                                        <p>{{ number_format($product->rating, 1)}} ({{ $product->total_rating }})</p>
+                                    </div>
+                                @endif
+
                                 @if ($product->total_like == 0)
                                 @else
                                     &middot;
@@ -106,9 +115,57 @@
                         @endif
 
 
-                        <div class="description">
-                            {{ $product->description }}
+                        <div style="margin-bottom: 30px;" class="description">
+                            {{ $product->description ?: 'Tidak ada deskripsi' }}
                         </div>
+
+
+                        @if($review)
+
+                                <h4 style="margin-bottom: 8px;">Review Produk</h4>
+                                <hr>
+                                 <div style="width:100%;" class="review-product-customer">
+                                     <div style="overflow-y: auto; height: 230px;" class="scroll-review">
+                                        @foreach($review as $rv)
+                                                @if($rv->hidden_name == 'N')
+                                                    <div style="margin-bottom: 10px;" class="customer">
+                                                        <div class="customer-name">
+                                                            <div class="rating-rate">
+                                                                <div style="display: flex; justify-content: space-between;" class="info-star">
+                                                                    <div style="display: flex;gap:10px;" class="info-name">
+                                                                        <p style="font-weight:600;">{{ $rv->name }}</p>
+                                                                        <div style="display: flex;gap:2px;" class="rating-info">
+                                                                            <img style="width:15px;height:15px;margin-top:3px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
+                                                                            <p>{{ number_format($rv->rating, 0)}}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <div class="date-review">
+                                                                        <p>{{ \Carbon\Carbon::parse($rv->review_date)->format('d-m-Y') }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="review-customer-text">
+                                                                <p class="">{{ $rv->review }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="hidden-customer">
+                                                        <div class="review-customer">
+                                                                <p class="">{{ $rv->review }}</p>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                        @endforeach
+                                     </div>
+                                </div>
+                        @else
+                         <div class="review-rating">
+                            <p>Tidak ada Review</p>
+                         </div>
+                        @endif
+
                     </div>
                 </div>
             </div>

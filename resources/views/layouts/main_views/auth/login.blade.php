@@ -30,10 +30,10 @@
             <div style="position: relative;">
                 <input id="password" type="password" name="password" placeholder="Masukan kata sandi anda" 
                     autocomplete="off" required>
-                <x-input-error :messages="$errors->get('password')" class="text-danger" />
                 <i class="fas fa-eye" id="togglePassword"
                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                 </i>
+                <x-input-error :messages="$errors->get('password')" class="text-danger" />
             </div>
         </div>
 

@@ -843,6 +843,20 @@ a.btn-order-product {
     line-height: 1.6;
 }
 
+
+.container-product-info .review-customer-text {
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.container-product-info .date-review {
+    font-size: 0.875rem;
+    color:#bb0239;
+    line-height: 1.6;
+}
+
+
 /* Responsive */
 @media (max-width: 62.5rem) {
     .custom-carousel-btn {
@@ -1187,6 +1201,14 @@ a.btn-order-product {
     }
 
     .container-product-info .price {
+        font-size: 1.25rem;
+    }
+
+    .container-product-info .date-review {
+        font-size: 1.25rem;
+    }
+
+    .container-product-info .review-customer-text {
         font-size: 1.25rem;
     }
 

@@ -8,6 +8,8 @@
     <title>Kencana Bakery | Histori Transaksi</title>
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Font Awesome Free 6 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,6 +17,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/star-rating.css') }}">
+    <script src="{{ url('assets/front_end/js/star-rating.js') }}"></script>
 </head>
 
 <body>
@@ -56,6 +60,9 @@
                             <div class="menu-list">
                                 @if ($history_transaction->isNotEmpty())
                                     @foreach ($history_transaction as $history)
+                                        @php
+                                             $review_available = DB::table('product_reviews')->where('transaction', $history->transaction_code)->first();
+                                        @endphp
                                         <div style="display: flex; justify-content: space-between;align-items: center;"
                                             class="group-menu-date">
                                             <p class="text-invoice"><i style="color:gray;" class="fas fa-receipt"></i>
@@ -72,9 +79,17 @@
                                             <p>Total belanja :
                                                 {{ 'Rp.' . number_format($history->grand_total) }}</p>
                                         </div>
-                                        <p class="text-date">
+                                        <div style="display:flex; justify-content: space-between;" class="date-reviews">
+                                            <p class="text-date">
                                             {{ $history->transaction_date }}
-                                        </p>
+                                            </p>
+
+                                            @if(!$review_available)
+                                                <a href="#" data-toggle="modal" data-target="#showReview{{ $history->transaction_code }}" style="font-size: 13px; text-decoration: underline;">Review & Rating</a>
+                                            @endif
+                                            
+                                        </div>
+                                        
                                         <hr class="hr-menu">
                                     @endforeach
                                 @else
@@ -185,10 +200,107 @@
             @include('layouts.main_views.components.bottom_nav')
 
         </div>
+    </div>
 
 
+     @foreach ($history_transaction as $history)
+            <div wire:ignore class="modal fade" id="showReview{{ $history->transaction_code }}" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel{{ $history->transaction_code }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Berikan Review & Rating Produk </h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <form class="form-review" action="{{ route('product_review_save', $history->transaction_code) }}"
+                                method="POST">
+                                @csrf
+                        <div class="modal-body">
 
+
+                            <div style="overflow-y: auto;" class="product-content-review">
+                                @foreach($products_detail as $prd)
+                                    @if($history->transaction_code == $prd->transaction_code)
+                                        <div style="display: flex; gap:20px;" class="felx-content-image">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" value="{{ $history->transaction_code }}" name="transaction_code[]" hidden>
+                                            </div>
+                                            <div class="img-content">
+                                                <img width="100" height="100" src="{{ 'storage/' . $prd->images }}" alt="">
+                                            </div>
+                                            <div class="product-content">
+                                                <input type="text" name="product_code[]" value="{{ $prd->product }}" hidden>
+                                                <input type="text" name="variant_code[]" value="{{ $prd->variant }}" hidden>
+                                            </div>
+
+                                            <div style="display:block;" class="fill-content">
+                                                <div class="form-group">
+                                                    <label for="">Rating Produk</label>
+                                                    <select name="rating[]" class="star-rating">
+                                                        <option value="5">Bagus Sekali</option>
+                                                        <option value="4">Bagus </option>
+                                                        <option value="3">Normal</option>
+                                                        <option value="2">Buruk</option>
+                                                        <option value="1">Sangat Buruk</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Berikan Ulasan anda</label>
+                                                    <textarea class="form-control" name="review[]" id="" cols="30" rows="2"></textarea>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <hr style="border:0.8px solid rgb(217, 217, 217);">
+
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            <div class="form-group">
+                                <label for="">Sembuyikan nama anda</label>
+                                <div style="display:block;" class="block-content">
+                                    <input type="radio" value="Y" name="hidden_name"> Ya
+                                    <br>
+                                    <input type="radio" value="N" name="hidden_name"> Tidak
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
+                                        class="btn-text">Berikan ulasan & Rating</span>
+                                    <span class="spinner"></span></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
 </body>
+
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
@@ -196,6 +308,10 @@
 <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
 
+
+<script>
+    var stars = new StarRating('.star-rating');
+</script>
 
 <script>
     const ctx = document.getElementById('insightChart');

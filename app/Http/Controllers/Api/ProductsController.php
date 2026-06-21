@@ -466,9 +466,21 @@ class ProductsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function product_review(Request $request)
     {
-        //
+        $product = $request->product_code;
+
+        $review = DB::table('product_reviews as pr')
+                ->leftJoin('products as p', 'pr.product', '=', 'p.product_code')
+                ->leftJoin('transactions as t', 'pr.transaction', '=', 't.transaction_code')
+                ->leftJoin('customer as c', 't.customer', '=', 'c.customer_code')
+                ->where('pr.product', $product)->get();
+
+        $total_rating = DB::table('v_products')
+            ->select('total_rating', 'rating')
+            ->where('product_code', $product)->first();
+
+        return view('layouts.main_pages.products.product-review', compact('review','total_rating'));
     }
 
     /**

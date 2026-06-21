@@ -104,6 +104,7 @@ Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('get_stock/{rewards_code}', [CustomerController::class,'get_stock'])->name('get_stock');
     Route::get('/invoice_cust/{transaction_code}/print', [CustomerController::class, 'download_pdf_cust']);
     Route::put('generate_qr_code', [CustomerController::class, 'generate_qr_code'])->name('generate_qr_code');
+    Route::post('product_review_save', [CustomerController::class, 'product_review_save'])->name('product_review_save');
 });
 
 
@@ -190,6 +191,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('edit_variant/{variant_code}', [ProductsController::class, 'edit_variant'])->name('edit_variant');
     Route::delete('delete_variant/{variant_code}', [ProductsController::class, 'delete_variant'])->name('delete_variant');
     Route::put('delete_variant_product/{product_code}', [ProductsController::class, 'update_product_variant'])->name('delete_variant_product');
+    Route::get('product-review-detail/{product_code}', [ProductsController::class, 'product_review'])->name('product-review-detail');
 
     // DailyProducts Route
     Route::apiResource('master_daily_products', App\Http\Controllers\Api\DailyProducts::class);
@@ -205,7 +207,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::delete('dailyproduct_delete_variant/{variant_code}', [DailyProducts::class, 'delete_variant'])->name('dailyproduct_delete_variant');
     Route::get('get_stock_product/{distribution_store}', [DailyProducts::class, 'get_stock']);
 
-    // Route Promo Campign
+    // Route Promo Campaign
     Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class);
     Route::get('promo_create', [PromoCampaignController::class, 'create'])->name('promo_create')->middleware('route_access');
     Route::get('promo_update/{promo_code}', [PromoCampaignController::class, 'edit'])->name('promo_update')->middleware('route_access');

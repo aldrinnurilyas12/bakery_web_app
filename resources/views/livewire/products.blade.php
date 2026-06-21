@@ -62,6 +62,7 @@
                                             @endif
                                             <th>Harga</th>
                                             <th>Produk Point</th>
+                                            <th>Review & Rating</th>
                                             <th>Akses oleh</th>
                                            
                                         </tr>
@@ -542,6 +543,32 @@
                                                         <td><a class="btn btn-primary" href="{{ route('product_update', $product->product_code) }}"><i class="fa fa-plus-square"></i> Point</a></td>
                                                     @endif
                                                 @endif
+
+                                                <td>
+                                                    <table class="table table-bordered">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th>Total Review</th>
+                                                                <td>{{ $product->total_rating ?: '-' }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>Rata-rata Rating</th>
+                                                                @if($product->rating > 0)
+                                                                    <td> <img style="width:15px;height:15px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt=""> &nbsp;{{ number_format($product->rating,1) ?: '-'}}</td>
+                                                                @else
+                                                                    <td>-</td>
+                                                                @endif
+                                                            </tr>
+
+                                                             <tr>
+                                                                <th>Aksi</th>
+                                                                <td><a href="{{ route('product-review-detail', $product->product_code) }}" class="btn btn-primary">Detail</a> </td>
+                                                            </tr>
+                                                            
+
+                                                        </tbody>
+                                                    </table>
+                                                </td>
                                                   
 
                                                 <td>

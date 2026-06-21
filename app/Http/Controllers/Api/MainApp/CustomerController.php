@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\MainApp;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerModel;
 use App\Models\ProductFavorite;
+use App\Models\ProductReviews;
 use App\Models\RedeemRewardModel;
 use App\Models\RewardsModel;
 use App\Models\RewardsStoreModel;
@@ -126,6 +127,13 @@ class CustomerController extends Controller
         ->orderBy('transaction_date', 'DESC')
         ->get();
 
+
+
+        $products_detail = DB::table('transactions_detail as td')
+            ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+            ->join('product_images as pi', 'p.product_code', '=', 'pi.product_code')->get();
+            
+
         if(!$CUSTOMER_LOGIN_SESSION && !$history_transaction) {
             session()->flash('failed_message', 'Tidak ada data transaksi!');
             return redirect()->back();
@@ -149,7 +157,7 @@ class CustomerController extends Controller
         $data = array_values($defaultPeriode);
 
 
-        return view('layouts.main_views.customer_views.history-transactions', compact('history_transaction', 'labels', 'data'));
+        return view('layouts.main_views.customer_views.history-transactions', compact('history_transaction', 'labels', 'data', 'products_detail'));
     }
 
     public function invoice(Request $request)
@@ -550,6 +558,57 @@ class CustomerController extends Controller
         $data = array_values($defaultPeriode);
 
         return view('layouts.main_views.customer_views.history-transactions', compact('data', 'labels'));
+
+    }
+
+    public function product_review_save(Request $request){
+
+        $request->validate([
+            'transaction_code' => 'required|array',
+            'product_code' => 'required|array',
+            'product_code.*' => 'required',
+            'variant_code' => 'nullable|array',
+            'variant_code.*' => 'nullable|string',
+            'review' => 'array',
+            'rating' => 'array'
+        ]);
+
+        $transaction = $request->transaction_code;
+        $check_transaction = DB::table('transactions')->where('transaction_code', $transaction)->first();
+        $review_available = DB::table('product_reviews')->where('transaction', $transaction)->first();
+        $transaction_code = $request->transaction_code;
+        $product_code = $request->product_code;
+        $variant_code = $request->variant_code ?? [];
+        $review = $request->review;
+        $rating = $request->rating;
+
+        if(!$check_transaction){
+            session()->flash('failed_message', 'Tidak ada transaksi!');
+            return redirect()->back();
+        }
+
+        if($review_available){
+            session()->flash('failed_message', 'Anda sudah review ini!');
+            return redirect()->back();
+        }
+
+
+        foreach($product_code as $index => $productId){
+            ProductReviews::create([
+                'transaction' => $transaction_code[$index],
+                'product' => $productId,
+                'variant' =>  $variant_code[$index] ?? null,
+                'review' => $review[$index],
+                'rating' => $rating[$index],
+                'hidden_name' => $request->hidden_name,
+                'review_date' => now(),
+                'created_at' => now()
+            ]);
+        }
+
+
+        session()->flash('message_success', 'Terima kasih telah memberikan Review dan Rating!');
+        return redirect()->back();
 
     }
 

@@ -145,6 +145,13 @@ class HomePageController extends Controller
                     ->orWhere('variant_code', $code);
             })
             ->first();
+        $review = DB::table('product_reviews as pr')
+            ->leftJoin('products as p', 'pr.product', '=', 'p.product_code')
+            ->leftJoin('transactions as t', 'pr.transaction', '=', 't.transaction_code')
+            ->leftJoin('customer as c','t.customer', '=', 'c.customer_code')
+            ->where('pr.product', $code)
+            ->orWhere('pr.variant', $code)->get();
+      
 
         // cek kalau tidak ditemukan
         if (!$product) {
@@ -153,7 +160,7 @@ class HomePageController extends Controller
         }
        
 
-        return view('layouts.main_views.products.product_detail', compact('product'));
+        return view('layouts.main_views.products.product_detail', compact('product', 'review'));
     }
 
     public function promo_campaign()
