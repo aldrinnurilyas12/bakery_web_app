@@ -35,16 +35,18 @@
             <form id="formGeneral" action="{{ route('login_exe') }}" method="POST">
                 @csrf
                 <div class="input-group">
-                    <label for="">Masukan Email atau Nama Pengguna</label>
+                    <label style="color:black;" for="">Masukan Email atau Nama Pengguna</label>
                     <input class="form-input-text" type="text" value="{{ old('login') }}" name="login"
                         placeholder="Masukan Email Anda atau username" autocomplete="off">
+                     <x-input-error :messages="$errors->get('login')" class="text-danger" />
                 </div>
 
                 <div class="input-group">
-                    <label for="">Masukan Kata Sandi</label>
+                    <label  style="color:black;" for="">Masukan Kata Sandi</label>
                     <div style="position: relative;">
                         <input id="password" class="form-input-text" type="password" name="password"
                             placeholder="Masukan kata sandi" autocomplete="off">
+                         <x-input-error :messages="$errors->get('password')" class="text-danger" />
                         <i class="fas fa-eye" id="togglePassword"
                             style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                         </i>
@@ -54,10 +56,10 @@
 
                 <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
                  </div>
-                @error('g-recaptcha-response')
-                    <div class="text-danger mt-2">
-                        {{ $message }}
-                    </div>
+               @error('g-recaptcha-response')
+                <div class="text-danger mt-2">
+                    {{ $message }}
+                </div>
                 @enderror
 
                 <div class="button-group">

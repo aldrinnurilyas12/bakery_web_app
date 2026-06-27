@@ -150,7 +150,8 @@ class HomePageController extends Controller
             ->leftJoin('transactions as t', 'pr.transaction', '=', 't.transaction_code')
             ->leftJoin('customer as c','t.customer', '=', 'c.customer_code')
             ->where('pr.product', $code)
-            ->orWhere('pr.variant', $code)->get();
+            ->orWhere('pr.variant', $code)
+            ->orderBy('pr.created_at', 'DESC')->get();
       
 
         // cek kalau tidak ditemukan

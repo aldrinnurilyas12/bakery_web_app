@@ -251,7 +251,7 @@
                                             'App\Http\Controllers\Auth\AuthenticatedSessionController',
                                         )->getUsers()->store_id;
                                     @endphp
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                    <div class="card-footer">
 
                                         @php
                                             $store = app(
@@ -283,17 +283,23 @@
                                                     @endif
                                                 </div>
 
-                                                @if ($product->status == 'Inactive')
-                                                    <a class="btn btn-success" href="#" data-toggle="modal"
-                                                        data-target="#{{ $modalId }}">
-                                                        Aktifkan Kembali
-                                                    </a>
-                                                @else
-                                                    <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                        data-target="#{{ $modalId }}">
-                                                        Nonaktif
-                                                    </a>
-                                                @endif
+                                                 <div style="display:flex; justify-content: space-between;" class="flex-content-info">
+                                                        <a style="width:80px;" class="btn-general"  href="{{ route('daily-product-detail', [
+                                                                                'product' => $product->product_code,
+                                                                                'variant' => $product->variant_code,
+                                                                            ]) }}">Detail</a>
+                                                        @if ($product->status == 'Inactive')
+                                                            <a class="btn btn-success" href="#" data-toggle="modal"
+                                                                data-target="#{{ $modalId }}">
+                                                                Aktifkan Kembali
+                                                            </a>
+                                                        @else
+                                                            <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                                data-target="#{{ $modalId }}">
+                                                                Nonaktif
+                                                            </a>
+                                                        @endif
+                                                    </div>
                                             @endif
                                         @elseif($filter == 'all')
                                             @if ($canEdit)
@@ -308,17 +314,23 @@
                                                         {{-- @endif --}}
                                                     </div>
 
-                                                    @if ($product->status == 'Inactive')
-                                                        <a class="btn btn-success" href="#" data-toggle="modal"
-                                                            data-target="#{{ $modalId }}">
-                                                            Aktifkan Kembali
-                                                        </a>
-                                                    @else
-                                                        <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                            data-target="#{{ $modalId }}">
-                                                            Nonaktif
-                                                        </a>
-                                                    @endif
+                                                    <div style="display:flex; justify-content: space-between;" class="flex-content-info">
+                                                        <a style="width:80px;" class="btn-general"  href="{{ route('daily-product-detail', [
+                                                                                'product' => $product->product_code,
+                                                                                'variant' => $product->variant_code,
+                                                                            ]) }}">Detail</a>
+                                                        @if ($product->status == 'Inactive')
+                                                            <a class="btn btn-success" href="#" data-toggle="modal"
+                                                                data-target="#{{ $modalId }}">
+                                                                Aktifkan Kembali
+                                                            </a>
+                                                        @else
+                                                            <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                                data-target="#{{ $modalId }}">
+                                                                Nonaktif
+                                                            </a>
+                                                        @endif
+                                                    </div>
                                                 @endif
                                             @else
                                             @endif
@@ -336,17 +348,23 @@
                                                     </div>
 
 
-                                                    @if ($product->status == 'Inactive')
-                                                        <a class="btn btn-success" href="#" data-toggle="modal"
-                                                            data-target="#{{ $modalId }}">
-                                                            Aktifkan Kembali
-                                                        </a>
-                                                    @else
-                                                        <a class="btn btn-primary" href="#" data-toggle="modal"
-                                                            data-target="#{{ $modalId }}">
-                                                            Nonaktif
-                                                        </a>
-                                                    @endif
+                                                     <div style="display:flex; justify-content: space-between;" class="flex-content-info">
+                                                        <a style="width:80px;" class="btn-general"  href="{{ route('daily-product-detail', [
+                                                                                'product' => $product->product_code,
+                                                                                'variant' => $product->variant_code,
+                                                                            ]) }}">Detail</a>
+                                                        @if ($product->status == 'Inactive')
+                                                            <a class="btn btn-success" href="#" data-toggle="modal"
+                                                                data-target="#{{ $modalId }}">
+                                                                Aktifkan Kembali
+                                                            </a>
+                                                        @else
+                                                            <a class="btn btn-primary" href="#" data-toggle="modal"
+                                                                data-target="#{{ $modalId }}">
+                                                                Nonaktif
+                                                            </a>
+                                                        @endif
+                                                    </div>
                                                 @endif
                                             @else
                                             @endif

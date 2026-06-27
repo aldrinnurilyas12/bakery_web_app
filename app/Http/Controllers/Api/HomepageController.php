@@ -20,9 +20,10 @@ class HomepageController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function welcome_page()
     {
-        //
+
+        return view('layouts.main_pages.welcome_page');
     }
 
     /**

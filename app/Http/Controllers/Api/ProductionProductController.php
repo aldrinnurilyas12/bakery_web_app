@@ -87,10 +87,10 @@ class ProductionProductController extends Controller
             return redirect()->back();
         }
 
-        // if($production_hour >=8){
-        //     session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
-        //     return redirect()->back();
-        // }
+        if($production_hour >=8){
+            session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+            return redirect()->back();
+        }
 
 
         $variant_category = DB::table('variant_category')->get();

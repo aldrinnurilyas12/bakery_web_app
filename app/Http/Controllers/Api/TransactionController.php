@@ -283,14 +283,12 @@ class TransactionController extends Controller
 
         $itemProducts = ProductsModel::with('category')->get();
         $promo_code = $request->promo_code;
-
         $show_promo = $this->show_promo_code($request);
-
         $casheer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik .'-'. app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->name;
-
+        $IT_GUY = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name == 'IT Developer';
 
         // OPERATIONAL HOURS
-
+        
         $transaction_hour = Carbon::now('Asia/Jakarta')->hour;
         $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
         $position = $GLOBAL_ENV->position_name ?? null;
@@ -305,15 +303,18 @@ class TransactionController extends Controller
             return redirect()->back();
         }
 
-        if($transaction_hour < 8){
-            session()->flash('failed_message', 'Sistem belum buka!');
-            return redirect()->back();
+        if(!$IT_GUY){
+            if($transaction_hour < 8){
+                session()->flash('failed_message', 'Sistem belum buka!');
+                return redirect()->back();
+            }
+
+            if($transaction_hour >=23){
+                session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+                return redirect()->back();
+            }
         }
 
-        if($transaction_hour >=23){
-            session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
-            return redirect()->back();
-        }
         // section cart:
         $cart_value = Session::get('cart', []);
 

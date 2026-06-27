@@ -37,13 +37,13 @@
             </div>
         </div>
 
-         <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+         {{-- <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
         </div>
          @error('g-recaptcha-response')
             <div class="text-danger mt-2">
                 {{ $message }}
             </div>
-         @enderror
+         @enderror --}}
 
         <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Login</span>
             <span class="spinner"></span></button>

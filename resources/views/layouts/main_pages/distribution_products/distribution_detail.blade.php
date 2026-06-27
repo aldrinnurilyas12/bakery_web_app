@@ -301,7 +301,7 @@
 
                             <hr>
                             <div id="showWasteConfirmation" class="form-group">
-                                <label for=""><strong>Adakah Produk Waste?</strong></label>
+                                <label for=""><strong>Apakah ada Produk yang Waste/Kerusakan?</strong></label>
 
                                 <div style="display: flex; gap:10px;" class="form-group-radio">
                                     <div class="input">

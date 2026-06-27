@@ -15,7 +15,6 @@ class ProductWaste extends Model
         'product_daily',
         'attachment_files',
         'distribution',
-        'quantity',
         'reason',
         'waste_date',
         'approved_by',

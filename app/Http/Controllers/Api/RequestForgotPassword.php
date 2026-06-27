@@ -154,7 +154,7 @@ class RequestForgotPassword extends Controller
 
             if($password !== $confirm_password){
                 session()->flash('failed_message', 'Your password not matching!');
-                return redirect()->back();
+                return redirect()->back()->withInput();
             }
 
             if($user){

@@ -48,6 +48,18 @@ class LoginRequest extends FormRequest
 
     public function authenticate(): RedirectResponse
     {
+
+        $this->validate([
+            'login' => 'required',
+            'password' => 'required',
+            'g-recaptcha-response' => 'required'
+        ],
+        [
+            'login.required' => 'Harap masukan email atau nomor handphone anda',
+            'password.required' => 'Harap masukan kata sandi',
+            'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
+        ]);
+
         $this->ensureIsNotRateLimited();
 
         $login = $this->only('login')['login'];
@@ -136,10 +148,19 @@ class LoginRequest extends FormRequest
                 ->withInput();
         }
 
+        $findPosition = DB::table('users as u')
+                            ->select('u.nik', 'e.name', 'u.email', 'e.position')
+                            ->join('employee as e', 'u.nik', '=', 'e.nik')
+                            ->join('job_position as jp', 'e.position', '=', 'jp.position_code')
+                            ->where('u.email', $user_available->email)->first();
+
         // Jika semua pemeriksaan berhasil, login pengguna
         Auth::login($user_available);
         RateLimiter::clear($this->throttleKey());
         $this->session()->regenerate();
+        if($findPosition->position == 'CSR'){
+            return redirect()->intended('welcome');
+        }
         return redirect()->intended('dashboard_main');
     }
 

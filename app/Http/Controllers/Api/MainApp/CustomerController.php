@@ -569,8 +569,8 @@ class CustomerController extends Controller
             'product_code.*' => 'required',
             'variant_code' => 'nullable|array',
             'variant_code.*' => 'nullable|string',
-            'review' => 'array',
-            'rating' => 'array'
+            'review' => 'array|required',
+            'rating' => 'array|required'
         ]);
 
         $transaction = $request->transaction_code;

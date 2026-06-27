@@ -23,8 +23,20 @@
                 <div class="container-fluid px-4">
                     <h4>Tambah Data Daily Produk</h4>
                     <hr>
-                    <div class="card-header">
-                        &nbsp; <a class="btn btn-primary" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                    <div style="display: flex;justify-content: space-between;" class="card-header">
+                        <div class="btn-back">
+                             &nbsp; <a class="btn btn-primary" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                        </div>
+                       
+                         @if ($module_documentation)
+                            <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
+                                class="documentation-module">
+                                <a title="Dokumentasi Modul"
+                                    href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
+                                    <i aria-label="Module Documentation" class="fa fa-file"></i>
+                                </a>
+                            </div>
+                         @endif
                     </div>
                     <hr>
                     <div style="font-size: 13px;" class="alert alert-info">

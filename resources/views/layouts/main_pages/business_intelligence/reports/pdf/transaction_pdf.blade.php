@@ -42,13 +42,12 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Pelanggan</th>
             <th>Kode Transaksi</th>
+            <th>Pelanggan</th>
             <th>Quantity</th>
             <th>Total Bayar</th>
             <th>Kembalian</th>
             <th>Grand Total</th>
-            <th>Store</th>
             <th>Tanggal Transaksi</th>
         </tr>
     </thead>
@@ -56,13 +55,12 @@
         @foreach($transaction as $key => $row)
         <tr>
             <td>{{ $key + 1 }}</td>
-            <td>{{ $row->name ?: '-' }}</td>
             <td>{{ $row->transaction_code }}</td>
+            <td>{{ $row->name ?: '-' }}</td>
             <td>{{ $row->total_qty }}</td>
             <td>{{ 'Rp.' . number_format($row->total_amount) }}</td>
             <td>{{ 'Rp.' . number_format($row->payment_changes) }}</td>
             <td>{{ 'Rp.' . number_format($row->grand_total) }}</td>
-            <td>{{ $row->store_name }}</td>
             <td>{{ $row->transaction_date }}</td>
         </tr>
         @endforeach

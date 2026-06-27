@@ -134,6 +134,7 @@ class DistributionProducts extends Controller
                     'variant' => $variantId,
                     'quantity' => $qty,
                     'expired_date' => $expiredDate,
+                    'expired_status' => 'N',
                     'store' => $storeId,
                     'status' => 21
                 ]);

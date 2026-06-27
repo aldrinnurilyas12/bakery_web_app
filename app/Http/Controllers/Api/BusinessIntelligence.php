@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPDFPDF;
+use Carbon\Carbon;
 
 class BusinessIntelligence extends Controller
 {
@@ -35,24 +36,119 @@ class BusinessIntelligence extends Controller
             return redirect()->back();
         }
 
+        // Transactions:
 
-        $total_transaction = DB::table('v_main_transactions')->select('transaction_code')->where('transaction_type', 'SALE')->count();
-        $total_product = DB::table('products')->select('product_code')->count();
+        $total_transaction = DB::table('v_main_transactions')
+        ->select('transaction_code')
+        ->where('transaction_type', 'SALE')
+        ->whereMonth('transaction_date', now()->month)
+        ->whereYear('transaction_date', now()->year)
+        ->count();
+
+        $prev_month_transactions = DB::table('v_main_transactions')
+        ->select('transaction_code')
+        ->where('transaction_type', 'SALE')
+        ->whereMonth('transaction_date', now()->subMonth()->month)
+        ->whereYear('transaction_date', now()->subMonth()->year)
+        ->count();
+
+        if($prev_month_transactions > 0){
+            $mom_transaction = (($total_transaction - $prev_month_transactions) / $prev_month_transactions * 100); 
+            $total_transaction_diff = $total_transaction - $prev_month_transactions;
+        }
+
+
+        // Revenue
+
+        $total_revenue = DB::table('v_main_transactions')
+        ->where('transaction_type', 'SALE')
+        ->whereMonth('transaction_date', now()->month)
+        ->whereYear('transaction_date', now()->year)
+        ->sum('grand_total');
+
+        $prev_month_revenue = DB::table('v_main_transactions')
+        ->where('transaction_type', 'SALE')
+        ->whereMonth('transaction_date', now()->subMonth()->month)
+        ->whereYear('transaction_date', now()->subMonth()->year)
+        ->sum('grand_total');
+
+        if($prev_month_revenue > 0){
+            $mom_revenue = (($total_revenue - $prev_month_revenue) / $prev_month_revenue * 100);
+            $total_revenue_diff = $total_revenue - $prev_month_revenue;
+        }
+
+
+        // Customer total
+
         $total_customer = DB::table('customer')
         ->where('account_email_verified', 'Y')
+        ->whereMonth('created_at', now()->month)
+        ->whereYear('created_at', now()->year)
         ->select('customer_code')->count();
+
+        $prev_customer =  DB::table('customer')
+        ->where('account_email_verified', 'Y')
+        ->whereMonth('created_at', now()->subMonth()->month)
+        ->whereYear('created_at', now()->subMonth()->year)
+        ->select('customer_code')->count();
+
+        if($prev_customer > 0){
+            $mom_customer = (($total_customer - $prev_customer) / $prev_customer * 100);
+            $total_customer_diff = $total_customer - $prev_customer;
+        }else{
+            $mom_customer = $total_customer;
+            $total_customer_diff = $total_customer - $prev_customer;
+        }   
+
+
+
+
+        $total_product = DB::table('products')->select('product_code')->count();
         $total_category = DB::table('product_category as pc')
             ->join('products as p', 'pc.id', '=', 'p.category_id')
             ->distinct('pc.id')
             ->count('pc.id');
         $stores = DB::table('store')->where('status', 7)->get();
+        
 
         $total_transaction_line_chart = DB::table('v_main_transactions')
         ->selectRaw('MONTH(transaction_date) as month, COUNT(transaction_code) as total')
         ->where('transaction_type', 'SALE')
+        ->whereYear('created_at', now()->year)
         ->groupByRaw('MONTH(transaction_date)')
         ->orderByRaw('MONTH(transaction_date)')
         ->get();
+
+        $total_revenue_bar_chart = DB::table('v_main_transactions')
+        ->selectRaw('MONTH(transaction_date) as month, SUM(grand_total) as total_revenue')
+        ->where('transaction_type', 'SALE')
+        ->whereYear('created_at', now()->year)
+        ->groupByRaw('MONTH(transaction_date)')
+        ->orderByRaw('MONTH(transaction_date)')
+        ->get();
+
+        $total_transaction_member_nonmember = DB::table('transactions')
+        ->selectRaw("
+            COUNT(
+                CASE
+                    WHEN customer IS NULL
+                    AND transaction_type = 'SALE'
+                    THEN transaction_code
+                END
+            ) AS total_nonmember,
+
+            COUNT(
+                CASE
+                    WHEN customer IS NOT NULL
+                    AND transaction_type = 'SALE'
+                    THEN transaction_code
+                END
+            ) AS total_member
+        ")
+        ->first();
+
+
+
 
         $revenue_products = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
@@ -179,16 +275,24 @@ class BusinessIntelligence extends Controller
             10 => 'Okt', 11 => 'Nov', 12 => 'Des'
         ];
 
+
+
         $products_data = DB::table('products')->select('product_name')->get();
         $category_products = DB::table('product_category')->select('category_name')->get();
         $payment_category = DB::table('payment_category')->select('payment_category')->get();
-
 
         // Total Transactions :
 
         foreach ($total_transaction_line_chart as $item) {
             $labels[] = $monthNames[$item->month];
             $data[] = $item->total;
+        }
+
+        // revenue by month
+
+        foreach ($total_revenue_bar_chart as $item) {
+            $labels_revenue[] = $monthNames[$item->month];
+            $revenue_data[] = $item->total_revenue;
         }
 
         // Total Revenue Products:
@@ -215,6 +319,18 @@ class BusinessIntelligence extends Controller
             $category_total[] = (float) $revenue;
         }
 
+        // total transaction member vs non member:
+         $labels_member = [
+            'Member',
+            'Non Member'
+        ];
+
+        $transaction_member = [
+            (int) $total_transaction_member_nonmember->total_member,
+            (int) $total_transaction_member_nonmember->total_nonmember,
+        ];
+
+
         // Total revenue by Payment Method:
 
         foreach ($payment_category as $ctg) {
@@ -227,19 +343,8 @@ class BusinessIntelligence extends Controller
             $paycategory_total[] = (float) $revenue;
         }
 
-        // Top sales Products:
-        // foreach ($products_data as $product) {
-        //     $labels_products[] = $product->product_name;
 
-        //     $revenue = $top_sales_products
-        //         ->where('product_name', $product->product_name)
-        //         ->sum('total_revenue');
-
-        //     $top_sales_products[] = (float) $revenue;
-        // }
-
-
-        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_product', 'total_customer', 'total_category', 'stores', 'labels', 'data', 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products'));
+        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_transaction_diff','total_revenue', 'total_revenue_diff','mom_revenue','mom_transaction','mom_customer', 'total_customer_diff', 'total_product', 'total_customer', 'total_category', 'stores', 'labels', 'data', 'products_revenue', 'labels_products', 'labels_category','labels_revenue','revenue_data', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products', 'transaction_member', 'labels_member'));
     }
 
     public function filter_dashboard(Request $request){
@@ -248,15 +353,92 @@ class BusinessIntelligence extends Controller
         $end_date = $request->end_date;
         $store_select = $request->store;
 
+        // Periode bulan sebelumnya
+        $prev_start_date = Carbon::parse($start_date)
+            ->subMonth()
+            ->format('Y-m-d');
+
+        $prev_end_date = Carbon::parse($end_date)
+            ->subMonth()
+            ->format('Y-m-d');
+
         $total_transaction = DB::table('v_main_transactions')->select('transaction_code')
             ->where('transaction_type', 'SALE')
             ->where('store_code', $store_select)
             ->whereDate('transaction_date', '>=', $start_date)
             ->whereDate('transaction_date', '<=', $end_date)->count();
-        $total_product = DB::table('products')->select('product_code')->count();
+
+
+        $prev_month_transactions = DB::table('v_main_transactions')
+            ->select('transaction_code')
+            ->where('transaction_type', 'SALE')
+            ->whereDate('transaction_date', '>=', $prev_start_date)
+            ->whereDate('transaction_date', '<=', $prev_end_date)
+            ->count();
+
+        $total_transaction_diff = 0;
+        $mom_transaction = 0;
+
+        if ($prev_month_transactions > 0) {
+            $total_transaction_diff = 
+                $total_transaction - $prev_month_transactions;
+
+            $mom_transaction = 
+            ($total_transaction_diff / $prev_month_transactions) * 100;
+        }
+
+
+        $total_revenue = DB::table('v_main_transactions')
+            ->where('transaction_type', 'SALE')
+            ->where('store_code', $store_select)
+            ->whereDate('transaction_date', '>=', $start_date)
+            ->whereDate('transaction_date', '<=', $end_date)
+            ->sum('grand_total');
+
+        $prev_month_revenue = DB::table('v_main_transactions')
+            ->where('transaction_type', 'SALE')
+            ->where('store_code', $store_select)
+            ->whereDate('transaction_date', '>=', $prev_start_date)
+            ->whereDate('transaction_date', '<=', $prev_end_date)
+            ->sum('grand_total');
+
+        $total_revenue_diff = 0;
+        $mom_revenue = 0;
+
+        if ($prev_month_revenue > 0) {
+            $total_revenue_diff = 
+                $total_revenue - $prev_month_revenue;
+
+            $mom_revenue = 
+                ($total_revenue_diff / $prev_month_revenue) * 100;
+        }
+
+
         $total_customer = DB::table('customer')
         ->where('account_email_verified', 'Y')
+        ->whereDate('created_at', '>=', $start_date)
+        ->whereDate('created_at', '<=', $end_date)
         ->select('customer_code')->count();
+
+        $prev_customer =  DB::table('customer')
+        ->where('account_email_verified', 'Y')
+        ->whereDate('created_at', '>=', $prev_start_date)
+        ->whereDate('created_at', '<=', $prev_end_date)
+        ->select('customer_code')->count();
+        
+        $total_customer_diff = 0;
+        $mom_customer = 0;
+
+        if($prev_customer > 0){
+           $total_customer_diff = $total_customer - $prev_customer;
+           $mom_customer = ($total_customer_diff / $prev_customer) * 100;
+        }else{
+            $mom_customer = $total_customer;
+            $total_customer_diff = $total_customer;
+        }   
+
+
+        $total_product = DB::table('products')->select('product_code')->count();
         $total_category = DB::table('product_category as pc')
             ->join('products as p', 'pc.id', '=', 'p.category_id')
             ->distinct('pc.id')
@@ -449,8 +631,75 @@ class BusinessIntelligence extends Controller
 
             $paycategory_total[] = (float) $revenue;
         }
-        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_product', 'total_customer', 'total_category', 'stores', 'labels', 'data', 'total_transaction_line_chart', 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products'));
+        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'mom_transaction','total_revenue','mom_revenue','total_transaction_diff', 'total_revenue_diff', 'total_product', 'total_customer','mom_customer', 'total_customer_diff', 'total_category', 'stores', 'labels', 'data', 'total_transaction_line_chart', 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products'));
     }
+
+    // Customer Data Analytics
+
+     public function data_analytics_customer()
+    {
+
+
+        $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $position = $GLOBAL_ENV->position_name ?? null;
+
+        $NOT_ALLOWED_USER = in_array($position, [
+            'Casheer'
+        ]);
+
+        if($NOT_ALLOWED_USER){
+            session()->flash('failed_message', 'Tidak bisa akses!');
+            return redirect()->back();
+        }
+
+        // total customer :
+         $new_customer = DB::table('customer')
+        ->where('account_email_verified', 'Y')
+        ->whereMonth('created_at', now()->month)
+        ->whereYear('created_at', now()->year)
+        ->select('customer_code')->count();
+
+        $prev_customer =  DB::table('customer')
+        ->where('account_email_verified', 'Y')
+        ->whereMonth('created_at', now()->subMonth()->month)
+        ->whereYear('created_at', now()->subMonth()->year)
+        ->select('customer_code')->count();
+
+        if($prev_customer > 0){
+            $mom_customer = (($new_customer - $prev_customer) / $prev_customer * 100);
+            $total_customer_diff = $new_customer - $prev_customer;
+        }else{
+            $mom_customer = $new_customer;
+            $total_customer_diff = $new_customer - $prev_customer;
+        }   
+
+
+        $active_customer = DB::table('customer')
+        ->where('status', 7)->where('account_email_verified','Y')
+        ->select('customer_code')->count();
+
+        $total_customer = DB::table('customer')
+        ->select('customer_code')->count();
+
+        $nonactive_customer = DB::table('customer')
+        ->where('status', 8)
+        ->select('customer_code')->count();
+
+        $rfm_data = DB::table('v_rfm_analysis')->get();
+
+
+        return view('layouts.main_pages.business_intelligence.data_analytics.customer_data_analytics',compact('total_customer', 'mom_customer', 'total_customer_diff', 'active_customer', 'nonactive_customer', 'new_customer', 'rfm_data'));
+
+    }
+
+
+
+
+
+
+
+
+
 
     public function sales_performance(Request $rq)
     {

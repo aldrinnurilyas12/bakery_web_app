@@ -110,7 +110,7 @@ Route::middleware(['customer', 'nocache'])->group(function () {
 
 
 
-    // ROUTE FOR WEB ADMIN:
+// ROUTE FOR WEB ADMIN:
 Route::get('/admin_kencana_bakery', function () {
     return view('layouts.main_pages.welcome_page');
 });
@@ -133,6 +133,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('profile_information', [ProfileController::class, 'user_profile'])->name('profile_information');
     Route::put('profile_update/{id}', [ProfileController::class, 'update'])->name('profile_update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('welcome', [HomePageController::class, 'welcome_page'])->name('welcome');
 
     // USERS Route
     Route::apiResource('user_register', App\Http\Controllers\Auth\RegisteredUserController::class);
@@ -206,7 +207,8 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('/filter_data', [DailyProducts::class, 'filter'])->name('filter_data');
     Route::delete('dailyproduct_delete_variant/{variant_code}', [DailyProducts::class, 'delete_variant'])->name('dailyproduct_delete_variant');
     Route::get('get_stock_product/{distribution_store}', [DailyProducts::class, 'get_stock']);
-
+    Route::get('daily-product-detail/{product}/{variant?}', [DailyProducts::class, 'daily_product_detail'])->name('daily-product-detail');
+    Route::put('update_expired_status_distribution/{distribution_store_code}', [DailyProducts::class, 'update_expired_status_distribution'])->name('update_expired_status_distribution');
     // Route Promo Campaign
     Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class);
     Route::get('promo_create', [PromoCampaignController::class, 'create'])->name('promo_create')->middleware('route_access');
@@ -386,6 +388,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     // ROUTE Business Intelligence
     Route::apiResource('business_intelligence', App\Http\Controllers\Api\BusinessIntelligence::class)->middleware('route_access');
     Route::get('data_analytics', [BusinessIntelligence::class, 'data_analytics_layouts'])->name('data_analytics')->middleware('route_access');
+     Route::get('data_analytics_customer', [BusinessIntelligence::class, 'data_analytics_customer'])->name('data_analytics_customer')->middleware('route_access');
     Route::get('sales_performance', [BusinessIntelligence::class, 'sales_performance'])->name('sales_performance')->middleware('route_access');
     Route::get('business_reports', [BusinessIntelligence::class, 'main_reports_layouts'])->name('business_reports')->middleware('route_access');
     Route::get('generate_reports', [BusinessIntelligence::class, 'generate_reports'])->name('generate_reports');

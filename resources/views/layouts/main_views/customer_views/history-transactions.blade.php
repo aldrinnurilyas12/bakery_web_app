@@ -237,8 +237,8 @@
 
                                             <div style="display:block;" class="fill-content">
                                                 <div class="form-group">
-                                                    <label for="">Rating Produk</label>
-                                                    <select name="rating[]" class="star-rating">
+                                                    <label style="font-size:15px;" for=""><strong>Rating Produk</strong></label>
+                                                    <select name="rating[]" class="star-rating" required>
                                                         <option value="5">Bagus Sekali</option>
                                                         <option value="4">Bagus </option>
                                                         <option value="3">Normal</option>
@@ -247,8 +247,8 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="">Berikan Ulasan anda</label>
-                                                    <textarea class="form-control" name="review[]" id="" cols="30" rows="2"></textarea>
+                                                    <label style="font-size:15px;" for=""><strong>Berikan Ulasan</strong></label>
+                                                    <textarea class="form-control" name="review[]" id="" cols="30" rows="2" required></textarea>
                                                 </div>
                                             </div>
 
@@ -260,7 +260,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="">Sembuyikan nama anda</label>
+                                <label style="font-size:15px;" for=""><strong>Sembuyikan nama anda</strong></label>
+                                <br>
+                                <label for=""><small>*Nama anda tidak akan terlihat</small></label>
                                 <div style="display:block;" class="block-content">
                                     <input type="radio" value="Y" name="hidden_name"> Ya
                                     <br>
