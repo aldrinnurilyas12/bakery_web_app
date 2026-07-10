@@ -205,14 +205,10 @@
                                             <div style="display: flex; gap:10px;" class="btn-btn-invoice">
                                                 <a class="btn btn-primary"
                                                     href="{{ route('history-transaction') }}">Kembali</a>
-                                                <button onclick="window.print()" type="button" data-mdb-button-init
-                                                    data-mdb-ripple-init class="btn btn-primary text-capitalize"
-                                                    style="background-color:#ac0017; border:none;">
-                                                    <i class="fa fa-print"></i> Cetak Invoice</button>
 
                                                 <a class="btn btn-primary text-capitalize"
                                                     style="background-color:#ac0017; border:none;"
-                                                    href="{{ url('/invoice_cust/' . $invoice->transaction_code . '/print') }}"
+                                                    href="{{ url('/invoice_pdf/' . $invoice->transaction_code) }}"
                                                     target="_blank">
                                                     <i class="fa fa-file"></i>
                                                     PDF

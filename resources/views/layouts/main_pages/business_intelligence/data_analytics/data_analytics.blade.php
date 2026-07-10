@@ -10,6 +10,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
@@ -20,8 +21,6 @@
 <body class="sb-nav-fixed">
     @include('layouts.component_admin.navbar.navbar')
     @include('layouts.component_admin.sidebar.sidebar')
-
-
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>
@@ -286,6 +285,16 @@
                                 {{-- ROW BAWAH --}}
                                 <div class="row mt-4">
 
+                                     <div class="col-md-8">
+                                        <div class="card">
+                                            <div class="card-header">Heatmap Transaksi per Jam</div>
+                                            <div class="card-body">
+                                                 <canvas id="heatMapChart"></canvas>
+                                            </div>
+                                        </div>
+                                     </div>
+
+
                                      <div class="col-md-4">
                                         <div class="card">
                                             <div class="card-header">Total Pendapatan by Metode Pembayaran</div>
@@ -294,9 +303,10 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <!-- Table -->
-                                    <div class="col-md-8">
+                                <div class="row mt-4">
+                                     <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-header">Penjualan Produk</div>
                                             <div class="card-body">
@@ -322,6 +332,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -330,8 +341,6 @@
             </main>
         </div>
     </div>
-
-
 </body>
  <script>
    // LINE CHART
@@ -527,19 +536,86 @@
        }
    });
 
-   // BAR CHART 2
-   // new Chart(document.getElementById('barChart2'), {
-   //     type: 'bar',
-   //     data: {
-   //         labels: @json($labels_products),
-   //         datasets: [{
-   //             label: 'Stok',
-   //             data: [50, 75, 40],
-   //             backgroundColor: 'purple'
-   //         }]
-   //     }
-   // });
-                            </script>
+   // HEATMAP:
+    const dayLabels = [
+    'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'
+    ];
+
+    const heatmapData = @json($data_heatmap);
+
+    const ctx = document.getElementById('heatMapChart');
+
+    new Chart(ctx, {
+        type: 'matrix',
+
+        data: {
+            datasets: [{
+                data: heatmapData,
+
+                borderWidth: 1,
+                borderColor: '#fff',
+
+                // ❗ WAJIB pakai FIXED dulu biar pasti muncul
+                width: 25,
+                height: 25,
+
+                backgroundColor: (ctx) => {
+                    const v = ctx.raw.v;
+
+                    if (v === 0) return '#f5f5f5';
+                    if (v < 5) return '#d6eaf8';
+                    if (v < 10) return '#85c1e9';
+                    if (v < 20) return '#3498db';
+                    if(v > 20) return '#bb0239';
+                    return '#bb0239';
+                }
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: { display: false },
+
+                tooltip: {
+                    callbacks: {
+                        title: (items) =>
+                            dayLabels[items[0].raw.y] + ' ' + items[0].raw.x + ':00',
+
+                        label: (item) =>
+                            item.raw.v + ' transaksi'
+                    }
+                }
+            },
+
+            scales: {
+                x: {
+                    type: 'linear',
+                    min: 8,
+                    max: 21,
+                    ticks: {
+                        stepSize: 1,
+                        callback: v => v + ':00'
+                    }
+                },
+
+                y: {
+                    type: 'linear',
+                    min: 0,
+                    max: 6,
+                    ticks: {
+                        stepSize: 1,
+                        callback: v => dayLabels[v]
+                    }
+                }
+            }
+        }
+    });
+   
+   
+</script>
 
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
@@ -547,6 +623,7 @@
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+
 
 @if (Session::has('message_success'))
     <script>

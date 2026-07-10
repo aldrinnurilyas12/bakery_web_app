@@ -15,6 +15,7 @@ class TransactionDetail extends Model
         'variant',
         'price',
         'quantity_per_product',
+        'promo_bundling',
         'created_by',
         'updated_by'
     ];

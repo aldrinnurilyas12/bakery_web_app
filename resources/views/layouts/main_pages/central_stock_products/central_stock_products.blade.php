@@ -42,8 +42,8 @@
                                             <tr>
                                                 <th>No</th>
                                                 <th>Produk</th>
-                                                <th>Aksi</th>
                                                 <th>Info Produk</th>
+                                                <th>Aksi</th>
                                                 {{-- <th>Total Distribusi</th> --}}
                                             </tr>
                                         </thead>
@@ -61,53 +61,7 @@
                                                                 [{{ $stock->variant ?: '-' }}]</span>
                                                         @endif
                                                     </td>
-                                                    <td>
-                                                        <table style="font-size: 14px; color:black;"
-                                                            class="table table-bordered" id="dataTable" width="100%"
-                                                            cellspacing="0">
-
-                                                            <tr>
-                                                                <th>Detail produk</th>
-                                                                <th>Info Distribusi </th>
-                                                            </tr>
-
-                                                            <tr>
-                                                                <td>
-                                                                    @if ($stock->variant)
-                                                                        <a
-                                                                            href="{{ route('detail-info-product', [
-                                                                                'product' => $stock->product_code,
-                                                                                'variant' => $stock->variant_code,
-                                                                            ]) }}"><i
-                                                                                class="fas fa-external-link-alt"></i></a>
-                                                                    @else
-                                                                        <a
-                                                                            href="{{ route('detail-info-product', $stock->product_code) }}"><i
-                                                                                class="fas fa-external-link-alt"></i></a>
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @if ($stock->variant)
-                                                                        <a
-                                                                            href="{{ route('detail-info-distribution', [
-                                                                                'product' => $stock->product_code,
-                                                                                'variant' => $stock->variant_code,
-                                                                            ]) }}"><i
-                                                                                class="fas fa-external-link-alt"></i></a>
-                                                                    @else
-                                                                        <a
-                                                                            href="{{ route('detail-info-distribution', $stock->product_code) }}"><i
-                                                                                class="fas fa-external-link-alt"></i></a>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-
-                                                        </table>
-                                                    </td>
-
-
-
-
+                                                   
                                                     <td>
                                                         <table style="font-size: 14px; color:black;"
                                                             class="table table-bordered" id="dataTable" width="100%"
@@ -129,6 +83,50 @@
                                                                         {{ $stock->total_distribution }}
                                                                     @else
                                                                         -
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
+                                                        </table>
+                                                    </td>
+
+                                                     <td>
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+
+                                                            <tr>
+                                                                <th>Detail produk</th>
+                                                                <th>Info Distribusi </th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td>
+                                                                    @if ($stock->variant)
+                                                                        <a
+                                                                            href="{{ route('detail-info-product', [
+                                                                                'product' => $stock->product_code,
+                                                                                'variant' => $stock->variant_code,
+                                                                            ]) }}"><i
+                                                                                class="fas fa-external-link-alt"></i> Lihat</a>
+                                                                    @else
+                                                                        <a
+                                                                            href="{{ route('detail-info-product', $stock->product_code) }}"><i
+                                                                                class="fas fa-external-link-alt"></i> Lihat</a>
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if ($stock->variant)
+                                                                        <a
+                                                                            href="{{ route('detail-info-distribution', [
+                                                                                'product' => $stock->product_code,
+                                                                                'variant' => $stock->variant_code,
+                                                                            ]) }}"><i
+                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                    @else
+                                                                        <a
+                                                                            href="{{ route('detail-info-distribution', $stock->product_code) }}"><i
+                                                                                class="fas fa-external-link-alt"></i> Lihat</a>
                                                                     @endif
                                                                 </td>
                                                             </tr>

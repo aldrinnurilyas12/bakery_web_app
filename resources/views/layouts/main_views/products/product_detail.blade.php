@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery | Profile</title>
+    <title>Kencana Bakery | Informasi produk</title>
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/homepage.css') }}">
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome Free 6 -->
@@ -36,6 +36,9 @@
             }
         @endphp
         <div class="product-image">
+            <div class="route-back">
+                <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
+            </div>
             <img src="{{ url('storage/' . $image_product->images) }}" alt="Product Image">
         </div>
         <div class="container-fluid">
@@ -54,8 +57,9 @@
                                 @if ($product->rating == 0)
                                 @else
                                     <div style="display: flex; gap:5px;" class="star">
-                                        <img style="width:15px;height:15px;margin-top:3px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
-                                        <p>{{ number_format($product->rating, 1)}} ({{ $product->total_rating }})</p>
+                                        <img style="width:15px;height:15px;margin-top:3px;"
+                                            src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
+                                        <p>{{ number_format($product->rating, 1) }} ({{ $product->total_rating }})</p>
                                     </div>
                                 @endif
 
@@ -120,68 +124,77 @@
                         </div>
 
 
-                        @if($review)
-                                <div style="display:flex;justify-content: space-between;" class="flex-title">
-                                    <h4 style="margin-bottom: 8px;">Ulasan Produk</h4>
-                                    <p>({{$product->total_rating  }} ulasan)</p>
-                                </div>
-                                <hr>
-                                 <div style="width:100%;" class="review-product-customer">
-                                     <div style="overflow-y: auto; height: 230px;" class="scroll-review">
-                                        @foreach($review as $rv)
-                                                @if($rv->hidden_name == 'N')
-                                                    <div style="margin-bottom: 10px;" class="customer">
-                                                        <div class="customer-name">
-                                                            <div class="rating-rate">
-                                                                <div style="display: flex; justify-content: space-between;" class="info-star">
-                                                                    <div style="display: flex;gap:10px;" class="info-name">
-                                                                        <p style="font-weight:600;">{{ $rv->name }}</p>
-                                                                        <div style="display: flex;gap:2px;" class="rating-info">
-                                                                            <img style="width:15px;height:15px;margin-top:3px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
-                                                                            <p>{{ number_format($rv->rating, 0)}}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                    
-                                                                    <div class="date-review">
-                                                                        <p>{{ \Carbon\Carbon::parse($rv->review_date)->format('d M Y') }}</p>
-                                                                    </div>
+                        @if ($review)
+                            <div style="display:flex;justify-content: space-between;" class="flex-title">
+                                <h4 style="margin-bottom: 8px;">Ulasan Produk</h4>
+                                <p>({{ $product->total_rating }} ulasan)</p>
+                            </div>
+                            <hr>
+                            <div style="width:100%;" class="review-product-customer">
+                                <div style="overflow-y: auto; height: 230px;" class="scroll-review">
+                                    @foreach ($review as $rv)
+                                        @if ($rv->hidden_name == 'N')
+                                            <div style="margin-bottom: 10px;" class="customer">
+                                                <div class="customer-name">
+                                                    <div class="rating-rate">
+                                                        <div style="display: flex; justify-content: space-between;"
+                                                            class="info-star">
+                                                            <div style="display: flex;gap:10px;" class="info-name">
+                                                                <p style="font-weight:600;">{{ $rv->name }}</p>
+                                                                <div style="display: flex;gap:2px;" class="rating-info">
+                                                                    <img style="width:15px;height:15px;margin-top:3px;"
+                                                                        src="{{ asset('assets\front_end\icons\star-icon.svg') }}"
+                                                                        alt="">
+                                                                    <p>{{ number_format($rv->rating, 0) }}</p>
                                                                 </div>
                                                             </div>
-                                                            <div class="review-customer-text">
-                                                                <p class="">{{ $rv->review }}</p>
+
+                                                            <div class="date-review">
+                                                                <p>{{ \Carbon\Carbon::parse($rv->review_date)->format('d M Y') }}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @else
-                                                    <div style="margin-bottom: 10px;" class="hidden-customer">
-                                                         <div class="customer-name">
-                                                            <div class="rating-rate">
-                                                                <div style="display: flex; justify-content: space-between;" class="info-star">
-                                                                    <div style="display: flex;gap:10px;" class="info-name">
-                                                                        <div style="display: flex;gap:2px;" class="rating-info">
-                                                                            <img style="width:15px;height:15px;margin-top:3px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
-                                                                            <p>{{ number_format($rv->rating, 0)}}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                    
-                                                                    <div class="date-review">
-                                                                        <p>{{ \Carbon\Carbon::parse($rv->review_date)->format('d M Y') }}</p>
-                                                                    </div>
+                                                    <div class="review-customer-text">
+                                                        <p class="">{{ $rv->review }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div style="margin-bottom: 10px;" class="hidden-customer">
+                                                <div class="customer-name">
+                                                    <div class="rating-rate">
+                                                        <div style="display: flex; justify-content: space-between;"
+                                                            class="info-star">
+                                                            <div style="display: flex;gap:10px;" class="info-name">
+                                                                <div style="display: flex;gap:2px;"
+                                                                    class="rating-info">
+                                                                    <img style="width:15px;height:15px;margin-top:3px;"
+                                                                        src="{{ asset('assets\front_end\icons\star-icon.svg') }}"
+                                                                        alt="">
+                                                                    <p>{{ number_format($rv->rating, 0) }}</p>
                                                                 </div>
                                                             </div>
-                                                            <div class="review-customer-text">
-                                                                <p class="">{{ $rv->review }}</p>
+
+                                                            <div class="date-review">
+                                                                <p>{{ \Carbon\Carbon::parse($rv->review_date)->format('d M Y') }}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @endif
-                                        @endforeach
-                                     </div>
+                                                    <div class="review-customer-text">
+                                                        <p class="">{{ $rv->review }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
                                 </div>
+                            </div>
                         @else
-                         <div class="review-rating">
-                            <p>Tidak ada Review</p>
-                         </div>
+                            <div class="review-rating">
+                                <p>Tidak ada Review</p>
+                            </div>
                         @endif
 
                     </div>
@@ -208,8 +221,8 @@
         @endphp
 
         @if ($customer)
-            <div class="modal fade" id="openqr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
+            <div class="modal fade" id="openqr" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div style="display: flex; justify-content: space-between;" class="modal-header">
@@ -256,6 +269,31 @@
     @endif
 
 </body>
+
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+        position: absolute;
+        margin: 10px 10px 0 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

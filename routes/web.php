@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\MainApp\CustomerController;
 use App\Http\Controllers\Api\MainApp\HomePageController as MainAppHomePageController;
 use App\Http\Controllers\Api\MainApp\RegisteredCustomer;
 use App\Http\Controllers\Api\ProductsController;
+use App\Http\Controllers\Api\PromoBundling;
 use App\Http\Controllers\Api\PromoCampaignController;
 use App\Http\Controllers\Api\RawMaterialController;
 use App\Http\Controllers\Api\ShoppingCartController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Api\VariantCategory;
 use App\Http\Controllers\GoogleOauthController;
 use App\http\Controllers\Api\ModulesDocumentation;
 use App\Http\Controllers\Api\FraudAnalysis;
+use App\Http\Controllers\Api\CustomerSegmentCategories;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\Cors;
 use App\Http\Controllers\Controller;
@@ -55,7 +57,8 @@ Route::get('login_app', [RegisteredCustomer::class, 'login_layouts'])->name('log
 Route::get('register_account', [RegisteredCustomer::class, 'register_layouts'])->name('register_account');
 Route::get('account_verification/{customer_code}', [RegisteredCustomer::class, 'account_verification'])->name('account_verification');
 Route::get('home', [MainAppHomePageController::class, 'homepage'])->name('home');
-Route::get('product/{code}', [MainAppHomePageController::class, 'product_detail'])->name('product');
+Route::get('product/{slug}', [MainAppHomePageController::class, 'product_detail'])->name('product');
+Route::get('promo/{bundling_code}', [MainAppHomePageController::class, 'promo_detail'])->name('promo');
 Route::get('rewards-catalogue', [CustomerController::class, 'rewards_catalogue'])->name('rewards-catalogue');
 Route::post('register_member_account', [RegisteredCustomer::class, 'store'])->name('register_member_account');
 Route::post('login_execute', [AuthenticatedSessionController::class, 'request_sign_in'])->name('login_execute');
@@ -103,6 +106,7 @@ Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('rewards-history', [CustomerController::class,'rewards_customer_history'])->name('rewards-history')->middleware('route_access');
     Route::get('get_stock/{rewards_code}', [CustomerController::class,'get_stock'])->name('get_stock');
     Route::get('/invoice_cust/{transaction_code}/print', [CustomerController::class, 'download_pdf_cust']);
+    Route::get('invoice_pdf/{transaction_code}', [CustomerController::class, 'download_invoice_pdf'])->name('invoice_pdf');
     Route::put('generate_qr_code', [CustomerController::class, 'generate_qr_code'])->name('generate_qr_code');
     Route::post('product_review_save', [CustomerController::class, 'product_review_save'])->name('product_review_save');
 });
@@ -154,6 +158,9 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     
     //  Customer API
     Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class)->middleware('route_access');
+    Route::apiResource('customer_segment', App\Http\Controllers\Api\CustomerSegmentCategories::class)->middleware('route_access');
+    Route::get('customer_segment_create', [CustomerSegmentCategories::class, 'create' ] )->name('customer_segment_create');
+
 
     // Employee API
     Route::apiResource('master_employee', App\Http\Controllers\Api\EmployeeController::class)->middleware('route_access');
@@ -193,6 +200,16 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::delete('delete_variant/{variant_code}', [ProductsController::class, 'delete_variant'])->name('delete_variant');
     Route::put('delete_variant_product/{product_code}', [ProductsController::class, 'update_product_variant'])->name('delete_variant_product');
     Route::get('product-review-detail/{product_code}', [ProductsController::class, 'product_review'])->name('product-review-detail');
+
+    // Products Bundling 
+    Route::apiResource('promo_bundling', App\Http\Controllers\Api\PromoBundling::class);
+    Route::get('promo_bundling_create', [PromoBundling::class, 'create'])->name('promo_bundling_create');
+    Route::put('bundling_nonactive/{bundling_code}', [PromoBundling::class,'bundling_nonactive'])->name('bundling_nonactive');
+
+
+
+
+
 
     // DailyProducts Route
     Route::apiResource('master_daily_products', App\Http\Controllers\Api\DailyProducts::class);
@@ -346,7 +363,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('/search_customer', [TransactionController::class,'show_customer'])->name('search_customer');
     Route::get('/filter_transaction', [TransactionController::class, 'filter_transaction'])->name('filter_transaction');
     Route::post('export_transaction_excel', [TransactionController::class, 'download_excel'])->name('export_transaction_excel');
-    
+    Route::get('invoice_pdf_download/{transaction_code}', [TransactionController::class, 'download_invoice_pdf'])->name('invoice_pdf_download');
     // Route Fraud Transactions
     Route::apiResource('fraud-analysis', App\Http\Controllers\Api\FraudAnalysis::class);
     Route::put('update_fraud_transaction/{fraud_code}', [FraudAnalysis::class, 'update_status_fraud'])->name('update_fraud_transaction');

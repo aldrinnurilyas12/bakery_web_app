@@ -22,7 +22,10 @@ class RewardsController extends Controller
      */
     public function index()
     {
-       
+        $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
+        $rewards = DB::table('v_rewards')->where('store_code', $store)->orderBy('created_at', 'DESC')->get();
+        $store_reward = DB::table('v_rewards')->get();
+       return view('layouts.main_pages.rewards.rewards', compact('rewards', 'store_reward'));
     }
 
     /**
@@ -103,6 +106,7 @@ class RewardsController extends Controller
                     'reward_store_code' => $reward_store_code,
                     'reward' => $main_reward->rewards_code,
                     'store' => $arrayStore,
+                    'initial_stock' => (int) ($stock[$arrayStore] ?? 0),
                     'stock' => (int) ($stock[$arrayStore] ?? 0),
                     'status' => 7,
                     'created_at' => now(),
@@ -296,7 +300,7 @@ class RewardsController extends Controller
             return redirect()->back();
         }
         $reward_data = DB::table('redeem_reward as rr')
-                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
+                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name',  'rr.quantity', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
                     ->leftJoin('rewards_store as rws', 'rr.reward', '=', 'rws.reward_store_code')
                     ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
                     ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
@@ -307,7 +311,7 @@ class RewardsController extends Controller
                     ->get();
         
         $reward_data_claimed = DB::table('redeem_reward as rr')
-                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
+                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.quantity','rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
                     ->leftJoin('rewards_store as rws', 'rr.reward', '=', 'rws.reward_store_code')
                     ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
                     ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')
@@ -318,7 +322,7 @@ class RewardsController extends Controller
                     ->orderBy('created_at', 'DESC')->get();
 
         $reward_data_unclaimed = DB::table('redeem_reward as rr')
-                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
+                    ->select('rr.id','rr.redeem_code', 'rr.reward', 'r.rewards_name', 'c.name as customer', 'sc.status_name', 'rr.pickup_schedule', 'rr.quantity', 'rr.redeem_date', 'e.name as approval_by', 'rr.claimed_at','rr.created_at', 'rr.updated_at')
                     ->leftJoin('rewards_store as rws', 'rr.reward', '=', 'rws.reward_store_code')
                     ->leftJoin('rewards as r','rws.reward', '=', 'r.rewards_code')
                     ->leftJoin('customer as c', 'rr.customer', '=', 'c.customer_code')

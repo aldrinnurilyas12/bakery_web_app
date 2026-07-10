@@ -65,7 +65,10 @@
                                                     <td><?php echo $no++; ?></td>
                                                     @if($daily->status_expired == 'Expired' && $daily->expired_status == 'N')
                                                     <td><a class="btn-general" href="../#" data-toggle="modal"
-                                                        data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Nonaktifkan</a></td>
+                                                        data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Konfirmasi Expired</a></td>
+                                                    @elseif($daily->status_expired == 'Hampir Expired' && $daily->expired_status == 'N')
+                                                    <td><a class="btn-general" href="../#" data-toggle="modal"
+                                                        data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Konfirmasi Expired</a></td>
                                                     @elseif($daily->status_expired == 'Aman' && $daily->expired_status == 'N')
                                                        <td><i style="color:green;" class="fas fa-check-square"></i><span> Aman</span></td>
                                                     @else

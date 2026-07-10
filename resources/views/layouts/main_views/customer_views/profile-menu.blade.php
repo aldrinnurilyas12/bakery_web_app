@@ -29,10 +29,10 @@
                 <br>
                 <br>
                 <div style="display: flex; gap:10px;align-items:center;" class="title-content-head">
-                    <a style="color:black;" href="{{ route('home') }}">
-                        <i class="fa fa-arrow-left"></i>
-                    </a>
-                    <h4 style="font-size: 20px;"><strong>Menu</strong></h4>
+                    <div class="route-back">
+                        <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
+                    </div>
+                    <h4 style="font-size: 20px;margin-bottom: 0;"><strong>Menu</strong></h4>
                 </div>
 
                 <div class="menu-list">
@@ -185,6 +185,28 @@
 
 </body>
 
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>

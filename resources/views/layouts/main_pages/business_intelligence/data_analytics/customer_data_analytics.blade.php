@@ -200,7 +200,29 @@
                                 </div>
 
                                 {{-- End --}}
-
+                                <div class="row">
+                                    <!-- Line Chart -->
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-header">Total Transaksi Belanja</div>
+                                            <div class="card-body">
+                                                <canvas id="horizontalbarChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                      <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-header">Kategori Segmentasi Pelanggan</div>
+                                            <div class="card-body">
+                                                <canvas id="segmentChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
                                 {{-- ROW ATAS --}}
                                  <div class="col-md-12">
                                         <div class="card">
@@ -228,7 +250,16 @@
                                                                 <td>{{ 'Rp.' . number_format($sales->total_spent) }}</td>
                                                                 <td>{{ $sales->status }}</td>
                                                                 <td>{{ $sales->member_status }}</td>
-                                                                <td>Champions</td>
+                                                                <td>
+                                                                    @if($sales->transaction_segment == "Champions")
+                                                                     <span class="text-success">{{ $sales->transaction_segment }}</span>
+                                                                    @elseif($sales->transaction_segment == "Loyal Customers")
+                                                                     <span class="text-info">{{ $sales->transaction_segment }}</span>
+                                                                    @else
+                                                                    <span class="text-danger">{{ $sales->transaction_segment }}</span>
+                                                                    @endif
+                                                                    
+                                                                    </td>
                                                             </tr>
                                                         @endforeach
                                                     </tbody>
@@ -237,28 +268,6 @@
                                         </div>
                                     </div>
                                 <br>
-                                <div class="row">
-                                    <!-- Line Chart -->
-                                    <div class="col-md-12">
-                                        <div class="card">
-                                            <div class="card-header">Total Transaksi</div>
-                                            <div class="card-body">
-                                                <canvas id="lineChart"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                      <div class="col-md-9">
-                                        <div class="card">
-                                            <div class="card-header">Total Pengeluaran Pelanggan</div>
-                                            <div class="card-body">
-                                                <canvas id="barChart1"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 {{-- ROW BAWAH --}}
                                 <div class="row mt-4">
@@ -290,6 +299,99 @@
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+
+
+<script>
+    // Horizontal Bar:
+    new Chart(document.getElementById('horizontalbarChart'), {
+       type: 'bar',
+       data: {
+           labels: @json($labels_customer),
+           datasets: [{
+               data: @json($revenue_customer),
+               backgroundColor: [
+                   '#bb0239',
+                   '#36A2EB',
+                   '#FFCE56',
+                   '#4BC0C0',
+                   '#9966FF'
+               ],
+               barThickness: 10 
+           }]
+       },
+       options: {
+           indexAxis: 'y', // <-- ini yang bikin horizontal
+           responsive: true,
+           maintainAspectRatio: false,
+           plugins: {
+               legend: {
+                   display: false
+               }
+           },
+           scales: {
+               x: {
+                   beginAtZero: true
+               }
+           }
+       }
+   });
+
+
+
+
+   const labels = @json($segment_labels);
+const values = @json($segment_values);
+
+const ctx = document.getElementById('segmentChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Jumlah Customer per Segment',
+            data: values,
+
+            backgroundColor: [
+                '#f1c40f', // Champions
+                '#3498db', // Loyal
+                '#2ecc71', // Potential
+                '#e74c3c'  // Risk Churn
+            ],
+
+            borderRadius: 6
+        }]
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+            legend: {
+                display: false
+            },
+
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.raw + ' customer';
+                    }
+                }
+            }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+</script>
 
 @if (Session::has('message_success'))
     <script>

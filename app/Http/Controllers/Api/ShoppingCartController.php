@@ -28,10 +28,14 @@ class ShoppingCartController extends Controller
         $cart = Session::get('cart', []);
 
         $cart_product = [
+            'type'            => $request->bundling ? 'bundling' : 'product',
+            'code' => $request->bundling ?: $request->product,
             'product'       => $request->product,
             'variant'       => $request->variant,
+            'bundling'      => $request->bundling,
             'variant_type'  => $request->variant_type,
             'product_name'  => $request->product_name,
+            'bundling_name' => $request->bundling_name,
             'price'         => $request->price,
             'quantity'      => $request->quantity,
             'stock_available'=> $request->stock_available
@@ -39,10 +43,56 @@ class ShoppingCartController extends Controller
 
         $found = false;
 
+        // OLD CODE
+        // foreach ($cart as &$item) {
+
+        //     // Jika produk punya variant
+        //     if (!empty($cart_product['variant'])) {
+
+        //         if (
+        //             $item['product'] === $cart_product['product'] &&
+        //             $item['variant'] === $cart_product['variant'] &&
+        //             $item['variant_type'] === $cart_product['variant_type']
+        //         ) {
+        //             $item['quantity'] += $cart_product['quantity'];
+        //             $found = true;
+        //             break;
+        //         }
+
+        //     } else {
+
+        //         // Produk tanpa variant
+        //         if ($item['product'] === $cart_product['product'] ||
+        //             (
+        //                 isset($item['bundling']) &&
+        //                 $item['bundling'] === $cart_product['bundling']
+        //             )
+        //         ) {
+        //             $item['quantity'] += $cart_product['quantity'];
+        //             $found = true;
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // NEW CODE:
         foreach ($cart as &$item) {
 
-            // Jika produk punya variant
-            if (!empty($cart_product['variant'])) {
+            // Produk bundling
+            if (!empty($cart_product['bundling'])) {
+
+                if (
+                    isset($item['bundling']) &&
+                    $item['bundling'] === $cart_product['bundling']
+                ) {
+                    $item['quantity'] += $cart_product['quantity'];
+                    $found = true;
+                    break;
+                }
+
+            }
+            // Produk dengan variant
+            elseif (!empty($cart_product['variant'])) {
 
                 if (
                     $item['product'] === $cart_product['product'] &&
@@ -54,14 +104,16 @@ class ShoppingCartController extends Controller
                     break;
                 }
 
-            } else {
+            }
+            // Produk biasa
+            else {
 
-                // Produk tanpa variant
                 if ($item['product'] === $cart_product['product']) {
                     $item['quantity'] += $cart_product['quantity'];
                     $found = true;
                     break;
                 }
+
             }
         }
 
@@ -72,7 +124,7 @@ class ShoppingCartController extends Controller
 
         Session::put('cart', $cart);
 
-            session()->flash('add_cart_success', 'Produk berhasil ditambahkan!');
+            session()->flash('add_cart_success', 'Item berhasil ditambahkan!');
             return redirect()->back();
     }
 
@@ -124,31 +176,55 @@ class ShoppingCartController extends Controller
         session()->flash('success_empty_cart', 'Keranjang berhasil dikosongkan!');
         return redirect()->route('transaction_create');
     }
-    
 
-    public function delete_cart_product(Request $request): RedirectResponse
+    public function delete_cart_product(string $product_code): RedirectResponse
     {
-        // Retrieve the cart from the session
         $cart = Session::get('cart', []);
 
-        // Get the product ID to delete from the request
-        $prdCode = $request->product_code;
-
-        // Check if the cart is not empty and the product ID exists
-        if ($prdCode && !empty($cart)) {
-            // Loop through the cart to find the item with the matching ID and remove it
+        if (!empty($cart)) {
             foreach ($cart as $key => $cartItem) {
-                if ($cartItem['product'] == $prdCode) {
-                    unset($cart[$key]); // Remove the product from the cart
+
+                $code = !empty($cartItem['bundling'])
+                    ? $cartItem['bundling']
+                    : $cartItem['product'];
+
+                if ($code == $product_code) {
+                    unset($cart[$key]);
                     break;
                 }
             }
 
-            // Update the session with the new cart data
-            Session::put('cart', $cart);
+            Session::put('cart', array_values($cart));
         }
 
-         session()->flash('success_empty_cart', 'Berhasil hapus produk!');
+        session()->flash('success_empty_cart', 'Berhasil hapus item!');
+
         return redirect()->back();
     }
+
+    // public function delete_cart_product(Request $request): RedirectResponse
+    // {
+    //     // Retrieve the cart from the session
+    //     $cart = Session::get('cart', []);
+
+    //     // Get the product ID to delete from the request
+    //     $prdCode = $request->product_code;
+
+    //     // Check if the cart is not empty and the product ID exists
+    //     if ($prdCode && !empty($cart)) {
+    //         // Loop through the cart to find the item with the matching ID and remove it
+    //         foreach ($cart as $key => $cartItem) {
+    //             if ($cartItem['product'] == $prdCode) {
+    //                 unset($cart[$key]); // Remove the product from the cart
+    //                 break;
+    //             }
+    //         }
+
+    //         // Update the session with the new cart data
+    //         Session::put('cart', $cart);
+    //     }
+
+    //      session()->flash('success_empty_cart', 'Berhasil hapus produk!');
+    //     return redirect()->back();
+    // }
 }

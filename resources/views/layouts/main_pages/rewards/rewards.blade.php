@@ -63,11 +63,21 @@
                                                                 <h5 style="font-size:15px;">
                                                                     {{ $reward->rewards_name }}</h5>
                                                             </div>
-                                                            <p
-                                                                style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
-                                                                Point:
-                                                                {{ $reward->point }}
-                                                            </p>
+                                                            <div style="display: flex; gap:15px;"
+                                                                class="flex-content-info">
+                                                                <p
+                                                                    style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
+                                                                    Point:
+                                                                    {{ $reward->point }}
+                                                                </p>
+
+                                                                <p
+                                                                    style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
+                                                                    Stok awal:
+                                                                    {{ $reward->initial_stock }}
+                                                                </p>
+
+                                                            </div>
 
                                                             <div style="font-size: 13px; font-weight: 500;"
                                                                 class="date">
@@ -91,7 +101,6 @@
                                                             <thead>
                                                                 <tr style="font-size: 14px;">
                                                                     <th>Store</th>
-                                                                    <th>Stock</th>
                                                                     <th>Available</th>
                                                                     <th>Redeem</th>
                                                                 </tr>
@@ -103,8 +112,7 @@
                                                                             <td>{{ $item->store_name }}</td>
                                                                             <td>
                                                                                 {{ $item->stock }}</td>
-                                                                            <td>{{ $item->total_available }}</td>
-                                                                            <td>{{ $item->total_redeem }}</td>
+                                                                            <td>{{ $item->total_redeem ?? 0 }}</td>
                                                                         </tr>
                                                                     @endif
                                                                 @endforeach

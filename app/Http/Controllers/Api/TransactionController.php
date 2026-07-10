@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Exports\TransactionExport;
 use App\Http\Controllers\Controller;
 use App\Mail\GetVoucherInfoCustomer;
+use App\Mail\TransactionCustomerNotification;
 use App\Models\FraudTransactions;
 use App\Models\FraudTransactionTimeline;
 use App\Models\ItemsCategoryModel;
 use App\Models\ProductsModel;
 use App\Models\RedeemRewardModel;
+use App\Models\TransactionBundling;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDetailInformationModel;
 use App\Models\TransactionModel;
@@ -273,12 +275,25 @@ class TransactionController extends Controller
         }
 
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_id;
+        $store_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
          $category_data = DB::table('product_category as c')->select(DB::raw("REPLACE(c.category_name, ' ', '_') as 'category_name'"))
                 ->join('products as p', 'c.id', '=', 'p.category_id')
                 ->join('distribution_products_detail as pp', 'p.product_code', '=', 'pp.product')
                 ->join('products_daily as pd', 'pp.distribution_store_code', '=', 'pd.distribution_store')
                 ->groupBy('c.category_name')->get();
         $all_products =  DB::table('v_daily_products')->where('status', 'Ready')->where('store_id', $store )->paginate(15);
+        $promo_bundling = DB::table('promo_bundling')->get();
+
+
+        $product_bundling_detail = DB::table('promo_bundling_detail as pbd')
+                    ->select('pbd.quantity', 'pbd.bundling_code', 'p.product_name', 'p.product_code', 'vdp.stock_available')
+                    ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
+                    ->leftJoin('v_daily_products as vdp', 'pbd.product', '=', 'vdp.product_code')
+                    ->where('vdp.store_code', $store_code)
+                    ->get();
+
+
+
         $payment_type = DB::table('payment_category')->get();
 
         $itemProducts = ProductsModel::with('category')->get();
@@ -315,38 +330,39 @@ class TransactionController extends Controller
             }
         }
 
-        // section cart:
         $cart_value = Session::get('cart', []);
 
         $qty = 0;
+        $total_products = count($cart_value); // jumlah item di cart
+        $price_total = 0;
+        $grand_total = 0;
 
         foreach ($cart_value as $item) {
 
             $qty += $item['quantity'];
+
+            // Cek apakah item ini bundling
+            $isBundling = !empty($item['bundling']);
+
+            if ($isBundling) {
+
+                // Perhitungan untuk bundling
+                $subtotal = $item['price'] * $item['quantity'];
+
+            } else {
+
+                // Perhitungan untuk produk biasa
+                $subtotal = $item['price'] * $item['quantity'];
+
+            }
+
+            $price_total += $subtotal;
+            $grand_total += $subtotal;
         }
 
-        $total_products = 0;
 
-        foreach ($cart_value as $item) {
-
-            $total_products = $item['quantity'];
-        }
-
-        $price_total = 0;
-
-
-        foreach ($cart_value as $item) {
-            $price_total += $item['price'];
-        }
-
-        $grand_total = 0;
-
-        foreach ($cart_value as $item) {
-            $grand_total += $item['price'];
-        }
-
-
-        return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products','show_promo','grand_total', 'price_total', 'qty', 'cart_value', 'all_products', 'category_data', 'itemProducts', 'payment_type', 'casheer'));
+        return view('layouts.main_pages.transactions.create.transaction_create', compact('total_products','show_promo','grand_total', 'price_total', 'qty', 'cart_value', 
+        'all_products','promo_bundling', 'category_data', 'itemProducts', 'payment_type', 'casheer', 'product_bundling_detail'));
     }
 
     // MASTER MODULE TRANSACTIONS:
@@ -383,6 +399,8 @@ class TransactionController extends Controller
         $voucher_code = $request->promo_code;
         $codeVoucher = $request->code_voucher;
         $payment_type = $request->payment_type;
+        $bundling_code = $request->bundling;
+        $qtyBundling = $request->quantity_bundling;
         $voucher_quota = DB::table('voucher')->where('voucher_code', $codeVoucher)->value('quota');
         $voucherExpired = VoucherModel::where('voucher_code', $voucher_code)->where('status', 7)->value('end_date');
         $date = now()->format('Ymd');
@@ -390,6 +408,7 @@ class TransactionController extends Controller
         $unique_code = substr($uuid, 0, 5);
         $customerVoucher = 'VOUCHER'. $date . $unique_code;
         $outlet_operational = now()->hour;
+        $status_bundling = $request->promo_bundling_status;
         
         // HITUNG TOTAL VOUCHER YANG SUDAH DIGUNAKAN
         $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
@@ -441,18 +460,26 @@ class TransactionController extends Controller
                 'created_by' => $casheer,
                 'created_at' => now()
             ]);
-
         
             foreach ($productCode as $index => $productId) {
                 $transaction_detail =  TransactionDetail::create([
                         'transaction_code' => $main_transaction->transaction_code,
                         'product' => $productId,
                         'variant' => $variants[$index] ?? null,
-                        'price' => $price[$index],
-                        'quantity_per_product' => $qtyProducts[$index],
+                        'price' => $price[$index] ?? null,
+                        'quantity_per_product' => $qtyProducts[$index] ?? 1,
+                        'promo_bundling' => $status_bundling ??  'N',
                         'created_by' => $casheer,
                         'created_at' => now()
                     ]);
+            }
+
+            if($bundling_code) {
+                TransactionBundling::create([
+                    'bundling' => $bundling_code,
+                    'transaction' => $main_transaction->transaction_code,
+                    'transaction_date' => now()
+                ]);
             }
         }elseif($IT_GUY){
              $main_transaction = TransactionModel::create([
@@ -490,6 +517,14 @@ class TransactionController extends Controller
                 'testing_by' =>$user,
                 'is_testing' => 'Y'
             ]);
+
+
+            if($bundlingTransaction){
+                TransactionBundling::create([
+                    'bundling' => $bundlingTransaction,
+                    'transaction' => $main_transaction->transaction_code
+                ]);
+            }
         }
 
 
@@ -618,7 +653,7 @@ class TransactionController extends Controller
                 ->orderBy('created_at', 'DESC')
                 ->first();
 
-            $get_point = $check_point->point;
+            $get_point = $check_point->point ?? 0;
 
             $finalPoint = ((int) $totalPoints) + ((int) $get_point);
             
@@ -640,6 +675,16 @@ class TransactionController extends Controller
             ->where('status', 7)
             ->where('voucher_type', 'regular')
             ->orderBy('min_transaction', 'desc')->first();
+        $customerEmail = DB::table('customer')->where('customer_code', $customer)->first();
+
+        if($customer){
+            Mail::to($customerEmail->email)->sendNow(new TransactionCustomerNotification([
+                'name' => $customerEmail->name,
+                'transaction_code' => $main_transaction->transaction_code,
+                'grand_total' => $main_transaction->grand_total,
+                'transaction_date' => $main_transaction->transaction_date
+            ]));
+        }
  
 
         if($get_voucher) {
@@ -658,9 +703,16 @@ class TransactionController extends Controller
             // TOLONG BUATKAN ATAU HAPUS VALIDASI JIKA CUSTOMER MELAKUKAN TRANSAKSI > 1 MAKA DAPAT VOUCHER
 
             if($customerTransaction){
-                    if($getAmount >= $get_voucher->min_transaction) {
-                        if(!$checkingQuotaVoucher && $get_voucher){
-                            if(!$voucherExpired) {
+                Mail::to($customer_email->email)->sendNow(new TransactionCustomerNotification([
+                        'name' => $customer_email->name,
+                        'transaction_code' => $main_transaction->transaction_code,
+                        'grand_total' => $main_transaction->grand_total,
+                        'transaction_date' => $main_transaction->transaction_date
+                ]));
+
+                if($getAmount >= $get_voucher->min_transaction) {
+                    if(!$checkingQuotaVoucher && $get_voucher){
+                        if(!$voucherExpired) {
                                 if(!$IT_GUY){ 
                                     
                                     $uuid = (string) Str::uuid();
@@ -704,9 +756,9 @@ class TransactionController extends Controller
                                         'email' => $customer_email->email
                                     ]));
                                 }
-                            }
                         }
                     }
+                }
             }
         }
 
@@ -724,9 +776,12 @@ class TransactionController extends Controller
     public function invoice(Request $request)
     {
         $invoice = DB::table('v_transaction')
-        ->where('transaction_code', $request->transaction_code)
+            ->where('transaction_code', $request->transaction_code)
             ->first();
-        $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)->get();
+
+        $invoices = DB::table('v_transaction as vt')
+            ->where('transaction_code', $request->transaction_code)
+            ->get();
 
         if(!$invoice || !$invoice){
 
@@ -737,6 +792,36 @@ class TransactionController extends Controller
         
         return view('layouts.main_pages.invoice.invoice', compact('invoice', 'invoices'));
     }
+
+     public function download_invoice_pdf(Request $request)
+    {
+     
+       $print_date = now()->format('dmy');
+
+        $invoice = DB::table('v_transaction')
+            ->where('transaction_code', $request->transaction_code)
+            ->first();
+
+        $invoices = DB::table('v_transaction as vt')
+            ->where('transaction_code', $request->transaction_code)
+            ->get();
+
+        if(!$invoice || !$invoice){
+
+            session()->flash('failed_message', 'Invoice tidak ada!');
+            return redirect()->back();
+
+        }
+    
+
+        $pdf = Pdf::loadView(
+            'layouts.main_pages.invoice.invoice_pdf',
+            compact('invoice', 'invoices')
+        );
+
+       return $pdf->download($request->transaction_code .'-'. $print_date . '.pdf');
+    }
+
 
     public function show_customer(Request $request) 
     {

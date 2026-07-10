@@ -13,6 +13,7 @@ class RewardsStoreModel extends Model
         'reward_store_code',
         'reward',
         'store',
+        'initial_stock',
         'stock',
         'status'
     ];

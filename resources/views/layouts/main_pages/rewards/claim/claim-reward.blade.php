@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Klaim Reward</a>
+                                Master Data / <a href="{{ route('master_rewards.index') }}">Reward</a>
                             </div>
 
                             @if ($module_documentation)
@@ -84,6 +84,7 @@
                                                                 <th>Kode Redeem</th>
                                                                 <th>Reward</th>
                                                                 <th>Barang</th>
+                                                                <th>Jumlah</th>
                                                                 <th>Pelanggan</th>
                                                                 <th>Status</th>
                                                                 <th>Tanggal Pick Up</th>
@@ -118,6 +119,7 @@
                                                                     <td>{{ $reward->redeem_code }}</td>
                                                                     <td> {{ $reward->reward }} </td>
                                                                     <td>{{ $reward->rewards_name }}</td>
+                                                                    <td>{{ $reward->quantity }}</td>
                                                                     <td> {{ $reward->customer }} </td>
                                                                     <td>
                                                                         @if ($reward->status_name == 'Claimed')
@@ -180,6 +182,7 @@
                                                                 <th>Kode Redeem</th>
                                                                 <th>Reward</th>
                                                                 <th>Barang</th>
+                                                                <th>Jumlah</th>
                                                                 <th>Pelanggan</th>
                                                                 <th>Status</th>
                                                                 <th>Tanggal Pick Up</th>
@@ -199,6 +202,7 @@
                                                                     <td>{{ $reward->redeem_code }}</td>
                                                                     <td> {{ $reward->reward }} </td>
                                                                     <td>{{ $reward->rewards_name }}</td>
+                                                                    <td>{{ $reward->quantity }}</td>
                                                                     <td> {{ $reward->customer }} </td>
                                                                     <td>
                                                                         @if ($reward->status_name == 'Claimed')
@@ -264,6 +268,7 @@
                                                                 <th>Kode Redeem</th>
                                                                 <th>Reward</th>
                                                                 <th>Barang</th>
+                                                                <th>Jumlah</th>
                                                                 <th>Pelanggan</th>
                                                                 <th>Status</th>
                                                                 <th>Tanggal Pick Up</th>
@@ -298,6 +303,7 @@
                                                                     <td>{{ $reward->redeem_code }}</td>
                                                                     <td> {{ $reward->reward }} </td>
                                                                     <td>{{ $reward->rewards_name }}</td>
+                                                                    <td>{{ $reward->quantity }}</td>
                                                                     <td> {{ $reward->customer }} </td>
                                                                     <td>
                                                                         @if ($reward->status_name == 'Claimed')

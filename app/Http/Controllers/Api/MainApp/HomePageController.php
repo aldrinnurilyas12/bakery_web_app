@@ -37,6 +37,19 @@ class HomePageController extends Controller
             ->where('status', 'Ready')
             ->where('store_id', 1);
 
+
+        $promo_bundling = DB::table('v_promo_bundling')->where('status', 7)->get();
+
+      
+        $all_product = DB::table('promo_bundling_detail as pbd')
+                    ->select('pbd.quantity', 'pbd.bundling_code', 'p.product_name', 'p.product_code', 'vdp.stock_available')
+                    ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
+                    ->leftJoin('v_daily_products as vdp', 'pbd.product', '=', 'vdp.product_code')
+                    ->where('vdp.store_code', 'STb68d9a')
+                    ->get();
+        
+        
+
         // Filter berdasarkan kategori jika ada
         if ($activeCategory) {
             // pastikan kolom 'category' ada di v_daily_products
@@ -69,7 +82,9 @@ class HomePageController extends Controller
             'category_products',
             'promos',
             'store',
-            'activeCategory'
+            'activeCategory',
+            'promo_bundling',
+            'all_product'
         ));
     }
 
@@ -135,24 +150,25 @@ class HomePageController extends Controller
     public function product_detail(Request $request)
     {
 
-       $code = $request->route('code');
+       $code = $request->route('slug');
 
         // coba sebagai product_code dulu
         $product = DB::table('v_daily_products')
             ->where('status', 'Ready')
             ->where(function ($query) use ($code) {
-                $query->where('product_code', $code)
-                    ->orWhere('variant_code', $code);
+                $query->where('slug', $code);
             })
             ->first();
         $review = DB::table('product_reviews as pr')
-            ->leftJoin('products as p', 'pr.product', '=', 'p.product_code')
-            ->leftJoin('transactions as t', 'pr.transaction', '=', 't.transaction_code')
-            ->leftJoin('customer as c','t.customer', '=', 'c.customer_code')
-            ->where('pr.product', $code)
-            ->orWhere('pr.variant', $code)
+            ->select('pr.review', 'pr.rating', 'pr.review_date','pr.hidden_name', 'c.name', 'vdp.slug', 'pr.created_at')
+            ->join('products as p', 'pr.product', '=', 'p.product_code')
+            ->join('transactions as t', 'pr.transaction', '=', 't.transaction_code')
+            ->join('customer as c','t.customer', '=', 'c.customer_code')
+            ->join('v_daily_products as vdp', 'p.product_code', '=', 'vdp.product_code')
+            ->where('vdp.slug', $code)
+            ->distinct()
             ->orderBy('pr.created_at', 'DESC')->get();
-      
+        
 
         // cek kalau tidak ditemukan
         if (!$product) {
@@ -163,6 +179,31 @@ class HomePageController extends Controller
 
         return view('layouts.main_views.products.product_detail', compact('product', 'review'));
     }
+
+    public function promo_detail(Request $request)
+    {
+        $bundling = $request->bundling_code;
+        
+        $promo_bundling = DB::table('v_promo_bundling')->where('bundling_code', $bundling)->first();
+
+        $all_product = DB::table('promo_bundling_detail as pbd')
+                    ->select('pbd.quantity', 'pbd.bundling_code', 'p.product_name', 'p.product_code', 'vdp.stock_available')
+                    ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
+                    ->leftJoin('v_daily_products as vdp', 'pbd.product', '=', 'vdp.product_code')
+                    ->where('vdp.store_code', 'STb68d9a')
+                    ->get();
+        
+        
+        // cek kalau tidak ditemukan
+        if (!$promo_bundling) {
+            session()->flash('failed_message', 'Promo tidak ditemukan');
+            return redirect()->back();
+        }
+       
+
+        return view('layouts.main_views.products.promo_detail', compact('promo_bundling', 'all_product'));
+    }
+
 
     public function promo_campaign()
     {
@@ -193,10 +234,10 @@ class HomePageController extends Controller
         $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code')->distinct()->where('product', 'like', '%' . $search . '%')
         ->orWhere('category','like', '%' . $search . '%')->paginate();
         if ($search) {
-             $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code')->distinct()->where('product', 'like', '%' . $search . '%')
+             $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code', 'variant_discount', 'slug')->distinct()->where('product', 'like', '%' . $search . '%')
         ->orWhere('category','like', '%' . $search . '%')->paginate();
         } else {
-             $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code')->distinct()->where('product', 'like', '%' . $search . '%')
+             $product = DB::table('v_daily_products')->select('product_code', 'product', 'price', 'price_after_discount', 'discount', 'variant_price', 'variant_code', 'variant_discount', 'slug')->distinct()->where('product', 'like', '%' . $search . '%')
         ->orWhere('category','like', '%' . $search . '%')->paginate();
         }
 

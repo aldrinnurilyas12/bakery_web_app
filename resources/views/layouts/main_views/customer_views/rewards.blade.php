@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
@@ -25,9 +26,9 @@
                 <br>
                 <div style="display: flex; gap:10px; justify-content: space-between;" class="title-content-head">
                     <div style="display: flex; gap:10px;" class="group-back">
-                        <a style="color:black;" href="{{ route('profile-menu') }}">
-                            <i class="fa fa-arrow-left"></i>
-                        </a>
+                        <div class="route-back">
+                            <a href="{{ route('profile-menu') }}"><i class="fa fa-arrow-left"></i></a>
+                        </div>
                         <h4 style="font-size: 20px;"><strong>Histori Rewards</strong></h4>
                     </div>
 
@@ -76,10 +77,14 @@
                                                             {{ $reward->rewards_name }}
                                                         </p>
                                                     </div>
-                                                    <p style="font-size: 13px;">Kode :
+                                                    <p style="font-size: 13px;">Kode:
                                                         {{ $reward->redeem_code }}</p>
-                                                    <p style="font-size: 13px;margin:0;">Tgl Redeem :
+                                                    <p style="font-size: 13px;margin:0;">Tgl Redeem:
                                                         {{ $reward->redeem_date }}</p>
+                                                    <div style="margin-bottom: 8px;" class="qty-reward">
+                                                        <p style="font-size: 13px;">Jumlah:
+                                                            {{ $reward->quantity }} item</p>
+                                                    </div>
                                                     <div style="font-size: 12px;" class="group-date">
                                                         <p style="font-size: 13px;margin:0;">Lokasi pengambilan:</p>
                                                         <div style="display:flex; gap:10px;" class="flex-location">
@@ -136,14 +141,19 @@
                                                             {{ $reward->rewards_name }}
                                                         </p>
                                                     </div>
-                                                    <p style="font-size: 13px;">Kode :
+                                                    <p style="font-size: 13px;">Kode:
                                                         {{ $reward->redeem_code }}</p>
-                                                    <p style="font-size: 13px;margin:0;">Tgl Redeem :
+                                                    <p style="font-size: 13px;margin:0;">Tgl Redeem:
                                                         {{ $reward->redeem_date }}</p>
                                                     @if ($reward->claimed_at)
-                                                        <p style="font-size: 13px;margin:0;">Tgl Klaim :
+                                                        <p style="font-size: 13px;margin:0;">Tgl Klaim:
                                                             {{ $reward->claimed_at }}</p>
                                                     @endif
+
+                                                    <div style="margin-bottom: 8px;" class="qty-reward">
+                                                        <p style="font-size: 13px;">Jumlah:
+                                                            {{ $reward->quantity }} item</p>
+                                                    </div>
                                                     <div style="font-size: 13px;" class="group-date">
                                                         <p>Jadwal Pengambilan</p>
                                                         <div style="display:flex; gap:10px;" class="flex-location">
@@ -263,6 +273,29 @@
 
         </div>
 </body>
+
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 @if (Session::has('message_success'))
     <script>

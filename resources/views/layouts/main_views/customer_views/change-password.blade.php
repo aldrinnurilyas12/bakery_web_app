@@ -25,10 +25,11 @@
                 <br>
                 <br>
                 <div style="display: flex; gap:10px;align-items:center;" class="title-content-head">
-                    <a style="color:black;" href="{{ route('profile-menu') }}">
-                        <i class="fa fa-arrow-left"></i>
-                    </a>
-                    <h4 style="font-size: 20px;"><strong>Ubah kata sandi</strong></h4>
+
+                    <div class="route-back">
+                        <a href="{{ route('profile-menu') }}"><i class="fa fa-arrow-left"></i></a>
+                    </div>
+                    <h4 style="font-size: 20px;margin-bottom:0;"><strong>Ubah kata sandi</strong></h4>
                 </div>
 
                 <div class="menu-list">
@@ -55,12 +56,12 @@
                             </div>
                         </div>
 
-                         <div class="form-group">
+                        <div class="form-group">
                             <label for=""><strong>Konfirmasi kata sandi </strong></label>
                             <div style="position: relative;">
-                                <input id="confirm_password" type="password" name="confirm_password" class="form-control"
-                                    placeholder="Konfirmasi kata sandi" required>
-                                 <x-input-error :messages="$errors->get('confirm_password')" class="text-danger" />
+                                <input id="confirm_password" type="password" name="confirm_password"
+                                    class="form-control" placeholder="Konfirmasi kata sandi" required>
+                                <x-input-error :messages="$errors->get('confirm_password')" class="text-danger" />
                                 <i class="fas fa-eye" id="toggleConfirmPassword"
                                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                                 </i>
@@ -122,8 +123,8 @@
         @endphp
 
         @if ($customer)
-            <div class="modal fade" id="openqr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
+            <div class="modal fade" id="openqr" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div style="display: flex; justify-content: space-between;" class="modal-header">
@@ -215,6 +216,29 @@
 
 </body>
 
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
 <script>
     // button
     document.getElementById("changePassword").addEventListener("submit", function() {
@@ -237,7 +261,7 @@
         this.classList.toggle('fa-eye-slash');
     });
 
-    toggleConfirmPassword.addEventListener('click', function(){
+    toggleConfirmPassword.addEventListener('click', function() {
         const type_confirm = confirm_password.getAttribute('type') === 'password' ? 'text' : 'password';
         confirm_password.setAttribute('type', type_confirm);
 

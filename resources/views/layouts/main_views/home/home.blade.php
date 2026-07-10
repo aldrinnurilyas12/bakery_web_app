@@ -264,10 +264,10 @@
                                             <div class="btn-detail">
                                                 @if ($item->variant_code)
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
+                                                        href="{{ route('product', $item->slug) }}">detail</a>
                                                 @else
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->product_code) }}">detail</a>
+                                                        href="{{ route('product', $item->slug) }}">detail</a>
                                                 @endif
                                             </div>
                                         </div>
@@ -285,6 +285,7 @@
                 {{-- Tab Promo --}}
                 <div class="tab-pane fade" id="tab-promo" role="tabpanel">
                     <div class="container-products">
+
                         @if ($products_promo)
                             <div class="grid-products">
                                 @foreach ($products_promo as $item)
@@ -362,11 +363,82 @@
                                             <div class="btn-detail">
                                                 @if ($item->variant_code)
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
+                                                        href="{{ route('product', $item->slug) }}">detail</a>
                                                 @else
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->product_code) }}">detail</a>
+                                                        href="{{ route('product', $item->slug) }}">detail</a>
                                                 @endif
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        @if($promo_bundling)
+                             <div class="grid-products">
+                                @foreach ($promo_bundling as $item)
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="image-wrapper">
+                                               
+                                                    <img class="products-img"
+                                                        src="{{ asset('storage/' . $item->images) }}" alt="">
+
+
+                                                <div class="image-overlay">
+                                                        <span class="promo-badge">Promo</span>
+                                                    
+                                                </div>
+                                            </div>
+
+                                            <h2 class="product-name">{{ $item->bundling_name }}</h2>
+
+                                            <div class="product-price">
+                                                        <div class="flex-price">
+                                                            <p class="price" style="margin:0;">Rp
+                                                                {{ number_format($item->price) }}
+                                                            </p>
+                                                        </div>
+                                            </div>
+
+                                            <div class="detail-product">
+                                                        <p> Detail item: </p>
+
+                                                        <div class="detail-info-product">
+
+                                                        <ul>
+                                                            @php
+                                                            $stockHabis = false;
+                                                            @endphp
+                                                                @foreach ($all_product as $prd )
+                                                                    @if($item->bundling_code == $prd->bundling_code)
+                                                                        @if($prd->stock_available <= 0)
+                                                                            @php
+                                                                                $stockHabis = true;
+                                                                            @endphp
+                                                                        @endif
+                                                                    <li style="font-size:14px;">{{ $prd->product_name }} &nbsp; x{{ $prd->quantity }}</li>
+                                                                    @endif
+                                                                 @endforeach
+                                                        </ul>
+                                                              
+                                                          </div>
+
+                                                          <div style="margin-bottom:10px;" class="info-stockempty">
+                                                              @if($stockHabis)
+                                                              <span style="font-size: 13px;" class="text-danger">*ada produk habis</span>
+                                                              @endif
+                                                          </div>
+
+                                                      </div>
+
+
+                                                     <div class="btn-detail">
+
+                                                    <a class="btn-detail-product"
+                                                        href="{{ route('promo', $item->bundling_code) }}">detail</a>
+
                                             </div>
                                         </div>
 
@@ -463,7 +535,7 @@
 
                                                 <div class="btn-detail">
                                                     <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->product_code) }}">detail</a>
+                                                        href="{{ route('product', $item->slug) }}">detail</a>
                                                 </div>
                                             </div>
                                         </div>

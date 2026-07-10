@@ -28,10 +28,10 @@
     <div class="main-container">
         <br>
         <div style="display: flex; gap:10px;align-items:center;padding-left: 10px;" class="title-content-head">
-            <a style="color:black;" href="{{ route('home') }}">
-                <i class="fa fa-arrow-left"></i>
-            </a>
-            <h4 style="font-size: 20px;"><strong>Redeem Rewards</strong></h4>
+            <div class="route-back">
+                <a href="{{ route('rewards-catalogue') }}"><i class="fa fa-arrow-left"></i></a>
+            </div>
+            <h4 style="font-size: 20px;margin-bottom:0;"><strong>Redeem Rewards</strong></h4>
         </div>
         <br>
         <div class="product-image">
@@ -68,7 +68,7 @@
                                 </div>
                             </div>
 
-                            @if (auth()->user())
+                            @if ($auth)
                                 <div style="text-align: center;padding:4px; border-radius: 5px; border: 1px solid #d8d8d8;height:max-content;"
                                     class="group-point-customer">
                                     <p style="margin: 0;">Point Anda</p>
@@ -92,7 +92,7 @@
                                     <a style="width: 100%;border-radius:6px;padding:10px;" class="btn btn-secondary"
                                         href="">Redeem</a>
                                 @else
-                                    @if ($reward->total_stock == null || $reward->total_stock == 0)
+                                    @if ($reward->stock == null || $reward->stock == 0)
                                         <div class="btn-redeem-point">
                                             <a style="color:white;" class="btn btn-secondary">Kuota habis</a>
                                         </div>
@@ -119,6 +119,28 @@
                                                     <input class="form-control" type="date" name="pickup_schedule">
                                                     <x-input-error :messages="$errors->get('pickup_schedule')" class="text-danger" />
                                                 </div>
+
+                                                <div class="add-quantity">
+                                                    <label><strong>Masukkan jumlah</strong></label>
+
+                                                    <div class="quantity-box d-flex align-items-center"
+                                                        style="max-width:180px;">
+                                                        <button type="button"
+                                                            class="btn btn-outline-secondary btn-minus">
+                                                            -
+                                                        </button>
+                                                        &nbsp;
+                                                        <input type="number" name="quantity"
+                                                            class="form-control text-center qty-input" value="1"
+                                                            min="1" readonly>
+                                                        &nbsp;
+                                                        <button type="button"
+                                                            class="btn btn-outline-secondary btn-plus">
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <br>
                                                 <input name="point" type="text" value="{{ $reward->point }}"
                                                     hidden>
                                                 <input type="text" name="reward" hidden id="showRewardCodeStore">
@@ -164,8 +186,8 @@
         @endphp
 
         @if ($customer)
-            <div class="modal fade" id="openqr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
+            <div class="modal fade" id="openqr" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div style="display: flex; justify-content: space-between;" class="modal-header">
@@ -219,7 +241,60 @@
         </script>
     @endif
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            document.querySelectorAll(".quantity-box").forEach(function(box) {
+
+                const minus = box.querySelector(".btn-minus");
+                const plus = box.querySelector(".btn-plus");
+                const input = box.querySelector(".qty-input");
+
+                plus.addEventListener("click", function() {
+                    input.value = parseInt(input.value || 1) + 1;
+                });
+
+                minus.addEventListener("click", function() {
+                    let qty = parseInt(input.value || 1);
+
+                    if (qty > 1) {
+                        input.value = qty - 1;
+                    }
+                });
+
+                input.addEventListener("change", function() {
+                    if (this.value < 1 || this.value === "") {
+                        this.value = 1;
+                    }
+                });
+
+            });
+
+        });
+    </script>
 </body>
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 <script>
     document.getElementById('code_store').addEventListener('change', function() {
@@ -243,12 +318,12 @@
             }
             return response.json();
         }).then(data => {
-            if (data.data && data.data.total_available === 0 && data.data.reward_store_code) {
+            if (data.data && data.data.stock === 0 && data.data.reward_store_code) {
                 showStock.innerText = 'Habis';
                 showStock.style.color = 'red';
                 hiddenAllStock.hidden = true;
-            } else if (data.data && data.data.total_available !== null && data.data.reward_store_code) {
-                showStock.innerText = data.data.total_available;
+            } else if (data.data && data.data.stock !== null && data.data.reward_store_code) {
+                showStock.innerText = data.data.stock;
                 document.getElementById('showRewardCodeStore').value = data.data.reward_store_code;
                 hiddenAllStock.hidden = true;
 

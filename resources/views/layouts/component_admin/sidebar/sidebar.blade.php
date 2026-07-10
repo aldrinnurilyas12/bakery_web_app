@@ -16,13 +16,19 @@
 
         if (!$IT_GUY) {
             if($cashier){
-                $submenu = DB::table('submenu')->whereIn('main_menu', ['1', '2','3', '5','9'])
-                            ->whereNotIn('id', ['9','15', '16', '26', '29','33','34', '36','37', '94'])->get();
+                $submenu = DB::table('submenu as s')->whereIn('main_menu', ['1', '2','3', '5','9'])
+                            ->where('status', 7)
+                            ->whereNotIn('id', ['9','15', '16', '26', '29','33','34', '36','37', '94'])
+                            ->orderBy('s.submenu_name', 'ASC')->get();
             }else{
-                $submenu = DB::table('submenu')->where('status', 7)->where('main_menu', '<>', 10)->get();
+                $submenu = DB::table('submenu as s')->where('status', 7)->where('main_menu', '<>', 10)
+                            ->orderBy('s.submenu_name', 'ASC')->get();
             }
         } else {
-            $submenu = DB::table('submenu')->where('main_menu', '<>', 10)->get();
+            $submenu = DB::table('submenu as s')
+            ->where('status', 7)
+            ->where('main_menu', '<>', 10)
+            ->orderBy('s.submenu_name', 'ASC')->get();
         }
 
     @endphp

@@ -25,6 +25,7 @@
                         <ul>
                             <li>Hindari penggunaan karakter : #,&,@,?,/,=,-,+ dan lainnya</li>
                             <li>Point digunakan saat pelanggan melakukan transaksi dan mempunyai member</li>
+                            <li>Point ini akan bertambah dengan transaksi lainnya</li>
                         </ul>
                     </div>
                     <form id="formGeneralMaster" action="{{ route('point_member_setting.store') }}" method="POST"
@@ -38,7 +39,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Tanggal berlaku</strong></label>
+                            <label><strong>Tanggal awal berlaku</strong></label>
                             <input type="date" name="start_date" class="form-control" id="inputEmail4"
                                 autocomplete="off">
                             <x-input-error :messages="$errors->get('start_date')" class="text-danger" />

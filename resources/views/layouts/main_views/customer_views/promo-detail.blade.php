@@ -20,6 +20,9 @@
 
     <div class="main-container">
         <div class="product-image">
+             <div class="route-back">
+                            <a href="{{ route('promo-campaign') }}"><i class="fa fa-arrow-left"></i></a>
+            </div>
             <img src="{{ url('storage/' . $promo_campaign->images) }}" alt="Product Image">
         </div>
         <div class="container-fluid">
@@ -134,6 +137,30 @@
 
 
 </body>
+<style>
+    .route-back{
+    width:30px;
+    height:30px;
+    background:#bb0239;
+    border-radius:50%;
+    position:absolute;
+    margin: 10px 10px 0 10px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.route-back a{
+    color:#fff;
+    font-size:14px;
+    text-decoration:none;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:100%;
+    height:100%;
+}
+</style>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

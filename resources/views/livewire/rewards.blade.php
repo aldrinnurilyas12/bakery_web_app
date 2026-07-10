@@ -102,13 +102,13 @@
                                                         {{ $reward->point }}
                                                         <br>
                                                         <span>Kuota:
-                                                            {{ $reward->stock }}</span>
+                                                            {{ $reward->initial_stock }}</span>
                                                         &nbsp;
                                                         <span>Available:
-                                                            {{ $reward->total_available }}</span>
+                                                            {{ $reward->stock }}</span>
                                                         &nbsp;
                                                         <span>Redeem:
-                                                            {{ $reward->total_redeem }}</span>
+                                                            {{ $reward->total_redeem ?? 0 }}</span>
                                                     </p>
                                                     <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
                                                         class="status">

@@ -56,6 +56,9 @@
 
                 <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
                  </div>
+                    
+                <br>
+                
                @error('g-recaptcha-response')
                 <div class="text-danger mt-2">
                     {{ $message }}

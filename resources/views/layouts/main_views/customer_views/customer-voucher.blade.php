@@ -25,10 +25,10 @@
                 <br>
                 <div style="display: flex; justify-content: space-between;align-items: center;" class="group-info">
                     <div style="display: flex; gap:10px;align-items:center;" class="title-content-head">
-                        <a style="color:black;" href="{{ route('profile-menu') }}">
-                            <i class="fa fa-arrow-left"></i>
-                        </a>
-                        <h4 style="font-size: 20px;"><strong>E-Voucher </strong></h4>
+                        <div class="route-back">
+                            <a href="{{ route('profile-menu') }}"><i class="fa fa-arrow-left"></i></a>
+                        </div>
+                        <h4 style="font-size: 20px;margin-bottom:0;"><strong>E-Voucher </strong></h4>
                     </div>
 
                     <div style="display: flex; " class="group-info-link">
@@ -152,9 +152,9 @@
                                                 <div style="flex-wrap:wrap; gap:10px;" class="image-content">
                                                     <div style="display:flex; flex-wrap: wrap; justify-content: space-between;"
                                                         class="image-display">
-                                                        @if($voucher->voucher_path)
+                                                        @if ($voucher->voucher_path)
                                                             <a href="#" data-toggle="modal"
-                                                                            data-target="#showQrCode{{ $voucher->customer_voucher_code }}">
+                                                                data-target="#showQrCode{{ $voucher->customer_voucher_code }}">
                                                                 <img width="90" height="90"
                                                                     src="{{ url('storage/' . $voucher->voucher_path) }}"
                                                                     alt="">
@@ -277,23 +277,26 @@
             </div>
 
 
-        @foreach ($vouchers as $voucher)
-            <div wire:ignore class="modal fade" id="showQrCode{{ $voucher->customer_voucher_code }}" tabindex="-1" role="dialog"
-                aria-labelledby="exampleModalLabel{{ $voucher->customer_voucher_code }}" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                    
-                        <div style="justify-content: center; display:flex;" class="modal-body">
-                            <img width="250" height="250" src="{{ url('storage/' . $voucher->voucher_path) }}" alt="">
-                        </div>
-                        <div class="modal-footer">
-                                <button id="btn-general" type="button" data-dismiss="modal" class="btn-general"><span>Tutup</span>
+            @foreach ($vouchers as $voucher)
+                <div wire:ignore class="modal fade" id="showQrCode{{ $voucher->customer_voucher_code }}"
+                    tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLabel{{ $voucher->customer_voucher_code }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                            <div style="justify-content: center; display:flex;" class="modal-body">
+                                <img width="250" height="250"
+                                    src="{{ url('storage/' . $voucher->voucher_path) }}" alt="">
+                            </div>
+                            <div class="modal-footer">
+                                <button id="btn-general" type="button" data-dismiss="modal"
+                                    class="btn-general"><span>Tutup</span>
                                     <span class="spinner"></span></button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
 
 
             @if (auth()->guard('customer')->check())
@@ -348,6 +351,29 @@
 
 
 </body>
+
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

@@ -176,7 +176,7 @@ class CustomerController extends Controller
 
 
 
-        return view('layouts.main_views.customer_views.invoice', compact('invoice', 'invoices'));
+        return view('layouts.main_views.customer_views.invoice_pdf', compact('invoice', 'invoices'));
     }
 
     public function rewards_history(Request $request)
@@ -215,19 +215,19 @@ class CustomerController extends Controller
     public function reward_detail(Request $request)
     {
         $reward = DB::table('v_rewards as r')
-            ->select('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date',DB::raw('SUM(r.total_available) as total_stock'), 'r.created_at')
-            ->where('r.status_name', 'Active')
+            ->select('r.rewards_code','r.rewards_name','r.point', 'r.status_name','r.images','r.end_date','r.start_date',DB::raw('SUM(r.stock) as total_stock'), 'r.stock', 'r.created_at')
             ->where('r.rewards_code', $request->rewards_code)
-            ->groupBy('r.rewards_code','r.rewards_name','r.point','r.images','r.end_date','r.start_date', 'r.created_at')
+            ->groupBy('r.rewards_code','r.rewards_name','r.point', 'r.status_name','r.images', 'r.stock','r.end_date','r.start_date', 'r.created_at')
             ->orderBy('r.created_at', 'DESC')->first();
+       
 
         if(!$reward){
-            session()->flash('failed_message', 'Tidak ada Reward!');
+            session()->flash('failed_message', 'Reward ini tidak ditemukan!');
             return redirect()->back();
         }
 
-        if($reward->end_date < now()){
-            session()->flash('failed_message', 'Rewards sudah tidak ada!');
+        if (Carbon::parse($reward->end_date)->lt(now()) && $reward->status_name == 'Inactive') {
+            session()->flash('failed_message', 'Masa berlaku reward ini sudah berakhir!');
             return redirect()->back();
         }
 
@@ -355,20 +355,20 @@ class CustomerController extends Controller
                     return redirect()->route('home');
         }  
 
-        
-        // $product_favorite = DB::table('products_favorite as pf')
-        // ->select('pf.id as favorite_id', 'vp.product_code', 'vp.variant_code','vp.product', 
-        // 'vp.price','vp.discount', 'vp.price_after_discount', 'vp.variant_price','vp.variant_discount','vp.variant_price_after_discount')
-        // ->leftJoin('v_daily_products as vp', function($join){
-        //     $join->on('pf.product_code', '=', 'vp.product_code')
-        //     ->where(function($q){
-        //         $q->whereColumn('pf.variant_code', 'vp.variant_code')
-        //         ->orWhereNull('pf.variant_code');
-        //     });
-
         $product_favorite = DB::table('products_favorite as pf')
         ->select('p.product_code', 'pv.variant_code','p.product_name as product', 
-        'p.price','p.discount', 'p.price_after_discount', 'pv.variant_price','pv.variant_discount','pv.variant_price_after_discount')
+        'p.price','p.discount', 'p.price_after_discount', 'pv.variant_price','pv.variant_discount','pv.variant_price_after_discount',
+          DB::raw("
+            LOWER(
+                TRIM(BOTH '-' FROM
+                    REGEXP_REPLACE(
+                        p.product_name,
+                        '[^A-Za-z0-9]+',
+                        '-'
+                    )
+                )
+            ) AS slug
+        "))
         ->leftJoin('products as p', 'pf.product', '=', 'p.product_code')
         ->leftJoin('product_variant as pv','pf.variant', '=', 'pv.variant_code')
         ->where('pf.customer_code', '=', $customer_code)->orderBy('pf.created_at', 'DESC')->get();
@@ -387,6 +387,35 @@ class CustomerController extends Controller
         $notifications = DB::table('v_customer_notification')->where('customer', $customer_code)->get();
         $user_register = DB::table('customer')->where('customer_code', $customer_code)->exists();
         return view('layouts.main_views.customer_views.notifications', compact('notifications', 'user_register'));
+    }
+
+     public function download_invoice_pdf(Request $request)
+    {
+     
+       $print_date = now()->format('dmy');
+
+        $invoice = DB::table('v_transaction')
+            ->where('transaction_code', $request->transaction_code)
+            ->first();
+
+        $invoices = DB::table('v_transaction as vt')
+            ->where('transaction_code', $request->transaction_code)
+            ->get();
+
+        if(!$invoice || !$invoice){
+
+            session()->flash('failed_message', 'Invoice tidak ada!');
+            return redirect()->back();
+
+        }
+    
+
+        $pdf = Pdf::loadView(
+            'layouts.main_pages.invoice.invoice_pdf',
+            compact('invoice', 'invoices')
+        );
+
+       return $pdf->download($request->transaction_code .'-'. $print_date . '.pdf');
     }
 
     public function update_customer(Request $request)
@@ -470,21 +499,26 @@ class CustomerController extends Controller
         ]);
 
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
-    
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 6);
+
+
+        $redeem_code = 'REDEEM' . $unique_code;
         $reward_point = $request->point;
         $reward_code = $request->reward_code;
         $reward_code_store = $request->reward;
         $customer_point = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->point;
-        $result_point = $customer_point - $reward_point;
-        
-        $uuid = (string) Str::uuid();
-        $unique_code = substr($uuid, 0, 6);
-        $redeem_code = 'REDEEM' . $unique_code;
+        $quantity = $request->quantity;
+
+        $totalPoint = $reward_point * $quantity;
+        $result_point = $customer_point - $totalPoint;
+
+
 
         $reward_exists = DB::table('v_rewards')
             ->where('reward_store_code', $reward_code_store)->first();
        
-        if($reward_exists->total_available == null || $reward_exists->total_available == 0)
+        if($reward_exists->stock == null || $reward_exists->stock == 0)
         {
            session()->flash('failed_message', 'Maaf, Kuota Reward ini sudah habis!');
             return redirect()->back(); 
@@ -496,22 +530,24 @@ class CustomerController extends Controller
             return redirect()->back(); 
         }
 
-        if($reward_point > $customer_point){
+        if($totalPoint > $customer_point){
             session()->flash('failed_message', 'Point anda tidak mencukupi untuk reward ini');
             return redirect()->back();
-        }else{
+        }
+
            RedeemRewardModel::create([
                 'redeem_code' => $redeem_code,
                 'reward' => $reward_code_store,
                 'customer' => $customer_code,
                 'status' => 12,
                 'pickup_schedule' => $request->pickup_schedule,
+                'quantity' => $request->quantity,
                 'redeem_date' => now(),
                 'created_at' => now()
             ]);
 
             
-            // RewardsStoreModel::where('reward_store_code', $reward_code_store)->decrement('stock', 1);
+            RewardsStoreModel::where('reward_store_code', $reward_code_store)->decrement('stock', $quantity);
         
             CustomerModel::where('customer_code', $customer_code)->update([
                 'point' => $result_point
@@ -519,7 +555,7 @@ class CustomerController extends Controller
 
             session()->flash('message_success', 'Berhasil Redeem Reward!');
             return redirect()->route('rewards-history');
-        }
+        
 
 
     }
@@ -527,7 +563,7 @@ class CustomerController extends Controller
     public function get_stock(Request $request)
     {
         $data = DB::table('v_rewards')
-        ->select('total_available', 'reward_store_code')
+        ->select('stock', 'reward_store_code')
         ->where('rewards_code', $request->rewards_code)
         ->where('store_code', $request->store)->first();
 

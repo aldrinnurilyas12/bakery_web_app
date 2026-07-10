@@ -40,11 +40,6 @@ class ProductionProductController extends Controller
             return redirect()->back();
         }
 
-        // if($time >=8  && $time <=5){
-        //     session()->flash('failed_message', 'Jadwal input data Produksi Produk sudah lewat');
-        //     return redirect()->back();
-        // }
-
 
         $products = DB::table('v_products as vp')
             ->select(

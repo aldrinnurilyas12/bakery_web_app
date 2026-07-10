@@ -106,7 +106,7 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Produk</th>
+                                                <th>Info Detail</th>
                                                 <th>Bahan Baku</th>
                                                 <th>Kode Produksi</th>
                                                 <th>Biaya Produksi</th>
@@ -131,14 +131,27 @@
                                                     <td>{{ $no++ }}</td>
 
                                                     <td>
-                                                        <a
-                                                            href="{{ route('production-detail', $raw->production_code) }}"><i
-                                                                class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                                    </td>
-                                                    <td>
-                                                        <a href="#" data-toggle="modal"
-                                                            data-target="#showRaw{{ $raw->production_code }}"><i
-                                                                class="fa fa-eye"></i></a>
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+                                                            <tr>
+                                                                <th>Produk</th>
+                                                                <th>Bahan Baku</th>
+                                                            </tr>
+
+                                                            <tr>
+                                                                 <td>
+                                                                        <a
+                                                                            href="{{ route('production-detail', $raw->production_code) }}"><i
+                                                                                class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="#" data-toggle="modal"
+                                                                            data-target="#showRaw{{ $raw->production_code }}"><i
+                                                                                class="fa fa-eye"></i></a>
+                                                                    </td>
+                                                            </tr>
+                                                        </table>
                                                     </td>
                                                     <td>{{ $raw->production_code }}</td>
 

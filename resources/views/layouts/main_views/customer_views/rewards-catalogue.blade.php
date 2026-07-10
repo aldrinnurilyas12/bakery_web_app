@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/front_end/assets/logo/kencanabakery_logo2.png') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -22,12 +23,13 @@
         <div class="container-fluid">
             <div class="container">
                 <br>
-                <div style="display: flex; gap:10px;justify-content: space-between;" class="title-content-head">
-                    <div style="display: flex; gap:10px;" class="group-back">
-                        <a style="color:black;" href="{{ route('home') }}">
-                            <i class="fa fa-arrow-left"></i>
-                        </a>
-                        <h4 style="font-size: 20px;"><strong>Katalog Rewards</strong></h4>
+                <div style="display: flex; gap:10px;justify-content: space-between;align-items: center;"
+                    class="title-content-head">
+                    <div style="display: flex; gap:10px;align-items: center;" class="group-back">
+                        <div class="route-back">
+                            <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
+                        </div>
+                        <h4 style="font-size: 20px;margin-bottom:0;"><strong>Katalog Rewards</strong></h4>
                     </div>
 
                     <div style="display: flex; " class="group-info-link">
@@ -187,9 +189,51 @@
 
     </div>
 
-
+    @if (Session::has('message_success'))
+        <script>
+            Swal.fire({
+                title: 'Berhasil',
+                text: "{{ Session::get('message_success') }}",
+                icon: 'success',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @elseif (Session::has('failed_message'))
+        <script>
+            Swal.fire({
+                text: "{{ Session::get('failed_message') }}",
+                icon: 'error',
+                timer: 2000,
+                confirmButtonText: 'OK'
+            });
+        </script>
+    @endif
 
 </body>
+
+<style>
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

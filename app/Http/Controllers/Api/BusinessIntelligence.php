@@ -344,7 +344,46 @@ class BusinessIntelligence extends Controller
         }
 
 
-        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_transaction_diff','total_revenue', 'total_revenue_diff','mom_revenue','mom_transaction','mom_customer', 'total_customer_diff', 'total_product', 'total_customer', 'total_category', 'stores', 'labels', 'data', 'products_revenue', 'labels_products', 'labels_category','labels_revenue','revenue_data', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products', 'transaction_member', 'labels_member'));
+
+        // HeatMap transaction:
+
+        $heatmap = DB::table('v_main_transactions')
+        ->selectRaw("
+            WEEKDAY(transaction_date) as weekday,
+            HOUR(transaction_date) as hour,
+            COUNT(transaction_code) as total
+        ")
+        ->whereMonth('transaction_date', date('m'))
+        ->whereYear('transaction_date', date('Y'))
+        ->whereRaw("HOUR(transaction_date) BETWEEN 8 AND 21")
+        ->groupByRaw("WEEKDAY(transaction_date), HOUR(transaction_date)")
+        ->get();
+
+        $hours = range(8, 21);
+
+        $data_heatmap = [];
+
+        for ($day = 0; $day <= 6; $day++) {
+            foreach ($hours as $hour) {
+
+                $trx = $heatmap
+                    ->where('weekday', $day)
+                    ->where('hour', $hour)
+                    ->first();
+
+                $data_heatmap[] = [
+                    'x' => $hour,
+                    'y' => $day,
+                    'v' => $trx ? $trx->total : 0
+                ];
+            }
+        }
+
+        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'total_transaction_diff','total_revenue', 'total_revenue_diff','mom_revenue','mom_transaction','mom_customer', 'total_customer_diff', 
+        'total_product', 'total_customer', 'total_category', 'stores', 
+        'labels', 'data', 'products_revenue', 'labels_products', 'labels_category',
+        'labels_revenue','revenue_data', 'category_total', 'paycategory_total', 
+        'labels_paymethod', 'top_sales_products', 'transaction_member', 'labels_member', 'data_heatmap'));
     }
 
     public function filter_dashboard(Request $request){
@@ -592,6 +631,15 @@ class BusinessIntelligence extends Controller
         $category_products = DB::table('product_category')->select('category_name')->get();
          $payment_category = DB::table('payment_category')->select('payment_category')->get();
 
+         $total_revenue_bar_chart = DB::table('v_main_transactions')
+        ->selectRaw('MONTH(transaction_date) as month, SUM(grand_total) as total_revenue')
+        ->where('transaction_type', 'SALE')
+        ->whereDate('transaction_date', '>=', $start_date)
+        ->whereDate('transaction_date', '<=', $end_date)
+        ->groupByRaw('MONTH(transaction_date)')
+        ->orderByRaw('MONTH(transaction_date)')
+        ->get();
+
         // Filter by Total Transaction:
         foreach ($total_transaction_line_chart as $item) {
             $labels[] = $monthNames[$item->month];
@@ -607,6 +655,11 @@ class BusinessIntelligence extends Controller
                 ->sum('total_revenue');
 
             $products_revenue[] = (float) $revenue;
+        }
+
+         foreach ($total_revenue_bar_chart as $item) {
+            $labels_revenue[] = $monthNames[$item->month];
+            $revenue_data[] = $item->total_revenue;
         }
 
         // Filter by Sales by Category:
@@ -631,7 +684,76 @@ class BusinessIntelligence extends Controller
 
             $paycategory_total[] = (float) $revenue;
         }
-        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'mom_transaction','total_revenue','mom_revenue','total_transaction_diff', 'total_revenue_diff', 'total_product', 'total_customer','mom_customer', 'total_customer_diff', 'total_category', 'stores', 'labels', 'data', 'total_transaction_line_chart', 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total', 'labels_paymethod', 'top_sales_products'));
+
+        $total_transaction_member_nonmember = DB::table('transactions')
+        ->selectRaw("
+            COUNT(
+                CASE
+                    WHEN customer IS NULL
+                    AND transaction_type = 'SALE'
+                    THEN transaction_code
+                END
+            ) AS total_nonmember,
+
+            COUNT(
+                CASE
+                    WHEN customer IS NOT NULL
+                    AND transaction_type = 'SALE'
+                    THEN transaction_code
+                END
+            ) AS total_member
+        ")
+        ->first();
+
+
+         $labels_member = [
+            'Member',
+            'Non Member'
+        ];
+
+        $transaction_member = [
+            (int) $total_transaction_member_nonmember->total_member,
+            (int) $total_transaction_member_nonmember->total_nonmember,
+        ];
+
+        $heatmap = DB::table('v_main_transactions')
+        ->selectRaw("
+            WEEKDAY(transaction_date) as weekday,
+            HOUR(transaction_date) as hour,
+            COUNT(transaction_code) as total
+        ")
+        ->whereMonth('transaction_date', date('m'))
+        ->whereYear('transaction_date', date('Y'))
+        ->whereRaw("HOUR(transaction_date) BETWEEN 8 AND 21")
+        ->groupByRaw("WEEKDAY(transaction_date), HOUR(transaction_date)")
+        ->get();
+
+        $hours = range(8, 21);
+
+        $data_heatmap = [];
+
+        for ($day = 0; $day <= 6; $day++) {
+            foreach ($hours as $hour) {
+
+                $trx = $heatmap
+                    ->where('weekday', $day)
+                    ->where('hour', $hour)
+                    ->first();
+
+                $data_heatmap[] = [
+                    'x' => $hour,
+                    'y' => $day,
+                    'v' => $trx ? $trx->total : 0
+                ];
+            }
+        }
+
+
+        return view('layouts.main_pages.business_intelligence.data_analytics.data_analytics', compact('total_transaction', 'mom_transaction','total_revenue'
+        ,'mom_revenue','total_transaction_diff', 'total_revenue_diff', 'total_product', 'total_customer','mom_customer', 
+        'total_customer_diff', 'total_category', 'stores', 'labels', 'data', 'total_transaction_line_chart'
+        , 'products_revenue', 'labels_products', 'labels_category', 'category_total', 'paycategory_total','labels_member',
+         'labels_paymethod','labels_revenue','revenue_data', 'top_sales_products', 'transaction_member', 'data_heatmap', 'heatmap'));
     }
 
     // Customer Data Analytics
@@ -687,8 +809,59 @@ class BusinessIntelligence extends Controller
 
         $rfm_data = DB::table('v_rfm_analysis')->get();
 
+        // Horizontal Chart customer spent money
 
-        return view('layouts.main_pages.business_intelligence.data_analytics.customer_data_analytics',compact('total_customer', 'mom_customer', 'total_customer_diff', 'active_customer', 'nonactive_customer', 'new_customer', 'rfm_data'));
+        // $customer_data = DB::table('customer')->get();
+
+        $customer_revenue = DB::table('v_main_transactions')
+        ->selectRaw('name as customer, SUM(grand_total) as total_spent')
+        ->where('transaction_type', 'SALE')
+        ->groupByRaw('name')
+        ->get();
+
+        foreach ($customer_revenue as $item) {
+            $labels_customer[] = $item->customer;
+            $revenue_customer[] = $item->total_spent;
+        }
+
+        $sub = DB::table('v_main_transactions')
+            ->selectRaw("
+                customer,
+                COUNT(*) as total_transaction
+            ")
+            ->groupBy('customer');
+
+        $total_transaction_segment = DB::query()
+            ->fromSub($sub, 't')
+            ->selectRaw("
+                CASE
+                    WHEN total_transaction BETWEEN 10 AND 20 THEN 'Champions'
+                    WHEN total_transaction BETWEEN 8 AND 15 THEN 'Loyal Customers'
+                    WHEN total_transaction BETWEEN 2 AND 4 THEN 'Potential Loyalist'
+                    ELSE 'Risk Churn'
+                END as segment,
+                COUNT(*) as total_customer
+            ")
+            ->groupBy('segment')
+            ->get();
+
+        $segment_labels = [];
+        $segment_values = [];
+
+        foreach ($total_transaction_segment as $row) {
+            $segment_labels[] = $row->segment;
+            $segment_values[] = $row->total_customer;
+        }
+
+        
+
+
+
+
+
+        return view('layouts.main_pages.business_intelligence.data_analytics.customer_data_analytics',compact('total_customer', 'mom_customer', 
+        'total_customer_diff', 'active_customer', 'nonactive_customer',
+         'new_customer', 'rfm_data','labels_customer', 'revenue_customer', 'segment_labels', 'segment_values'));
 
     }
 
@@ -737,6 +910,7 @@ class BusinessIntelligence extends Controller
             ->whereDate('created_at', '<=', $end_date)
             ->where('store_code', $store_select)->get();
 
+       
         $production_products = DB::table('v_production_products_detail')
             ->whereDate('created_at', '>=', $start_date)
             ->whereDate('created_at', '<=', $end_date)
@@ -788,9 +962,11 @@ class BusinessIntelligence extends Controller
             ->whereDate('created_at', '<=', $end_date)
             ->where('store_code', $store_select)->get();
 
+         $store_name = DB::table('store')->where('store_code', $store_select)->first();
+
         $pdf = Pdf::loadView(
             'layouts.main_pages.business_intelligence.reports.pdf.products_daily_pdf',
-            compact('products_daily', 'start_date', 'end_date', 'store_select')
+            compact('products_daily', 'start_date', 'end_date', 'store_select', 'store_name')
         );
 
        return $pdf->download('products_daily_'. $print_date . '.pdf');
@@ -800,6 +976,7 @@ class BusinessIntelligence extends Controller
     {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        $store_select = $request->store;
        $print_date = now()->format('dmy');
 
         $production_product = DB::table('v_production_products_detail')
@@ -807,9 +984,11 @@ class BusinessIntelligence extends Controller
             ->whereDate('created_at', '<=', $end_date)
             ->get();
 
+         $store_name = DB::table('store')->where('store_code', $store_select)->first();
+
         $pdf = Pdf::loadView(
             'layouts.main_pages.business_intelligence.reports.pdf.production_product_pdf',
-            compact('production_product', 'start_date', 'end_date')
+            compact('production_product', 'start_date', 'end_date', 'store_name')
         );
 
        return $pdf->download('production_product_'. $print_date . '.pdf');
@@ -820,16 +999,18 @@ class BusinessIntelligence extends Controller
     {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        $store_select = $request->store;
        $print_date = now()->format('dmy');
 
         $distribution_product = DB::table('v_distribution_detail')
             ->whereDate('created_at', '>=', $start_date)
             ->whereDate('created_at', '<=', $end_date)
             ->get();
+         $store_name = DB::table('store')->where('store_code', $store_select)->first();
 
         $pdf = Pdf::loadView(
             'layouts.main_pages.business_intelligence.reports.pdf.distribution_product_pdf',
-            compact('distribution_product', 'start_date', 'end_date')
+            compact('distribution_product', 'start_date', 'end_date', 'store_name')
         );
 
        return $pdf->download('distribution_product_'. $print_date . '.pdf');

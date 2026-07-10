@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/front_end/assets/logo/kencanabakery_logo2.png') }}">
 </head>
 
@@ -61,6 +62,22 @@
                                                 @endif
 
                                                 <div class="image-overlay">
+                                                    <div class="form-favorite">
+                                                        <form action="{{ route('add_favorite') }}" method="POST">
+                                                            @csrf
+                                                            {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
+                                                            <input hidden type="text" name="product"
+                                                                value="{{ $item->product_code }}">
+                                                            <input hidden type="text" name="variant"
+                                                                value="{{ $item->variant_code }}">
+
+                                                            <button type="submit"
+                                                                style="background: none;border: none;"><i
+                                                                    style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
+                                                                    class="fa-regular fa-heart"></i></button>
+                                                        </form>
+                                                    </div>
+
                                                     @if ($item->discount || $item->variant_discount)
                                                         <span class="promo-badge">Promo</span>
                                                     @endif
@@ -99,13 +116,9 @@
                                                 @endif
                                             </div>
                                             <div class="btn-detail">
-                                                @if ($item->variant_code)
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->variant_code) }}">detail</a>
-                                                @else
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->product_code) }}">detail</a>
-                                                @endif
+                                                <a class="btn-detail-product"
+                                                    href="{{ route('product', $item->slug) }}">detail</a>
+
                                             </div>
                                         </div>
 
@@ -151,8 +164,8 @@
                                 style="height:max-content; overflow-y: auto; font-size: 14px; line-height: 1.6;display: flex; justify-content: center; text-align: center;">
                                 <div style="height: max-content;padding:5px;display:block; font-family: Cambria;"
                                     class="show-qrcode">
-                                    <img width="300" height="300" src="{{ url('storage/' . $customer->qr_code) }}"
-                                        alt="">
+                                    <img width="300" height="300"
+                                        src="{{ url('storage/' . $customer->qr_code) }}" alt="">
                                     <p class="info-point">*Tunjukan QR Code ini kepada kasir saat transaksi dan anda
                                         akan mendapatkan
                                         Point.
@@ -200,9 +213,26 @@
 
     </div>
 
-
-
 </body>
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 1000,
+        });
+    </script>
+@elseif(Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+        });
+    </script>
+@endif
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

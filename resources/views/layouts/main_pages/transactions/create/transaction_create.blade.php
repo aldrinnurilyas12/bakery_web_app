@@ -82,6 +82,12 @@
                                                         href="#tab-all" role="tab" aria-controls="tab-all"
                                                         aria-selected="true">Semua</a>
                                                 </li>
+
+                                                <li class="nav-item" role="presentation">
+                                                    <a style="color: #bb0239;"  class="nav-link" id="tab-bundling-tab" data-bs-toggle="tab"
+                                                        href="#tab-bundling" role="tab" aria-controls="tab-bundling"
+                                                        aria-selected="false">Promo Bundling</a>
+                                                </li>
                                                 @foreach ($category_data as $ctg)
                                                     <li class="nav-item" role="presentation">
                                                         <a style="color: #bb0239;" class="nav-link"
@@ -273,6 +279,160 @@
 
                                         </div>
                                     @endif
+
+
+                                    {{-- TAB PROMO BUNDLING --}}
+
+                                      @if ($promo_bundling)
+                                        <div class="tab-pane" id="tab-bundling" role="tabpanel"
+                                            aria-labelledby="tab-bundling-tab">
+                                                    <div class="card-body">
+                                                        <div class="content-product-show">
+                                                            <div class="products-card"
+                                                                style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                                                @foreach ($promo_bundling as $product)
+                                                                    <div style="position: left;" class="card"
+                                                                        style="width: 200px;">
+                                                                            <img class="card-img"
+                                                                                src="{{ asset('storage/' . $product->images) }}"
+                                                                                alt="">
+                                                                        <p class="product-name">
+                                                                            <strong>{{ $product->bundling_name }}</strong>
+                                                                        </p>
+                                                                      
+                                                                            <div style="display: flex; gap:6px;"
+                                                                                class="category-class">
+                                                                                <small
+                                                                                    class="text-secondary">Paket Bundling</small>
+                                                                            </div>
+                                                                      
+
+                                                                        
+                                                                      
+                                                                            @if ($product->price)
+                                                                                <div class="price">
+                                                                                    <p>{{ 'Rp.' . number_format($product->price) }}
+                                                                                    </p>
+                                                                                </div>
+                                                                            @endif
+                                                                            <div id="availableStock" class="stok">
+                                                                                <p>Stok:
+                                                                                    <span>{{ $product->quantity }}</span>
+                                                                                </p>
+                                                                            </div>
+
+                                                                            <div class="detail-product">
+                                                                                 <p> Detail item: </p>
+
+                                                                                <div class="detail-info-product">
+                                                                                   
+                                                                                             @php
+                                                                                                $stockHabis = false;
+                                                                                            @endphp
+                                                                                           
+                                                                                                    
+                                                                                                    <table  class="table table-bordered">
+                                                                                                        <thead style="font-size: 12px;">
+                                                                                                            <th>Item</th>
+                                                                                                            <th>Qty</th>
+                                                                                                        </thead>
+
+                                                                                                        <tbody style="font-size: 12px;">
+                                                                                                             @foreach ($product_bundling_detail as $prd )
+                                                                                                                @if($product->bundling_code == $prd->bundling_code)
+                                                                                                                    @if($prd->stock_available <= 0)
+                                                                                                                        @php
+                                                                                                                            $stockHabis = true;
+                                                                                                                        @endphp
+                                                                                                                    @endif
+                                                                                                                        <tr>
+                                                                                                                            <td>{{ $prd->product_name }}</td>
+                                                                                                                            <td>{{$prd->quantity}}</td>
+                                                                                                                        </tr>
+
+                                                                                                             @endif
+                                                                                                            @endforeach
+                                                                                                        </tbody>
+                                                                                                    </table>  
+                                                                                </div>
+
+                                                                                <div style="margin-bottom:10px;" class="info-stockempty">
+                                                                                    @if($stockHabis)
+                                                                                    <span style="font-size: 13px;" class="text-danger">*ada produk habis</span>
+                                                                                    @endif
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                        @php
+                                                                            $all_prodaduadhucts = DB::table('promo_bundling_detail')->get();
+                                                                        @endphp
+                                                                       
+                                                                        
+                                                                       {{-- PERBAIKI BAGIAN INI 03/07/2026 --}}
+                                                                        
+                                                                        <div class="btn-add-cart">
+                                                                            <form class="form-general"
+                                                                                action="{{ route('cart_add') }}"
+                                                                                method="POST">
+                                                                                @csrf
+                                                                                <input type="hidden" name="bundling"
+                                                                                    value="{{ $product->bundling_code }}">
+                                                                                <input name="bundling_name"  type="hidden" value="{{ $product->bundling_name }}">
+
+                                                                                <input type="hidden"
+                                                                                    name="stock_available"
+                                                                                    value="{{ $product->quantity }}">
+
+                                                                                <input type="hidden"
+                                                                                            name="price"
+                                                                                            value="{{ $product->price }}">
+                                                                                
+                                                                                @if ($product->quantity)
+                                                                                    @if($stockHabis)
+                                                                                    <button style="width:100%;"
+                                                                                        class="btn btn-secondary"
+                                                                                        type="button">Kosong</button>
+                                                                                    @else
+                                                                                    <button class="btn-general"
+                                                                                        type="submit"><span
+                                                                                            class="btn-text">Tambah</span>
+                                                                                        <span
+                                                                                            class="spinner"></span></button>
+                                                                                    @endif
+                                                                                @else
+                                                                                    <button style="width:100%;"
+                                                                                        class="btn btn-secondary"
+                                                                                        type="button">Kosong</button>
+                                                                                @endif
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                        </div>
+                                    @else
+                                        <div style="height: 50vh; display:flex; justify-content:center;border:1px solid gray;border-radius:10px;"
+                                            class="empty-transaction">
+
+                                            <div style="display: flex;" class="empty-content">
+                                                <div style="display: flex; gap:20px;margin:auto;">
+                                                    <img width="70" height="70"
+                                                        src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                        alt="">
+                                                    <div style="display: block;align-self: center;"
+                                                        class="text-content">
+                                                        <h3>Promo Bundling belum ada</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    @endif
+
+                                    {{-- END --}}
 
                                     {{-- TAB PER CATEGORY --}}
 
@@ -503,76 +663,113 @@
                                     <div class="cart-items">
                                         @if ($cart_value)
                                             @foreach ($cart_value as $cart)
-                                                <div class="cart-item">
-                                                    <div style="display:flex; justify-content: space-between;"
-                                                        class="container-content-product">
+                                            @php
+                                                $isBundling = !empty($cart['bundling']);
+                                                    $code = !empty($cart['bundling'])
+                                                    ? $cart['bundling']
+                                                    : $cart['product'];
 
-                                                        <!-- Product Details -->
-                                                        <div class="sub-container-product">
-                                                            <p style="margin-bottom: 0;" class="item-name">
-                                                                {{ $cart['product_name'] }}</p>
-                                                            <input name="product[]" type="hidden"
-                                                                value="{{ $cart['product'] }}">
-                                                            <input name="variant[]" type="hidden"
-                                                                value="{{ $cart['variant'] }}">
-                                                            <input type="hidden" name="product_price[]" value="{{ $cart['price'] }}">
+                                            @endphp
+                                                    <div class="cart-item">
+                                                        <div style="display:flex; justify-content: space-between;"
+                                                            class="container-content-product">
 
-                                                            <small class="text-info" style="margin-bottom: 0;"
-                                                                class="item-price">
-                                                                {{ $cart['variant_type'] }}
-                                                            </small>
+                                                            <!-- Product Details -->
+                                                            <div class="sub-container-product">
+                                                                @if($isBundling)
+                                                                    <span style="background: #bb0239;" class="badge">Bundling</span>
+                                                                    <p style="margin-bottom: 0;" class="item-name">
+                                                                        {{ $cart['bundling_name'] }}</p>
 
-                                                            <!-- Product Price and Quantity -->
-                                                            <div class="flex-content"
-                                                                style="display: flex; justify-content: space-between;">
-                                                                <p class="item-price">
-                                                                    {{ 'Rp.' . number_format($cart['price']) }}
-                                                                </p>
+                                                                    <!-- Product Price and Quantity -->
+                                                                    <div class="flex-content"
+                                                                        style="display: flex; justify-content: space-between;">
+                                                                        <p class="item-price">
+                                                                            {{ 'Rp.' . number_format($cart['price']) }}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div class="detail-product">
+                                                                        @foreach ($product_bundling_detail as $promo_products )
+                                                                            @if($cart['bundling'] == $promo_products->bundling_code)
+                                                                                <ul>
+                                                                                <input name="product[]" type="hidden" value="{{ $promo_products->product_code  }}">
+                                                                                <input id="add_qty_bundling" hidden name="quantity_per_product" value="{{ $promo_products->quantity }}">
+                                                                                <input type="text" name="promo_bundling_status" value="Y" hidden>
+                                                                                </ul>
+                                                                            @endif
+                                                                        @endforeach
+                                                                        <input name="bundling" type="text" value="{{ $cart['bundling'] }}" hidden>
+                                                                    </div>
+
+
+                                                                @else
+                                                                    <p style="margin-bottom: 0;" class="item-name">
+                                                                        {{ $cart['product_name'] }}</p>
+                                                                    <input name="product[]" type="hidden"
+                                                                        value="{{ $cart['product'] }}">
+                                                                    <input name="variant[]" type="hidden"
+                                                                        value="{{ $cart['variant'] }}">
+                                                                    <input type="hidden" name="product_price[]" value="{{ $cart['price'] }}">
+
+                                                                    <small class="text-info" style="margin-bottom: 0;"
+                                                                        class="item-price">
+                                                                        {{ $cart['variant_type'] }}
+                                                                    </small>
+
+                                                                    <!-- Product Price and Quantity -->
+                                                                    <div class="flex-content"
+                                                                        style="display: flex; justify-content: space-between;">
+                                                                        <p class="item-price">
+                                                                            {{ 'Rp.' . number_format($cart['price']) }}
+                                                                        </p>
+                                                                    </div>
+                                                                @endif
+
+
                                                             </div>
 
 
-                                                        </div>
+                                                            <div style="display: flex; gap:10px;"
+                                                                class="btn-delete-product">
 
+                                                                <button
+                                                                    type="button"
+                                                                    class="text-danger"
+                                                                    style="background:none;border:none;"
+                                                                    onclick="event.preventDefault();document.getElementById('delete-{{ $code }}').submit();">
+                                                                    <i class="fa fa-trash"></i>
+                                                                </button>
 
-                                                        <div style="display: flex; gap:10px;"
-                                                            class="btn-delete-product">
+                                                                <div class="product-item"
+                                                                    data-stock="{{ $cart['stock_available'] }}">
+                                                                    <div style="display: none;" class="stok">
+                                                                        <p>Stok:
+                                                                            <span
+                                                                                class="available-stock">{{ $cart['stock_available'] }}</span>
+                                                                        </p>
+                                                                    </div>
+                                                                    <!-- Quantity Control -->
+                                                                    <small class="error-msg"
+                                                                        style="color:red; display:none;font-size: 12px;"></small>
+                                                                    <div class="quantity-container">
+                                                                        <button type="button" class="decrease">-</button>
+                                                                        <input name="quantity_per_product[]"
+                                                                            value="1" min="1" type="number"
+                                                                            class="item-quantity">
+                                                                        <button type="button" class="increase">+</button>
+                                                                    </div>
 
-                                                            <button style="background: none;border:none;"
-                                                                type="button" class="text-danger"
-                                                                onclick="event.preventDefault();
-                                                                document.getElementById('delete-{{ $cart['product'] }}').submit();">
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
-
-                                                            <div class="product-item"
-                                                                data-stock="{{ $cart['stock_available'] }}">
-                                                                <div style="display: none;" class="stok">
-                                                                    <p>Stok:
-                                                                        <span
-                                                                            class="available-stock">{{ $cart['stock_available'] }}</span>
-                                                                    </p>
                                                                 </div>
-                                                                <!-- Quantity Control -->
-                                                                <small class="error-msg"
-                                                                    style="color:red; display:none;font-size: 12px;"></small>
-                                                                <div class="quantity-container">
-                                                                    <button type="button" class="decrease">-</button>
-                                                                    <input name="quantity_per_product[]"
-                                                                        value="1" min="1" type="number"
-                                                                        class="item-quantity">
-                                                                    <button type="button" class="increase">+</button>
-                                                                </div>
-
                                                             </div>
+
                                                         </div>
 
+                                                        <!-- Quantity and Delete Section -->
+
+
+                                                        <hr class="hr-cart">
                                                     </div>
-
-                                                    <!-- Quantity and Delete Section -->
-
-
-                                                    <hr class="hr-cart">
-                                                </div>
                                             @endforeach
                                         @else
                                             <div class="text-center-cart">
@@ -740,10 +937,15 @@
                             @else
                     @endif
 
-
+                    
                     @foreach ($cart_value as $cart)
-                        <form class="form-delete" id="delete-{{ $cart['product'] }}"
-                            action="{{ route('delete_item_cart', $cart['product']) }}" method="POST"
+                    @php
+                        $code = !empty($cart['bundling'])
+                            ? $cart['bundling']
+                            : $cart['product'];
+                    @endphp
+                        <form class="form-delete" id="delete-{{ $code }}"
+                             action="{{ route('delete_item_cart', $code) }}" method="POST"
                             style="display:none;">
                             @csrf
                             @method('DELETE')
@@ -1235,6 +1437,11 @@
         // jalankan saat select berubah
         paymentType.addEventListener("change", togglePaymentAmount);
     });
+
+
+    // add bundling qty :
+
+    
 </script>
 
 
