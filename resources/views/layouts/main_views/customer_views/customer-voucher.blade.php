@@ -152,20 +152,29 @@
                                                 <div style="flex-wrap:wrap; gap:10px;" class="image-content">
                                                     <div style="display:flex; flex-wrap: wrap; justify-content: space-between;"
                                                         class="image-display">
-                                                        @if ($voucher->voucher_path)
-                                                            <a href="#" data-toggle="modal"
-                                                                data-target="#showQrCode{{ $voucher->customer_voucher_code }}">
-                                                                <img width="90" height="90"
-                                                                    src="{{ url('storage/' . $voucher->voucher_path) }}"
-                                                                    alt="">
-                                                            </a>
+
+                                                        @if ($voucher->end_date <= now())
+                                                        @else
+                                                            @if ($voucher->voucher_path)
+                                                                <a href="#" data-toggle="modal"
+                                                                    data-target="#showQrCode{{ $voucher->customer_voucher_code }}">
+                                                                    <img width="90" height="90"
+                                                                        src="{{ url('storage/' . $voucher->voucher_path) }}"
+                                                                        alt="">
+                                                                </a>
+                                                            @endif
                                                         @endif
-                                                        <span>
-                                                            @if ($voucher->voucher_used == 'Y')
-                                                                <span class="badge badge-success">Terpakai </span>
+                                                        <span class="info-voucher">
+                                                            @if ($voucher->end_date <= now())
+                                                                <span style="margin-bottom:10px;"
+                                                                    class="badge badge-danger">Expired</span>
                                                             @else
-                                                                <span class="badge badge-secondary">Belum Terpakai
-                                                                </span>
+                                                                @if ($voucher->voucher_used == 'Y')
+                                                                    <span class="badge badge-success">Terpakai </span>
+                                                                @else
+                                                                    <span class="badge badge-secondary">Belum Terpakai
+                                                                    </span>
+                                                                @endif
                                                             @endif
                                                         </span>
                                                     </div>
@@ -264,6 +273,7 @@
                                 <li>Voucher dapat berupa nominal belanja dan diskon potongan pada saat transaksi
                                     di Outlet
                                     resmi</li>
+                                <li>Voucher yang sudah melewati masa Expired maka tidak dapat digunakan</li>
 
                             </ul>
                         </div>

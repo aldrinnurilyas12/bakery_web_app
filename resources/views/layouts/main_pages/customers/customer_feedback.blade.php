@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery - Master Data Central Stock Products</title>
+    <title>Kencana Bakery - Master Data Kategori</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
@@ -30,58 +30,50 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Inventory > Stok Produk Pusat > <strong>Informasi Detail Distribusi</strong>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap:20px;" class="card-header">
-                            <div class="back-btn">
-                                <a class="btn btn-primary"
-                                    href="{{ route('central_stock_products.index') }}">Kembali</a>
+                                Master Data > <strong> Kritik dan Saran Pelanggan </strong>
                             </div>
                         </div>
 
-                        <div style="display: flex; gap:20px;" class="card-header">
-                            <div class="title-product">
-                                <label for=""><strong>Produk</strong></label>
-                                <input class="form-control" type="text"
-                                    value="{{ $detail_product->first()->product_name }}" readonly>
-                            </div>
-                            <div class="title-product">
-                                <label for=""><strong>Total Produk</strong></label>
-                                <input class="form-control" type="text" value="{{ $total_distribution_item }}"
-                                    readonly>
-                            </div>
-                        </div>
                         <div class="card-body">
-                            @if ($detail_product->isNotEmpty())
+                            @if ($customer_feedback->isNotEmpty())
                                 <div class="table-responsive">
                                     <table class="table" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Kode Distribusi</th>
-                                                <th>Kode Distribusi Store</th>
-                                                <th>Tanggal Distribusi</th>
-                                                <th>Tanggal Expired</th>
-                                                <th>Total Item</th>
-                                                <th>Outlet</th>
+                                                <th>Kode Feedback</th>
+                                                <th>Pelanggan</th>
+                                                <th>Kategori</th>
+                                                <th>Kritik & Saran</th>
+                                                <th>Tanggal</th>
+                                                <th>Created at</th>
+                                                <th>Updated at</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
                                             $no = 1;
+                                            $feedback_type = DB::table('customer_feedback_detail')->get();
                                             ?>
-                                            @foreach ($detail_product as $key => $stock)
+                                            @foreach ($customer_feedback as $key => $feedback)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td>{{ $stock->distribution_code }}</td>
-                                                    <td>{{ $stock->distribution_store_code }}</td>
-                                                    <td>{{ \Carbon\carbon::parse($stock->distribution_date)->format('d M Y') }}
+                                                    <td>{{ $feedback->feedback_code }}</td>
+                                                    <td>{{ $feedback->name }}</td>
+                                                    <td>
+                                                        @foreach ($feedback_type as $type)
+                                                            @if ($type->feedback == $feedback->feedback_code)
+                                                                <span
+                                                                    style="border:1px solid rgb(44, 44, 245);padding:2px; 
+                                                                    border-radius:4px;color:rgb(44, 44, 245);gap:10px;display:flex; flex-wrap: wrap;width:max-content;">
+                                                                    {{ $type->feedback_type }}</span>
+                                                            @endif
+                                                        @endforeach
                                                     </td>
-                                                    <td>{{ \Carbon\carbon::parse($stock->expired_date)->format('d M Y') }}
-                                                    </td>
-                                                    <td> {{ $stock->quantity }} </td>
-                                                    <td>{{ $stock->store_name }}</td>
+                                                    <td>{{ $feedback->feedback_message }}</td>
+                                                    <td> {{ $feedback->feedback_date }} </td>
+                                                    <td>{{ $feedback->created_at }}</td>
+                                                    <td>{{ $feedback->updated_at }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -96,8 +88,8 @@
                                             <img width="70" height="70"
                                                 src="{{ asset('assets/front_end/assets/img/null.png') }}"
                                                 alt="">
-                                            <div style="display: block;align-self: center;" class="text-content">
-                                                <h3>Belum ada Stock Central</h3>
+                                            <div style="display: block;align-content: center;" class="text-content">
+                                                <h3>Belum ada Kritik dan Saran</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -111,6 +103,10 @@
         </div>
     </div>
 </body>
+
+
+</script>
+
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>

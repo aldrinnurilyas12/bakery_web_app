@@ -28,20 +28,23 @@
                     <br>
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
-
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Satuan Unit</a>
+                                Inventory ><strong> Satuan Unit</strong>
                             </div>
                             @if ($unit_material->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('unit_material_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('unit_material_create') }}">Tambah
                                             Satuan Unit</a>
                                     </div>
                                 @endif
                             @endif
                         </div>
-                        <hr>
+                        <div style="display: flex; gap:20px;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('raw_material') }}">Kembali</a>
+                            </div>
+                        </div>
                         <div style="font-size: 13px;" class="alert alert-info">
                             <ul>
                                 <li>Satuan Unit tidak bisa dihapus jika sudah ada di master bahan baku

@@ -30,27 +30,40 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / Bill of Material
+                                Master Data > Bill of Material > <strong> Bill of Material Detail </strong>
                             </div>
-                            @if ($bill_of_material->isNotEmpty())
-                                @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('add_ingredients', $bill_of_material->first()->product_code) }}">Tambah
-                                            Bill of Material</a>
-                                    </div>
-                                @endif
-                            @endif
                         </div>
-                       
+                        <div style="display: flex; justify-content:space-between;" class="card-header">
+                            <a class="btn btn-primary"
+                                href="{{ route('bill-of-material', $bill_of_material->first()->product_code) }}">Kembali</a>
+
+                            <div class="title">
+                                @if ($bill_of_material->isNotEmpty())
+                                    @if (!$user_permission_forbidden)
+                                        <div class="button-add-product">
+                                            <a class="btn-general"
+                                                href="{{ route('add_ingredients', $bill_of_material->first()->product_code) }}">Tambah
+                                                Bill of Material</a>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+
+                        </div>
+
+
                         <div class="card-body">
                             @if ($bill_of_material->isNotEmpty())
                                 <div class="form-group">
                                     <label for=""><strong>Kode BoM (Bill of Material)</strong></label>
-                                    <input type="text" value="{{ $bill_of_material->first()->ingredients_code }}" class="form-control" readonly>
+                                    <input type="text" value="{{ $bill_of_material->first()->ingredients_code }}"
+                                        class="form-control" readonly>
                                 </div>
-                                 <div class="form-group">
+                                <div class="form-group">
                                     <label for=""><strong>Grand Total</strong></label>
-                                    <input type="text" value="{{'Rp.' . number_format($bill_of_material->first()->hpp) }}" class="form-control" readonly>
+                                    <input type="text"
+                                        value="{{ 'Rp.' . number_format($bill_of_material->first()->hpp) }}"
+                                        class="form-control" readonly>
                                 </div>
                                 <hr>
                                 <div class="table-responsive">
@@ -72,7 +85,7 @@
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
                                                     <td>{{ $bom->material_name }}</td>
-                                                    <td>{{ $bom->quantity .' '. $bom->unit_name }}</td>
+                                                    <td>{{ $bom->quantity . ' ' . $bom->unit_name }}</td>
                                                     <td> {{ 'Rp.' . number_format($bom->subtotal) ?: '-' }} </td>
                                                     <td>{{ $bom->created_at }}</td>
                                                 </tr>

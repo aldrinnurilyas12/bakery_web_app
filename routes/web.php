@@ -91,6 +91,7 @@ Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile')->middleware('route_access');
     Route::get('profile-menu', [CustomerController::class, 'menu'])->name('profile-menu');
     Route::get('history-transactions', [CustomerController::class, 'history_transaction'])->name('history-transaction')->middleware('route_access');
+    Route::get('transaction_get', [CustomerController::class, 'filter_transaction'])->name('transaction_get');
     Route::get('invoice/{transaction_code}', [CustomerController::class, 'invoice'])->name('invoice');
     Route::get('your-voucher', [CustomerController::class, 'customer_voucher'])->name('your-voucher')->middleware('route_access');
     Route::get('change-password-help', [CustomerController::class, 'change_password_layout'])->name('change-password-help')->middleware('route_access');
@@ -106,7 +107,7 @@ Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('rewards-history', [CustomerController::class,'rewards_customer_history'])->name('rewards-history')->middleware('route_access');
     Route::get('get_stock/{rewards_code}', [CustomerController::class,'get_stock'])->name('get_stock');
     Route::get('/invoice_cust/{transaction_code}/print', [CustomerController::class, 'download_pdf_cust']);
-    Route::get('invoice_pdf/{transaction_code}', [CustomerController::class, 'download_invoice_pdf'])->name('invoice_pdf');
+    Route::get('invoice_download/{transaction_code}', [CustomerController::class, 'download_invoice_pdf'])->name('invoice_download');
     Route::put('generate_qr_code', [CustomerController::class, 'generate_qr_code'])->name('generate_qr_code');
     Route::post('product_review_save', [CustomerController::class, 'product_review_save'])->name('product_review_save');
 });
@@ -160,7 +161,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class)->middleware('route_access');
     Route::apiResource('customer_segment', App\Http\Controllers\Api\CustomerSegmentCategories::class)->middleware('route_access');
     Route::get('customer_segment_create', [CustomerSegmentCategories::class, 'create' ] )->name('customer_segment_create');
-
+    Route::get('customer_feedback', [CustomerController::class, 'customer_feedback'])->name('customer_feedback');
 
     // Employee API
     Route::apiResource('master_employee', App\Http\Controllers\Api\EmployeeController::class)->middleware('route_access');
@@ -169,7 +170,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('update_employee/{id}', [EmployeeController::class, 'update'])->name('update_employee');
     Route::put('employee_update_status/{nik}', [EmployeeController::class, 'employee_nonactive'])->name('employee_update_status');
     Route::put('change_password_employee/{nik}', [EmployeeController::class, 'update_password_employee'])->name('change_password_employee');
-
+    Route::get('employee_activity/{nik}', [EmployeeController::class, 'employee_activity'])->name('employee_activity');
 
     // Products Route
     Route::apiResource('master_products', App\Http\Controllers\Api\ProductsController::class);
@@ -205,7 +206,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::apiResource('promo_bundling', App\Http\Controllers\Api\PromoBundling::class);
     Route::get('promo_bundling_create', [PromoBundling::class, 'create'])->name('promo_bundling_create');
     Route::put('bundling_nonactive/{bundling_code}', [PromoBundling::class,'bundling_nonactive'])->name('bundling_nonactive');
-
+    Route::delete('promo_bundling_delete/{bundling_code}', [PromoBundling::class, 'destroy'])->name('promo_bundling_delete');
 
 
 
@@ -231,6 +232,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('promo_create', [PromoCampaignController::class, 'create'])->name('promo_create')->middleware('route_access');
     Route::get('promo_update/{promo_code}', [PromoCampaignController::class, 'edit'])->name('promo_update')->middleware('route_access');
     Route::put('promo_edit/{promo_code}', [PromoCampaignController::class, 'update'])->name('promo_edit');
+    Route::put('promo_campaign_update_status/{promo_code}', [PromoCampaignController::class, 'promo_update_status'])->name('promo_campaign_update_status');
     Route::delete('promo_delete/{promo_code}', [PromoCampaignController::class, 'destroy'])->name('promo_delete');
     Route::get('/promo_campaign', function () {
         return view('pages.promo-campaign');

@@ -11,7 +11,7 @@
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('master_products.index') }}">Voucher Data</a>
+                        CRM > <strong>E-Voucher</strong>
                     </div>
                     <div style="display: flex;gap:10px;" class="flex-content">
                         @if ($module_documentation)
@@ -26,7 +26,7 @@
                         @if ($vouchers->isNotEmpty())
                             @if (!$user_permission_forbidden)
                                 <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('voucher_create') }}">Tambah Voucher</a>
+                                    <a class="btn-general" href="{{ route('voucher_create') }}">Tambah Voucher</a>
                                 </div>
                             @endif
                         @endif
@@ -44,18 +44,17 @@
                                             class="card-body">
                                             <div style="display: flex; gap:10px;" class="image-content">
                                                 <div style="display:block;" class="content-image">
-                                                <img style="margin-bottom: 10px;" width="90" height="90"
-                                                    src="{{ url('storage/' . $voucher->qr_code) }}" alt="">
+                                                    <img style="margin-bottom: 10px;" width="90" height="90"
+                                                        src="{{ url('storage/' . $voucher->qr_code) }}" alt="">
                                                     <br>
-                                                @if($voucher->total_available == 0)
-                                                    <div style="background: none; border: 1px solid rgb(255, 0, 0); border-radius: 2px; padding:2px;width:max-content;font-size:14px;"
-                                                                    class="expired-status">
-                                                                    <small
-                                                                        class="text-danger">Kuota Habis</small>
-                                                    </div>
-                                                @endif
+                                                    @if ($voucher->total_available == 0)
+                                                        <div style="background: none; border: 1px solid rgb(255, 0, 0); border-radius: 2px; padding:2px;width:max-content;font-size:14px;"
+                                                            class="expired-status">
+                                                            <small class="text-danger">Kuota Habis</small>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                            
+
                                                 <div class="content-text">
                                                     <div style="width: 200px;" class="title-text">
                                                         <h5 style="font-size:15px;">{{ $voucher->voucher_name }}</h5>
@@ -67,26 +66,28 @@
                                                             {{ 'Rp.' . number_format($voucher->min_transaction) }}</span>
                                                         &nbsp;
                                                         <br>
-                                                        <div style="display: flex; gap:20px; font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;">
-                                                            @if ($voucher->discount)
-                                                                <span>Diskon:
-                                                                    {{ $voucher->discount . '%' }}</span>
-                                                            @elseif($voucher->nominal)
-                                                                <span>Potongan:
-                                                                    {{ 'Rp.' . number_format($voucher->nominal) }}
-                                                                @else
-                                                            @endif
-                                                            <span>Kuota:
-                                                                {{ $voucher->quota }}</span>
-                                                         </div>
-                                                        <div style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;" class="info-detail">
-                                                            <span>Dibagikan:
-                                                                {{ $voucher->total_voucher_shared ?: 0  }}</span> &nbsp;
-                                                            <span>Tersedia:
-                                                                {{ $voucher->total_available ?: 0  }}</span> &nbsp;
-                                                            <span>Redeem:
-                                                                {{ $voucher->total_redeem ?: '-' }}</span>
-                                                        </div>
+                                                    <div
+                                                        style="display: flex; gap:20px; font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;">
+                                                        @if ($voucher->discount)
+                                                            <span>Diskon:
+                                                                {{ $voucher->discount . '%' }}</span>
+                                                        @elseif($voucher->nominal)
+                                                            <span>Potongan:
+                                                                {{ 'Rp.' . number_format($voucher->nominal) }}
+                                                            @else
+                                                        @endif
+                                                        <span>Kuota:
+                                                            {{ $voucher->quota }}</span>
+                                                    </div>
+                                                    <div style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;"
+                                                        class="info-detail">
+                                                        <span>Dibagikan:
+                                                            {{ $voucher->total_voucher_shared ?: 0 }}</span> &nbsp;
+                                                        <span>Tersedia:
+                                                            {{ $voucher->total_available ?: 0 }}</span> &nbsp;
+                                                        <span>Redeem:
+                                                            {{ $voucher->total_redeem ?: '-' }}</span>
+                                                    </div>
                                                     </p>
 
                                                     <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"

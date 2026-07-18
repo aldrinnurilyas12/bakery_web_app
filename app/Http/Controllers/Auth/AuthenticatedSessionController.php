@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use App\Models\UserLogActivities;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -70,11 +71,24 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+       $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        
+         UserLogActivities::create([
+            'user' => $nik,
+            'module' => 'Session Logout',
+            'method_type' => 'LOGOUT',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'activity_date' => now(),
+            'description' => 'User Logout Web'
+        ]);
+
 
         return redirect('login');
     }

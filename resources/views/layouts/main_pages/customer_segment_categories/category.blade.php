@@ -30,12 +30,13 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Kategori Segment Pelanggan</a>
+                                Master Data / <a href="{{ route('master_category.index') }}">Kategori Segment
+                                    Pelanggan</a>
                             </div>
                             @if ($category_data->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('customer_segment_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('customer_segment_create') }}">Tambah
                                             Kategori</a>
                                     </div>
                                 @endif
@@ -92,15 +93,22 @@
                                                     <td>{{ $category->segment_name }}</td>
                                                     <td> {{ $category->min_transaction ?: '-' }} </td>
                                                     <td> {{ $category->max_transaction ?: '-' }} </td>
-                                                    <td> {{ $category->min_spent ? "Rp." . number_format( $category->min_spent) : '-' }} </td>
-                                                    <td> {{$category->max_spent ? "Rp." . number_format($category->max_spent) : '-' }} </td>
-                                                   <td>{{ $category->recency ?  $category->indicator. ' ' . $category->recency . ' Hari' : '-' }}</td>
-                                                    <td><div style="width: 25px;height:25px;border-radius: 50%;background-color:{{ $category->color }};"></div></td>
+                                                    <td> {{ $category->min_spent ? 'Rp.' . number_format($category->min_spent) : '-' }}
+                                                    </td>
+                                                    <td> {{ $category->max_spent ? 'Rp.' . number_format($category->max_spent) : '-' }}
+                                                    </td>
+                                                    <td>{{ $category->recency ? $category->indicator . ' ' . $category->recency . ' Hari' : '-' }}
+                                                    </td>
+                                                    <td>
+                                                        <div
+                                                            style="width: 25px;height:25px;border-radius: 50%;background-color:{{ $category->color }};">
+                                                        </div>
+                                                    </td>
                                                     <td>{{ $category->sort_order }}</td>
                                                     <td> {{ $category->status_name }} </td>
                                                     <td>{{ $category->created_at }}</td>
                                                     <td>{{ $category->name }}</td>
-                                                    <td>{{ $category->updated_at ?: '-'}}</td>
+                                                    <td>{{ $category->updated_at ?: '-' }}</td>
                                                     <td>{{ $category->name }}</td>
                                                 </tr>
                                             @endforeach

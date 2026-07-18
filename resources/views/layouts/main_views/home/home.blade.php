@@ -198,288 +198,22 @@
                                             ->first();
 
                                     @endphp
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="image-wrapper">
-                                                @if ($img)
-                                                    <img class="products-img"
-                                                        src="{{ asset('storage/' . $img->images) }}" alt="">
-                                                @endif
-
-                                                <div class="image-overlay">
-                                                    <div class="form-favorite">
-                                                        <form action="{{ route('add_favorite') }}" method="POST">
-                                                            @csrf
-
-                                                            {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
-                                                            <input hidden type="text" name="product"
-                                                                value="{{ $item->product_code }}">
-                                                            <input hidden type="text" name="variant"
-                                                                value="{{ $item->variant_code }}">
-
-                                                            <button type="submit"
-                                                                style="background: none;border: none;"><i
-                                                                    style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
-                                                                    class="fa-regular fa-heart"></i></button>
-                                                        </form>
-                                                    </div>
-
-                                                    @if ($item->discount || $item->variant_discount)
-                                                        <span class="promo-badge">Promo</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <h2 class="product-name">{{ $item->product }}</h2>
-
-                                            <div class="product-price">
-                                                @if ($item->variant_price)
-                                                    @if ($item->variant_discount)
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->variant_price_after_discount) }}
-                                                            </p>
-                                                        </div>
-                                                    @else
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->variant_price) }}
-                                                            </p>
-                                                        </div>
-                                                    @endif
-                                                @else
-                                                    @if ($item->discount)
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->price_after_discount) }}</p>
-                                                        </div>
-                                                    @else
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->price) }}</p>
-                                                        </div>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                            <div class="btn-detail">
-                                                @if ($item->variant_code)
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->slug) }}">detail</a>
-                                                @else
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->slug) }}">detail</a>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="center">Produk tidak tersedia</div>
-                        @endif
-                    </div>
-
-                </div>
-
-                {{-- Tab Promo --}}
-                <div class="tab-pane fade" id="tab-promo" role="tabpanel">
-                    <div class="container-products">
-
-                        @if ($products_promo)
-                            <div class="grid-products">
-                                @foreach ($products_promo as $item)
-                                    @php
-                                        $img = DB::table('product_images')
-                                            ->where('product_code', $item->product_code)
-                                            ->first();
-
-                                    @endphp
-
-
-
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="image-wrapper">
-                                                @if ($img)
-                                                    <img class="products-img"
-                                                        src="{{ asset('storage/' . $img->images) }}" alt="">
-                                                @endif
-
-                                                <div class="image-overlay">
-                                                    <div class="form-favorite">
-                                                        <form action="{{ route('add_favorite') }}" method="POST">
-                                                            @csrf
-                                                            {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
-                                                            <input hidden type="text" name="product"
-                                                                value="{{ $item->product_code }}">
-                                                            <input hidden type="text" name="variant"
-                                                                value="{{ $item->variant_code }}">
-
-                                                            <button type="submit"
-                                                                style="background: none;border: none;"><i
-                                                                    style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
-                                                                    class="fa-regular fa-heart"></i></button>
-                                                        </form>
-                                                    </div>
-
-                                                    @if ($item->discount || $item->variant_discount)
-                                                        <span class="promo-badge">Promo</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <h2 class="product-name">{{ $item->product }}</h2>
-
-                                            <div class="product-price">
-                                                @if ($item->variant_price)
-                                                    @if ($item->variant_discount)
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->variant_price_after_discount) }}
-                                                            </p>
-                                                        </div>
-                                                    @else
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->variant_price) }}
-                                                            </p>
-                                                        </div>
-                                                    @endif
-                                                @else
-                                                    @if ($item->discount)
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->price_after_discount) }}</p>
-                                                        </div>
-                                                    @else
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->price) }}</p>
-                                                        </div>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                            <div class="btn-detail">
-                                                @if ($item->variant_code)
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->slug) }}">detail</a>
-                                                @else
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->slug) }}">detail</a>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                        @if($promo_bundling)
-                             <div class="grid-products">
-                                @foreach ($promo_bundling as $item)
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="image-wrapper">
-                                               
-                                                    <img class="products-img"
-                                                        src="{{ asset('storage/' . $item->images) }}" alt="">
-
-
-                                                <div class="image-overlay">
-                                                        <span class="promo-badge">Promo</span>
-                                                    
-                                                </div>
-                                            </div>
-
-                                            <h2 class="product-name">{{ $item->bundling_name }}</h2>
-
-                                            <div class="product-price">
-                                                        <div class="flex-price">
-                                                            <p class="price" style="margin:0;">Rp
-                                                                {{ number_format($item->price) }}
-                                                            </p>
-                                                        </div>
-                                            </div>
-
-                                            <div class="detail-product">
-                                                        <p> Detail item: </p>
-
-                                                        <div class="detail-info-product">
-
-                                                        <ul>
-                                                            @php
-                                                            $stockHabis = false;
-                                                            @endphp
-                                                                @foreach ($all_product as $prd )
-                                                                    @if($item->bundling_code == $prd->bundling_code)
-                                                                        @if($prd->stock_available <= 0)
-                                                                            @php
-                                                                                $stockHabis = true;
-                                                                            @endphp
-                                                                        @endif
-                                                                    <li style="font-size:14px;">{{ $prd->product_name }} &nbsp; x{{ $prd->quantity }}</li>
-                                                                    @endif
-                                                                 @endforeach
-                                                        </ul>
-                                                              
-                                                          </div>
-
-                                                          <div style="margin-bottom:10px;" class="info-stockempty">
-                                                              @if($stockHabis)
-                                                              <span style="font-size: 13px;" class="text-danger">*ada produk habis</span>
-                                                              @endif
-                                                          </div>
-
-                                                      </div>
-
-
-                                                     <div class="btn-detail">
-
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('promo', $item->bundling_code) }}">detail</a>
-
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="center">Produk tidak tersedia</div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- TAB PER CATEGORY --}}
-                @foreach ($category_products as $ctg)
-                    @php
-                        $tabId = Str::slug($ctg->category_name, '-');
-                        $filtered_products = $products->where('category', $ctg->category_name);
-                    @endphp
-
-                    <div class="tab-pane fade" id="tab-{{ $tabId }}" role="tabpanel">
-                        <div class="container-products">
-
-                            @if ($filtered_products->isNotEmpty())
-                                <div class="grid-products">
-                                    @foreach ($filtered_products as $item)
-                                        @php
-                                            $img = $image_product[$item->product_code]->images ?? null;
-                                        @endphp
-
+                                    <a class="direct-content" href="{{ route('product', $item->slug) }}">
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="image-wrapper">
-                                                    <img class="products-img"
-                                                        src="{{ $img ? asset('storage/' . $img) : asset('img/no-image.png') }}"
-                                                        alt="{{ $item->product }}">
+                                                    @if ($img)
+                                                        <img class="products-img"
+                                                            src="{{ asset('storage/' . $img->images) }}"
+                                                            alt="">
+                                                    @endif
 
                                                     <div class="image-overlay">
                                                         <div class="form-favorite">
                                                             <form action="{{ route('add_favorite') }}"
                                                                 method="POST">
                                                                 @csrf
+
                                                                 {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
                                                                 <input hidden type="text" name="product"
                                                                     value="{{ $item->product_code }}">
@@ -496,7 +230,6 @@
                                                         @if ($item->discount || $item->variant_discount)
                                                             <span class="promo-badge">Promo</span>
                                                         @endif
-
                                                     </div>
                                                 </div>
 
@@ -532,13 +265,267 @@
                                                         @endif
                                                     @endif
                                                 </div>
+                                            </div>
 
-                                                <div class="btn-detail">
-                                                    <a class="btn-detail-product"
-                                                        href="{{ route('product', $item->slug) }}">detail</a>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="center">Produk tidak tersedia</div>
+                        @endif
+                    </div>
+
+                </div>
+
+                {{-- Tab Promo --}}
+                <div class="tab-pane fade" id="tab-promo" role="tabpanel">
+                    <div class="container-products">
+
+                        @if ($products_promo)
+                            <div class="grid-products">
+                                @foreach ($products_promo as $item)
+                                    @php
+                                        $img = DB::table('product_images')
+                                            ->where('product_code', $item->product_code)
+                                            ->first();
+
+                                    @endphp
+
+
+                                    <a class="direct-content" href="{{ route('product', $item->slug) }}">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="image-wrapper">
+                                                    @if ($img)
+                                                        <img class="products-img"
+                                                            src="{{ asset('storage/' . $img->images) }}"
+                                                            alt="">
+                                                    @endif
+
+                                                    <div class="image-overlay">
+                                                        <div class="form-favorite">
+                                                            <form action="{{ route('add_favorite') }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
+                                                                <input hidden type="text" name="product"
+                                                                    value="{{ $item->product_code }}">
+                                                                <input hidden type="text" name="variant"
+                                                                    value="{{ $item->variant_code }}">
+
+                                                                <button type="submit"
+                                                                    style="background: none;border: none;"><i
+                                                                        style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
+                                                                        class="fa-regular fa-heart"></i></button>
+                                                            </form>
+                                                        </div>
+
+                                                        @if ($item->discount || $item->variant_discount)
+                                                            <span class="promo-badge">Promo</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <h2 class="product-name">{{ $item->product }}</h2>
+
+                                                <div class="product-price">
+                                                    @if ($item->variant_price)
+                                                        @if ($item->variant_discount)
+                                                            <div class="flex-price">
+                                                                <p class="price" style="margin:0;">Rp
+                                                                    {{ number_format($item->variant_price_after_discount) }}
+                                                                </p>
+                                                            </div>
+                                                        @else
+                                                            <div class="flex-price">
+                                                                <p class="price" style="margin:0;">Rp
+                                                                    {{ number_format($item->variant_price) }}
+                                                                </p>
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        @if ($item->discount)
+                                                            <div class="flex-price">
+                                                                <p class="price" style="margin:0;">Rp
+                                                                    {{ number_format($item->price_after_discount) }}
+                                                                </p>
+                                                            </div>
+                                                        @else
+                                                            <div class="flex-price">
+                                                                <p class="price" style="margin:0;">Rp
+                                                                    {{ number_format($item->price) }}</p>
+                                                            </div>
+                                                        @endif
+                                                    @endif
                                                 </div>
                                             </div>
+
                                         </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if ($promo_bundling)
+                            <div class="grid-products">
+                                @foreach ($promo_bundling as $item)
+                                    <a class="direct-content" href="{{ route('promo', $item->bundling_code) }}">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="image-wrapper">
+
+                                                    <img class="products-img"
+                                                        src="{{ asset('storage/' . $item->images) }}" alt="">
+
+
+                                                    <div class="image-overlay">
+                                                        <span class="promo-badge">Promo</span>
+
+                                                    </div>
+                                                </div>
+
+                                                <h2 class="product-name">{{ $item->bundling_name }}</h2>
+
+                                                <div class="product-price">
+                                                    <div class="flex-price">
+                                                        <p class="price" style="margin:0;">Rp
+                                                            {{ number_format($item->price) }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="detail-product">
+                                                    <p> Detail item: </p>
+
+                                                    <div class="detail-info-product">
+
+                                                        <ul>
+                                                            @php
+                                                                $stockHabis = false;
+                                                            @endphp
+                                                            @foreach ($all_product as $prd)
+                                                                @if ($item->bundling_code == $prd->bundling_code)
+                                                                    @if ($prd->stock_available <= 0)
+                                                                        @php
+                                                                            $stockHabis = true;
+                                                                        @endphp
+                                                                    @endif
+                                                                    <li style="font-size:14px;">
+                                                                        {{ $prd->product_name }}
+                                                                        &nbsp; x{{ $prd->quantity }}</li>
+                                                                @endif
+                                                            @endforeach
+                                                        </ul>
+
+                                                    </div>
+
+                                                    <div style="margin-bottom:10px;" class="info-stockempty">
+                                                        @if ($stockHabis)
+                                                            <span style="font-size: 13px;" class="text-danger">*ada
+                                                                produk
+                                                                habis</span>
+                                                        @endif
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="center">Produk tidak tersedia</div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- TAB PER CATEGORY --}}
+                @foreach ($category_products as $ctg)
+                    @php
+                        $tabId = Str::slug($ctg->category_name, '-');
+                        $filtered_products = $products->where('category', $ctg->category_name);
+                    @endphp
+
+                    <div class="tab-pane fade" id="tab-{{ $tabId }}" role="tabpanel">
+                        <div class="container-products">
+
+                            @if ($filtered_products->isNotEmpty())
+                                <div class="grid-products">
+                                    @foreach ($filtered_products as $item)
+                                        @php
+                                            $img = $image_product[$item->product_code]->images ?? null;
+                                        @endphp
+
+                                        <a class="direct-content" href="{{ route('product', $item->slug) }}">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="image-wrapper">
+                                                        <img class="products-img"
+                                                            src="{{ $img ? asset('storage/' . $img) : asset('img/no-image.png') }}"
+                                                            alt="{{ $item->product }}">
+
+                                                        <div class="image-overlay">
+                                                            <div class="form-favorite">
+                                                                <form action="{{ route('add_favorite') }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    {{-- UBAH INI PAKAI VARIANT CODE DAN PRODUCT_CODE --}}
+                                                                    <input hidden type="text" name="product"
+                                                                        value="{{ $item->product_code }}">
+                                                                    <input hidden type="text" name="variant"
+                                                                        value="{{ $item->variant_code }}">
+
+                                                                    <button type="submit"
+                                                                        style="background: none;border: none;"><i
+                                                                            style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
+                                                                            class="fa-regular fa-heart"></i></button>
+                                                                </form>
+                                                            </div>
+
+                                                            @if ($item->discount || $item->variant_discount)
+                                                                <span class="promo-badge">Promo</span>
+                                                            @endif
+
+                                                        </div>
+                                                    </div>
+
+                                                    <h2 class="product-name">{{ $item->product }}</h2>
+
+                                                    <div class="product-price">
+                                                        @if ($item->variant_price)
+                                                            @if ($item->variant_discount)
+                                                                <div class="flex-price">
+                                                                    <p class="price" style="margin:0;">Rp
+                                                                        {{ number_format($item->variant_price_after_discount) }}
+                                                                    </p>
+                                                                </div>
+                                                            @else
+                                                                <div class="flex-price">
+                                                                    <p class="price" style="margin:0;">Rp
+                                                                        {{ number_format($item->variant_price) }}
+                                                                    </p>
+                                                                </div>
+                                                            @endif
+                                                        @else
+                                                            @if ($item->discount)
+                                                                <div class="flex-price">
+                                                                    <p class="price" style="margin:0;">Rp
+                                                                        {{ number_format($item->price_after_discount) }}
+                                                                    </p>
+                                                                </div>
+                                                            @else
+                                                                <div class="flex-price">
+                                                                    <p class="price" style="margin:0;">Rp
+                                                                        {{ number_format($item->price) }}</p>
+                                                                </div>
+                                                            @endif
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
                                     @endforeach
                                 </div>
                             @else
@@ -635,6 +622,12 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
+
+<style>
+    a.direct-content {
+        text-decoration: none;
+    }
+</style>
 
 
 </html>

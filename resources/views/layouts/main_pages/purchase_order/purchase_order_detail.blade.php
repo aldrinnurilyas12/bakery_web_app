@@ -35,7 +35,7 @@
                             @if ($purchase_order->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('category_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('category_create') }}">Tambah
                                             Purchase Order</a>
                                     </div>
                                 @endif

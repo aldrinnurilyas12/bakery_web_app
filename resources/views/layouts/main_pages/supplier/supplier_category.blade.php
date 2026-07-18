@@ -28,10 +28,15 @@
                     <br>
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
-
                             <div class="title">
-                                Master Data / <a href="{{ route('supplier.index') }}">Supplier Kategori</a>
+                                Inventory > <strong> Supplier Kategori</strong>
                             </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('supplier.index') }}">Kembali</a>
+                            </div>
+
                             @if ($supplier_category->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div style="display: flex; gap:10px;" class="flex-btn">
@@ -41,8 +46,8 @@
                                             </a>
                                         </div>
                                         <div class="button-add-product">
-                                            <a class="btn btn-primary"
-                                                href="{{ route('category_supplier_create') }}">Tambah Kategori
+                                            <a class="btn-general" href="{{ route('category_supplier_create') }}">Tambah
+                                                Kategori
                                                 Supplier</a>
                                         </div>
                                     </div>

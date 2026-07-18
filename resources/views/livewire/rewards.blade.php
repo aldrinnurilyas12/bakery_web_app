@@ -5,6 +5,7 @@
     <title>Kencana Bakery - Master Data Rewards</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <div>
@@ -20,7 +21,7 @@
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('master_products.index') }}">Rewards Data Store</a>
+                        Master Data > Rewards > <strong> Rewards Data Store </strong>
                     </div>
 
                     <div style="display: flex;gap:10px;" class="flex-content">
@@ -30,7 +31,11 @@
                                 <div style="display: flex;gap:10px;" class="button-add-product">
                                     <a class="btn btn-info" href="{{ route('master_rewards.index') }}">Master Data
                                         Rewards</a>
-                                    <a class="btn btn-primary" href="{{ route('rewards_create') }}">Tambah Rewards</a>
+
+                                    <div class="button-add-product">
+                                        <a class="btn-general" href="{{ route('rewards_create') }}">Tambah
+                                            Rewards</a>
+                                    </div>
                                 </div>
                             @endif
                         @endif
@@ -82,6 +87,15 @@
 
                 <div class="card-body">
                     <div wire:poll.keep.alive.2s>
+                        @php
+                            $checkRedeemReward = DB::table('redeem_reward as rr')
+                                ->leftJoin('rewards_store as rs', 'rr.reward', '=', 'rs.reward_store_code')
+                                ->join('rewards as r', 'rs.reward', '=', 'r.rewards_code')
+                                ->whereNotNull('rs.reward')
+                                ->pluck('r.rewards_code')
+                                ->toArray();
+
+                        @endphp
 
                         @if ($rewards->isNotEmpty())
                             <div style="display: flex; flex-wrap: wrap; gap:10px;">
@@ -145,12 +159,12 @@
                                         </div>
                                         @if (!$user_permission_forbidden)
                                             <div class="card-footer d-flex align-items-center justify-content-between">
-                                                <a class="small text-black"
+                                                {{-- <a class="small text-black"
                                                     href="{{ route('rewards_update', $reward->reward_store_code) }}">Edit
-                                                    in store</a>
+                                                    in store</a> --}}
 
                                                 @if ($reward->status_name == 'Active')
-                                                    <a class="btn btn-danger" data-toggle="modal"
+                                                    <a class="btn btn-warning" data-toggle="modal"
                                                         data-target="#deleteModalRewards-{{ $reward->rewards_code }}-{{ $reward->store_code }}">
                                                         Nonaktifkan
                                                     </a>
@@ -160,12 +174,19 @@
                                                         Aktifkan
                                                     </a>
                                                 @endif
-                                            </div>
 
-                                            <div class="card-footer d-flex align-items-center justify-content-between">
-                                                <a class="small text-black"
-                                                    href="{{ route('rewards_master_update', $reward->rewards_code) }}">Edit
-                                                    Master Data</a>
+                                                <div style="display:flex; gap:10px;justify-content: space-between;"
+                                                    class="btn-flex">
+                                                    <div class="btn">
+                                                        @if (in_array($reward->rewards_code, $checkRedeemReward))
+                                                        @else
+                                                            <a class="btn btn-danger" href="#" data-toggle="modal"
+                                                                data-target="#deleteModal{{ $reward->rewards_code }}">Hapus</a>
+                                                        @endif
+                                                        <a class="btn btn-primary"
+                                                            href="{{ route('rewards_master_update', $reward->rewards_code) }}">Edit</a>
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -243,16 +264,56 @@
                             </div>
                             <br>
 
-                            @if ($reward->status_name == 'Active')
-                                <button class="btn btn-danger" type="submit">Nonaktifkan</button>
-                            @else
-                                <button class="btn btn-primary" type="submit">Aktifkan</button>
-                            @endif
 
-                        </form>
                     </div>
 
                     <div class="modal-footer">
+                        @if ($reward->status_name == 'Active')
+                            <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                        @else
+                            <button class="btn btn-primary" type="submit">Aktifkan</button>
+                        @endif
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    {{-- delete --}}
+    @foreach ($rewards as $reward)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $reward->rewards_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $reward->rewards_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Hapus Reward</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        Apakah anda yakin ingin hapus
+                        {{ $reward->rewards_code }} - {{ $reward->rewards_name }}
+                        ?
+                        <br>
+                        <br>
+                        <form method="POST" action="{{ route('rewards_delete', $reward->rewards_code) }}">
+                            @csrf
+                            @method('DELETE')
+                            <div class="form-group">
+                                <input type="text" name="rewards_code" value="{{ $reward->rewards_code }}"
+                                    hidden>
+                            </div>
+                            <br>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-danger" type="submit">Hapus</button>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -36,6 +36,24 @@
                 </div>
 
                 <hr class="hr-menu">
+                <form action="{{ route('transaction_get') }}" method="GET" enctype="multipart/form-data">
+                    <div style="display:flex; gap:15px;margin-bottom: 15px;" class="filter-history">
+
+                        <div class="start-date">
+                            <label for=""><strong>Tanggal awal</strong></label>
+                            <input type="date" name="start_date" class="form-control">
+                        </div>
+
+                        <div class="start-date">
+                            <label for=""><strong>Tanggal akhir</strong></label>
+                            <input type="date" name="end_date" class="form-control">
+                        </div>
+
+                        <div style="align-content: end;" class="btn-submit">
+                            <button type="submit" class="btn-general">Pilih</button>
+                        </div>
+                    </div>
+                </form>
 
                 <div class="grid" role="tablist">
 
@@ -227,7 +245,7 @@
                         <div class="modal-body">
 
 
-                            <div style="overflow-y: auto;" class="product-content-review">
+                            <div style="overflow-y: auto;height:300px;" class="product-content-review">
                                 @foreach ($products_detail as $prd)
                                     @if ($history->transaction_code == $prd->transaction_code)
                                         <div style="display: flex; gap:20px;" class="felx-content-image">
@@ -278,15 +296,55 @@
                                 <br>
                                 <label for=""><small>*Nama anda tidak akan terlihat</small></label>
                                 <div style="display:block;" class="block-content">
-                                    <input type="radio" value="Y" name="hidden_name"> Ya
-                                    <br>
-                                    <input type="radio" value="N" name="hidden_name"> Tidak
+                                    <input type="checkbox" value="Y" name="hidden_name"> Sembunyikan nama saya
                                 </div>
                             </div>
+
+
+                            <div class="form-group">
+                                <label style="font-size:15px;" for=""><strong>Anda ingin memberikan Kritik dan
+                                        Saran?</strong></label>
+                                <div style="display:block;" class="block-content">
+                                    <input type="checkbox" class="customer_feedback" value="Y"> Ya
+                                </div>
+                            </div>
+
+                            <div class="show-feedback" style="display:none;">
+
+                                <div class="form-group">
+                                    <input type="text" name="transaction"
+                                        value="{{ $history->transaction_code }}" hidden>
+                                    <label style="font-size:15px;" for=""><strong>Kategori</strong></label>
+                                    <div style="display: block;" class="input-category">
+                                        <div class="input-content">
+                                            <input type="checkbox" value="facility" name="feedback_type[]"> Fasilitas
+                                        </div>
+                                        <div class="input-content">
+                                            <input type="checkbox" value="services" name="feedback_type[]"> Layanan &
+                                            Pelayanan
+                                        </div>
+                                        <div class="input-content">
+                                            <input type="checkbox" value="product" name="feedback_type[]"> Produk &
+                                            Kemasan
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="font-size:15px;" for=""><strong>Berikan kritik dan
+                                            saran</strong></label>
+                                    <div style="display:block;" class="block-content">
+                                        <textarea name="feedback_message" class="form-control" id="" cols="30" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+
                         </div>
                         <div class="modal-footer">
                             <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
-                                    class="btn-text">Berikan ulasan & Rating</span>
+                                    class="btn-text">Kirim</span>
                                 <span class="spinner"></span></button>
                     </form>
                 </div>
@@ -294,7 +352,19 @@
         </div>
         </div>
     @endforeach
+
+    <script>
+        $(document).on('change', '.customer_feedback', function() {
+            $(this)
+                .closest('.modal-content') // atau .modal-body sesuai struktur Anda
+                .find('.show-feedback')
+                .toggle(this.checked);
+        });
+    </script>
+
 </body>
+
+
 
 @if (Session::has('message_success'))
     <script>

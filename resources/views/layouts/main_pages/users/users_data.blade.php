@@ -31,12 +31,12 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_products.index') }}">Akun Pengguna</a>
+                                Master Data > <strong>Akun Pengguna</strong>
                             </div>
 
                             @if ($v_users->isNotEmpty())
                                 <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('users_register_account') }}">Tambah
+                                    <a class="btn-general" href="{{ route('users_register_account') }}">Tambah
                                         Pengguna</a>
                                 </div>
                             @endif
@@ -151,6 +151,7 @@
                     </div>
                     <div class="modal-body">Ubah status Akun {{ $user->username }}
                         <br>
+                        <br>
                         <form method="POST" action="{{ route('user_active_update', $user->nik) }}">
                             @csrf
                             @method('PUT')
@@ -162,7 +163,7 @@
                             </select>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" type="submit">Simpan</button>
+                        <button class="btn-general" type="submit">Simpan Perubahan</button>
                         </form>
                     </div>
                 </div>

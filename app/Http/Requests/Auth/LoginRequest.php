@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use App\Mail\VerificationUsersAccount;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
+use App\Services\UserLogActivity;
+use App\Models\UserLogActivities;
 
 
 class LoginRequest extends FormRequest
@@ -81,6 +83,11 @@ class LoginRequest extends FormRequest
             );
 
         $result = $response->json();
+
+
+        $nik = DB::table('users')->where('username', $login)->orWhere('email', $login)->first();
+
+
 
         if (!($result['success'] ?? false)) {
             return back()->withErrors([
@@ -153,6 +160,16 @@ class LoginRequest extends FormRequest
                             ->join('employee as e', 'u.nik', '=', 'e.nik')
                             ->join('job_position as jp', 'e.position', '=', 'jp.position_code')
                             ->where('u.email', $user_available->email)->first();
+
+        UserLogActivities::create([
+            'user' => $nik->nik,
+            'module' => 'Session Login',
+            'method_type' => 'LOGIN',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'activity_date' => now(),
+            'description' => 'User Login to Web'
+        ]);
 
         // Jika semua pemeriksaan berhasil, login pengguna
         Auth::login($user_available);

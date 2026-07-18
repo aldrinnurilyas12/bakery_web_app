@@ -32,7 +32,7 @@
     <table>
         <tr>
             <td align="left">
-                Invoice No: {{ $invoice->transaction_code }}
+                No.Invoice: {{ $invoice->transaction_code }}
             </td>
             <td align="right">
                 <span class="success-message">Transaksi Berhasil</span>
@@ -58,15 +58,24 @@
     <div class="line"></div>
 
     @php
-
         $total_qty = DB::table('transactions_detail')
             ->where('transaction_code', $invoice->transaction_code)
             ->sum('quantity_per_product');
 
         $bundling = DB::table('transactions_bundling as tb')
             ->join('promo_bundling as pb', 'tb.bundling', '=', 'pb.bundling_code')
-            ->select('pb.bundling_name', 'pb.price as bundling_price', 'pb.images', DB::raw('COUNT(*) as total_qty'))
-            ->where('tb.transaction', $invoices->first()->transaction_code)
+            ->select(
+                'pb.bundling_name',
+                'pb.price as bundling_price',
+                'pb.images',
+                DB::raw("
+            (SELECT COUNT(*)
+                FROM transactions_detail td
+                WHERE td.transaction_code = '{$invoice->transaction_code}'
+                  AND td.promo_bundling IS NOT NULL)
+as total_qty_bundle"),
+            )
+            ->where('tb.transaction', $invoice->transaction_code)
             ->groupBy('pb.bundling_name', 'pb.price', 'pb.images')
             ->first();
 
@@ -77,62 +86,123 @@
                 ->join('promo_bundling as pb', 'tb.bundling', '=', 'pb.bundling_code')
                 ->join('promo_bundling_detail as pd', 'pb.bundling_code', '=', 'pd.bundling_code')
                 ->join('products as p', 'pd.product', '=', 'p.product_code')
+                ->join('transactions_detail as td', function ($join) use ($invoice) {
+                    $join
+                        ->on('td.promo_bundling', '=', 'pb.bundling_code')
+                        ->on('td.product', '=', 'pd.product')
+                        ->where('td.transaction_code', '=', $invoice->transaction_code);
+                })
                 ->select(
                     'pb.bundling_name',
                     'pb.bundling_code',
                     'pb.price as bundling_price',
                     'pd.product',
                     'pd.quantity as qty_bundling',
+                    'td.quantity_per_product',
                     'p.product_name',
                 )
-                ->where('tb.transaction', $invoices->first()->transaction_code)
+                ->distinct()
+                ->where('tb.transaction', $invoice->transaction_code)
                 ->get();
         }
+
+        /*
+|--------------------------------------------------------------------------
+| Produk Non Bundling
+|--------------------------------------------------------------------------
+*/
+        $nonBundling = DB::table('transactions_detail as td')
+            ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+            ->where('td.transaction_code', $invoice->transaction_code)
+            ->whereNull('td.promo_bundling')
+            ->get();
     @endphp
 
     <table>
+        <thead>
+            <tr>
+                <th style="width:15%; text-align:center;">Jumlah</th>
+                <th style="width:60%; text-align:left;">Nama Item</th>
+                <th style="width:25%; text-align:right;">Harga</th>
+            </tr>
+        </thead>
+
         <tbody>
+
+            {{-- Bundling --}}
             @if ($bundling)
                 <tr>
-                    <td class="qty">{{ $bundling->total_qty }}</td>
+                    <td class="qty" style="text-align:center;">
+                        {{ $bundling->total_qty_bundle }}
+                    </td>
+
                     <td class="product">
-                        <strong>{{ $bundling->bundling_name }}</strong>
+                        {{ $bundling->bundling_name }}
 
                         @if ($product_bundling->count())
-                            <ul style="margin: 5px 0 0 15px; padding: 0;">
+                            <ul style="margin:5px 0 0 18px;padding:0;">
                                 @foreach ($product_bundling as $pb)
-                                    <li>{{ $pb->product_name }} × {{ $pb->qty_bundling }}</li>
+                                    <li>{{ $pb->product_name }} × {{ $pb->quantity_per_product }}</li>
                                 @endforeach
                             </ul>
                         @endif
                     </td>
-                    <td class="price">
+
+                    <td class="price" style="text-align:right;">
                         {{ 'Rp. ' . number_format($bundling->bundling_price, 0, ',', '.') }}
                     </td>
                 </tr>
             @endif
 
-            @foreach ($invoices as $inv)
-                @if ($inv->promo_bundling != 'Y')
-                    <tr>
-                        <td class="qty">{{ $inv->quantity_per_product }}</td>
-                        <td class="product">{{ $inv->product_name }}</td>
-                        <td class="price">{{ 'Rp.' . number_format($inv->price) }}</td>
-                    </tr>
-                @endif
+            {{-- Produk Non Bundling --}}
+            @foreach ($nonBundling as $inv)
+                <tr>
+                    <td class="qty" style="text-align:center;">
+                        {{ $inv->quantity_per_product }}
+                    </td>
+
+                    <td class="product">
+                        {{ $inv->product_name }}
+                    </td>
+
+                    <td class="price" style="text-align:right;">
+                        {{ 'Rp. ' . number_format($inv->price, 0, ',', '.') }}
+                    </td>
+                </tr>
             @endforeach
+
         </tbody>
     </table>
 
     <div class="line"></div>
 
     <table class="summary">
-        @if ($invoice->payment_type == 'Cash/Tunai')
+
+        <tr>
+            <td>Total Item</td>
+            <td class="text-right">{{ $total_qty }}</td>
+        </tr>
+        @if ($invoice->voucher_code_used)
             <tr>
-                <td>Total Item</td>
-                <td class="text-right">{{ $total_qty }}</td>
+                <td>Kode E-Voucher</td>
+                <td class="text-right">{{ $invoice->voucher_code_used }}</td>
             </tr>
 
+            <tr>
+                <td>Potongan</td>
+                @if ($invoice->discount)
+                    <td class="text-right"><span class="failed-message">{{ '-' . $invoice->discount . '%' }}</span>
+                    </td>
+                @elseif($invoice->nominal)
+                    <td>Potongan</td>
+                    <td class="text-right"><span
+                            class="failed-message">{{ '-' . 'Rp.' . number_format($invoice->nominal) }}</span></td>
+                @else
+                    <td class="text-right">-</td>
+                @endif
+            </tr>
+        @endif
+        @if ($invoice->payment_type == 'Cash/Tunai')
             <tr>
                 <td>Pembayaran</td>
                 <td class="text-right">{{ $invoice->payment_type }}</td>
@@ -147,25 +217,20 @@
                 <td>Kembalian</td>
                 <td class="text-right">{{ 'Rp.' . number_format($invoice->payment_changes) }}</td>
             </tr>
-
-            <tr>
-                <td><strong>Grand Total</strong></td>
-                <td class="text-right"><strong>{{ 'Rp.' . number_format($invoice->grand_total) }}</strong></td>
-            </tr>
         @else
-            <tr>
-                <td>Total Item</td>
-                <td class="text-right">{{ $total_qty }}</td>
-            </tr>
             <tr>
                 <td>Pembayaran</td>
                 <td class="text-right">{{ $invoice->payment_type }}</td>
             </tr>
-            <tr>
-                <td><strong>Grand Total</strong></td>
-                <td class="text-right"><strong>{{ 'Rp.' . number_format($invoice->grand_total) }}</strong></td>
-            </tr>
         @endif
+        <tr>
+            <td><strong>Sub Total</strong></td>
+            <td class="text-right"><strong>{{ 'Rp.' . number_format($invoice->subtotal) }}</strong></td>
+        </tr>
+        <tr>
+            <td><strong>Grand Total</strong></td>
+            <td class="text-right"><strong>{{ 'Rp.' . number_format($invoice->grand_total) }}</strong></td>
+        </tr>
     </table>
 
     <div class="line"></div>
@@ -224,6 +289,10 @@
         border-radius: 4px;
         border: 1px solid green;
         color: green;
+    }
+
+    span.failed-message {
+        color: rgb(255, 0, 0);
     }
 
     .text-center {

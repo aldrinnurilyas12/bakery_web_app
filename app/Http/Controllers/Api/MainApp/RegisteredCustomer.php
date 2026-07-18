@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\MainApp;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountEmailVerification;
 use App\Models\CustomerModel;
+use App\Services\CustomerNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
@@ -18,6 +19,7 @@ use BaconQrCode\Renderer\Image\EpsImageBackEnd;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class RegisteredCustomer extends Controller
 {
@@ -84,8 +86,8 @@ class RegisteredCustomer extends Controller
             'https://www.google.com/recaptcha/api/siteverify',
                 [
                     'secret'   => config('services.recaptcha.secret_key'),
-                    'response' => $this->input('g-recaptcha-response'),
-                    'remoteip' => $this->ip(),
+                    'response' => request()->input('g-recaptcha-response'),
+                    'remoteip' => request()->ip(),
                 ]
             );
 
@@ -138,11 +140,21 @@ class RegisteredCustomer extends Controller
             'created_at' => now()
         ]);
 
-        Mail::to($request->email)->sendNow(new AccountEmailVerification([
-            'email' => $data->email,
-            'customer_code' => $data->customer_code,
-            'name' => $data->name
-        ]));
+       
+            Mail::to($request->email)->sendNow(new AccountEmailVerification([
+                'email' => $data->email,
+                'customer_code' => $data->customer_code,
+                'name' => $data->name
+            ]));
+
+
+       CustomerNotification::log(
+            customer: $customer_code,
+            title: 'Daftar Akun',
+            message:'Anda telah berhasil daftar akun!',
+            category: 3,
+            is_read: 'N'
+        );
 
         session()->flash('message_success', 'Berhasil daftar akun, Silahkan Verifikasi akun anda.');
         return redirect()->route('login_app');

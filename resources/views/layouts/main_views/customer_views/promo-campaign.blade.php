@@ -36,7 +36,7 @@
                             <div class="card-reward">
                                 <div class="body-reward"
                                     style="width:max-content; box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:10px;margin:10px;">
-                                    <div style="display: flex; gap:10px;" class="image-content">
+                                    <div style="display: flex; gap:10px;margin-bottom: 10px;" class="image-content">
                                         <img width="90" height="120" src="{{ url('storage/' . $promo->images) }}"
                                             alt="">
                                         <div class="content-text">
@@ -51,12 +51,12 @@
                                                 <small>
                                                     {{ \Carbon\Carbon::parse($promo->end_date)->format('Y-m-d') }}</small>
                                             </div>
-                                            <div class="btn-redeem-point">
-                                                <a style="background:#bb0239;color:white; border:none;width:100%;"
-                                                    href="{{ route('promo-detail', $promo->promo_code) }}"
-                                                    class="btn btn-primary">Lihat promo</a>
-                                            </div>
                                         </div>
+                                    </div>
+                                    <div class="btn-redeem-point">
+                                        <a style="background:#bb0239;color:white; border:none;width:100%;"
+                                            href="{{ route('promo-detail', $promo->promo_code) }}"
+                                            class="btn btn-primary">Lihat promo</a>
                                     </div>
                                 </div>
                                 {{-- <div class="card-footer d-flex align-items-center justify-content-between">

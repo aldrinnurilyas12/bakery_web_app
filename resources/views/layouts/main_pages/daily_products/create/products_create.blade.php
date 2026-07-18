@@ -25,10 +25,15 @@
                     <hr>
                     <div style="display: flex;justify-content: space-between;" class="card-header">
                         <div class="btn-back">
-                             &nbsp; <a class="btn btn-primary" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                            &nbsp; <a class="btn btn-primary" href="{{ route('dailyproducts_data') }}">Kembali</a>
                         </div>
-                       
-                         @if ($module_documentation)
+
+                        <div class="btn-back">
+                            &nbsp; <a class="btn btn-primary" href="{{ route('central_stock_products.index') }}">Stok
+                                Produk Pusat</a>
+                        </div>
+
+                        @if ($module_documentation)
                             <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
                                 class="documentation-module">
                                 <a title="Dokumentasi Modul"
@@ -36,7 +41,7 @@
                                     <i aria-label="Module Documentation" class="fa fa-file"></i>
                                 </a>
                             </div>
-                         @endif
+                        @endif
                     </div>
                     <hr>
                     <div style="font-size: 13px;" class="alert alert-info">
@@ -49,6 +54,7 @@
                                 Supervisor.</li>
                             <li>Penghapusan Product Daily hanya dapat dilakukan oleh Admin.</li>
                             <li>Produk akan muncul ketika masa Produksi Produk sudah selesai</li>
+                            <li>Input Produk Daily hanya tanggal expired belum lewat</li>
                         </ul>
                     </div>
                     <form id="formGeneralMaster" action="{{ route('master_daily_products.store') }}" method="POST"
@@ -69,7 +75,7 @@
                                     <option value="">==== Pilih Produk ====</option>
                                     @foreach ($products as $item)
                                         <option value="{{ $item->distribution_store_code }}">
-                                            {{ $item->distribution_store_code . ' - ' . '[' . $item->product . ($item->variant ? ' - ' . $item->variant : '') . ']' }}
+                                            {{ $item->distribution_store_code . ' - ' . '[ ' . $item->product . ($item->variant ? ' - ' . $item->variant : '') . ' ]' . ' - ' . '[' . ' Tgl Expired: ' . \Carbon\carbon::parse($item->expired_date)->format('d M Y') . ' ]' }}
                                         </option>
                                     @endforeach
                                 </select>

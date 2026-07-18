@@ -36,6 +36,13 @@ class DistributionProducts extends Controller
      */
     public function distribution_create()
     {
+        $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
+        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager', 'Casheer']);
+        if($user_permission_forbidden){
+            session()->flash('failed_message', 'Tidak bisa akses');
+            return redirect()->back();
+        }
+
         $products = DB::table('v_central_stock_products')->get();
         $stores = DB::table('store')->get();
         return view('layouts.main_pages.distribution_products.create.distribution_create', compact('products', 'stores'));

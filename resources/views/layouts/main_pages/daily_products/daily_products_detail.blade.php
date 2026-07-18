@@ -33,10 +33,12 @@
                                 Master Data / <a href="{{ route('master_category.index') }}">Produk Daily Detail</a>
                             </div>
                             @if ($daily_products->isNotEmpty())
-                               Store : {{ $daily_products->first()->store_name }}
+                                Store : {{ $daily_products->first()->store_name }}
                             @endif
                         </div>
-                        <hr>
+                        <div class="card-header">
+                            <a class="btn btn-primary" href="{{ route('dailyproducts_data') }}">Kembali</a>
+                        </div>
                         <div style="font-size: 13px;" class="alert alert-info">
                             <ul>
                                 <li>Nonaktifkan Produk Daily jika produk sudah melewati masa batas Expired
@@ -63,116 +65,125 @@
                                             @foreach ($daily_products as $key => $daily)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    @if($daily->status_expired == 'Expired' && $daily->expired_status == 'N')
-                                                    <td><a class="btn-general" href="../#" data-toggle="modal"
-                                                        data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Konfirmasi Expired</a></td>
+                                                    @if ($daily->status_expired == 'Expired' && $daily->expired_status == 'N')
+                                                        <td><a class="btn-general" href="../#" data-toggle="modal"
+                                                                data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Konfirmasi
+                                                                Expired</a></td>
                                                     @elseif($daily->status_expired == 'Hampir Expired' && $daily->expired_status == 'N')
-                                                    <td><a class="btn-general" href="../#" data-toggle="modal"
-                                                        data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Konfirmasi Expired</a></td>
+                                                        <td><a class="btn-general" href="../#" data-toggle="modal"
+                                                                data-target="#showUpdateExp{{ $daily->distribution_store_code }}">Konfirmasi
+                                                                Expired</a></td>
                                                     @elseif($daily->status_expired == 'Aman' && $daily->expired_status == 'N')
-                                                       <td><i style="color:green;" class="fas fa-check-square"></i><span> Aman</span></td>
+                                                        <td><i style="color:green;"
+                                                                class="fas fa-check-square"></i><span> Aman</span></td>
                                                     @else
-                                                    <td><i style="color:green;" class="fas fa-check-square"></i><span> Konfirmasi Expired</span></td>
+                                                        <td><i style="color:green;"
+                                                                class="fas fa-check-square"></i><span> Konfirmasi
+                                                                Expired</span></td>
                                                     @endif
 
-                                                     <td>
-                                                       <table class="table table-bordered">
-                                                        <tbody>
-                                                              <tr>
-                                                                <th>SKU Produk</th>
-                                                                <td>{{ $daily->product }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Produk</th>
-                                                                <td>{{ $daily->product_name }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Variant</th>
-                                                                <td>{{ $daily->variant_name ?: '-' }}</td>
-                                                            </tr>
-                                                            
+                                                    <td>
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>SKU Produk</th>
+                                                                    <td>{{ $daily->product }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Produk</th>
+                                                                    <td>{{ $daily->product_name }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Variant</th>
+                                                                    <td>{{ $daily->variant_name ?: '-' }}</td>
+                                                                </tr>
 
-                                                            <tr>
-                                                                <th>Produk Daily</th>
-                                                                <td>@if($daily->product_daily == 'Y')
-                                                                    <span>Ya</span>
-                                                                    @elseif($daily->product_daily == 'N')
-                                                                    <span>Tidak</span>
-                                                                    @else
-                                                                    <span>Belum</span>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
 
-                                                              <tr>
-                                                                <th>Tanggal Expired</th>
-                                                                <td>{{ \Carbon\carbon::parse($daily->expired_date)->format('d M Y') }}</td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <th>Produk Daily</th>
+                                                                    <td>
+                                                                        @if ($daily->product_daily == 'Y')
+                                                                            <span>Ya</span>
+                                                                        @elseif($daily->product_daily == 'N')
+                                                                            <span>Tidak</span>
+                                                                        @else
+                                                                            <span>Belum</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
 
-                                                            <tr>
-                                                                <th>Status Expired</th>
-                                                                <td>
-                                                                    @if($daily->status_expired == 'Expired')
-                                                                    <span class="text-danger">Expired</span>
-                                                                    @elseif($daily->status_expired == 'Hampir Expired')
-                                                                    <span class="text-info">Hampir Expired</span>
-                                                                    @else
-                                                                    <span class="text-success">Aman</span>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <th>Tanggal Expired</th>
+                                                                    <td>{{ \Carbon\carbon::parse($daily->expired_date)->format('d M Y') }}
+                                                                    </td>
+                                                                </tr>
 
-                                                        </tbody>
-                                                    </table>
+                                                                <tr>
+                                                                    <th>Status Expired</th>
+                                                                    <td>
+                                                                        @if ($daily->status_expired == 'Expired')
+                                                                            <span class="text-danger">Expired</span>
+                                                                        @elseif($daily->status_expired == 'Hampir Expired')
+                                                                            <span class="text-info">Hampir
+                                                                                Expired</span>
+                                                                        @else
+                                                                            <span class="text-success">Aman</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                            </tbody>
+                                                        </table>
                                                     </td>
 
                                                     <td>
-                                                       <table class="table table-bordered">
-                                                        <tbody>
-                                                            <tr>
-                                                                <th>Kode Daily</th>
-                                                                <td>{{ $daily->daily_code }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Kode Distribusi</th>
-                                                                <td>{{ $daily->distribution }}</td>
-                                                            </tr>
-                                                            
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>Kode Daily</th>
+                                                                    <td>{{ $daily->daily_code }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Kode Distribusi</th>
+                                                                    <td>{{ $daily->distribution }}</td>
+                                                                </tr>
 
-                                                            <tr>
-                                                                <th>Kode Distribusi Store</th>
-                                                                <td>{{ $daily->distribution_store_code }}</td>
-                                                            </tr>
 
-                                                             <tr>
-                                                                <th>Tanggal Diterima</th>
-                                                                <td>{{ \Carbon\carbon::parse($daily->received_date)->format('d M Y h:i:s') }}</td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <th>Kode Distribusi Store</th>
+                                                                    <td>{{ $daily->distribution_store_code }}</td>
+                                                                </tr>
 
-                                                        </tbody>
-                                                    </table>
+                                                                <tr>
+                                                                    <th>Tanggal Diterima</th>
+                                                                    <td>{{ \Carbon\carbon::parse($daily->received_date)->format('d M Y h:i:s') }}
+                                                                    </td>
+                                                                </tr>
+
+                                                            </tbody>
+                                                        </table>
                                                     </td>
 
-                                                     <td>
-                                                       <table class="table table-bordered">
-                                                        <tbody>
-                                                            <tr>
-                                                                <th>Quantity</th>
-                                                                <td>{{ $daily->quantity }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th>Total Diterima</th>
-                                                                <td>{{ $daily->received_quantity }}</td>
-                                                            </tr>
-                                                            
+                                                    <td>
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>Quantity</th>
+                                                                    <td>{{ $daily->quantity }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Total Diterima</th>
+                                                                    <td>{{ $daily->received_quantity }}</td>
+                                                                </tr>
 
-                                                            <tr>
-                                                                <th>Total Reject</th>
-                                                                <td>{{ $daily->reject_quantity }}</td>
-                                                            </tr>
 
-                                                        </tbody>
-                                                    </table>
+                                                                <tr>
+                                                                    <th>Total Reject</th>
+                                                                    <td>{{ $daily->reject_quantity }}</td>
+                                                                </tr>
+
+                                                            </tbody>
+                                                        </table>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -209,8 +220,8 @@
     </div>
 
     @foreach ($daily_products as $daily)
-        <div wire:ignore class="modal fade" id="showUpdateExp{{ $daily->distribution_store_code }}" tabindex="-1" role="dialog"
-            aria-labelledby="exampleModalLabel{{ $daily->distribution_store_code }}" aria-hidden="true">
+        <div wire:ignore class="modal fade" id="showUpdateExp{{ $daily->distribution_store_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $daily->distribution_store_code }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -219,32 +230,34 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <form class="form-delete" action="{{ route('update_expired_status_distribution', $daily->distribution_store_code) }}"
-                            method="POST">
-                            @csrf
-                            @method('PUT')
-                    <div class="modal-body">Apakah anda yakin Produk ini mengalami expired?
-                        <br>
-                        <br>
-                        <div class="form-group">
-                            <label for=""><strong>Kode Distribusi</strong></label>
-                            <input class="form-control" name="distribution_store" type="text" value="{{ $daily->distribution_store_code }}" readonly>
-                        </div>
-                        <br>
-                        <div class="form-group">
-                            <input type="checkbox" required> Ya, Produk sudah Expired
-                        </div>
+                    <form class="form-delete"
+                        action="{{ route('update_expired_status_distribution', $daily->distribution_store_code) }}"
+                        method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">Apakah anda yakin Produk ini mengalami expired?
+                            <br>
+                            <br>
+                            <div class="form-group">
+                                <label for=""><strong>Kode Distribusi</strong></label>
+                                <input class="form-control" name="distribution_store" type="text"
+                                    value="{{ $daily->distribution_store_code }}" readonly>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <input type="checkbox" required> Ya, Produk sudah Expired
+                            </div>
 
-                    </div>
-                    <div class="modal-footer">
+                        </div>
+                        <div class="modal-footer">
 
                             <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
-                                class="btn-text">Menyimpan data</span>
+                                    class="btn-text">Menyimpan data</span>
                                 <span class="spinner"></span></button>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
+        </div>
         </div>
     @endforeach
 

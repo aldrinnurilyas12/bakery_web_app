@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">History PO Bahan Baku</a>
+                                Inventory > Purchasing Order > <strong> History PO Bahan Baku</strong>
                             </div>
 
                         </div>
@@ -71,7 +71,8 @@
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $raw->purchase_code }}</td>
                                                     <td>{{ $raw->material_name }}</td>
-                                                    <td>{{ $raw->expired_date }}</td>
+                                                    <td>{{ \Carbon\carbon::parse($raw->expired_date)->format('d M Y') }}
+                                                    </td>
                                                     <td>{{ $raw->qty_po }}</td>
                                                     <td>{{ 'Rp.' . number_format($raw->price) }}</td>
                                                     <td>{{ 'Rp.' . number_format($raw->price * $raw->qty_po) }}</td>

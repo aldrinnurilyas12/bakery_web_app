@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\MainApp;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerFeedback;
+use App\Models\CustomerFeedbackDetail;
 use App\Models\CustomerModel;
 use App\Models\ProductFavorite;
 use App\Models\ProductReviews;
@@ -11,6 +13,7 @@ use App\Models\RewardsModel;
 use App\Models\RewardsStoreModel;
 use App\Models\TransactionModel;
 use App\Models\VoucherCustomer;
+use App\Services\CustomerNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -59,13 +62,12 @@ class CustomerController extends Controller
     {
         //
     }
+    
 
     public function profile(Request $request) {
         $CUSTOMER_LOGIN_SESSION = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         $customer = DB::table('v_customers')->where('customer_code', $CUSTOMER_LOGIN_SESSION)->first();
-       $birth_date = Carbon::parse($customer->birth_date);
-
-      
+        $birth_date = Carbon::parse($customer->birth_date);  
         return view('layouts.main_views.customer_views.profile', compact('customer', 'birth_date'));
     }
 
@@ -160,15 +162,83 @@ class CustomerController extends Controller
         return view('layouts.main_views.customer_views.history-transactions', compact('history_transaction', 'labels', 'data', 'products_detail'));
     }
 
+
+
+    public function filter_transaction(Request $request){
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        $CUSTOMER_LOGIN_SESSION = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
+        $history_transaction = DB::table('v_main_transactions')
+        ->where('customer',$CUSTOMER_LOGIN_SESSION)
+        ->whereDate('transaction_date', '>=', $start_date)
+        ->whereDate('transaction_date', '<=', $end_date)
+        ->orderBy('transaction_date', 'DESC')
+        ->get();
+
+        $products_detail = DB::table('transactions_detail as td')
+            ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+            ->join('product_images as pi', 'p.product_code', '=', 'pi.product_code')->get();
+            
+
+        if(!$CUSTOMER_LOGIN_SESSION && !$history_transaction) {
+            session()->flash('failed_message', 'Tidak ada data transaksi!');
+            return redirect()->back();
+        }
+
+        // FOR INSIGHT TO CHART
+
+        $defaultPeriode =[
+            '1-7' => 0,
+            '8-14' => 0
+        ];
+
+        $transactions = DB::table('v_insight_transaction')
+        ->where('customer', $CUSTOMER_LOGIN_SESSION)->get();
+
+        foreach($transactions as $trx){
+            $defaultPeriode[$trx->periode] = $trx->total_grand;
+        }
+
+        $labels = array_keys($defaultPeriode);
+        $data = array_values($defaultPeriode);
+
+
+        return view('layouts.main_views.customer_views.history-transactions', compact('history_transaction', 'labels', 'data', 'products_detail'));
+    }
+
     public function invoice(Request $request)
     {
         $customer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
-         $invoice = DB::table('v_transaction')
+       
+         $invoice = DB::table('v_main_transactions')
         ->where('transaction_code', $request->transaction_code)
-        ->where('customer_code', $customer)
-            ->first();
-        $invoices = DB::table('v_transaction')->where('transaction_code', $request->transaction_code)
-        ->where('customer_code', $customer)->get();
+         ->where('customer', $customer)
+        ->first();
+        
+
+       $hasNonBundling = DB::table('v_transaction')
+        ->where('transaction_code', $request->transaction_code)
+         ->where('customer_code', $customer)
+        ->whereNull('promo_bundling')
+        ->exists();
+
+        if ($hasNonBundling) {
+            // Jika ada non bundling, tampilkan non bundling
+            $invoices = DB::table('v_transaction')
+                ->where('transaction_code', $request->transaction_code)
+                 ->where('customer_code', $customer)
+                ->whereNull('promo_bundling')
+                ->get();
+        } else {
+            // Berarti semua item adalah bundling
+            $invoices = DB::table('v_transaction')
+                ->where('transaction_code', $request->transaction_code)
+                 ->where('customer_code', $customer)
+                ->whereNotNull('promo_bundling')
+                ->get();
+        }
+
         
         if(!$invoice || !$invoices){
             return redirect()->back();
@@ -179,10 +249,7 @@ class CustomerController extends Controller
         return view('layouts.main_views.customer_views.invoice_pdf', compact('invoice', 'invoices'));
     }
 
-    public function rewards_history(Request $request)
-    {
-
-    }
+    
 
 
     public function rewards_catalogue(Request $request)
@@ -360,11 +427,11 @@ class CustomerController extends Controller
         'p.price','p.discount', 'p.price_after_discount', 'pv.variant_price','pv.variant_discount','pv.variant_price_after_discount',
           DB::raw("
             LOWER(
-                TRIM(BOTH '-' FROM
+                TRIM(BOTH '_' FROM
                     REGEXP_REPLACE(
                         p.product_name,
                         '[^A-Za-z0-9]+',
-                        '-'
+                        '_'
                     )
                 )
             ) AS slug
@@ -384,7 +451,16 @@ class CustomerController extends Controller
         $auth_check = auth()->guard('customer')->user();
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
     
-        $notifications = DB::table('v_customer_notification')->where('customer', $customer_code)->get();
+        $notifications = DB::table('customer_notifications as cn')
+                    ->select('cn.title', 'cn.message', 'cn.is_read','cn.category','cn.created_at', 'cnd.transaction as transaction_code', 'cnd.reward', 'cnd.voucher')
+                    ->leftJoin('notification_categories as nc', 'cn.category', '=', 'nc.id')
+                    ->leftJoin('customer_notifications_detail as cnd', 'cn.id', '=', 'cnd.notif')
+                    ->where('cn.customer', $customer_code)
+                    ->orderBy('cn.created_at', 'DESC')
+                    ->get();
+
+
+
         $user_register = DB::table('customer')->where('customer_code', $customer_code)->exists();
         return view('layouts.main_views.customer_views.notifications', compact('notifications', 'user_register'));
     }
@@ -394,7 +470,7 @@ class CustomerController extends Controller
      
        $print_date = now()->format('dmy');
 
-        $invoice = DB::table('v_transaction')
+        $invoice = DB::table('v_main_transactions')
             ->where('transaction_code', $request->transaction_code)
             ->first();
 
@@ -553,6 +629,18 @@ class CustomerController extends Controller
                 'point' => $result_point
             ]);
 
+            // Buat notifikasi ke email
+
+
+            CustomerNotification::log(
+                customer: $customer_code,
+                title: 'Redeem Reward Berhasil!',
+                message:'Terima kasih telah Redeem Reward',
+                category: 4,
+                is_read: 'N',
+                reward: $redeem_code
+            );
+
             session()->flash('message_success', 'Berhasil Redeem Reward!');
             return redirect()->route('rewards-history');
         
@@ -600,23 +688,31 @@ class CustomerController extends Controller
     public function product_review_save(Request $request){
 
         $request->validate([
-            'transaction_code' => 'required|array',
             'product_code' => 'required|array',
             'product_code.*' => 'required',
             'variant_code' => 'nullable|array',
             'variant_code.*' => 'nullable|string',
             'review' => 'array|required',
-            'rating' => 'array|required'
+            'rating' => 'array|required',
+            'transaction_code' => 'array',
+            'feedback' => 'array',
+            'feedback_type' => 'array'
         ]);
 
-        $transaction = $request->transaction_code;
+        $transaction = $request->transaction;
         $check_transaction = DB::table('transactions')->where('transaction_code', $transaction)->first();
         $review_available = DB::table('product_reviews')->where('transaction', $transaction)->first();
         $transaction_code = $request->transaction_code;
         $product_code = $request->product_code;
         $variant_code = $request->variant_code ?? [];
+        $transaction_code = $request->transaction_code ?? [];
+        $feedbackType = $request->feedback_type;
         $review = $request->review;
         $rating = $request->rating;
+        $date = now()->format('Ymd');
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 5);
+        $feedbackCode = 'FEEDBACK-'. $date . '-'. $transaction;
 
         if(!$check_transaction){
             session()->flash('failed_message', 'Tidak ada transaksi!');
@@ -636,16 +732,42 @@ class CustomerController extends Controller
                 'variant' =>  $variant_code[$index] ?? null,
                 'review' => $review[$index],
                 'rating' => $rating[$index],
-                'hidden_name' => $request->hidden_name,
+                'hidden_name' => $request->hidden_name ?? 'N',
                 'review_date' => now(),
                 'created_at' => now()
             ]);
         }
 
 
+        $feedback = CustomerFeedback::create([
+            'feedback_code' => $feedbackCode,
+            'transaction' => $transaction,
+            'feedback_message' => $request->feedback_message,
+            'feedback_date' => now()
+        ]); 
+
+        foreach($feedbackType as $index =>$key){
+            CustomerFeedbackDetail::create([
+                'feedback' => $feedbackCode,
+                'feedback_type' => $feedbackType[$index]
+            ]);
+        }
+
+       
+
         session()->flash('message_success', 'Terima kasih telah memberikan Review dan Rating!');
         return redirect()->back();
 
+    }
+
+
+    public function customer_feedback(Request $rq){
+
+        $customer_feedback = DB::table('customer_feedback as cf')
+        ->leftJoin('v_main_transactions as t', 'cf.transaction', '=', 't.transaction_code')
+        ->get();
+
+        return view('layouts.main_pages.customers.customer_feedback', compact('customer_feedback'));
     }
 
     public function edit(string $id)

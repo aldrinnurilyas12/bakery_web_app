@@ -9,6 +9,7 @@
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
@@ -30,7 +31,7 @@
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
                             <div class="title">
-                                Master Data / <a href="{{ route('production_products') }}">Produk Waste</a>
+                                Master Data > <strong> Produk Waste </strong>
                             </div>
 
                             <div style="display: flex;gap:10px;" class="flex-content">
@@ -48,8 +49,10 @@
                                 <div style="display:flex;gap:20px;" class="btn">
                                     <a class="btn btn-warning" href="{{ route('product-waste-data') }}">Lihat Tabel
                                         Data</a>
-                                    <a class="btn btn-primary" href="{{ route('product-waste-create') }}">Tambah
-                                        data</a>
+                                    <div class="button-add-product">
+                                        <a class="btn-general" href="{{ route('product-waste-create') }}">Tambah
+                                            data</a>
+                                    </div>
                                 </div>
                             </div>
 

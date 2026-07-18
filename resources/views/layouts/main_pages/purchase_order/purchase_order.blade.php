@@ -31,7 +31,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Purchasing Order</a>
+                                Inventory > <strong>Purchasing Order</strong>
                             </div>
                             <div style="display: flex;gap:10px;" class="flex-content">
                                 @if ($purchase_order->isNotEmpty())
@@ -46,7 +46,7 @@
                                     @endif
                                     @if (!$user_permission_forbidden)
                                         <div class="button-add-product">
-                                            <a class="btn btn-primary" href="{{ route('po_create') }}">Tambah
+                                            <a class="btn-general" href="{{ route('po_create') }}">Tambah
                                                 Purchase Order</a>
                                         </div>
                                     @endif

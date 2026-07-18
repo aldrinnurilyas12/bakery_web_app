@@ -11,6 +11,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -29,19 +30,25 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Main Menu</a>
+                                Lainnya > <strong>Main Menu</strong>
                             </div>
-                            @if ($main_menu->isNotEmpty())
-                                @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
-                                        <a style="color:black;" class="btn btn-info" href="#" data-toggle="modal"
-                                            data-target="#changeStatus">Update Status</a>
-                                        |
-                                        <a class="btn btn-primary" href="{{ route('main_menu_create') }}">Tambah
-                                            Menu Utama</a>
-                                    </div>
+
+                            <div style="display:flex; gap:20px;" class="content-btn">
+
+                                @if ($main_menu->isNotEmpty())
+                                    @if (!$user_permission_forbidden)
+                                        <div class="button-add-product">
+                                            <a style="color:black;" class="btn btn-info" href="#"
+                                                data-toggle="modal" data-target="#changeStatus">Update Status</a>
+                                            |
+                                            <div class="button-add-product">
+                                                <a class="btn-general" href="{{ route('main_menu_create') }}">Tambah
+                                                    Menu Utama</a>
+                                            </div>
+                                        </div>
+                                    @endif
                                 @endif
-                            @endif
+                            </div>
                         </div>
                         <div class="card-body">
                             @if ($main_menu->isNotEmpty())

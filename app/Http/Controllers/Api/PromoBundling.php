@@ -21,15 +21,30 @@ class PromoBundling extends Controller
     {
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
 
-        $bundling = DB::table('v_promo_bundling')->where('status', 7)->get();
+        $bundling = DB::table('v_promo_bundling')->get();
+
+        // $all_product = DB::table('promo_bundling_detail as pbd')
+        //             ->select('pbd.quantity', 'pbd.bundling_code', 'p.product_name', 'p.product_code', 'vdp.stock_available')
+        //             ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
+        //             ->leftJoin('v_daily_products as vdp', 'pbd.product', '=', 'vdp.product_code')
+        //             ->where('vdp.store_code', $store)
+        //             ->get();
+        // dd($all_product);
 
         $all_product = DB::table('promo_bundling_detail as pbd')
-                    ->select('pbd.quantity', 'pbd.bundling_code', 'p.product_name', 'p.product_code', 'vdp.stock_available')
-                    ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
-                    ->leftJoin('v_daily_products as vdp', 'pbd.product', '=', 'vdp.product_code')
-                    ->where('vdp.store_code', $store)
-                    ->get();
-        // dd($all_product);
+    ->select(
+        'pbd.quantity',
+        'pbd.bundling_code',
+        'p.product_name',
+        'p.product_code',
+        DB::raw('COALESCE(vdp.stock_available, 0) as stock_available')
+    )
+    ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
+    ->leftJoin('v_daily_products as vdp', function ($join) use ($store) {
+        $join->on('pbd.product', '=', 'vdp.product_code')
+             ->where('vdp.store_code', $store);
+    })
+    ->get();
         return view('layouts.main_pages.promo_bundling.promo_bundling', compact('bundling', 'all_product'));
     }
 
@@ -168,8 +183,30 @@ class PromoBundling extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
-        //
+        $bundling_code = $request->bundling_code;
+        $promo = ModelsPromoBundling::where('bundling_code', $bundling_code)->first();
+
+
+        if($promo){
+            if ($promo->images) {
+                $dropPicture = public_path('storage/' . $promo->images);
+
+                if (file_exists($dropPicture)) {
+                    unlink($dropPicture);
+                }
+            }
+            UserLogActivity::log(
+                module: 'Promo Bundling',
+                method_type: 'DELETE',
+                description: "user delete promo Bundling: {$promo->promo_name}"      
+            );
+            $promo->delete();
+        }
+
+        session()->flash('message_success', 'Promo Bundling berhasil dihapus!');
+        return redirect()->back();
+
     }
 }

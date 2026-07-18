@@ -30,8 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Business Intelligence / <a href="{{ route('master_category.index') }}">Sales
-                                    Performance</a>
+                                Business Intelligence > <strong>Performa Penjualan Produk</strong>
                             </div>
                         </div>
                         @if ($products_sales->isNotEmpty())

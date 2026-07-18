@@ -43,74 +43,74 @@
                                         ->first();
 
                                 @endphp
-                                <div class="card-favorite">
-                                    <div class="card-body">
-                                        <div class="image-wrapper">
-                                            @if ($img)
-                                                <img class="products-img" src="{{ asset('storage/' . $img->images) }}"
-                                                    alt="">
-                                            @endif
+                                <a class="direct-content" href="{{ route('product', $item->slug) }}">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="image-wrapper">
+                                                @if ($img)
+                                                    <img class="products-img"
+                                                        src="{{ asset('storage/' . $img->images) }}" alt="">
+                                                @endif
 
-                                            <div class="image-overlay">
-                                                <div class="form-favorite">
-                                                    {{-- FIX THIS --}}
-                                                    <form action="{{ route('remove-favorite', $item->product_code) }}"
-                                                        method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <input hidden type="text" name="product"
-                                                            value="{{ $item->product_code }}">
-                                                        <input hidden type="text" name="variant"
-                                                            value="{{ $item->variant_code }}">
-                                                        <button type="submit" style="background: none;border: none;"><i
-                                                                style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
-                                                                class="fa-solid fa-heart"></i></button>
-                                                    </form>
+                                                <div class="image-overlay">
+                                                    <div class="form-favorite">
+                                                        {{-- FIX THIS --}}
+                                                        <form
+                                                            action="{{ route('remove-favorite', $item->product_code) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <input hidden type="text" name="product"
+                                                                value="{{ $item->product_code }}">
+                                                            <input hidden type="text" name="variant"
+                                                                value="{{ $item->variant_code }}">
+                                                            <button type="submit"
+                                                                style="background: none;border: none;"><i
+                                                                    style="color:white; padding:6px; border-radius:50%; background:#ff034f74;"
+                                                                    class="fa-solid fa-heart"></i></button>
+                                                        </form>
+                                                    </div>
+                                                    @if ($item->discount || $item->variant_discount)
+                                                        <span class="promo-badge">Promo</span>
+                                                    @endif
                                                 </div>
-                                                @if ($item->discount || $item->variant_discount)
-                                                    <span class="promo-badge">Promo</span>
+                                            </div>
+
+                                            <h2 class="product-name">{{ $item->product }}</h2>
+
+                                            <div class="product-price">
+                                                @if ($item->variant_price)
+                                                    @if ($item->variant_discount)
+                                                        <div class="flex-price">
+                                                            <p class="price" style="margin:0;">Rp
+                                                                {{ number_format($item->variant_price_after_discount) }}
+                                                            </p>
+                                                        </div>
+                                                    @else
+                                                        <div class="flex-price">
+                                                            <p class="price" style="margin:0;">Rp
+                                                                {{ number_format($item->variant_price) }}
+                                                            </p>
+                                                        </div>
+                                                    @endif
+                                                @else
+                                                    @if ($item->discount)
+                                                        <div class="flex-price">
+                                                            <p class="price" style="margin:0;">Rp
+                                                                {{ number_format($item->price_after_discount) }}</p>
+                                                        </div>
+                                                    @else
+                                                        <div class="flex-price">
+                                                            <p class="price" style="margin:0;">Rp
+                                                                {{ number_format($item->price) }}</p>
+                                                        </div>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
 
-                                        <h2 class="product-name">{{ $item->product }}</h2>
-
-                                        <div class="product-price">
-                                            @if ($item->variant_price)
-                                                @if ($item->variant_discount)
-                                                    <div class="flex-price">
-                                                        <p class="price" style="margin:0;">Rp
-                                                            {{ number_format($item->variant_price_after_discount) }}
-                                                        </p>
-                                                    </div>
-                                                @else
-                                                    <div class="flex-price">
-                                                        <p class="price" style="margin:0;">Rp
-                                                            {{ number_format($item->variant_price) }}
-                                                        </p>
-                                                    </div>
-                                                @endif
-                                            @else
-                                                @if ($item->discount)
-                                                    <div class="flex-price">
-                                                        <p class="price" style="margin:0;">Rp
-                                                            {{ number_format($item->price_after_discount) }}</p>
-                                                    </div>
-                                                @else
-                                                    <div class="flex-price">
-                                                        <p class="price" style="margin:0;">Rp
-                                                            {{ number_format($item->price) }}</p>
-                                                    </div>
-                                                @endif
-                                            @endif
-                                        </div>
-                                        <div class="btn-detail">
-                                            <a class="btn-detail-product"
-                                                href="{{ route('product', $item->slug) }}">detail</a>
-                                        </div>
                                     </div>
-
-                                </div>
+                                </a>
                             @endforeach
                         </div>
                     @else
@@ -235,6 +235,10 @@
         align-items: center;
         width: 100%;
         height: 100%;
+    }
+
+    a.direct-content {
+        text-decoration: none;
     }
 </style>
 

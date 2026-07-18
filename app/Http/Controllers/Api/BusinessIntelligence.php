@@ -40,17 +40,21 @@ class BusinessIntelligence extends Controller
 
         $total_transaction = DB::table('v_main_transactions')
         ->select('transaction_code')
-        ->where('transaction_type', 'SALE')
         ->whereMonth('transaction_date', now()->month)
         ->whereYear('transaction_date', now()->year)
         ->count();
 
         $prev_month_transactions = DB::table('v_main_transactions')
         ->select('transaction_code')
-        ->where('transaction_type', 'SALE')
         ->whereMonth('transaction_date', now()->subMonth()->month)
         ->whereYear('transaction_date', now()->subMonth()->year)
         ->count();
+
+        $total_transaction_diff = 0;
+        $mom_transaction = 0;
+        $total_revenue_diff = 0;
+        $mom_revenue = 0;
+       
 
         if($prev_month_transactions > 0){
             $mom_transaction = (($total_transaction - $prev_month_transactions) / $prev_month_transactions * 100); 
@@ -61,13 +65,11 @@ class BusinessIntelligence extends Controller
         // Revenue
 
         $total_revenue = DB::table('v_main_transactions')
-        ->where('transaction_type', 'SALE')
         ->whereMonth('transaction_date', now()->month)
         ->whereYear('transaction_date', now()->year)
         ->sum('grand_total');
 
         $prev_month_revenue = DB::table('v_main_transactions')
-        ->where('transaction_type', 'SALE')
         ->whereMonth('transaction_date', now()->subMonth()->month)
         ->whereYear('transaction_date', now()->subMonth()->year)
         ->sum('grand_total');
@@ -113,7 +115,6 @@ class BusinessIntelligence extends Controller
 
         $total_transaction_line_chart = DB::table('v_main_transactions')
         ->selectRaw('MONTH(transaction_date) as month, COUNT(transaction_code) as total')
-        ->where('transaction_type', 'SALE')
         ->whereYear('created_at', now()->year)
         ->groupByRaw('MONTH(transaction_date)')
         ->orderByRaw('MONTH(transaction_date)')
@@ -121,18 +122,16 @@ class BusinessIntelligence extends Controller
 
         $total_revenue_bar_chart = DB::table('v_main_transactions')
         ->selectRaw('MONTH(transaction_date) as month, SUM(grand_total) as total_revenue')
-        ->where('transaction_type', 'SALE')
         ->whereYear('created_at', now()->year)
         ->groupByRaw('MONTH(transaction_date)')
         ->orderByRaw('MONTH(transaction_date)')
         ->get();
 
-        $total_transaction_member_nonmember = DB::table('transactions')
+        $total_transaction_member_nonmember = DB::table('v_main_transactions')
         ->selectRaw("
             COUNT(
                 CASE
                     WHEN customer IS NULL
-                    AND transaction_type = 'SALE'
                     THEN transaction_code
                 END
             ) AS total_nonmember,
@@ -140,7 +139,6 @@ class BusinessIntelligence extends Controller
             COUNT(
                 CASE
                     WHEN customer IS NOT NULL
-                    AND transaction_type = 'SALE'
                     THEN transaction_code
                 END
             ) AS total_member
@@ -152,7 +150,7 @@ class BusinessIntelligence extends Controller
 
         $revenue_products = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
-            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->leftJoin('v_main_transactions as t', 'td.transaction_code', '=', 't.transaction_code')
             ->select(
                 DB::raw('MONTH(t.transaction_date) as month'),
                 'p.product_name',
@@ -175,7 +173,7 @@ class BusinessIntelligence extends Controller
 
         $total_sales_category = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
-            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->leftJoin('v_main_transactions as t', 'td.transaction_code', '=', 't.transaction_code')
             ->join('product_category as pc', 'p.category_id', '=', 'pc.id')
             ->select(
                 DB::raw('MONTH(t.transaction_date) as month'),
@@ -199,48 +197,30 @@ class BusinessIntelligence extends Controller
 
 
        
-        $total_sales_payment_method = DB::table('transactions as t')
-            ->join('payment_category as pc', 't.payment_type', '=', 'pc.id')
+        $total_sales_payment_method = DB::table('v_main_transactions as t')
+            ->join('payment_category as pc', 't.payment_type', '=', 'pc.payment_category')
             ->select(
                 'pc.payment_category',
                 DB::raw("
-                    SUM(
-                        CASE
-                            WHEN t.transaction_type = 'SALE'
-                            THEN t.grand_total
-                            ELSE 0
-                        END
-                    ) as total_revenue_payment_method
+                    SUM(t.grand_total) as total_revenue_payment_method
                 ")
             )
-            ->where('t.transaction_type', 'SALE')
             ->groupBy(
                 'pc.payment_category'
             )
             ->get();
 
+
         $top_sales_products = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
-            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->leftJoin('v_main_transactions as t', 'td.transaction_code', '=', 't.transaction_code')
             ->select(
                 'p.product_name',
                 DB::raw("
-                    SUM(
-                        CASE
-                            WHEN t.transaction_type = 'SALE'
-                            THEN td.price * td.quantity_per_product
-                            ELSE 0
-                        END
-                    ) as total_revenue
+                    SUM(td.price * td.quantity_per_product) as total_revenue
                 "),
                 DB::raw("
-                    SUM(
-                        CASE
-                            WHEN t.transaction_type = 'SALE'
-                            THEN td.quantity_per_product
-                            ELSE 0
-                        END
-                    ) as total_sales
+                    SUM(td.quantity_per_product) as total_sales
                 ")
             )
             ->where('t.transaction_type', 'SALE')
@@ -249,15 +229,11 @@ class BusinessIntelligence extends Controller
                 'p.product_name'
             )
             ->orderBy(DB::raw("
-                    SUM(
-                        CASE
-                            WHEN t.transaction_type = 'SALE'
-                            THEN td.quantity_per_product
-                            ELSE 0
-                        END
-                    ) 
+                    SUM(td.quantity_per_product) 
                 "), 'DESC')
             ->limit(10)->get();
+
+            
         
 
         
@@ -402,7 +378,7 @@ class BusinessIntelligence extends Controller
             ->format('Y-m-d');
 
         $total_transaction = DB::table('v_main_transactions')->select('transaction_code')
-            ->where('transaction_type', 'SALE')
+
             ->where('store_code', $store_select)
             ->whereDate('transaction_date', '>=', $start_date)
             ->whereDate('transaction_date', '<=', $end_date)->count();
@@ -410,7 +386,7 @@ class BusinessIntelligence extends Controller
 
         $prev_month_transactions = DB::table('v_main_transactions')
             ->select('transaction_code')
-            ->where('transaction_type', 'SALE')
+
             ->whereDate('transaction_date', '>=', $prev_start_date)
             ->whereDate('transaction_date', '<=', $prev_end_date)
             ->count();
@@ -428,14 +404,14 @@ class BusinessIntelligence extends Controller
 
 
         $total_revenue = DB::table('v_main_transactions')
-            ->where('transaction_type', 'SALE')
+
             ->where('store_code', $store_select)
             ->whereDate('transaction_date', '>=', $start_date)
             ->whereDate('transaction_date', '<=', $end_date)
             ->sum('grand_total');
 
         $prev_month_revenue = DB::table('v_main_transactions')
-            ->where('transaction_type', 'SALE')
+
             ->where('store_code', $store_select)
             ->whereDate('transaction_date', '>=', $prev_start_date)
             ->whereDate('transaction_date', '<=', $prev_end_date)
@@ -486,7 +462,6 @@ class BusinessIntelligence extends Controller
 
         $total_transaction_line_chart = DB::table('v_main_transactions')
         ->selectRaw('MONTH(transaction_date) as month, COUNT(transaction_code) as total')
-        ->where('transaction_type', 'SALE')
         ->where('store_code', $store_select)
         ->whereDate('transaction_date', '>=', $start_date)
         ->whereDate('transaction_date', '<=', $end_date)
@@ -496,7 +471,7 @@ class BusinessIntelligence extends Controller
 
         $revenue_products = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
-            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->leftJoin('v_main_transactions as t', 'td.transaction_code', '=', 't.transaction_code')
             ->select(
                 DB::raw('MONTH(t.transaction_date) as month'),
                 'p.product_name',
@@ -511,7 +486,7 @@ class BusinessIntelligence extends Controller
                 ")
             )
             ->where('t.transaction_type', 'SALE')
-            ->where('t.store', $store_select)
+            ->where('t.store_code', $store_select)
             ->whereDate('t.transaction_date', '>=', $start_date)
             ->whereDate('t.transaction_date', '<=', $end_date)
             ->groupBy(
@@ -524,7 +499,7 @@ class BusinessIntelligence extends Controller
         
         $total_sales_category = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
-            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->leftJoin('v_main_transactions as t', 'td.transaction_code', '=', 't.transaction_code')
             ->join('product_category as pc', 'p.category_id', '=', 'pc.id')
             ->select(
                 DB::raw('MONTH(t.transaction_date) as month'),
@@ -540,7 +515,7 @@ class BusinessIntelligence extends Controller
                 ")
             )
             ->where('t.transaction_type', 'SALE')
-            ->where('t.store', $store_select)
+            ->where('t.store_code', $store_select)
             ->whereDate('t.transaction_date', '>=', $start_date)
             ->whereDate('t.transaction_date', '<=', $end_date)
             ->groupBy(
@@ -550,7 +525,7 @@ class BusinessIntelligence extends Controller
             ->orderBy(DB::raw('MONTH(t.transaction_date)'))
             ->get();
 
-        $total_sales_payment_method = DB::table('transactions as t')
+        $total_sales_payment_method = DB::table('v_main_transactions as t')
             ->join('payment_category as pc', 't.payment_type', '=', 'pc.id')
             ->select(
                 'pc.payment_category',
@@ -565,7 +540,7 @@ class BusinessIntelligence extends Controller
                 ")
             )
             ->where('t.transaction_type', 'SALE')
-            ->where('t.store', $store_select)
+            ->where('t.store_code', $store_select)
             ->whereDate('t.transaction_date', '>=', $start_date)
             ->whereDate('t.transaction_date', '<=', $end_date)
             ->groupBy(
@@ -575,7 +550,7 @@ class BusinessIntelligence extends Controller
 
          $top_sales_products = DB::table('products as p')
             ->leftJoin('transactions_detail as td', 'p.product_code', '=', 'td.product')
-            ->leftJoin('transactions as t', 'td.transaction_code', '=', 't.transaction_code')
+            ->leftJoin('v_main_transactions as t', 'td.transaction_code', '=', 't.transaction_code')
             ->select(
                 'p.product_name',
                 DB::raw("
@@ -598,7 +573,7 @@ class BusinessIntelligence extends Controller
                 ")
             )
             ->where('t.transaction_type', 'SALE')
-            ->where('t.store', $store_select)
+            ->where('t.store_code', $store_select)
             ->whereDate('t.transaction_date', '>=', $start_date)
             ->whereDate('t.transaction_date', '<=', $end_date)
             ->groupBy(
@@ -633,7 +608,6 @@ class BusinessIntelligence extends Controller
 
          $total_revenue_bar_chart = DB::table('v_main_transactions')
         ->selectRaw('MONTH(transaction_date) as month, SUM(grand_total) as total_revenue')
-        ->where('transaction_type', 'SALE')
         ->whereDate('transaction_date', '>=', $start_date)
         ->whereDate('transaction_date', '<=', $end_date)
         ->groupByRaw('MONTH(transaction_date)')
@@ -657,7 +631,10 @@ class BusinessIntelligence extends Controller
             $products_revenue[] = (float) $revenue;
         }
 
-         foreach ($total_revenue_bar_chart as $item) {
+        $labels_revenue = [];
+        $revenue_data = [];
+        
+        foreach ($total_revenue_bar_chart as $item) {
             $labels_revenue[] = $monthNames[$item->month];
             $revenue_data[] = $item->total_revenue;
         }
@@ -685,12 +662,11 @@ class BusinessIntelligence extends Controller
             $paycategory_total[] = (float) $revenue;
         }
 
-        $total_transaction_member_nonmember = DB::table('transactions')
+        $total_transaction_member_nonmember = DB::table('v_main_transactions')
         ->selectRaw("
             COUNT(
                 CASE
                     WHEN customer IS NULL
-                    AND transaction_type = 'SALE'
                     THEN transaction_code
                 END
             ) AS total_nonmember,
@@ -698,7 +674,6 @@ class BusinessIntelligence extends Controller
             COUNT(
                 CASE
                     WHEN customer IS NOT NULL
-                    AND transaction_type = 'SALE'
                     THEN transaction_code
                 END
             ) AS total_member
@@ -815,7 +790,6 @@ class BusinessIntelligence extends Controller
 
         $customer_revenue = DB::table('v_main_transactions')
         ->selectRaw('name as customer, SUM(grand_total) as total_spent')
-        ->where('transaction_type', 'SALE')
         ->groupByRaw('name')
         ->get();
 
@@ -853,25 +827,12 @@ class BusinessIntelligence extends Controller
             $segment_values[] = $row->total_customer;
         }
 
-        
-
-
-
-
 
         return view('layouts.main_pages.business_intelligence.data_analytics.customer_data_analytics',compact('total_customer', 'mom_customer', 
         'total_customer_diff', 'active_customer', 'nonactive_customer',
          'new_customer', 'rfm_data','labels_customer', 'revenue_customer', 'segment_labels', 'segment_values'));
 
     }
-
-
-
-
-
-
-
-
 
 
     public function sales_performance(Request $rq)
@@ -902,7 +863,7 @@ class BusinessIntelligence extends Controller
         $transaction = DB::table('v_main_transactions')
             ->whereDate('transaction_date', '>=', $start_date)
             ->whereDate('transaction_date', '<=', $end_date)
-            ->where('transaction_type', 'SALE')
+
             ->where('store_code', $store_select)->get();
         
         $products_daily = DB::table('v_daily_products')
@@ -937,7 +898,7 @@ class BusinessIntelligence extends Controller
         $transaction = DB::table('v_main_transactions')
             ->whereDate('transaction_date', '>=', $start_date)
             ->whereDate('transaction_date', '<=', $end_date)
-            ->where('transaction_type', 'SALE')
+
             ->where('store_code', $store_select)->get();
         
         $store_name = DB::table('store')->where('store_code', $store_select)->first();

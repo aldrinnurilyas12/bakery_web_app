@@ -43,7 +43,8 @@
                         <div class="form-group">
                             <label><strong>Masukan nama voucher</strong></label>
                             <input type="text" name="voucher_name" class="form-control"
-                                value="{{ old('voucher_name') }}" placeholder="Masukan nama voucher" autocomplete="off" required> 
+                                value="{{ old('voucher_name') }}" placeholder="Masukan nama voucher" autocomplete="off"
+                                required>
                             <x-input-error :messages="$errors->get('voucher_name')" class="text-danger" />
                         </div>
 
@@ -63,7 +64,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Masukan minimal transaksi</strong></label>
+                            <label><strong>Masukan minimal transaksi (Rp)</strong></label>
                             <input type="number" name="min_transaction" class="form-control"
                                 value="{{ old('min_transaction') }}" placeholder="Masukan minimal transaksi"
                                 autocomplete="off">

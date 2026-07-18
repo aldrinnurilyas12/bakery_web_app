@@ -10,6 +10,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
@@ -29,12 +30,12 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('variant_category.index') }}">Kategori Variant</a>
+                                Master Data > <strong>Kategori Varian Produk</strong>
                             </div>
                             @if ($variant_category->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('variant_category_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('variant_category_create') }}">Tambah
                                             Kategori</a>
                                     </div>
                                 @endif

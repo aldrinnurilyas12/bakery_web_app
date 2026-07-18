@@ -11,6 +11,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <link href="{{ asset('bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
@@ -26,14 +27,14 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Transaksi / <a href="{{ route('transaction.index') }}">Transaksi</a>
+                                Master Transaksi > <strong>Transaksi</strong>
                             </div>
 
                             <div style="display: flex;gap:10px;" class="flex-content">
 
                                 @if ($main_transaction->isNotEmpty())
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('transaction_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('transaction_create') }}">Tambah
                                             Transaksi</a>
                                     </div>
                                 @endif
@@ -109,13 +110,13 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Detail Item</th>
                                                 <th>Invoice</th>
                                                 <th>Tanggal</th>
                                                 <th>Quantity</th>
                                                 <th>Payment</th>
                                                 <th>Total Bayar</th>
                                                 <th>Kembalian</th>
+                                                <th>Subtotal</th>
                                                 <th>Grand Total</th>
                                                 <th>Pelanggan</th>
                                                 <th>Jenis Transaksi</th>
@@ -132,20 +133,6 @@
                                             @foreach ($main_transaction as $transaction)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td>
-                                                        <div style="display: flex;gap:10px;" class="btn-action">
-
-                                                            {{-- <a href="{{ route('category_update', $transaction->transaction_code) }}"><i
-                                                                    class="fas fa-edit"></i></a> --}}
-                                                            @if (in_array($transaction->transaction_code, $transaction_with_items))
-                                                                <a href="#" data-toggle="modal"
-                                                                    data-target="#showItems{{ $transaction->transaction_code }}"><i
-                                                                        class="fas fa-eye"></i></a>
-                                                            @else
-                                                            @endif
-
-                                                        </div>
-                                                    </td>
                                                     <td>
                                                         <a class="text-black"
                                                             href="{{ route('invoice_detail', $transaction->transaction_code) }}">
@@ -167,6 +154,8 @@
                                                         @else
                                                             <span>-</span>
                                                         @endif
+                                                    </td>
+                                                    <td>{{ 'Rp. ' . number_format($transaction->subtotal) }}
                                                     </td>
                                                     <td>{{ 'Rp. ' . number_format($transaction->grand_total) }}</td>
                                                     <td>
@@ -269,7 +258,7 @@
                                                     <td>{{ $items->product_code }}</td>
                                                     <td>{{ $items->product_name }}</td>
                                                     <td>{{ $items->quantity_per_product }}</td>
-                                                     <td>{{ "Rp." . number_format($items->price) }}</td>
+                                                    <td>{{ 'Rp.' . number_format($items->price) }}</td>
                                                 </tr>
                                             @endif
                                         @endforeach

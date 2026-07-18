@@ -30,8 +30,7 @@
                         <div class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('production_products') }}">Produksi
-                                    Produk</a>
+                                Inventory > Produksi Produk > <strong>Produksi Produk Detail</strong>
                             </div>
                             <br>
                             <div class="error">
@@ -40,7 +39,12 @@
                             </div>
 
                         </div>
-                        <div class="card-headrr">
+                        <div style="display: flex; gap:20px;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('production_products') }}">Kembali</a>
+                            </div>
+                        </div>
+                        <div class="card-header">
                             <div style="font-size: 13px;" class="alert alert-info">
                                 <ul>
                                     <li>Data yang sudah diinput tidak dapat diubah lagi, maka periksalah dengan benar.
@@ -52,13 +56,10 @@
                             </div>
                         </div>
                         <div class="card-header">
-                            &nbsp; <a class="btn btn-primary" href="{{ route('production_products') }}">Kembali</a>
-
-                            <br>
-                            <br>
                             <div class="form-group">
                                 <label for=""><strong>Total Biaya Produksi</strong></label>
-                                <input class="form-control" type="text" value="{{'Rp.' . number_format($production->first()->total_cost) }}" readonly>
+                                <input class="form-control" type="text"
+                                    value="{{ 'Rp.' . number_format($production->first()->total_cost) }}" readonly>
                             </div>
 
                         </div>
@@ -141,16 +142,20 @@
 
                                                             <tr>
                                                                 <td>
-                                                                    @if($prdc->hpp)
-                                                                    {{ 'Rp.' . number_format($prdc->hpp) }}
+                                                                    @if ($prdc->hpp)
+                                                                        {{ 'Rp.' . number_format($prdc->hpp) }}
                                                                     @else
-                                                                    <a href="{{ route('add_ingredients', $prdc->product) }}"><i class="fa fa-edit"></i></a>
-                                                                    @endif</td>
+                                                                        <a
+                                                                            href="{{ route('add_ingredients', $prdc->product) }}"><i
+                                                                                class="fa fa-edit"></i></a>
+                                                                    @endif
+                                                                </td>
                                                                 <td>
-                                                                     @if($prdc->hpp)
-                                                                    {{ 'Rp.' . number_format($prdc->hpp * $prdc->actual_quantity) }}
+                                                                    @if ($prdc->hpp)
+                                                                        {{ 'Rp.' . number_format($prdc->hpp * $prdc->actual_quantity) }}
                                                                     @else
-                                                                    <span class="text-danger">HPP belum ada untuk produk ini</span>
+                                                                        <span class="text-danger">HPP belum ada untuk
+                                                                            produk ini</span>
                                                                     @endif
                                                                 </td>
 
@@ -241,7 +246,8 @@
                             <br>
                             <div class="form-group">
                                 <label for=""><strong>Jumlah Aktual (Produk Jadi)</strong></label>
-                                <input type="text" name="actual_quantity" class="form-control" required autocomplete="off">
+                                <input type="text" name="actual_quantity" class="form-control" required
+                                    autocomplete="off">
                             </div>
                             <br>
                             <div id="showWasteConfirmation" class="form-group">

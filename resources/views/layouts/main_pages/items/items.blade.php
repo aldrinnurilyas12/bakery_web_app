@@ -30,12 +30,12 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_items.index') }}">Items</a>
+                                Master Data > <strong>Items</strong>
                             </div>
                             @if ($items->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('item_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('item_create') }}">Tambah
                                             Item</a>
                                     </div>
                                 @endif
@@ -92,7 +92,7 @@
                                                     <td> {{ $item->raw_material ?: '-' }} </td>
                                                     <td>{{ $item->item_name }}</td>
                                                     <td>{{ $item->category_name }}</td>
-                                                    <td>{{ $item->weight_type ?: '-' }}</td>
+                                                    <td>{{ $item->unit_name ?: '-' }}</td>
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->created_by }}</td>
                                                     <td>{{ $item->updated_at ?: '-' }}</td>

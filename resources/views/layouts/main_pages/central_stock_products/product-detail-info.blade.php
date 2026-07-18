@@ -30,8 +30,21 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Inventory / <a href="{{ route('central_stock_products.index') }}">Central
-                                    Stock</a>
+                                Inventory > Stok Produk Pusat > <strong> Stok Produk Detail </strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap:20px;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary"
+                                    href="{{ route('central_stock_products.index') }}">Kembali</a>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content:space-between;" class="card-header">
+                            <div class="title-product">
+                                <label for=""><strong>Produk</strong></label>
+                                <input class="form-control" type="text"
+                                    value="{{ $detail_product->first()->product_name }}" readonly>
                             </div>
                         </div>
                         <div class="card-body">

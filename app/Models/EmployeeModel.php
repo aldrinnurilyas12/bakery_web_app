@@ -24,6 +24,8 @@ class EmployeeModel extends Model
         'end_date',
         'created_by',
         'updated_by',
-        'deleted_by'
+        'deleted_by',
+        'reactivate',
+        'reactivate_date'
     ];
 }

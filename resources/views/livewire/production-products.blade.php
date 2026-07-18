@@ -25,7 +25,7 @@
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('production_products') }}">Produksi Produk</a>
+                        Inventory > <strong>Produksi Produk</strong>
                     </div>
 
                     <div style="display: flex;gap:10px;" class="flex-content">
@@ -42,7 +42,7 @@
                         @if ($production_products->isNotEmpty())
                             @if (!$user_permission_forbidden)
                                 <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('production_create') }}">Tambah Produksi
+                                    <a class="btn-general" href="{{ route('production_create') }}">Tambah Produksi
                                         Produk</a>
                                 </div>
                             @endif
@@ -140,16 +140,16 @@
                                                             </tr>
 
                                                             <tr>
-                                                                 <td>
-                                                                        <a
-                                                                            href="{{ route('production-detail', $raw->production_code) }}"><i
-                                                                                class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                                                                    </td>
-                                                                    <td>
-                                                                        <a href="#" data-toggle="modal"
-                                                                            data-target="#showRaw{{ $raw->production_code }}"><i
-                                                                                class="fa fa-eye"></i></a>
-                                                                    </td>
+                                                                <td>
+                                                                    <a
+                                                                        href="{{ route('production-detail', $raw->production_code) }}"><i
+                                                                            class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="#" data-toggle="modal"
+                                                                        data-target="#showRaw{{ $raw->production_code }}"><i
+                                                                            class="fa fa-eye"></i></a>
+                                                                </td>
                                                             </tr>
                                                         </table>
                                                     </td>
@@ -356,7 +356,7 @@
 
         $raw_material = DB::table('raw_material_usages as r')
             ->leftJoin('raw_material as rw', 'r.raw_material', '=', 'rw.material_code')
-             ->leftJoin('material_unit_category as muc', 'r.unit', '=', 'muc.id')
+            ->leftJoin('material_unit_category as muc', 'r.unit', '=', 'muc.id')
             ->get();
 
         $total_raw_usage = DB::table('raw_material_usages as r')

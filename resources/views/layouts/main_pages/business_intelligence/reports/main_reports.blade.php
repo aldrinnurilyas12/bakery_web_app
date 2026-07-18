@@ -30,11 +30,11 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Laporan Bisnis Kencana Bakery
+                                Business Intelligence > <strong>Laporan Bisnis</strong>
                             </div>
                         </div>
 
-                        <hr>
+
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="filter-reports">

@@ -26,7 +26,10 @@ class User extends Authenticatable
         'account_verified',
         'account_verified_at',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'deleted_by',
+        'reactivate',
+        'reactivate_date'
     ];
 
     /**

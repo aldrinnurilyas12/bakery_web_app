@@ -30,18 +30,18 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Kategori</a>
+                                Master Data > <strong> Kategori Produk </strong>
                             </div>
                             @if ($category_data->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('category_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('category_create') }}">Tambah
                                             Kategori</a>
                                     </div>
                                 @endif
                             @endif
                         </div>
-                        <hr>
+
                         <div style="font-size: 13px;" class="alert alert-info">
                             <ul>
                                 <li>Kategori tidak bisa dihapus jika sudah ada di master products

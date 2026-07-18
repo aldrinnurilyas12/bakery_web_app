@@ -33,66 +33,60 @@
 
                 <div class="menu-list">
 
+                    <hr class="hr-menu">
 
-                    @if ($notifications)
-                        @foreach ($notifications as $notif)
-                            @if ($notif->type == 'transaction')
-                                <hr class="hr-menu">
-                                <div class="notif">
-                                    <div style="display: flex; gap:10px;align-items: center;margin-bottom: 10px;"
-                                        class="iconsuccess">
-                                        <i style="padding: 10px; background:#bb0239; color: white; border-radius: 50%;"
-                                            class="fa fa-bell"></i>
-                                        <p>Transaksi berhasil!</p>
-                                    </div>
-
-                                    <div style="display: flex; justify-content: space-between;align-items: center;"
-                                        class="group-menu-date">
-                                        <p class="text-invoice"></i> <a
-                                                href="{{ route('invoice', $notif->transaction_code) }}">
-                                                {{ $notif->transaction_code }}
-                                                &nbsp; <i class="fas fa-external-link-alt"></i></a></p>
-                                        <p>{{ $notif->created_at }}</p>
-
-                                    </div>
+                    @if ($notifications->isNotEmpty())
+                        @foreach ($notifications as $nt)
+                            <div class="notification-card">
+                                <div class="notification-icon">
+                                    @if ($nt->category == 1)
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                    @elseif($nt->category == 2)
+                                        <i class="fa-solid fa-bullhorn"></i>
+                                    @elseif($nt->category == 3)
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    @elseif($nt->category == 4)
+                                        <i class="fa-solid fa-gift"></i>
+                                    @else
+                                        <i class="fa-solid fa-bell"></i>
+                                    @endif
                                 </div>
-                            @else
-                                <hr class="hr-menu">
-                                <div class="notif">
-                                    <div style="display: flex; gap:10px;align-items: center;margin-bottom: 10px;"
-                                        class="iconsuccess">
-                                        <i style="padding: 10px; background:#bb0239; color: white; border-radius: 50%;"
-                                            class="fa fa-gift"></i>
-                                        <p>Klaim Reward Berhasil!</p>
+
+                                <div class="notification-content">
+                                    <div class="notification-header">
+                                        <h5>{{ $nt->title }}</h5>
+                                        <span class="notification-date">
+                                            {{ $nt->created_at }}
+                                        </span>
                                     </div>
 
-                                    <div style="display: flex; justify-content: space-between;align-items: center;"
-                                        class="group-menu-date">
-                                        <p class="text-invoice"></i> <a href="{{ route('rewards-history') }}">
-                                                {{ $notif->transaction_code }}
-                                                &nbsp; <i class="fas fa-external-link-alt"></i></a></p>
-                                        <p>{{ $notif->created_at }}</p>
-
-                                    </div>
+                                    <p>{{ $nt->message }}</p>
+                                    @if ($nt->category == 1)
+                                        @if ($nt->transaction_code)
+                                            <p>Kode Pesanan: <a style="color:#bb0239;"
+                                                    href="{{ route('invoice', $nt->transaction_code) }}">
+                                                    #{{ $nt->transaction_code }} </a></p>
+                                        @endif
+                                    @elseif($nt->category == 4)
+                                        @if ($nt->reward)
+                                            <p>Kode Reward: <a style="color:#bb0239;"
+                                                    href="{{ route('rewards-history') }}">
+                                                    #{{ $nt->reward }} </a></p>
+                                        @endif
+                                    @elseif($nt->category == 2)
+                                        @if ($nt->voucher)
+                                            <p>Kode Voucher: <a style="color:#bb0239;"
+                                                    href="{{ route('your-voucher') }}">
+                                                    #{{ $nt->voucher }} </a></p>
+                                        @endif
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
                         @endforeach
                     @else
-                        <p style="text-align: center;margin:0 auto;">Tidak ada notifikasi.</p>
+                        <p style="text-align: center;margin:0 auto;">Tidak ada Notifikasi</p>
                     @endif
 
-                    @if ($user_register)
-                        <hr class="hr-menu">
-                        <div class="notif">
-                            <div style="display: flex; gap:10px;align-items: center;margin-bottom: 10px;"
-                                class="iconsuccess">
-                                <i style="padding: 10px; background:#bb0239; color: white; border-radius: 50%;"
-                                    class="fa fa-warning"></i>
-                                <p>Selamat datang di Kencana Bakery!</p>
-                            </div>
-                        </div>
-                    @else
-                    @endif
                 </div>
             </div>
         </div>
@@ -188,6 +182,58 @@
         align-items: center;
         width: 100%;
         height: 100%;
+    }
+
+    .notification-card {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        margin-bottom: 12px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+        transition: .2s ease;
+    }
+
+
+    .notification-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #bb0239;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .notification-header h5 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .notification-date {
+        font-size: 12px;
+        color: #888;
+    }
+
+    .notification-content p {
+        margin: 8px 0 0;
+        color: #555;
+        font-size: 14px;
     }
 </style>
 

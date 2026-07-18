@@ -38,44 +38,13 @@ class ShoppingCartController extends Controller
             'bundling_name' => $request->bundling_name,
             'price'         => $request->price,
             'quantity'      => $request->quantity,
-            'stock_available'=> $request->stock_available
+            'stock_available'=> $request->stock_available,
+            'product_image' => $request->product_image
         ];
 
         $found = false;
 
-        // OLD CODE
-        // foreach ($cart as &$item) {
 
-        //     // Jika produk punya variant
-        //     if (!empty($cart_product['variant'])) {
-
-        //         if (
-        //             $item['product'] === $cart_product['product'] &&
-        //             $item['variant'] === $cart_product['variant'] &&
-        //             $item['variant_type'] === $cart_product['variant_type']
-        //         ) {
-        //             $item['quantity'] += $cart_product['quantity'];
-        //             $found = true;
-        //             break;
-        //         }
-
-        //     } else {
-
-        //         // Produk tanpa variant
-        //         if ($item['product'] === $cart_product['product'] ||
-        //             (
-        //                 isset($item['bundling']) &&
-        //                 $item['bundling'] === $cart_product['bundling']
-        //             )
-        //         ) {
-        //             $item['quantity'] += $cart_product['quantity'];
-        //             $found = true;
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // NEW CODE:
         foreach ($cart as &$item) {
 
             // Produk bundling

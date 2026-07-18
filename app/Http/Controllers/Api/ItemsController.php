@@ -17,10 +17,11 @@ class ItemsController extends Controller
     {
         $items = DB::table('items as i')
                 ->select('i.item_code', 'i.raw_material', 'i.name as item_name',
-                 'ic.category_name as category_name', 'i.weight_type',
+                 'ic.category_name as category_name', 'muc.unit_name',
                  'i.created_at', 'i.updated_at', 'e.name as created_by', 'emp.name as updated_by')
                 ->leftJoin('raw_material as rm', 'i.raw_material', '=', 'rm.material_code')
                 ->leftJoin('item_category as ic', 'i.item_category', '=', 'ic.id')
+                ->leftJoin('material_unit_category as muc', 'i.weight_type', '=', 'muc.id')
                 ->leftJoin('employee as e', 'i.created_by', '=', 'e.nik')
                 ->leftJoin('employee as emp', 'i.updated_by', '=', 'emp.nik')->get();
         return view('layouts.main_pages.items.items', compact('items'));

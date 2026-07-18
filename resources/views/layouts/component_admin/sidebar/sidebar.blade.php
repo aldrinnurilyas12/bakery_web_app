@@ -7,28 +7,32 @@
         $IT_GUY =
             app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name ==
             'IT Developer';
-        $cashier = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name ==
-            'Casheer';
+        $cashier =
+            app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name == 'Casheer';
         $main_menu = DB::table('main_menu')->where('location', 'admin')->get();
 
-
-
-
         if (!$IT_GUY) {
-            if($cashier){
-                $submenu = DB::table('submenu as s')->whereIn('main_menu', ['1', '2','3', '5','9'])
-                            ->where('status', 7)
-                            ->whereNotIn('id', ['9','15', '16', '26', '29','33','34', '36','37', '94'])
-                            ->orderBy('s.submenu_name', 'ASC')->get();
-            }else{
-                $submenu = DB::table('submenu as s')->where('status', 7)->where('main_menu', '<>', 10)
-                            ->orderBy('s.submenu_name', 'ASC')->get();
+            if ($cashier) {
+                $submenu = DB::table('submenu as s')
+                    ->whereIn('main_menu', ['1', '2', '3', '5', '9'])
+                    ->where('status', 7)
+                    ->whereNotIn('id', ['9', '15', '16', '26', '29', '33', '34', '36', '37', '94'])
+                    ->orderBy('s.submenu_name', 'ASC')
+                    ->get();
+            } else {
+                $submenu = DB::table('submenu as s')
+                    ->where('status', 7)
+                    ->where('main_menu', '<>', 10)
+                    ->whereNotIn('id', ['15', '16', '94'])
+                    ->orderBy('s.submenu_name', 'ASC')
+                    ->get();
             }
         } else {
             $submenu = DB::table('submenu as s')
-            ->where('status', 7)
-            ->where('main_menu', '<>', 10)
-            ->orderBy('s.submenu_name', 'ASC')->get();
+                ->where('status', 7)
+                ->where('main_menu', '<>', 10)
+                ->orderBy('s.submenu_name', 'ASC')
+                ->get();
         }
 
     @endphp

@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Redeem E-Vouchers</a>
+                                CRM > E-Voucher > <strong>Redeem E-Voucher</strong>
                             </div>
                             @if ($module_documentation)
                                 <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"

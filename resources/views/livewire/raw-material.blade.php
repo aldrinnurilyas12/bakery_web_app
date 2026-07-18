@@ -12,7 +12,7 @@
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('raw_material') }}">Bahan Baku</a>
+                        Inventory > <strong> Bahan Baku </strong>
                     </div>
                     <div style="display: flex;gap:10px;" class="flex-content">
                         @if ($module_documentation)
@@ -33,7 +33,7 @@
                                             Satuan Unit</a>
                                     </div>
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('material_create') }}">Tambah Bahan
+                                        <a class="btn-general" href="{{ route('material_create') }}">Tambah Bahan
                                             Baku</a>
                                     </div>
                                 @endif
@@ -84,7 +84,6 @@
                                             <tr>
                                                 <td>{{ $no++ }}</td>
                                                 @if (!$user_permission_forbidden)
-
                                                     <td>
                                                         <table style="font-size: 14px; color:black;"
                                                             class="table table-bordered" id="dataTable" width="100%"
@@ -92,8 +91,9 @@
 
                                                             <tr>
                                                                 <th>Aksi</th>
-                                                                 <td>
-                                                                    <div style="display: flex; gap:10px;" class="btn-action">
+                                                                <td>
+                                                                    <div style="display: flex; gap:10px;"
+                                                                        class="btn-action">
                                                                         <a
                                                                             href="{{ route('material_update', $raw->material_code) }}"><i
                                                                                 class="fa fa-edit"></i></a>
@@ -104,7 +104,7 @@
                                                                                     class="fa fa-trash"></i></a>
                                                                         @endif
                                                                     </div>
-                                                                 </td>
+                                                                </td>
                                                             </tr>
 
                                                             <tr>
@@ -116,8 +116,8 @@
                                                             </tr>
 
                                                             <tr>
-                                                                <th>Riawayat PO</th>
-                                                                 <td> <a
+                                                                <th>Riwayat PO</th>
+                                                                <td> <a
                                                                         href="{{ route('history_raw_material', $raw->material_code) }}"><i
                                                                             class="fas fa-list"></i></a></td>
                                                             </tr>
@@ -135,19 +135,19 @@
                                                                 <td>{{ $raw->material_code }}</td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Bahan Baku</th>
                                                                 <td>{{ $raw->material_name }}</td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Stok</th>
                                                                 <td>{{ $raw->quantity ?: '-' }}</td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Harga</th>
-                                                                 <td>
+                                                                <td>
                                                                     @if ($raw->price == null)
                                                                         <span>-</span>
                                                                     @else
@@ -158,62 +158,62 @@
 
                                                             <tr>
                                                                 <th>Purchase Unit</th>
-                                                                   <td>{{ $raw->purchase_unit }}</td>
+                                                                <td>{{ $raw->purchase_unit }}</td>
                                                             </tr>
 
-                                                            
+
                                                             <tr>
                                                                 <th>Inventory Unit</th>
-                                                                   <td>{{ $raw->inventory_unit }}</td>
+                                                                <td>{{ $raw->inventory_unit }}</td>
                                                             </tr>
 
-                                                            
+
                                                             <tr>
                                                                 <th>Status</th>
-                                                                    <td>
-                                                                        @if ($raw->status_name == 'Ready')
-                                                                            <p class="text-success">Ready </p>
-                                                                        @else
-                                                                            <p class="text-danger">Kosong </p>
-                                                                        @endif
-                                                                    </td>
+                                                                <td>
+                                                                    @if ($raw->status_name == 'Ready')
+                                                                        <p class="text-success">Ready </p>
+                                                                    @else
+                                                                        <p class="text-danger">Kosong </p>
+                                                                    @endif
+                                                                </td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Kategori</th>
-                                                                   <td>{{ $raw->category_name }}</td>
+                                                                <td>{{ $raw->category_name }}</td>
                                                             </tr>
 
                                                             <tr>
                                                                 <th>Tanggal Expired</th>
-                                                                   <td>{{ $raw->expired_date }}</td>
+                                                                <td>{{ $raw->expired_date }}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>
 
                                                 </td>
                                                 <td>
-                                                     <table class="table table-bordered">
-                                                         <tbody>
+                                                    <table class="table table-bordered">
+                                                        <tbody>
 
                                                             <tr>
                                                                 <th>Dibuat pada</th>
-                                                                   <td>{{ $raw->created_at }}</td>
+                                                                <td>{{ $raw->created_at }}</td>
                                                             </tr>
 
                                                             <tr>
                                                                 <th>Dibuat oleh</th>
-                                                                   <td>{{ $raw->created_by }}</td>
+                                                                <td>{{ $raw->created_by }}</td>
                                                             </tr>
 
                                                             <tr>
                                                                 <th>Diubah pada</th>
-                                                                   <td>{{ $raw->updated_at }}</td>
+                                                                <td>{{ $raw->updated_at }}</td>
                                                             </tr>
 
                                                             <tr>
                                                                 <th>Diubah oleh</th>
-                                                                   <td>{{ $raw->created_by }}</td>
+                                                                <td>{{ $raw->created_by }}</td>
                                                             </tr>
                                                         </tbody>
                                                     </table>

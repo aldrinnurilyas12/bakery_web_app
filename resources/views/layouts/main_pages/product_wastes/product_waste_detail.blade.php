@@ -30,7 +30,7 @@
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
                             <div class="title">
-                                Master Data / <a href="{{ route('production_products') }}">Produk Waste</a>
+                                Master Data > Produk Waste > <strong>Produk Waste Detail</strong>
                             </div>
                         </div>
 

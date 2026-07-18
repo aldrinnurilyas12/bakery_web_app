@@ -65,8 +65,8 @@
                             <x-input-error :messages="$errors->get('product_type')" class="text-danger" />
                         </div>
 
-                        @if($products->product_status)
-                         <div class="form-group">
+                        @if ($products->product_status)
+                            <div class="form-group">
                                 <label><strong>Status Produk</strong></label>
                                 <select class="form-control" name="product_status" id="">
                                     @foreach ($status as $sts)
@@ -79,7 +79,7 @@
 
                             </div>
                         @elseif($products->product_status == null)
-                        <div class="form-group">
+                            <div class="form-group">
                                 <label><strong>Status Produk</strong></label>
                                 <select class="form-control" name="product_status" id="">
                                     <option value="">== Pilih Status ===</option>
@@ -168,9 +168,10 @@
                         <div class="form-group">
                             <label><strong>Unit Produk</strong></label>
                             <select name="product_weight_type" class="form-control" id="" required>
-                                @foreach ($unit_category as $unit )
+                                @foreach ($unit_category as $unit)
                                     <option value="{{ $unit->id }}"
-                                    {{ $products->product_weight_type == $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
+                                        {{ $products->product_weight_type == $unit->id ? 'selected' : '' }}>
+                                        {{ $unit->unit_name }}</option>
                                 @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />

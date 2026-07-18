@@ -21,7 +21,7 @@ p {
 
 .main-container {
     background-color: #fff;
-    width: 28%;
+    width: 29%;
     /* lebih fleksibel */
     max-width: 75rem;
     /* batasi maksimal di desktop */
@@ -103,6 +103,13 @@ a.card-category {
     width: 90%;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+    background: white;
+    box-sizing: border-box;
+
+}
+
+.container-products-search {
+    width: 100%;
     background: white;
     box-sizing: border-box;
 
@@ -407,7 +414,6 @@ h1.title {
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 10px;
-    width: 100%;
     padding: 0.625rem 0;
 }
 
@@ -843,6 +849,11 @@ a.btn-order-product {
     line-height: 1.6;
 }
 
+p.text-center {
+    font-size: 15px;
+    color:black;
+}
+
 
 .container-product-info .review-customer-text {
     font-size: 0.875rem;
@@ -856,6 +867,14 @@ a.btn-order-product {
     line-height: 1.6;
 }
 
+ .container-search-products{
+        width: 100%;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
 
 /* Responsive */
 @media (max-width: 62.5rem) {
@@ -867,12 +886,23 @@ a.btn-order-product {
 
     .container-products {
         width: 100%;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
+        padding-left: 0.2rem;
+        padding-right: 0.2rem;
         background: white;
         box-sizing: border-box;
 
     }
+
+    .container-products-search {
+        width: 100%;
+        padding-left: 0.2rem;
+        padding-right: 0.2rem;
+        background: white;
+        box-sizing: border-box;
+
+}
+
+     
 
     .hello {
         color: #fff;
@@ -1041,6 +1071,12 @@ a.btn-order-product {
     .main-container {
         width: 100%;
         margin-bottom: 15%;
+    }
+
+    .container-search-products{
+        width: 100%;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .container {

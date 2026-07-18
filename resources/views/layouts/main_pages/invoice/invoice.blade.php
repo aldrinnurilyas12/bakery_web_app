@@ -41,6 +41,61 @@
                         $total_qty = DB::table('transactions_detail')
                             ->where('transaction_code', $invoice->transaction_code)
                             ->sum('quantity_per_product');
+
+                        $bundling = DB::table('transactions_bundling as tb')
+                            ->join('promo_bundling as pb', 'tb.bundling', '=', 'pb.bundling_code')
+                            ->select(
+                                'pb.bundling_name',
+                                'pb.price as bundling_price',
+                                'pb.images',
+                                DB::raw("
+            (SELECT COUNT(*)
+                FROM transactions_detail td
+                WHERE td.transaction_code = '{$invoice->transaction_code}'
+                  AND td.promo_bundling IS NOT NULL)
+as total_qty_bundle"),
+                            )
+                            ->where('tb.transaction', $invoice->transaction_code)
+                            ->groupBy('pb.bundling_name', 'pb.price', 'pb.images')
+                            ->first();
+
+                        $product_bundling = collect();
+
+                        if ($bundling) {
+                            $product_bundling = DB::table('transactions_bundling as tb')
+                                ->join('promo_bundling as pb', 'tb.bundling', '=', 'pb.bundling_code')
+                                ->join('promo_bundling_detail as pd', 'pb.bundling_code', '=', 'pd.bundling_code')
+                                ->join('products as p', 'pd.product', '=', 'p.product_code')
+                                ->join('transactions_detail as td', function ($join) use ($invoice) {
+                                    $join
+                                        ->on('td.promo_bundling', '=', 'pb.bundling_code')
+                                        ->on('td.product', '=', 'pd.product')
+                                        ->where('td.transaction_code', '=', $invoice->transaction_code);
+                                })
+                                ->select(
+                                    'pb.bundling_name',
+                                    'pb.bundling_code',
+                                    'pb.price as bundling_price',
+                                    'pd.product',
+                                    'pd.quantity as qty_bundling',
+                                    'td.quantity_per_product',
+                                    'p.product_name',
+                                )
+                                ->distinct()
+                                ->where('tb.transaction', $invoice->transaction_code)
+                                ->get();
+                        }
+
+                        /*
+|--------------------------------------------------------------------------
+| Produk Non Bundling
+|--------------------------------------------------------------------------
+*/
+                        $nonBundling = DB::table('transactions_detail as td')
+                            ->leftJoin('products as p', 'td.product', '=', 'p.product_code')
+                            ->where('td.transaction_code', $invoice->transaction_code)
+                            ->whereNull('td.promo_bundling')
+                            ->get();
                     @endphp
 
                     <div class="row">
@@ -48,7 +103,7 @@
                             <div class="col-xl-8">
                                 <ul class="list-unstyled">
                                     <li><span class="fw-bold">ID Pelanggan :</span>
-                                        <span>{{ $invoice->customer_code }}</span>
+                                        <span>{{ $invoice->customer }}</span>
                                     </li>
                                     <li><span class="fw-bold">Pelanggan :</span> <span>{{ $invoice->name }}</span>
                                     </li>
@@ -100,42 +155,6 @@
 
                             <div style="display:block">
 
-                                @php
-                                    $bundling = DB::table('transactions_bundling as tb')
-                                        ->join('promo_bundling as pb', 'tb.bundling', '=', 'pb.bundling_code')
-                                        ->leftJoin('transactions_detail as td', function ($join) {
-                                            $join
-                                                ->on('tb.transaction', '=', 'td.transaction_code')
-                                                ->where('td.promo_bundling', 'Y');
-                                        })
-                                        ->select('pb.bundling_name', 'pb.price as bundling_price', 'pb.images')
-                                        ->where('tb.transaction', $invoices->first()->transaction_code)
-                                        ->first();
-
-                                    $product_bundling = collect();
-
-                                    if ($bundling) {
-                                        $product_bundling = DB::table('transactions_bundling as tb')
-                                            ->join('promo_bundling as pb', 'tb.bundling', '=', 'pb.bundling_code')
-                                            ->join(
-                                                'promo_bundling_detail as pd',
-                                                'pb.bundling_code',
-                                                '=',
-                                                'pd.bundling_code',
-                                            )
-                                            ->join('products as p', 'pd.product', '=', 'p.product_code')
-                                            ->select(
-                                                'pb.bundling_name',
-                                                'pb.bundling_code',
-                                                'pb.price as bundling_price',
-                                                'pd.product',
-                                                'pd.quantity as qty_bundling',
-                                                'p.product_name',
-                                            )
-                                            ->where('tb.transaction', $invoices->first()->transaction_code)
-                                            ->get();
-                                    }
-                                @endphp
 
                                 {{-- Card Bundling (hanya sekali) --}}
                                 @if ($bundling)
@@ -162,9 +181,13 @@
                                                 <p style="margin-bottom: 0;">Rincian item:</p>
 
                                                 <ul class="mb-0">
-                                                    @foreach ($product_bundling as $pb)
-                                                        <li>{{ $pb->product_name }} x{{ $pb->qty_bundling }}</li>
-                                                    @endforeach
+                                                    @if ($product_bundling->count())
+                                                        @foreach ($product_bundling as $pb)
+                                                            <li>{{ $pb->product_name }} ×
+                                                                {{ $pb->quantity_per_product }}</li>
+                                                        @endforeach
+
+                                                    @endif
                                                 </ul>
 
                                             </div>
@@ -175,7 +198,7 @@
 
                                 {{-- Produk Non Bundling --}}
                                 @foreach ($invoices as $inv)
-                                    @if ($inv->promo_bundling != 'Y')
+                                    @if ($inv->promo_bundling == null)
                                         @php
                                             $product_image = DB::table('product_images')
                                                 ->select('images', 'product_code')
@@ -240,6 +263,10 @@
                                 @if ($invoice->total_amount)
 
                                     <div style="display: flex; gap:6px;" class="flex-amount">
+                                        <li><span class="me-1 fw-bold">Subtotal:</span>
+                                            <br>{{ 'Rp.' . number_format($invoice->subtotal) }}
+                                        </li>
+                                        <span>|</span>
                                         <li><span class="me-1 fw-bold">Amount:</span>
                                             <br>{{ 'Rp.' . number_format($invoice->total_amount) }}
                                         </li>

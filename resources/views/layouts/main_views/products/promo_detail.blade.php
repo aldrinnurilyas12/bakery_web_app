@@ -49,25 +49,31 @@
                     <div class="container-product-info">
                         <div style="display: flex; justify-content: space-between;" class="flex-info-promo">
                             <h4 style="margin-bottom: 4px;">{{ $promo_bundling->bundling_name }}</h4>
-                             <span class="promo-badge">Promo Bundling</span>
+                            <span class="promo-badge">Promo Bundling</span>
                         </div>
                         <p class="price">Rp {{ number_format($promo_bundling->price) }}</p>
 
-                         <p> Detail item: </p>
+                        <p> Detail item: </p>
                         <div class="info-product-detail">
-                             <ul>
+                            <ul>
 
-                                  @foreach ($all_product as $prd )
-                                      @if($promo_bundling->bundling_code == $prd->bundling_code)
-                                      <li style="font-size:14px;">{{ $prd->product_name }} &nbsp; x{{ $prd->quantity }}</li>
-                                      @endif
-                                   @endforeach
+                                @foreach ($all_product as $prd)
+                                    @if ($promo_bundling->bundling_code == $prd->bundling_code)
+                                        <li style="font-size:14px;">{{ $prd->product_name }} &nbsp;
+                                            x{{ $prd->quantity }}</li>
+                                    @endif
+                                @endforeach
                             </ul>
-                                                              
+
                         </div>
 
                         <div style="margin-bottom: 30px;" class="description">
-                            {{ $promo_bundling->description ?: 'Tidak ada deskripsi' }}
+                            @if ($promo_bundling->description)
+                                {{ $promo_bundling->description }}
+                            @else
+                                <p class="text-center">Tidak ada Deskripsi untuk
+                                    Produk ini</p>
+                            @endif
                         </div>
 
                     </div>
@@ -143,28 +149,28 @@
 
 </body>
 <style>
-    .route-back{
-    width:30px;
-    height:30px;
-    background:#bb0239;
-    border-radius:50%;
-    position:absolute;
-    margin: 10px 10px 0 10px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+    .route-back {
+        width: 30px;
+        height: 30px;
+        background: #bb0239;
+        border-radius: 50%;
+        position: absolute;
+        margin: 10px 10px 0 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-.route-back a{
-    color:#fff;
-    font-size:14px;
-    text-decoration:none;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    width:100%;
-    height:100%;
-}
+    .route-back a {
+        color: #fff;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
 </style>
 
 <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>

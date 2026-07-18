@@ -30,7 +30,12 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data/Histori Harga Produk
+                                Master Data > <strong> Histori Harga Produk </strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap:20px;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('products_data') }}">Kembali</a>
                             </div>
                         </div>
                         @if ($product_price->isNotEmpty())

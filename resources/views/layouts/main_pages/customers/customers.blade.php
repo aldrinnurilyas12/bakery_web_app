@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Data Customers</title>
+    <title>Data Pelanggan</title>
     <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
@@ -25,7 +25,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Customers</a>
+                                Master Data > <strong>Pelanggan </strong>
                             </div>
 
                         </div>
@@ -36,13 +36,8 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Kode Pelanggan</th>
-                                                <th>Nama</th>
-                                                <th>Email</th>
-                                                <th>Alamat</th>
+                                                <th>Informasi Pelanggan</th>
                                                 <th>Detail Transaksi</th>
-                                                <th>Created at</th>
-                                                <th>Updated at</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -52,36 +47,94 @@
                                             @foreach ($customers as $key => $customer)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td>{{ $customer->customer_code }}</td>
-                                                    <td>{{ $customer->name }}</td>
-                                                    <td>{{ $customer->email }}</td>
-                                                    <td>{{ $customer->address ?: '-' }}</td>
+
+
                                                     <td>
-                                                        <table class="table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                                            <thead>
-                                                                <th>Total Transaksi</th>
-                                                                <th>Total Spent</th>
-                                                                <th>Total Voucher</th>
-                                                                <th>Total Point</th>
-                                                            </thead>
-                                                            <tbody>
-                                                               <tr style="text-align: center;">
-                                                                    <td>{{ $customer->transaction_total }}</td>
-                                                                    <td>
-                                                                        @if ($customer->spent_money == 0 || null)
-                                                                            <span>-</span>
-                                                                        @else
-                                                                            {{ 'Rp.' . number_format($customer->spent_money ?:'-') }}
-                                                                        @endif
-                                                                    </td>
-                                                                    <td>{{ $customer->total_voucher ?:'-' }}</td>
-                                                                    <td>{{ $customer->point ?:'-' }}</td>
-                                                               </tr>
-                                                            </tbody>
+                                                        <table class="table table-bordered" cellspacing="0">
+                                                            <tr>
+                                                                <th>Kode Pelanggan</th>
+                                                                <td>{{ $customer->customer_code }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Nama</th>
+                                                                <td>{{ $customer->name }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Alamat</th>
+                                                                <td>
+                                                                    @if ($customer->address)
+                                                                        <textarea name="" id="" cols="30" rows="3" readonly>
+                                                                    {{ $customer->address ?: '-' }}
+                                                                    </textarea>
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Email</th>
+                                                                <td>{{ $customer->email }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>No.HP</th>
+                                                                <td>{{ $customer->phone_number }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Tanggal Buat Akun</th>
+                                                                <td>{{ \Carbon\carbon::parse($customer->member_date)->format('d M Y') }}
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Tanggal Hapus Akun</th>
+                                                                <td>
+                                                                    @if ($customer->deleted_at)
+                                                                        {{ \Carbon\carbon::parse($customer->deleted_at)->format('d M Y') }}
+                                                                    @else
+                                                                        -
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
                                                         </table>
                                                     </td>
-                                                    <td>{{ $customer->created_at }}</td>
-                                                    <td>{{ $customer->updated_at }}</td>
+
+                                                    <td>
+                                                        <table class="table table-bordered" width="100%"
+                                                            cellspacing="0">
+                                                            <tr>
+                                                                <th>Total Transaksi</th>
+                                                                <td>{{ $customer->transaction_total }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Total Pengeluaran</th>
+                                                                <td>
+                                                                    @if ($customer->spent_money == 0 || null)
+                                                                        <span>-</span>
+                                                                    @else
+                                                                        {{ 'Rp.' . number_format($customer->spent_money ?: '-') }}
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Total E-Voucher</th>
+                                                                <td>{{ $customer->total_voucher ?: '-' }}</td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <th>Point</th>
+                                                                <td>{{ $customer->point ?: '-' }}</td>
+                                                            </tr>
+
+                                                        </table>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

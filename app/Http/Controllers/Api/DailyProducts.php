@@ -53,7 +53,9 @@ class DailyProducts extends Controller
         ->where('product_daily', 'N')
         ->where('received_quantity', '!=', null)
         ->where('received_quantity', '!=', 0)
-        ->where('status_name', 'Received')->get();
+        ->where('status_name', 'Received')
+        ->whereDate('expired_date', '>=', now())
+        ->get();
         return view('layouts.main_pages.daily_products.create.products_create', compact('products', 'status'));
     }
 
@@ -296,13 +298,16 @@ class DailyProducts extends Controller
    public function filter(Request $request)
     {
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
-        $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer']);
+        $filter_forbidden_access = in_array($session_user->role_name, ['Staff', 'Casheer', 'IT', 'Manager']);
 
-        if($filter_forbidden_access){
+        if(!$filter_forbidden_access){
             return redirect()->back();
         }
 
         $store = DB::table('store')->get();
+
+       
+
         $filter = $request->filter;
         $daily_products = DB::table('v_daily_products');
 
@@ -310,7 +315,15 @@ class DailyProducts extends Controller
             $daily_products->where('store_code', $filter);
         }
 
+        $store_name = DB::table('store')->where('store_code', $filter)->first();
         $daily_products = $daily_products->get();
+
+         if($daily_products->count() == 0){
+             session()->flash('failed_message', "Tidak ada Produk Daily di Outlet {$store_name->store_name}");
+             return redirect()->route('dailyproducts_data');
+        }
+
+
 
         // dd($daily_products);
         return view('pages.dailyproduct-data', compact('daily_products', 'store'));

@@ -129,6 +129,8 @@ class PromoCampaignController extends Controller
         $status  = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $start_date = Carbon::parse($promo->start_date);
         $end_date = Carbon::parse($promo->end_date);
+
+        
         return view('layouts.main_pages.promo_campaign.edit.promo_edit', compact('products', 'promo', 'status', 'start_date', 'end_date'));
     }
 
@@ -190,5 +192,17 @@ class PromoCampaignController extends Controller
 
          session()->flash('message_success', 'Data Promo berhasil disimpan!');
         return redirect()->back();
+    }
+
+
+    public function promo_update_status(Request $rq){
+        $promo_code =$rq->promo_code;
+
+        PromoCampaign::where('promo_code', $promo_code)->update([
+            'status' => $rq->status
+        ]);
+        session()->flash('message_success', 'Data Promo berhasil disimpan!');
+        return redirect()->back();
+
     }
 }

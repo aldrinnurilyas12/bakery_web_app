@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / User Log Activities
+                                Master Data > <strong> Log Aktivitas Pengguna </strong>
                             </div>
                         </div>
 

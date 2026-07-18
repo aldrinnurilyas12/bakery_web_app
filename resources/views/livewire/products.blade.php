@@ -1,26 +1,22 @@
 <title>
     @yield('title', 'Kencana Bakery - Master Data Produk')</title>
+<link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 <div>
     <main>
         @php
             $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
             $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager', 'Casheer']);
         @endphp
-        <div style="font-size: 14px;" class="alert alert-info">
-            <ul>
-                <li>Data Master Produk hanya bisa dihapus jika Product belum masuk ke Master Data Product Daily & Produk
-                    belum pernah dipakai transaksi</li>
-                <li>Harga hanya bisa di input ketika HPP produk sudah ada</li>
-            </ul>
-        </div>
+
         <div class="container-fluid px-4">
             <br>
 
             <div class="card mb-4">
                 <div style="display: flex; justify-content:space-between;" class="card-header">
                     <div class="title">
-                        Master Data / <a href="{{ route('master_products.index') }}">Item</a>
+                        Master Data > <strong> Produk </strong>
                     </div>
+
 
                     <div style="display: flex;gap:10px;" class="flex-content">
 
@@ -36,11 +32,19 @@
                             @endif
                             @if (!$user_permission_forbidden)
                                 <div class="button-add-product">
-                                    <a class="btn btn-primary" href="{{ route('product_create') }}">Tambah Item</a>
+                                    <a class="btn-general" href="{{ route('product_create') }}">Tambah Produk</a>
                                 </div>
                             @endif
                         @endif
                     </div>
+                </div>
+                <div style="font-size: 14px;" class="alert alert-info">
+                    <ul>
+                        <li>Master data Produk hanya bisa dihapus jika Produk belum masuk ke Master Data Product
+                            Daily & Produk belum pernah dipakai transaksi</li>
+                        <li>Harga hanya bisa di input ketika HPP produk sudah ada, segera lakukan Input Bill Of Material
+                            (BoM)</li>
+                    </ul>
                 </div>
 
                 <div class="card-body">
@@ -64,7 +68,7 @@
                                             <th>Produk Point</th>
                                             <th>Review & Rating</th>
                                             <th>Akses oleh</th>
-                                           
+
                                         </tr>
                                     </thead>
 
@@ -75,7 +79,7 @@
                                         @foreach ($products as $product)
                                             <tr>
                                                 <td>{{ $no++ }}</td>
-                                                 <td>
+                                                <td>
                                                     @php
                                                         $product_image = DB::table('product_images')
                                                             ->where('product_code', $product->product_code)
@@ -108,8 +112,9 @@
                                                             ->where('pv.product', $product->product_code)
                                                             ->get();
 
-                                                            $product_price_history = DB::table('product_price_history')
-                                                                        ->pluck('product');
+                                                        $product_price_history = DB::table(
+                                                            'product_price_history',
+                                                        )->pluck('product');
 
                                                     @endphp
                                                     @if ($product_image && $product_image->images)
@@ -144,7 +149,8 @@
                                                                     <td style="display:flex; justify-content: center;">
                                                                         @if ($product->bill_of_material == 'Y')
                                                                             <div class="show-bom">
-                                                                                <a href="{{ route('bill-of-material', $product->product_code) }}"><i
+                                                                                <a
+                                                                                    href="{{ route('bill-of-material', $product->product_code) }}"><i
                                                                                         class="fas fa-eye"></i></a>
                                                                             </div>
                                                                         @elseif($product->bill_of_material == 'N')
@@ -157,75 +163,81 @@
                                                                         @endif
                                                                     </td>
                                                                 </tr>
-                                                                    @if($product->product_variant == 'Y')
-
-                                                                    @else
-                                                                        <tr>
-                                                                            <th>Harga</th>
-                                                                            <td style="display:flex; justify-content: center;">
-                                                                                @if($product->hpp)
-                                                                                    @if($product->price)
-                                                                                        <a href="{{ route('product_price_update', $product->product_code) }}">
-                                                                                            <i class="fas fa-edit"></i> ubah
-                                                                                        </a>
-                                                                                    @else
-                                                                                        <a href="{{ route('product_price', $product->product_code) }}">
-                                                                                            <i class="fa fa-plus-square"></i>
-                                                                                        </a>
-                                                                                    @endif
-                                                                                @else
-                                                                                    <span>-</span>
-                                                                                @endif
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endif
-
+                                                                @if ($product->product_variant == 'Y')
+                                                                @else
                                                                     <tr>
-                                                                        <th>Status Produk</th>
-                                                                        <td>
-                                                                            @if($product->product_status == 'Active')
-                                                                            <span class="text-success">{{ $product->product_status ?: '-' }}</span>
-                                                                                <a href="#" data-toggle="modal"
-                                                                                 data-target="#changeStatus{{ $product->product_code }}"><i
-                                                                                    class="fas fa-edit"></i>
-                                                                                    ubah 
-                                                                                </a>
+                                                                        <th>Harga</th>
+                                                                        <td
+                                                                            style="display:flex; justify-content: center;">
+                                                                            @if ($product->hpp)
+                                                                                @if ($product->price)
+                                                                                    <a
+                                                                                        href="{{ route('product_price_update', $product->product_code) }}">
+                                                                                        <i class="fas fa-edit"></i> ubah
+                                                                                    </a>
+                                                                                @else
+                                                                                    <a
+                                                                                        href="{{ route('product_price', $product->product_code) }}">
+                                                                                        <i
+                                                                                            class="fa fa-plus-square"></i>
+                                                                                    </a>
+                                                                                @endif
                                                                             @else
-                                                                             <span class="text-danger">{{ $product->product_status ?: '-' }}</span>
-                                                                                 <a href="#" data-toggle="modal"
-                                                                                     data-target="#changeStatus{{ $product->product_code }}"><i
-                                                                                    class="fas fa-edit"></i>
-                                                                                    ubah 
-                                                                                </a>
+                                                                                <span>-</span>
                                                                             @endif
-
                                                                         </td>
                                                                     </tr>
+                                                                @endif
 
-                                                                    
-                                                                    @if ($product->product_variant == 'Y')
-                                                                        <tr>
-                                                                            <th>Variant</th>
-                                                                            @if ($product->product_variant == 'Y')
-                                                                                <td>
-                                                                                    @if ($product->product_variant == 'Y')
-                                                                                        <div style="margin-bottom: 10px;text-align: center;"
-                                                                                            class="text-primary">
-                                                                                            <a style="font-size:13px;width: 100%;"
-                                                                                                href="{{ route('add_product_variant', $product->product_code) }}">
-                                                                                                <i class="fa fa-plus-square"></i>
-                                                                                            </a>
-                                                                                        </div>
-                                                                                    @endif
-                                                                                </td>
-                                                                            @endif
-                                                                        </tr>
-                                                                    @endif
+                                                                <tr>
+                                                                    <th>Status Produk</th>
+                                                                    <td>
+                                                                        @if ($product->product_status == 'Active')
+                                                                            <span
+                                                                                class="text-success">{{ $product->product_status ?: '-' }}</span>
+                                                                            <a href="#" data-toggle="modal"
+                                                                                data-target="#changeStatus{{ $product->product_code }}"><i
+                                                                                    class="fas fa-edit"></i>
+                                                                                ubah
+                                                                            </a>
+                                                                        @else
+                                                                            <span
+                                                                                class="text-danger">{{ $product->product_status ?: '-' }}</span>
+                                                                            <a href="#" data-toggle="modal"
+                                                                                data-target="#changeStatus{{ $product->product_code }}"><i
+                                                                                    class="fas fa-edit"></i>
+                                                                                ubah
+                                                                            </a>
+                                                                        @endif
+
+                                                                    </td>
+                                                                </tr>
+
+
+                                                                @if ($product->product_variant == 'Y')
+                                                                    <tr>
+                                                                        <th>Variant</th>
+                                                                        @if ($product->product_variant == 'Y')
+                                                                            <td>
+                                                                                @if ($product->product_variant == 'Y')
+                                                                                    <div style="margin-bottom: 10px;text-align: center;"
+                                                                                        class="text-primary">
+                                                                                        <a style="font-size:13px;width: 100%;"
+                                                                                            href="{{ route('add_product_variant', $product->product_code) }}">
+                                                                                            <i
+                                                                                                class="fa fa-plus-square"></i>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                @endif
+                                                                            </td>
+                                                                        @endif
+                                                                    </tr>
+                                                                @endif
                                                             </tbody>
                                                         </table>
                                                     </td>
                                                 @endif
-                                               
+
                                                 <td>
                                                     <table class="table table-bordered">
                                                         <tbody>
@@ -237,7 +249,7 @@
                                                                 <th>Nama Produk</th>
                                                                 <td>{{ $product->product }}</td>
                                                             </tr>
-                                                            
+
 
                                                             <tr>
                                                                 <th>Kategori</th>
@@ -248,7 +260,7 @@
                                                                 <th>Tipe Produk</th>
                                                                 <td>{{ $product->product_type }}</td>
                                                             </tr>
-                                                            
+
                                                             <tr>
                                                                 <th>Berat Produk</th>
                                                                 <td>{{ $product->product_weight . ' ' . $product->product_weight_type }}
@@ -260,9 +272,8 @@
                                                 </td>
 
                                                 @if ($product_variants->isNotEmpty())
-
-                                                {{-- PERBAIKI BAGIAN INI --}}
-                                                <td>
+                                                    {{-- PERBAIKI BAGIAN INI --}}
+                                                    <td>
 
                                                         <table style="font-size: 14px; color:black;"
                                                             class="table table-bordered" id="dataTable" width="100%"
@@ -277,7 +288,7 @@
                                                                 <th>Harga Variant </th>
                                                                 <th>Discount</th>
                                                                 <th>Harga setelah discount</th>
-                                                                
+
                                                             </tr>
 
                                                             @foreach ($product_variants as $prd)
@@ -300,9 +311,9 @@
                                                                             </td>
                                                                         @endif
 
-                                                                         <td>{{ $prd->variant_type }}</td>
+                                                                        <td>{{ $prd->variant_type }}</td>
                                                                         <td>
-                                                                             @if($product_price_history->contains($product->product_code))
+                                                                            @if ($product_price_history->contains($product->product_code))
                                                                                 <a
                                                                                     href="{{ route('product-price-history', [
                                                                                         'product_code' => $prd->product_code,
@@ -324,7 +335,7 @@
                                                                             </td>
                                                                         @elseif($prd->variant_discount == 0)
                                                                             <td>
-                                                                               -
+                                                                                -
                                                                             </td>
                                                                             <td>
                                                                                 -
@@ -343,22 +354,127 @@
                                                 @elseif($product->product_variant == null)
                                                     <td>
                                                         <table style="font-size: 14px; color:black;"
-                                                                        class="table table-bordered" id="dataTable" width="100%"
-                                                                        cellspacing="0">
-                                                                <tbody>
-                                                                            
-                                                                    <tr>
-                                                                    <th>Harga</th>
-                                                                        <td>
-                                                                            @if ($product->price)
-                                                                                {{ 'Rp.' . number_format($product->price) }}
-                                                                            @else
-                                                                                <span class="text-danger"> Harga produk belum ada
-                                                                                </span>
-                                                                            @endif
-                                                                        </td>
-                                                                    </tr>
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+                                                            <tbody>
 
+                                                                <tr>
+                                                                    <th>Harga</th>
+                                                                    <td>
+                                                                        @if ($product->price)
+                                                                            {{ 'Rp.' . number_format($product->price) }}
+                                                                        @else
+                                                                            <span class="text-danger"> Harga produk
+                                                                                belum ada
+                                                                            </span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <th>Diskon</th>
+                                                                    <td>
+                                                                        @if ($product->discount == 0)
+                                                                            -
+                                                                        @else
+                                                                            {{ $product->discount . '%' }}
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <th>Harga setelah diskon</th>
+                                                                    <td>
+                                                                        @if ($product->price_after_discount == 0)
+                                                                            -
+                                                                        @else
+                                                                            {{ 'Rp.' . number_format($product->price_after_discount) }}
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <th>HPP</th>
+                                                                    <td>
+                                                                        @if ($product->hpp)
+                                                                            {{ 'Rp.' . number_format($product->hpp) }}
+                                                                        @else
+                                                                            <span class="text-danger">HPP belum ada
+                                                                                untuk produk ini</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <th>Tanggal efektif harga</th>
+                                                                    <td>
+                                                                        {{ $product->price_effective_from ?: '-' }}
+                                                                    </td>
+                                                                </tr>
+
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                @else
+                                                    <td>
+                                                        <table style="font-size: 14px; color:black;"
+                                                            class="table table-bordered" id="dataTable" width="100%"
+                                                            cellspacing="0">
+                                                            <tbody>
+
+                                                                <tr>
+                                                                    <th>Histori Harga</th>
+                                                                    <td>
+                                                                        @if ($product_price_history->contains($product->product_code))
+                                                                            <a
+                                                                                href="{{ route('product-price-history', [
+                                                                                    'product_code' => $product->product_code,
+                                                                                    'variant' => null,
+                                                                                ]) }}"><i
+                                                                                    class="fa fa-eye"></i></a>
+                                                                        @else
+                                                                            <span>-</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                                <tr>
+                                                                    <th>Harga</th>
+                                                                    <td>
+                                                                        @if ($product->price)
+                                                                            {{ 'Rp.' . number_format($product->price) }}
+                                                                        @else
+                                                                            @if ($product->product_variant == 'Y')
+                                                                                <span class="text-danger"> Harga untuk
+                                                                                    produk variant ini
+                                                                                    belum diinput</span>
+                                                                                <br>
+                                                                                <br>
+                                                                                <form
+                                                                                    action="{{ route('delete_variant_product', $product->product_code) }}"
+                                                                                    method="POST">
+                                                                                    @csrf
+                                                                                    @method('PUT')
+                                                                                    <input type="text"
+                                                                                        name="product_code"
+                                                                                        value="{{ $product->product_code }}"
+                                                                                        hidden>
+                                                                                    <button
+                                                                                        style="background: none; border:none;color:red;"
+                                                                                        type="submit"><i
+                                                                                            class="fa fa-trash"></i>Hapus
+                                                                                        Produk Variant</button>
+                                                                                </form>
+                                                                            @else
+                                                                                <span class="text-danger"> Harga untuk
+                                                                                    produk ini
+                                                                                    belum diinput</span>
+                                                                            @endif
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+
+                                                                @if ($product->discount)
                                                                     <tr>
                                                                         <th>Diskon</th>
                                                                         <td>
@@ -380,137 +496,35 @@
                                                                             @endif
                                                                         </td>
                                                                     </tr>
+                                                                @endif
 
-                                                                    <tr>
-                                                                        <th>HPP</th>
-                                                                            <td>
-                                                                                @if($product->hpp)
-                                                                                {{ 'Rp.'. number_format($product->hpp) }}
-                                                                                @else
-                                                                                <span class="text-danger">HPP belum ada untuk produk ini</span>
-                                                                                @endif
-                                                                            </td>
-                                                                    </tr>
+                                                                <tr>
+                                                                    <th>HPP</th>
+                                                                    <td>
+                                                                        @if ($product->hpp)
+                                                                            {{ 'Rp.' . number_format($product->hpp) }}
+                                                                        @else
+                                                                            <span class="text-danger">HPP belum ada
+                                                                                untuk produk ini</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
 
-                                                                    <tr>
-                                                                        <th>Tanggal efektif harga</th>
-                                                                            <td>
-                                                                                {{ $product->price_effective_from ?: '-' }}
-                                                                            </td>
-                                                                    </tr>
-                                                                    
-                                                                </tbody>
-                                                        </table>
-                                                    </td>
-                                                    
-                                                @else
-                                                    <td>
-                                                        <table style="font-size: 14px; color:black;"
-                                                                        class="table table-bordered" id="dataTable" width="100%"
-                                                                        cellspacing="0">
-                                                                <tbody>
+                                                                <tr>
+                                                                    <th>Tanggal efektif harga</th>
+                                                                    <td>
+                                                                        {{ $product->price_effective_from ?: '-' }}
+                                                                    </td>
+                                                                </tr>
 
-                                                                    <tr>
-                                                                    <th>Histori Harga</th>
-                                                                        <td>
-                                                                            @if($product_price_history->contains($product->product_code))
-                                                                                <a
-                                                                                    href="{{ route('product-price-history', [
-                                                                                        'product_code' => $product->product_code,
-                                                                                        'variant' => null,
-                                                                                    ]) }}"><i
-                                                                                        class="fa fa-eye"></i></a>
-                                                                            @else
-                                                                                <span>-</span>
-                                                                            @endif
-                                                                        </td>
-                                                                    </tr>
-    
-                                                                        <tr>
-                                                                        <th>Harga</th>
-                                                                            <td>
-                                                                                @if ($product->price)
-                                                                                    {{ 'Rp.' . number_format($product->price) }}
-                                                                                @else
-                                                                                    @if($product->product_variant == 'Y')
-                                                                                        <span class="text-danger"> Harga untuk
-                                                                                            produk variant ini
-                                                                                            belum diinput</span>
-                                                                                        <br>
-                                                                                        <br>
-                                                                                        <form
-                                                                                            action="{{ route('delete_variant_product', $product->product_code) }}"
-                                                                                            method="POST">
-                                                                                            @csrf
-                                                                                            @method('PUT')
-                                                                                            <input type="text" name="product_code"
-                                                                                                value="{{ $product->product_code }}"
-                                                                                                hidden>
-                                                                                            <button
-                                                                                                style="background: none; border:none;color:red;"
-                                                                                                type="submit"><i
-                                                                                                    class="fa fa-trash"></i>Hapus
-                                                                                                Produk Variant</button>
-                                                                                        </form>
-                                                                                    @else
-                                                                                        <span class="text-danger"> Harga untuk
-                                                                                            produk ini
-                                                                                            belum diinput</span>
-                                                                                    @endif
-                                                                                @endif
-                                                                            </td>
-                                                                        </tr>
-                                                                    
-                                                                    @if ($product->discount)            
-                                                                        <tr>
-                                                                            <th>Diskon</th>
-                                                                            <td>
-                                                                                @if ($product->discount == 0)
-                                                                                    -
-                                                                                @else
-                                                                                    {{ $product->discount . '%' }}
-                                                                                @endif
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr>
-                                                                            <th>Harga setelah diskon</th>
-                                                                            <td>
-                                                                                @if ($product->price_after_discount == 0)
-                                                                                    -
-                                                                                @else
-                                                                                    {{ 'Rp.' . number_format($product->price_after_discount) }}
-                                                                                @endif
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endif
-
-                                                                    <tr>
-                                                                        <th>HPP</th>
-                                                                        <td>
-                                                                                @if($product->hpp)
-                                                                                {{ 'Rp.'. number_format($product->hpp) }}
-                                                                                @else
-                                                                                <span class="text-danger">HPP belum ada untuk produk ini</span>
-                                                                                @endif
-                                                                            </td>
-                                                                    </tr>
-
-                                                                    <tr>
-                                                                        <th>Tanggal efektif harga</th>
-                                                                            <td>
-                                                                                {{ $product->price_effective_from ?: '-' }}
-                                                                            </td>
-                                                                    </tr>
-                                                                    
-                                                                </tbody>
+                                                            </tbody>
                                                         </table>
                                                     </td>
                                                 @endif
 
                                                 @if ($product->point)
                                                     <td>
-                                                        <table  class="table table-bordered">
+                                                        <table class="table table-bordered">
                                                             <tbody>
                                                                 <tr>
                                                                     <th>Point</th>
@@ -538,9 +552,11 @@
                                                     </td>
                                                 @else
                                                     @if ($user_permission_forbidden)
-                                                    <td>-</td>
+                                                        <td>-</td>
                                                     @else
-                                                        <td><a class="btn btn-primary" href="{{ route('product_update', $product->product_code) }}"><i class="fa fa-plus-square"></i> Point</a></td>
+                                                        <td><a class="btn btn-primary"
+                                                                href="{{ route('product_update', $product->product_code) }}"><i
+                                                                    class="fa fa-plus-square"></i> Point</a></td>
                                                     @endif
                                                 @endif
 
@@ -553,43 +569,48 @@
                                                             </tr>
                                                             <tr>
                                                                 <th>Rata-rata Rating</th>
-                                                                @if($product->rating > 0)
-                                                                    <td> <img style="width:15px;height:15px;" src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt=""> &nbsp;{{ number_format($product->rating,1) ?: '-'}}</td>
+                                                                @if ($product->rating > 0)
+                                                                    <td> <img style="width:15px;height:15px;"
+                                                                            src="{{ asset('assets\front_end\icons\star-icon.svg') }}"
+                                                                            alt="">
+                                                                        &nbsp;{{ number_format($product->rating, 1) ?: '-' }}
+                                                                    </td>
                                                                 @else
                                                                     <td>-</td>
                                                                 @endif
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Aksi</th>
-                                                                <td><a href="{{ route('product-review-detail', $product->product_code) }}" class="btn btn-primary">Detail</a> </td>
+                                                                <td><a href="{{ route('product-review-detail', $product->product_code) }}"
+                                                                        class="btn btn-primary">Detail</a> </td>
                                                             </tr>
-                                                            
+
 
                                                         </tbody>
                                                     </table>
                                                 </td>
-                                                  
+
 
                                                 <td>
-                                                    <table  class="table table-bordered">
+                                                    <table class="table table-bordered">
                                                         <tbody>
                                                             <tr>
                                                                 <th>Dibuat pada</th>
                                                                 <td>{{ $product->created_at }}</td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Dibuat oleh</th>
                                                                 <td>{{ $product->created_by }}</td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Diubah pada</th>
                                                                 <td>{{ $product->updated_at }}</td>
                                                             </tr>
 
-                                                             <tr>
+                                                            <tr>
                                                                 <th>Diubah oleh</th>
                                                                 <td>{{ $product->updated_by }}</td>
                                                             </tr>
@@ -665,57 +686,58 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Ubah status produk &nbsp; <span style="font-weight: bold;">{{ $product->product }}</span></h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Ubah status produk &nbsp; <span
+                                style="font-weight: bold;">{{ $product->product }}</span></h5>
                         <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                      <form action="{{ route('update_status_product', $product->product_code) }}" method="POST">
-                         @csrf
+                    <form action="{{ route('update_status_product', $product->product_code) }}" method="POST">
+                        @csrf
                         @method('PUT')
                         <div class="modal-body">
 
-                            @if($product->product_status == 'Active')
+                            @if ($product->product_status == 'Active')
                                 <input name="product_status" value="8" type="checkbox" required> Nonaktifkan
                             @else
                                 <input name="product_status" value="7" type="checkbox" required> Nonaktifkan
                             @endif
 
                         </div>
-                  
-                    <div class="modal-footer">
-                            <button type="submit" class="btn btn-danger">Simpan data</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
 
-    {{-- show Modal delete Variant --}}
-    <div class="modal fade" id="deleteVariantModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Hapus Variant Produk</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="deleteVariantBody">
-                    <!-- Isi akan di-set via JS -->
-                </div>
-                <div class="modal-footer">
-                    <form id="deleteVariantForm" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Simpan data</button>
                     </form>
                 </div>
             </div>
         </div>
+</div>
+@endforeach
+
+{{-- show Modal delete Variant --}}
+<div class="modal fade" id="deleteVariantModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hapus Variant Produk</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="deleteVariantBody">
+                <!-- Isi akan di-set via JS -->
+            </div>
+            <div class="modal-footer">
+                <form id="deleteVariantForm" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </form>
+            </div>
+        </div>
     </div>
-    {{-- end --}}
+</div>
+{{-- end --}}
 
 </div>
 

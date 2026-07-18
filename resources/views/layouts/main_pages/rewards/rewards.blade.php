@@ -10,6 +10,7 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
@@ -30,7 +31,7 @@
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
                             <div class="title">
-                                Master Data / <a href="{{ route('master_products.index') }}">Master Data Rewards</a>
+                                Master Data > Rewards > <strong>Master Data Rewards</strong>
                             </div>
 
                             @if ($rewards->isNotEmpty())
@@ -38,8 +39,10 @@
                                     <div style="display: flex;gap:10px;" class="button-add-product">
                                         <a class="btn btn-info" href="{{ route('rewards') }}">Data
                                             Rewards Store</a>
-                                        <a class="btn btn-primary" href="{{ route('rewards_create') }}">Tambah
-                                            Rewards</a>
+                                        <div class="button-add-product">
+                                            <a class="btn-general" href="{{ route('rewards_create') }}">Tambah
+                                                Rewards</a>
+                                        </div>
                                     </div>
                                 @endif
                             @endif
@@ -125,7 +128,7 @@
                                                 @if (!$user_permission_forbidden)
                                                     <div
                                                         class="card-footer d-flex align-items-center justify-content-between">
-                                                        <a class="small text-black"
+                                                        <a class="btn btn-primary"
                                                             href="{{ route('rewards_master_update', $reward->rewards_code) }}">Edit
                                                         </a>
                                                     </div>

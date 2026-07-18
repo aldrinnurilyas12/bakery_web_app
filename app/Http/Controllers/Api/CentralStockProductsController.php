@@ -25,6 +25,7 @@ class CentralStockProductsController extends Controller
 
         $query = DB::table('production_products_detail as ppd')
         ->join('production_products as pp', 'ppd.production_code', '=', 'pp.production_code')
+        ->join('products as p', 'ppd.product', '=', 'p.product_code')
         ->where('ppd.product', $product)
         ->where('pp.status', '=', 5);
 
@@ -42,15 +43,20 @@ class CentralStockProductsController extends Controller
         $query = DB::table('distribution_products_detail as dpd')
         ->join('distribution_products as dp', 'dpd.distribution', '=', 'dp.distribution_code')
         ->join('store as st', 'dpd.store', '=', 'st.store_code')
+        ->join('products as p', 'dpd.product', '=', 'p.product_code')
         ->where('dpd.product', $product)
-        ->where('dp.status', '=', 19);
+        ->where('dp.status', '=', 26);
 
         if($variant){
             $query->where('dpd.variant', $variant);
         }
 
+        $total_distribution_item = $query->sum('quantity');
+
         $detail_product = $query->get();
-        return view('layouts.main_pages.central_stock_products.distribution-detail-info', compact('detail_product'));
+
+       
+        return view('layouts.main_pages.central_stock_products.distribution-detail-info', compact('detail_product', 'total_distribution_item'));
     }
 
 

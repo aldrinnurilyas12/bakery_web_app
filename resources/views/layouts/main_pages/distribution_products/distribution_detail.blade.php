@@ -30,13 +30,16 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                <span> Penerimaan Distribusi Produk</span>
-
-                                <br>
-                                <br>
-                                <a class="btn btn-primary" href="{{ route('distribution_products.index') }}">Kembali</a>
+                                <div class="title">
+                                    Inventory > Distribusi Produk > <strong>Distribusi Produk Detail</strong>
+                                </div>
                             </div>
 
+                        </div>
+                        <div style="display: flex; gap:20px;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('distribution_products.index') }}">Kembali</a>
+                            </div>
                         </div>
                         <div class="card-body">
                             @if ($distribution_detail->isNotEmpty())

@@ -30,8 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Inventory / <a href="{{ route('central_stock_products.index') }}">Central
-                                    Stock</a>
+                                Inventory > <strong>Stok Pusat Produk</strong>
                             </div>
                         </div>
                         <div class="card-body">
@@ -61,7 +60,7 @@
                                                                 [{{ $stock->variant ?: '-' }}]</span>
                                                         @endif
                                                     </td>
-                                                   
+
                                                     <td>
                                                         <table style="font-size: 14px; color:black;"
                                                             class="table table-bordered" id="dataTable" width="100%"
@@ -90,7 +89,7 @@
                                                         </table>
                                                     </td>
 
-                                                     <td>
+                                                    <td>
                                                         <table style="font-size: 14px; color:black;"
                                                             class="table table-bordered" id="dataTable" width="100%"
                                                             cellspacing="0">
@@ -108,11 +107,13 @@
                                                                                 'product' => $stock->product_code,
                                                                                 'variant' => $stock->variant_code,
                                                                             ]) }}"><i
-                                                                                class="fas fa-external-link-alt"></i> Lihat</a>
+                                                                                class="fas fa-external-link-alt"></i>
+                                                                            Lihat</a>
                                                                     @else
                                                                         <a
                                                                             href="{{ route('detail-info-product', $stock->product_code) }}"><i
-                                                                                class="fas fa-external-link-alt"></i> Lihat</a>
+                                                                                class="fas fa-external-link-alt"></i>
+                                                                            Lihat</a>
                                                                     @endif
                                                                 </td>
                                                                 <td>
@@ -126,7 +127,8 @@
                                                                     @else
                                                                         <a
                                                                             href="{{ route('detail-info-distribution', $stock->product_code) }}"><i
-                                                                                class="fas fa-external-link-alt"></i> Lihat</a>
+                                                                                class="fas fa-external-link-alt"></i>
+                                                                            Lihat</a>
                                                                     @endif
                                                                 </td>
                                                             </tr>

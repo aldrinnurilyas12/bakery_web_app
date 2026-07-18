@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
 <body class="sb-nav-fixed">
@@ -29,17 +29,25 @@
                     $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
                 @endphp
                 <div class="container-fluid px-4">
-                    <br>
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
+                            <div class="title">
+                                Business Intelligence > <strong>Data Analitik</strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content:space-between;" class="card-header">
                             <div class="container mt-4">
-                                <div style="display: flex; justify-content: space-between;margin-bottom:20px;" class="filter-contnent">
+                                <div style="display: flex; justify-content: space-between;margin-bottom:20px;"
+                                    class="filter-contnent">
                                     <div class="title-content-filter">
-                                         <h3 class="mb-4">Dashboard Statistik</h3>
-                                         <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:14px;" class="link-to-another-page">
-                                            <a style="width:150px;" class="btn-general" href="{{ route('data_analytics') }}">Segmen Transaksi</a>
-                                             <a style="width:150px;" class="btn-general" href="{{ route('data_analytics_customer') }}">Segmen Pelanggan</a>
-                                         </div>
+                                        <h3 class="mb-4">Dashboard Statistik</h3>
+                                        <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:14px;"
+                                            class="link-to-another-page">
+                                            <a style="width:150px;" class="btn-general"
+                                                href="{{ route('data_analytics') }}">Segmen Transaksi</a>
+                                            <a style="width:150px;" class="btn-general"
+                                                href="{{ route('data_analytics_customer') }}">Segmen Pelanggan</a>
+                                        </div>
                                     </div>
 
                                     <form action="{{ route('filter_dashboard') }}" method="GET">
@@ -47,12 +55,16 @@
 
                                             <div class="date-filter">
                                                 <label for=""><strong>Tanggal awal</strong></label>
-                                                <input type="date" name="start_date" value="{{ old('start_date', request('start_date')) }}" class="form-control">
+                                                <input type="date" name="start_date"
+                                                    value="{{ old('start_date', request('start_date')) }}"
+                                                    class="form-control">
                                             </div>
 
                                             <div class="date-filter">
                                                 <label for=""><strong>Tanggal akhir</strong></label>
-                                                <input type="date" name="end_date" value="{{ old('end_date', request('end_date')) }}" class="form-control">
+                                                <input type="date" name="end_date"
+                                                    value="{{ old('end_date', request('end_date')) }}"
+                                                    class="form-control">
                                             </div>
 
                                             <div class="store-filter">
@@ -61,15 +73,16 @@
                                                     <option value="">=== Pilih Store ===</option>
                                                     @foreach ($stores as $st)
                                                         <option value="{{ $st->store_code }}"
-                                                            {{ old('store', request('store')) == $st->store_code ? 'selected' : '' }}>{{ $st->store_name }}</option>
+                                                            {{ old('store', request('store')) == $st->store_code ? 'selected' : '' }}>
+                                                            {{ $st->store_name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
 
-                                            <button style="height: 40px;align-self: end;" type="submit" class="btn btn-primary">Filter</button>
-                                             <a href="{{ route('data_analytics') }}" 
-                                            style="height:40px; align-self:end;" 
-                                            class="btn btn-warning">
+                                            <button style="height: 40px;align-self: end;" type="submit"
+                                                class="btn btn-primary">Filter</button>
+                                            <a href="{{ route('data_analytics') }}"
+                                                style="height:40px; align-self:end;" class="btn btn-warning">
                                                 Reset
                                             </a>
                                         </div>
@@ -77,8 +90,8 @@
                                 </div>
 
                                 {{-- Row Card --}}
-                                
-                                 <div class="row">
+
+                                <div class="row">
 
                                     <div class="col-xl-3 col-md-6">
                                         <div class="card bg-white text-black mb-4">
@@ -92,16 +105,17 @@
                                                     Pendapatan
                                                 </div>
 
-                                                @if($mom_revenue > 0)
-                                                <div class="mt-2">
-                                                        @if($mom_revenue > 0)
-                                                        <div style="display:flex;justify-content:center;gap:20px;" class="flex-content">
-                                                            <span class="text-success fw-bold">
-                                                                <i class="fas fa-arrow-up"></i>
-                                                                {{ number_format($mom_revenue, 1) }}%
-                                                            </span>
-                                                            <span>+{{ "Rp." . number_format(abs($total_revenue_diff)) }}</span>
-                                                        </div>
+                                                @if ($mom_revenue > 0)
+                                                    <div class="mt-2">
+                                                        @if ($mom_revenue > 0)
+                                                            <div style="display:flex;justify-content:center;gap:20px;"
+                                                                class="flex-content">
+                                                                <span class="text-success fw-bold">
+                                                                    <i class="fas fa-arrow-up"></i>
+                                                                    {{ number_format($mom_revenue, 1) }}%
+                                                                </span>
+                                                                <span>+{{ 'Rp.' . number_format(abs($total_revenue_diff)) }}</span>
+                                                            </div>
                                                         @elseif($mom_revenue < 0)
                                                             <span class="text-danger fw-bold">
                                                                 <i class="fas fa-arrow-down"></i>
@@ -112,38 +126,39 @@
                                                         <small class="text-muted d-block">
                                                             dibanding bulan lalu
                                                         </small>
-                                                </div>
+                                                    </div>
                                                 @endif
 
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    
+
+
 
                                     <div class="col-xl-3 col-md-6">
                                         <div class="card bg-white text-black mb-4">
                                             <div class="card-body text-center">
 
                                                 <div class="text-content-main" style="font-size:30px;font-weight:bold;">
-                                                   {{$total_transaction}}
+                                                    {{ $total_transaction }}
                                                 </div>
 
                                                 <div class="title-content">
                                                     Transaksi
                                                 </div>
 
-                                                 @if($mom_transaction > 0)
-                                                <div class="mt-2">
-                                                        @if($mom_transaction > 0)
-                                                        <div style="display:flex;justify-content:center;gap:20px;" class="flex-content">
-                                                            <span class="text-success fw-bold">
-                                                                <i class="fas fa-arrow-up"></i>
-                                                                {{ number_format($mom_transaction, 1) }}%
-                                                            </span>
+                                                @if ($mom_transaction > 0)
+                                                    <div class="mt-2">
+                                                        @if ($mom_transaction > 0)
+                                                            <div style="display:flex;justify-content:center;gap:20px;"
+                                                                class="flex-content">
+                                                                <span class="text-success fw-bold">
+                                                                    <i class="fas fa-arrow-up"></i>
+                                                                    {{ number_format($mom_transaction, 1) }}%
+                                                                </span>
 
-                                                            <span>+{{ $total_transaction_diff }}</span>
-                                                        </div>
+                                                                <span>+{{ $total_transaction_diff }}</span>
+                                                            </div>
                                                         @elseif($mom_transaction < 0)
                                                             <span class="text-danger fw-bold">
                                                                 <i class="fas fa-arrow-down"></i>
@@ -155,18 +170,19 @@
                                                             dibanding bulan lalu
                                                         </small>
 
-                                                </div>
+                                                    </div>
                                                 @endif
 
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-xl-3 col-md-6">
                                         <div class="card bg-white text-black mb-4">
                                             <div style="display: block;align-items: center;background:white; gap:10px;text-align: center;"
                                                 class="card-body">
-                                                <div style="font-size: 30px;font-weight:bold;" class="text-content-main">
+                                                <div style="font-size: 30px;font-weight:bold;"
+                                                    class="text-content-main">
                                                     {{ $total_customer }}
                                                 </div>
 
@@ -174,17 +190,18 @@
                                                     Pelanggan
                                                 </div>
 
-                                                 @if($mom_customer > 0)
+                                                @if ($mom_customer > 0)
                                                     <div class="mt-2">
-                                                        @if($mom_customer > 0)
-                                                        <div style="display:flex;justify-content:center;gap:20px;" class="flex-content">
-                                                            <span class="text-success fw-bold">
-                                                                <i class="fas fa-arrow-up"></i>
-                                                                {{ number_format($mom_customer, 1) }}%
-                                                            </span>
+                                                        @if ($mom_customer > 0)
+                                                            <div style="display:flex;justify-content:center;gap:20px;"
+                                                                class="flex-content">
+                                                                <span class="text-success fw-bold">
+                                                                    <i class="fas fa-arrow-up"></i>
+                                                                    {{ number_format($mom_customer, 1) }}%
+                                                                </span>
 
-                                                            <span>+{{ $total_customer_diff }}</span>
-                                                        </div>
+                                                                <span>+{{ $total_customer_diff }}</span>
+                                                            </div>
                                                         @elseif($mom_customer < 0)
                                                             <span class="text-danger fw-bold">
                                                                 <i class="fas fa-arrow-down"></i>
@@ -197,7 +214,7 @@
                                                         </small>
 
                                                     </div>
-                                                    @endif
+                                                @endif
 
 
                                             </div>
@@ -208,7 +225,8 @@
                                         <div class="card bg-white text-black mb-4">
                                             <div style="display: block;align-items: center;background:white; gap:10px;text-align: center;"
                                                 class="card-body">
-                                                <div style="font-size: 30px;font-weight:bold;" class="text-content-main">
+                                                <div style="font-size: 30px;font-weight:bold;"
+                                                    class="text-content-main">
                                                     {{ $total_product }}
                                                 </div>
 
@@ -237,7 +255,7 @@
                                 </div>
                                 <br>
                                 <div class="row">
-                                      <div class="col-md-8">
+                                    <div class="col-md-8">
                                         <div class="card">
                                             <div class="card-header">Total Pendapatan by Month</div>
                                             <div class="card-body">
@@ -261,7 +279,7 @@
 
                                 <br>
                                 <div class="row">
-                                      <div class="col-md-9">
+                                    <div class="col-md-9">
                                         <div class="card">
                                             <div class="card-header">Total Pendapatan by Produk</div>
                                             <div class="card-body">
@@ -285,17 +303,17 @@
                                 {{-- ROW BAWAH --}}
                                 <div class="row mt-4">
 
-                                     <div class="col-md-8">
+                                    <div class="col-md-8">
                                         <div class="card">
                                             <div class="card-header">Heatmap Transaksi per Jam</div>
                                             <div class="card-body">
-                                                 <canvas id="heatMapChart"></canvas>
+                                                <canvas id="heatMapChart"></canvas>
                                             </div>
                                         </div>
-                                     </div>
+                                    </div>
 
 
-                                     <div class="col-md-4">
+                                    <div class="col-md-4">
                                         <div class="card">
                                             <div class="card-header">Total Pendapatan by Metode Pembayaran</div>
                                             <div class="card-body">
@@ -306,7 +324,7 @@
                                 </div>
 
                                 <div class="row mt-4">
-                                     <div class="col-md-12">
+                                    <div class="col-md-12">
                                         <div class="card">
                                             <div class="card-header">Penjualan Produk</div>
                                             <div class="card-body">
@@ -320,12 +338,13 @@
                                                     </thead>
                                                     <tbody>
 
-                                                        @foreach ($top_sales_products as $sales )
+                                                        @foreach ($top_sales_products as $sales)
                                                             <tr>
-                                                                <td>{{$sales->product_name}}</td>
+                                                                <td>{{ $sales->product_name }}</td>
                                                                 <td>{{ $sales->total_sales }}</td>
-                                                                <td>{{ "Rp" . number_format($sales->total_revenue) }}</td>
-                                                        </tr>
+                                                                <td>{{ 'Rp' . number_format($sales->total_revenue) }}
+                                                                </td>
+                                                            </tr>
                                                         @endforeach
                                                     </tbody>
                                                 </table>
@@ -342,203 +361,203 @@
         </div>
     </div>
 </body>
- <script>
-   // LINE CHART
-   new Chart(document.getElementById('lineChart'), {
-       type: 'line',
-       data: {
-           labels: @json($labels),
-           datasets: [{
-               label: 'Penjualan',
-               data: @json($data),
-               borderColor: 'blue',
-               backgroundColor: 'rgba(0, 0, 255, 0.2)',
-               tension: 0.4,
-               fill: true
-           }]
-       },
+<script>
+    // LINE CHART
+    new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels: @json($labels),
+            datasets: [{
+                label: 'Penjualan',
+                data: @json($data),
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
         options: {
-           responsive: true,
-           maintainAspectRatio: false,
-           scales: {
-               y: {
-                   beginAtZero: true,
-                   ticks: {
-                       stepSize: 1, // interval 1
-                       callback: function(value) {
-                           return Number.isInteger(value) ? value : '';
-                       }
-                   }
-               }
-           }
-       }
-   });
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1, // interval 1
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : '';
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-   // PIE CHART
-  const data = @json($category_total);
+    // PIE CHART
+    const data = @json($category_total);
 
-   new Chart(document.getElementById('pieChart'), {
-       type: 'doughnut',
-       data: {
-           labels: @json($labels_category),
-           datasets: [{
-               data: data,
-               backgroundColor: [
-                   '#bb0239',
-                   '#36A2EB',
-                   '#FFCE56',
-                   '#4BC0C0',
-                   '#9966FF',
-                   '#795548',
-                   '#607D8B',
-                   '#FFC107',
-                   '#673AB7'
-               ]
-           }]
-       },
-       plugins: [ChartDataLabels],
-       options: {
-           responsive: true,
-           maintainAspectRatio: false,
-           plugins: {
-               legend: {
-                   position: 'right',
-                   labels: {
-                       boxWidth: 20,
-                       padding: 15
-                   }
-               },
-               datalabels: {
-                   color: 'black',
-                   font: {
-                       weight: 'bold',
-                       size: 14
-                   },
-                   formatter: (value, context) => {
-                       const total = context.dataset.data.reduce(
-                           (sum, val) => sum + Number(val),
-                           0
-                       );
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: @json($labels_category),
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#bb0239',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF',
+                    '#795548',
+                    '#607D8B',
+                    '#FFC107',
+                    '#673AB7'
+                ]
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 20,
+                        padding: 15
+                    }
+                },
+                datalabels: {
+                    color: 'black',
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    },
+                    formatter: (value, context) => {
+                        const total = context.dataset.data.reduce(
+                            (sum, val) => sum + Number(val),
+                            0
+                        );
 
-                       const percentage = ((value / total) * 100).toFixed(1);
+                        const percentage = ((value / total) * 100).toFixed(1);
 
-                       return percentage + '%';
-                   }
-               }
-           }
-       }
-   });
+                        return percentage + '%';
+                    }
+                }
+            }
+        }
+    });
 
-   // BAR CHART 1
-   new Chart(document.getElementById('barChart1'), {
-       type: 'bar',
-       data: {
-           labels: @json($labels_products),
-           datasets: [{
-               label: 'Pendapatan by Produk',
-               data: @json($products_revenue),
-               backgroundColor: '#bb0239'
-           }]
-       }
-   });
+    // BAR CHART 1
+    new Chart(document.getElementById('barChart1'), {
+        type: 'bar',
+        data: {
+            labels: @json($labels_products),
+            datasets: [{
+                label: 'Pendapatan by Produk',
+                data: @json($products_revenue),
+                backgroundColor: '#bb0239'
+            }]
+        }
+    });
 
     // Revenue by Month
     new Chart(document.getElementById('chartRevenueMonth'), {
-       type: 'bar',
-       data: {
-           labels: @json($labels_revenue),
-           datasets: [{
-               label: 'Pendapatan by Bulan',
-               data: @json($revenue_data),
-               backgroundColor: 'rgba(0, 0, 255)'
-           }]
-       }
-   });   
-   
-   
-  // total transaction member vs nonmember:
-  new Chart(document.getElementById('chartTransactionMemberNonMember'), {
-       type: 'pie',
-       data: {
-           labels: @json($labels_member),
-           datasets: [{
-               data: @json($transaction_member),
-               backgroundColor: [
-                   '#bb0239',
-                   '#36A2EB'
-               ]
-           }]
-       },
-       plugins: [ChartDataLabels],
-       options: {
-           responsive: true,
-           maintainAspectRatio: false,
-           plugins: {
-               legend: {
-                   position: 'right',
-                   labels: {
-                       boxWidth: 20,
-                       padding: 15
-                   }
-               },
-               datalabels: {
-                   color: 'black',
-                   font: {
-                       weight: 'bold',
-                       size: 14
-                   },
-                   formatter: (value, context) => {
-                       const total = context.dataset.data.reduce(
-                           (sum, val) => sum + Number(val),
-                           0
-                       );
+        type: 'bar',
+        data: {
+            labels: @json($labels_revenue),
+            datasets: [{
+                label: 'Pendapatan by Bulan',
+                data: @json($revenue_data),
+                backgroundColor: 'rgba(0, 0, 255)'
+            }]
+        }
+    });
 
-                       const percentage = ((value / total) * 100).toFixed(1);
 
-                       return percentage + '%';
-                   }
-               }
-           }
-       }
-   });    
+    // total transaction member vs nonmember:
+    new Chart(document.getElementById('chartTransactionMemberNonMember'), {
+        type: 'pie',
+        data: {
+            labels: @json($labels_member),
+            datasets: [{
+                data: @json($transaction_member),
+                backgroundColor: [
+                    '#bb0239',
+                    '#36A2EB'
+                ]
+            }]
+        },
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 20,
+                        padding: 15
+                    }
+                },
+                datalabels: {
+                    color: 'black',
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    },
+                    formatter: (value, context) => {
+                        const total = context.dataset.data.reduce(
+                            (sum, val) => sum + Number(val),
+                            0
+                        );
 
-   // Horizontal Bar:
+                        const percentage = ((value / total) * 100).toFixed(1);
+
+                        return percentage + '%';
+                    }
+                }
+            }
+        }
+    });
+
+    // Horizontal Bar:
     new Chart(document.getElementById('horizontalbarChart'), {
-       type: 'bar',
-       data: {
-           labels: @json($labels_paymethod),
-           datasets: [{
-               data: @json($paycategory_total),
-               backgroundColor: [
-                   '#bb0239',
-                   '#36A2EB',
-                   '#FFCE56',
-                   '#4BC0C0',
-                   '#9966FF'
-               ],
-               barThickness: 10 
-           }]
-       },
-       options: {
-           indexAxis: 'y', // <-- ini yang bikin horizontal
-           responsive: true,
-           maintainAspectRatio: false,
-           plugins: {
-               legend: {
-                   display: false
-               }
-           },
-           scales: {
-               x: {
-                   beginAtZero: true
-               }
-           }
-       }
-   });
+        type: 'bar',
+        data: {
+            labels: @json($labels_paymethod),
+            datasets: [{
+                data: @json($paycategory_total),
+                backgroundColor: [
+                    '#bb0239',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ],
+                barThickness: 10
+            }]
+        },
+        options: {
+            indexAxis: 'y', // <-- ini yang bikin horizontal
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 
-   // HEATMAP:
+    // HEATMAP:
     const dayLabels = [
-    'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'
+        'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'
     ];
 
     const heatmapData = @json($data_heatmap);
@@ -566,7 +585,7 @@
                     if (v < 5) return '#d6eaf8';
                     if (v < 10) return '#85c1e9';
                     if (v < 20) return '#3498db';
-                    if(v > 20) return '#bb0239';
+                    if (v > 20) return '#bb0239';
                     return '#bb0239';
                 }
             }]
@@ -577,7 +596,9 @@
             maintainAspectRatio: false,
 
             plugins: {
-                legend: { display: false },
+                legend: {
+                    display: false
+                },
 
                 tooltip: {
                     callbacks: {
@@ -613,8 +634,6 @@
             }
         }
     });
-   
-   
 </script>
 
 

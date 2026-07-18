@@ -30,13 +30,12 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('modules_documentation.index') }}">Module
-                                    Documentation</a>
+                                Master Data > <strong> Dokumentasi Module Sistem </strong>
                             </div>
                             @if ($module_documentation->isNotEmpty())
                                 @if (!$user_permission_forbidden)
                                     <div class="button-add-product">
-                                        <a class="btn btn-primary" href="{{ route('module_create') }}">Tambah
+                                        <a class="btn-general" href="{{ route('module_create') }}">Tambah
                                             dokumentasi module</a>
                                     </div>
                                 @endif

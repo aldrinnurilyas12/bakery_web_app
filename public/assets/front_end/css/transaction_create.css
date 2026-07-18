@@ -326,7 +326,7 @@ button.deletebtn {
   margin: 0 10px;
 }
 
-.increase {
+.increase, .increase-bundle {
   width: 20px;
   height: 20px;
   background-color: #ffffff;
@@ -345,7 +345,7 @@ button.deletebtn {
   outline: none;
 }
 
-.decrease {
+.decrease, .decrease-bundle {
   width: 20px;
   height: 20px;
   background-color: #ffffff;
@@ -359,11 +359,11 @@ button.deletebtn {
   justify-content: center;
 }
 
-.container-content-product {
+/* .container-content-product {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-}
+} */
 
 .transaction-card {
   position: fixed;

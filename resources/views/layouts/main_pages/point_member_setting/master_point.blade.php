@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Point</a>
+                                Master Data > <strong> Pengaturan Point Transaksi Member </strong>
                             </div>
                             <div style="display: flex;gap:10px;" class="flex-content">
                                 @if ($module_documentation)

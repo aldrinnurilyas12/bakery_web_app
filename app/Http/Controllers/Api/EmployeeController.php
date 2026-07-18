@@ -275,11 +275,37 @@ class EmployeeController extends Controller
     public function employee_nonactive(Request $request)
     {
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
-        EmployeeModel::where('nik', $request->nik)->update([
-            'status' => $request->status,
-            'deleted_at' => now(),
-            'deleted_by' => $updated_by
-        ]);
+
+        if($request->status == 8){
+            EmployeeModel::where('nik', $request->nik)->update([
+                'status' => $request->status,
+                'deleted_at' => now(),
+                'deleted_by' => $updated_by,
+                'updated_at' => now(),
+                'updated_by' => $updated_by
+            ]);
+
+            User::where('nik', $request->nik)->update([
+                'deleted_at' => now(),
+                'deleted_by' => $updated_by,
+            ]);
+
+
+        }elseif($request->status == 7){
+
+            EmployeeModel::where('nik', $request->nik)->update([
+                'status' => $request->status,
+                'reactivate' => 'Y',
+                'reactivate_date' => now(),
+                'updated_at' => now(),
+                'updated_by' => $updated_by
+            ]);
+
+            User::where('nik', $request->nik)->update([
+                'reactivate' => 'Y',
+                'reactivate_date' => now()
+            ]);
+        }
 
         UserLogActivity::log(
                 module: 'Employee',
@@ -290,4 +316,32 @@ class EmployeeController extends Controller
         session()->flash('message_success', 'Data berhasil diperbarui!');
         return redirect()->back();
     }
+
+    public function employee_activity(Request $rq){
+
+        $employee = DB::table('v_employee as e')
+        ->select('nik', 'name', 'position_name')
+        ->where('nik',$rq->nik)->first();
+
+        $user_session = DB::table('user_log_activities as ula')
+            ->select('ula.user', 'ula.method_type', 'ula.ip_address','ula.user_agent', 'ula.activity_date', 'ula.description', 'ula.created_at')
+            ->where('user', $employee->nik)
+              ->whereIn('ula.method_type', ['LOGIN', 'LOGOUT'])
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+
+       
+
+         $log_activities = DB::table('user_log_activities as ula')
+            ->select('ula.module','ula.method_type', 'ula.ip_address','ula.user_agent', 'ula.activity_date', 'ula.description', 'ula.created_at')
+            ->where('user',  $employee->nik)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+
+        return view('layouts.main_pages.employee.employee_activity', compact('employee', 'user_session', 'log_activities'));
+    }
+
+
 }

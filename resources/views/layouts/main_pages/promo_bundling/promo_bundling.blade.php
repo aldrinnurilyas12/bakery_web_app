@@ -1,5 +1,5 @@
 <head>
-   <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kencana Bakery - Master Promo Bundling</title>
@@ -28,7 +28,7 @@
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
                             <div class="title">
-                                Master Data > Promo Bundling
+                                Master Data > <strong> Promo Bundling</strong>
                             </div>
 
                             <div style="display: flex;gap:10px;" class="flex-content">
@@ -36,13 +36,22 @@
                                 @if ($bundling->isNotEmpty())
                                     @if (!$user_permission_forbidden)
                                         <div style="display: flex;gap:10px;" class="button-add-product">
-                                            <a class="btn btn-primary" href="{{ route('promo_bundling_create') }}">Tambah Promo Bundling</a>
+                                            <a class="btn-general" href="{{ route('promo_bundling_create') }}">Tambah
+                                                Promo Bundling</a>
                                         </div>
                                     @endif
                                 @endif
                             </div>
                         </div>
-                    
+                        <hr>
+                        <div style="font-size: 13px;" class="alert alert-info">
+                            <ul>
+                                <li>Promo Bundling tidak bisa dihapus jika sudah ada Transaksi
+                                </li>
+                                <li>Promo Bundling tidak bisa digunakan jika salah satu ada item yang stocknya habis
+                                </li>
+                            </ul>
+                        </div>
 
                         <div class="card-body">
                             <div wire:poll.keep.alive.2s>
@@ -58,19 +67,20 @@
                                                             src="{{ url('storage/' . $bundl->images) }}" alt="">
                                                         <div class="content-text">
                                                             <div style="width: 200px;" class="title-text">
-                                                                <h5 style="font-size:15px;">{{ $bundl->bundling_name }}</h5>
+                                                                <h5 style="font-size:15px;">{{ $bundl->bundling_name }}
+                                                                </h5>
                                                             </div>
                                                             <p
                                                                 style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
                                                                 Harga:
-                                                                {{ "Rp." . number_format($bundl->price) }}
+                                                                {{ 'Rp.' . number_format($bundl->price) }}
                                                                 <br>
                                                                 <span>Kuota:
                                                                     {{ $bundl->quantity }}</span>
                                                                 &nbsp;
                                                                 <span>Available:
                                                                     {{ $bundl->total_available }}
-                                                                    </span>
+                                                                </span>
                                                                 &nbsp;
                                                                 <span>Redeem:
                                                                     {{ $bundl->total_redeem }}</span>
@@ -81,26 +91,38 @@
                                                                 <ul>
                                                                     @php
                                                                         $stockHabis = false;
+                                                                        $produkHabis = [];
+
+                                                                        $checkBundlingTransaction = DB::table(
+                                                                            'promo_bundling as pb',
+                                                                        )
+                                                                            ->join(
+                                                                                'transactions_bundling as tb',
+                                                                                'pb.bundling_code',
+                                                                                '=',
+                                                                                'tb.bundling',
+                                                                            )
+                                                                            ->first();
+
                                                                     @endphp
                                                                     @foreach ($all_product as $product)
-                                                                        @if($bundl->bundling_code == $product->bundling_code)
-
-                                                                         @if($product->stock_available <= 0)
-                                                                            @php
-                                                                                $stockHabis = true;
-                                                                            @endphp
-                                                                         @endif
-                                                                            <li style="font-weight: normal;font-size:13px;">{{ $product->quantity }}x {{ $product->product_name }}</li>
+                                                                        @if ($bundl->bundling_code == $product->bundling_code)
+                                                                            @if ($product->stock_available <= 0)
+                                                                                @php
+                                                                                    $stockHabis = true;
+                                                                                    $produkHabis[] =
+                                                                                        $product->product_name;
+                                                                                @endphp
+                                                                            @endif
+                                                                            <li
+                                                                                style="font-weight: normal;font-size:13px;">
+                                                                                {{ $product->quantity }}x
+                                                                                {{ $product->product_name }}</li>
                                                                         @endif
                                                                     @endforeach
-                                                                    
+
                                                                 </ul>
                                                             </div>
-
-
-
-
-
 
                                                             <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
                                                                 class="status">
@@ -113,7 +135,8 @@
                                                                 @endif
                                                             </div>
 
-                                                            <div style="font-size: 13px; font-weight: 500;" class="date">
+                                                            <div style="font-size: 13px; font-weight: 500;"
+                                                                class="date">
                                                                 <label for="">Tanggal Berlaku</label>
                                                                 <br>
                                                                 <small>{{ \Carbon\Carbon::parse($bundl->start_date)->format('Y-m-d') }}</small>
@@ -122,31 +145,52 @@
                                                                     {{ \Carbon\Carbon::parse($bundl->end_date)->format('Y-m-d') }}</small>
                                                             </div>
 
-                                                            @if($stockHabis)
-                                                                    <div style="font-size: 13px;" class="alert alert-danger mt-2">
-                                                                        <span>Produk ada yang habis</span>
-                                                                        <br>
-                                                                        <span>Promo bundling tidak dapat digunakan.</span>
-                                                                    </div>
-                                                                @endif
+                                                            @if ($stockHabis)
+                                                                <div style="font-size: 13px;"
+                                                                    class="alert alert-danger mt-2">
+                                                                    <span>Produk habis:</span>
+                                                                    <ul>
+                                                                        @foreach ($produkHabis as $produk)
+                                                                            <li>{{ $produk }}</li>
+                                                                        @endforeach
+                                                                    </ul>
+
+                                                                    <span>Promo bundling tidak dapat digunakan.</span>
+                                                                </div>
+                                                            @endif
 
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                                <div
+                                                    class="card-footer d-flex align-items-center justify-content-between">
 
-                                                                @if ($bundl->status == 7)
-                                                                    <a class="btn btn-danger" data-toggle="modal"
-                                                                        data-target="#deleteModalRewards{{ $bundl->bundling_code }}">
-                                                                        Nonaktifkan
-                                                                    </a>
-                                                                @else
-                                                                    <a class="btn btn-primary" data-toggle="modal"
-                                                                        data-target="#deleteModalRewards{{ $bundl->bundling_code }}">
-                                                                        Aktifkan
-                                                                    </a>
-                                                                @endif
+                                                    @if ($bundl->status == 7)
+                                                        <a class="btn btn-warning" data-toggle="modal"
+                                                            data-target="#deleteModalRewards{{ $bundl->bundling_code }}">
+                                                            Nonaktifkan
+                                                        </a>
+                                                    @else
+                                                        <a class="btn btn-primary" data-toggle="modal"
+                                                            data-target="#deleteModalRewards{{ $bundl->bundling_code }}">
+                                                            Aktifkan
+                                                        </a>
+                                                    @endif
+
+                                                    {{-- PERBAIKI INI,  --}}
+                                                    <div style="display: flex; gap:10px;" class="flex-btn">
+                                                        <a class="btn btn-primary"
+                                                            href="{{ route('promo_update', $bundl->bundling_code) }}">Edit</a>
+
+                                                        @if ($bundl->bundling_code == $checkBundlingTransaction->bundling_code)
+                                                        @else
+                                                            <a class="btn btn-danger" data-toggle="modal"
+                                                                data-target="#deleteModal{{ $bundl->bundling_code }}">
+                                                                Hapus
+                                                            </a>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -156,11 +200,13 @@
                                         style="height: 50vh; display:flex; justify-content:center; border:1px solid gray; border-radius:10px;">
                                         <div style="display: flex; gap:20px; margin:auto;" class="alert-info">
                                             <img width="70" height="70"
-                                                src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
+                                                src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                alt="">
                                             <div>
                                                 <h3>Belum ada Promo Bundling</h3>
                                                 @if (!$user_permission_forbidden)
-                                                    <a class="btn btn-primary" href="{{ 'promo_bundling_create' }}">Tambah Promo Bundling</a>
+                                                    <a class="btn btn-primary"
+                                                        href="{{ 'promo_bundling_create' }}">Tambah Promo Bundling</a>
                                                 @endif
                                             </div>
                                         </div>
@@ -176,11 +222,9 @@
         </div>
     </div>
 
-     @foreach ($bundling as $bundl)
-        <div wire:ignore class="modal fade"
-            id="deleteModalRewards{{ $bundl->bundling_code }}" tabindex="-1"
-            role="dialog" aria-labelledby="exampleModalLabel{{ $bundl->bundling_code }}"
-            aria-hidden="true">
+    @foreach ($bundling as $bundl)
+        <div wire:ignore class="modal fade" id="deleteModalRewards{{ $bundl->bundling_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $bundl->bundling_code }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -202,8 +246,7 @@
                         @endif
                         <br>
                         <br>
-                        <form method="POST"
-                            action="{{ route('bundling_nonactive',$bundl->bundling_code) }}">
+                        <form method="POST" action="{{ route('bundling_nonactive', $bundl->bundling_code) }}">
                             @csrf
                             @method('PUT')
                             <div class="form-group">
@@ -219,16 +262,55 @@
                             </div>
                             <br>
 
-                            @if ($bundl->status == 7)
-                                <button class="btn btn-danger" type="submit">Nonaktifkan</button>
-                            @else
-                                <button class="btn btn-primary" type="submit">Aktifkan</button>
-                            @endif
 
-                        </form>
                     </div>
 
                     <div class="modal-footer">
+                        @if ($bundl->status == 7)
+                            <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                        @else
+                            <button class="btn btn-primary" type="submit">Aktifkan</button>
+                        @endif
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    {{-- Delete --}}
+    @foreach ($bundling as $bundl)
+        <div wire:ignore class="modal fade" id="deleteModal{{ $bundl->bundling_code }}" tabindex="-1"
+            role="dialog" aria-labelledby="exampleModalLabel{{ $bundl->bundling_code }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Perbarui Status Promo Bundling</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        Apakah anda yakin ingin aktifkan Promo Bundling
+                        {{ $bundl->bundling_name }}
+                        ?
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <form method="POST" action="{{ route('promo_bundling_delete', $bundl->bundling_code) }}">
+                            @csrf
+                            @method('DELETE')
+                            <div class="form-group">
+                                <input type="text" name="bundling_code" value="{{ $bundl->bundling_code }}"
+                                    hidden>
+                            </div>
+                            <button id="btn-delete-general" type="submit" class="btn-general-delete"><span
+                                    class="btn-text">Hapus</span>
+                                <span class="spinner"></span></button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -236,7 +318,7 @@
     @endforeach
 </body>
 
-   
+
 
 </script>
 
@@ -247,28 +329,24 @@
 <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
 
-    @if (Session::has('message_success'))
-        <script>
-            Swal.fire({
-                title: 'Berhasil',
-                text: "{{ Session::get('message_success') }}",
-                icon: 'success',
-                timer: 2000,
-                confirmButtonText: 'OK'
-            });
-        </script>
-    @elseif (Session::has('failed_message'))
-        <script>
-            Swal.fire({
-                title: 'Gagal',
-                text: "{{ Session::get('failed_message') }}",
-                icon: 'error',
-                timer: 2000,
-                confirmButtonText: 'OK'
-            });
-        </script>
-    @endif
-
-
-
-
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif

@@ -18,44 +18,25 @@
 
 <body>
     <div class="main-container">
-        @php
-            $code = request()->route('code');
-
-            // coba anggap sebagai product_code dulu
-            $productCode = DB::table('product_images')->where('product_code', $code)->value('product_code');
-
-            // kalau tidak ketemu, berarti variant_code
-            if (!$productCode) {
-                $productCode = DB::table('v_daily_products')->where('variant_code', $code)->value('product_code');
-            }
-
-            $image_product = null;
-
-            if ($productCode) {
-                $image_product = DB::table('product_images')->where('product_code', $productCode)->first();
-            }
-        @endphp
         <div class="product-image">
             <div class="route-back">
                 <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
             </div>
-            <img src="{{ url('storage/' . $image_product->images) }}" alt="Product Image">
+            <img src="{{ url('storage/' . $product->images) }}" alt="Product Image">
         </div>
         <div class="container-fluid">
 
             <div class="container">
                 <div class="product-card">
-
-
                     <div class="container-product-info">
                         <div style="display: flex; justify-content:space-between;" class="info-detail">
                             <div style="display: flex; justify-content:space-between; gap:10px;font-size: 14px;"
                                 class="group-like">
                                 <p style="margin-bottom: 10px;" class="text-secondary">{{ $product->category }}</p>
 
-                                &middot;
-                                @if ($product->rating == 0)
-                                @else
+
+
+                                @if ($product->rating > 0)
                                     <div style="display: flex; gap:5px;" class="star">
                                         <img style="width:15px;height:15px;margin-top:3px;"
                                             src="{{ asset('assets\front_end\icons\star-icon.svg') }}" alt="">
@@ -63,9 +44,11 @@
                                     </div>
                                 @endif
 
-                                @if ($product->total_like == 0)
-                                @else
+                                @if ($product->rating > 0 && $product->total_like > 0)
                                     &middot;
+                                @endif
+
+                                @if ($product->total_like > 0)
                                     <p>{{ $product->total_like }} orang suka ini</p>
                                 @endif
                             </div>
@@ -120,11 +103,16 @@
 
 
                         <div style="margin-bottom: 30px;" class="description">
-                            {{ $product->description ?: 'Tidak ada deskripsi' }}
+                            @if ($product->description)
+                                {{ $product->description }}
+                            @else
+                                <p class="text-center">Tidak ada Deskripsi untuk
+                                    Produk ini</p>
+                            @endif
                         </div>
 
 
-                        @if ($review)
+                        @if ($review->isNotEmpty())
                             <div style="display:flex;justify-content: space-between;" class="flex-title">
                                 <h4 style="margin-bottom: 8px;">Ulasan Produk</h4>
                                 <p>({{ $product->total_rating }} ulasan)</p>
@@ -192,22 +180,22 @@
                                 </div>
                             </div>
                         @else
+                            <div style="display:flex;justify-content: space-between;" class="flex-title">
+                                <h4 style="margin-bottom: 8px;">Ulasan Produk</h4>
+                                <p>({{ $product->total_rating }} ulasan)</p>
+                            </div>
+                            <hr>
                             <div class="review-rating">
-                                <p>Tidak ada Review</p>
+                                <p class="text-center">Belum ada ulasan untuk
+                                    produk ini</p>
                             </div>
                         @endif
 
                     </div>
                 </div>
             </div>
-
-
             <br>
         </div>
-
-
-
-
 
         @include('layouts.main_views.components.bottom_nav')
 

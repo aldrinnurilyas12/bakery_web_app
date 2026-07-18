@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_rewards.index') }}">Reward</a>
+                                CRM > Rewards > <strong> Klaim Rewards</strong>
                             </div>
 
                             @if ($module_documentation)

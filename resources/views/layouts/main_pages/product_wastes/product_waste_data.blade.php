@@ -30,14 +30,16 @@
                     <div class="card mb-4">
                         <div style="display: flex; justify-content:space-between;" class="card-header">
                             <div class="title">
-                                Master Data / <a href="{{ route('production_products') }}">Produk Waste</a>
+                                Master Data > <strong> Produk Waste</strong>
                             </div>
 
                             <div style="display:flex;gap:20px;" class="btn">
                                 <a class="btn btn-warning" href="{{ route('product-wastes') }}">Lihat
                                     Data</a>
-                                <a class="btn btn-primary" href="{{ route('product-waste-create') }}">Tambah
-                                    data</a>
+                                <div class="button-add-product">
+                                    <a class="btn-general" href="{{ route('product-waste-create') }}">Tambah
+                                        data</a>
+                                </div>
                             </div>
 
 

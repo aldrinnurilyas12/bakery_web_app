@@ -72,20 +72,20 @@ class ProductionProductController extends Controller
             'Casheer'
         ]);
 
-        if($NOT_ALLOWED_USER){
-            session()->flash('failed_message', 'Tidak bisa akses!');
-            return redirect()->back();
-        }
+        // if($NOT_ALLOWED_USER){
+        //     session()->flash('failed_message', 'Tidak bisa akses!');
+        //     return redirect()->back();
+        // }
 
-        if($production_hour < 4){
-            session()->flash('failed_message', 'Sistem belum buka!');
-            return redirect()->back();
-        }
+        // if($production_hour < 4){
+        //     session()->flash('failed_message', 'Sistem belum buka!');
+        //     return redirect()->back();
+        // }
 
-        if($production_hour >=8){
-            session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
-            return redirect()->back();
-        }
+        // if($production_hour >=8){
+        //     session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+        //     return redirect()->back();
+        // }
 
 
         $variant_category = DB::table('variant_category')->get();

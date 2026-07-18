@@ -30,29 +30,38 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / Produk Review
+                                Master Data > <strong> Produk Review </strong>
                             </div>
                         </div>
-                         @if ($review->isNotEmpty())
-                        <div style="display: flex; justify-content:space-between;" class="card-header">
+                        <div style="display: flex; gap:20px;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('products_data') }}">Kembali</a>
+                            </div>
+                        </div>
+                        @if ($review->isNotEmpty())
+                            <div style="display: flex; justify-content:space-between;" class="card-header">
 
-                            <div style="display: block;" class="title">
-                                <div class="form-group">
-                                    Produk: <span
-                                        style="font-weight: bold;">{{ $review->first()->product_name }}</span>
+                                <div style="display: flex;gap:20px;" class="title">
+                                    <div class="form-group">
+                                        <label for=""><strong>Produk</strong></label>
+                                        <input type="text" class="form-control"
+                                            value="{{ $review->first()->product_name }}" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for=""><strong>Total Rating</strong></label>
+                                        <input type="text" class="form-control"
+                                            value="{{ $total_rating->total_rating }}" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for=""><strong>Rata-rata Rating</strong></label>
+                                        <input type="text" class="form-control"
+                                            value="{{ number_format($total_rating->rating, 1) }}" readonly>
+                                    </div>
+
                                 </div>
-                                <div class="form-group">
-                                    Total Rating: <span
-                                        style="font-weight: bold;">{{  $total_rating->total_rating }}</span>
-                                </div>
-                                <div class="form-group">
-                                    Rata-rata Rating: <span
-                                        style="font-weight: bold;">{{  number_format($total_rating->rating, 1) }}</span>
-                                </div>
-                             
-                            </div>
-                            @endif
-                        </div>
+                        @endif
+
                         <hr>
                         <div class="card-body">
                             @if ($review->isNotEmpty())
@@ -75,9 +84,11 @@
                                             @foreach ($review as $rvw)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td><a style="color:#bb0239;" href="{{ route('invoice_detail', $rvw->transaction ) }}">{{ $rvw->transaction }}</a></td>
+                                                    <td><a style="color:#bb0239;"
+                                                            href="{{ route('invoice_detail', $rvw->transaction) }}">{{ $rvw->transaction }}</a>
+                                                    </td>
                                                     <td> {{ $rvw->name ?: '-' }} </td>
-                                                    <td>{{ number_format($rvw->rating,0) }}</td>
+                                                    <td>{{ number_format($rvw->rating, 0) }}</td>
                                                     <td> {{ $rvw->review ?: '-' }} </td>
                                                     <td>{{ $rvw->review_date }}</td>
                                                 </tr>
@@ -105,8 +116,9 @@
                         </div>
                     </div>
                 </div>
-            </main>
         </div>
+        </main>
+    </div>
     </div>
 
 </body>

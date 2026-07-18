@@ -22,7 +22,13 @@
             <main>
                 @php
                     $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
-                    $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+                    $user_permission_forbidden = in_array($session_user->role_name, [
+                        'Supervisor',
+                        'Manager',
+                        'Casheer',
+                    ]);
+
+                    $user_permission = in_array($session_user->role_name, ['Casheer', 'Staff']);
                 @endphp
                 <div class="container-fluid px-4">
                     <br>
@@ -30,7 +36,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Distribusi Produk</a>
+                                Inventory > <strong>Distribusi Produk</strong>
                             </div>
                             <div style="display: flex;gap:10px;" class="flex-content">
 
@@ -47,7 +53,7 @@
                                 @if ($distribution->isNotEmpty())
                                     @if (!$user_permission_forbidden)
                                         <div class="button-add-product">
-                                            <a class="btn btn-primary" href="{{ route('distribution_create') }}">Buat
+                                            <a class="btn-general" href="{{ route('distribution_create') }}">Buat
                                                 Distribusi Produk</a>
                                         </div>
                                     @endif
@@ -61,7 +67,7 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                @if (!$user_permission_forbidden)
+                                                @if ($user_permission)
                                                     <th>Aksi</th>
                                                 @endif
                                                 <th>Kode Distribusi</th>
@@ -79,7 +85,7 @@
                                             @foreach ($distribution as $dst)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    @if (!$user_permission_forbidden)
+                                                    @if ($user_permission)
                                                         <td>
                                                             <table style="font-size: 14px; color:black;"
                                                                 class="table table-bordered" id="dataTable"
@@ -109,7 +115,16 @@
                                                     <td>{{ $dst->distribution_code }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($dst->distribution_date)->format('Y-m-d') }}
                                                     </td>
-                                                    <td> {{ $dst->status_name ?: '-' }} </td>
+                                                    <td>
+                                                        @if ($dst->status_name == 'All Items Received')
+                                                            <i style="color:green;" class="fas fa-check-square"></i>
+                                                            {{ $dst->status_name }}
+                                                        @else
+                                                            <span class="text-danger">
+                                                                {{ $dst->status_name ?: '-' }}</span>
+                                                        @endif
+
+                                                    </td>
                                                     <td>{{ $dst->created_at }}</td>
                                                     <td>{{ $dst->emp_name }}</td>
                                                     <td>{{ $dst->updated_at }}</td>

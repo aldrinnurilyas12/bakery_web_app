@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('supplier.index') }}">Supplier</a>
+                                Inventory > <strong> Supplier</strong>
                             </div>
                             @if ($supplier->isNotEmpty())
                                 @if (!$user_permission_forbidden)
@@ -40,7 +40,7 @@
                                                 Supplier</a>
                                         </div>
                                         <div class="button-add-product">
-                                            <a class="btn btn-primary" href="{{ route('supplier_create') }}">Tambah
+                                            <a class="btn-general" href="{{ route('supplier_create') }}">Tambah
                                                 Supplier</a>
                                         </div>
                                     </div>

@@ -210,11 +210,24 @@ class RegisteredUserController extends Controller
     public function update_user_active(Request $request) {
         $updated_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         
-        User::where('nik', $request->nik)->update([
-            'is_active' => $request->is_active,
-            'updated_at' => now(),
-            'updated_by' =>  $updated_by
-        ]);
+        if($request->is_active == 8){
+            User::where('nik', $request->nik)->update([
+                'is_active' => $request->is_active,
+                'updated_at' => now(),
+                'updated_by' =>  $updated_by,
+                'deleted_at' => now(),
+                'deleted_by' => $updated_by
+            ]);
+        }elseif($request->is_active == 7){
+            User::where('nik', $request->nik)->update([
+                'is_active' => $request->is_active,
+                'updated_at' => now(),
+                'updated_by' =>  $updated_by,
+                'reactivate' => 'Y',
+                'reactivate_date' => now()
+             ]);
+        }
+
 
         UserLogActivity::log(
                 module: 'User',

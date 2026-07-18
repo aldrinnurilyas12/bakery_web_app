@@ -21,14 +21,17 @@
                 <div class="container-fluid px-4">
                     <h4>Purchase Order</h4>
                     <hr>
-                    {{-- <div style="font-size: 13px;" class="alert alert-info">
+                    <div style="font-size: 13px;" class="alert alert-info">
                         <ul>
-                            <li>Hindari penggunaan karakter : #,&,@,?,/,=,-,+ dan lainnya</li>
-                            <li>Jika ingin menyambung jangan pakai '&' dan spasi, pakai underscore (_) contoh :
-                                Muffins_and_Cupcakes</li>
-                            <li>Icon diambil dari situs web font-awesome dengan hanya input seperti : fa fa-users</li>
+                            <li>Pilih perusahaan Supplier Bahan Baku untuk setiap transaksi purchase order</li>
+                            <li>Pilih Item Bahan baku / peralatan sesuai kebutuhan dan sesuaikan dengan jumlah pembelian
+                            </li>
+                            <li>Harga Bahan baku / peralatan menyesuaikan harga pasar sekarang</li>
+                            <li>Upload Invoice transaksi adalah sebagai bukti telah melakukan Purchase Order</li>
+                            <li>Jika Bahan baku / peralatan akan dikirim mohon isi perkiraan tanggal estimasi produk
+                                sampai ke Store/Outlet</li>
                         </ul>
-                    </div> --}}
+                    </div>
                     <form id="formGeneralMaster" action="{{ route('purchase_order.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
@@ -55,8 +58,10 @@
                             <div style="display:flex; justify-content: space-between;margin-bottom: 20px;"
                                 class="dflex-group">
                                 <label><strong>Pilih Item</strong></label>
-                                <a class="btn btn-primary" href="{{ route('item_create') }}"><i class="fa fa-plus"></i>
-                                    Buat Item Baru</a>
+                                <div class="button-add-product">
+                                    <a class="btn-general" href="{{ route('item_create') }}"><i class="fa fa-plus"></i>
+                                        Buat Item Baru</a>
+                                </div>
                             </div>
 
                             <div style="color: black; height: 400px;background: white;overflow: auto;"
@@ -80,9 +85,6 @@
                                                                 class="fas fa-info-circle"></i></a></span>
                                                 </th>
                                                 <th>Subtotal</th>
-
-
-
                                             </tr>
                                         </thead>
 
@@ -238,6 +240,7 @@
 
                         <div id="showDeliveryDate" class="form-group">
                             <label><strong>Perkiraan Tanggal Pengiriman</strong></label>
+                            <small class="text-danger">*isi tanggal perkiraan item akan sampai Outlet/Store </small>
                             <input type="date" name="expected_delivery_date" class="form-control"
                                 value="{{ old('expected_delivery_date') }}" autocomplete="off">
                             <x-input-error :messages="$errors->get('expected_delivery_date')" class="text-danger" />

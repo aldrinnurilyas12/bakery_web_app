@@ -34,111 +34,68 @@
                             <x-input-error :messages="$errors->get('product_name')" class="text-danger" />
                         </div>
 
-                        <div class="form-group">
-                            <label><strong>Kategori Produk</strong></label>
-                            @if ($product_category->isNotEmpty())
-                                <select class="form-control" name="category_id" required>
-                                    <option value="">==== Pilih Kategori Produk ====</option>
-                                    @foreach ($product_category as $item)
-                                        <option value="{{ $item->id }}"
-                                            data-name="{{ strtolower($item->category_name) }}">
-                                            {{ $item->category_name }}</option>
+                        <div style="display: flex; gap:20px;" class="group-content-weight">
+
+                            <div class="form-group">
+                                <label><strong>Kategori Produk</strong></label>
+                                @if ($product_category->isNotEmpty())
+                                    <select class="form-control" name="category_id" required>
+                                        <option value="">==== Pilih Kategori Produk ====</option>
+                                        @foreach ($product_category as $item)
+                                            <option value="{{ $item->id }}"
+                                                data-name="{{ strtolower($item->category_name) }}">
+                                                {{ $item->category_name }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <p class="text-secondary">Anda belum buat data Kategori, <a
+                                            href="{{ route('category_create') }}">Buat kategori</a> </p>
+                                @endif
+                                <x-input-error :messages="$errors->get('category_id')" class="text-danger" />
+                            </div>
+
+
+                            <div class="form-group">
+                                <label><strong>Tipe Produk</strong></label>
+                                @if ($product_types->isNotEmpty())
+                                    <select class="form-control" name="product_type" required>
+                                        <option value="">==== Pilih Tipe Produk ====</option>
+                                        @foreach ($product_types as $item)
+                                            <option value="{{ $item->id }}"
+                                                data-name="{{ strtolower($item->type_name) }}">
+                                                {{ $item->type_name }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <p class="text-secondary">Anda belum buat data tipe produk, <a
+                                            href="{{ route('category_create') }}">Buat tipe produk</a> </p>
+                                @endif
+                                <x-input-error :messages="$errors->get('product_type')" class="text-danger" />
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap:20px;" class="group-content-weight">
+                            <div class="form-group">
+                                <label><strong>Berat Produk</strong></label>
+                                <input type="number" name="product_weight" class="form-control"
+                                    value="{{ old('product_weight') }}" placeholder="Masukan berat Produk (optional)"
+                                    autocomplete="off" required>
+                                <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Unit Produk</strong></label>
+                                <select name="product_weight_type" class="form-control" id="" required>
+                                    <option value="">=== Pilih Unit Produk ===</option>
+                                    @foreach ($unit_category as $unit)
+                                        <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
                                     @endforeach
                                 </select>
-                            @else
-                                <p class="text-secondary">Anda belum buat data Kategori, <a
-                                        href="{{ route('category_create') }}">Buat kategori</a> </p>
-                            @endif
-                            <x-input-error :messages="$errors->get('category_id')" class="text-danger" />
+                                <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />
+                            </div>
                         </div>
 
 
-                        <div class="form-group">
-                            <label><strong>Tipe Produk</strong></label>
-                            @if ($product_types->isNotEmpty())
-                                <select class="form-control" name="product_type" required>
-                                    <option value="">==== Pilih Tipe Produk ====</option>
-                                    @foreach ($product_types as $item)
-                                        <option value="{{ $item->id }}"
-                                            data-name="{{ strtolower($item->type_name) }}">
-                                            {{ $item->type_name }}</option>
-                                    @endforeach
-                                </select>
-                            @else
-                                <p class="text-secondary">Anda belum buat data tipe produk, <a
-                                        href="{{ route('category_create') }}">Buat tipe produk</a> </p>
-                            @endif
-                            <x-input-error :messages="$errors->get('product_type')" class="text-danger" />
-                        </div>
-
-
-                        {{-- <div class="form-group">
-                            <label for=""><strong>Apakah Produk ini memiliki Variant? *(Minuman :Hot/Ice) atau
-                                    (Makanan :
-                                    Besar/Sedang/Kecil)</strong></label>
-                            <br>
-                            <div style="display: flex;gap:30px;" class="radio-variant">
-                                <div class="sub-radio-variant">
-                                    <input id="categorySelectYes" name="product_variant" value="Y" type="radio"
-                                        required>
-                                    <label for="variant_yes">Ya</label>
-                                </div>
-                                <div class="sub-radio-variant">
-                                    <input id="categorySelectNo" name="product_variant" value="N" type="radio"
-                                        checked>
-                                    <label for="variant_no">Tidak</label>
-                                </div>
-                            </div>
-                            <x-input-error :messages="$errors->get('product_variant')" class="text-danger" />
-                        </div> --}}
-                        
-
-                        {{-- <div id="normalPrice" class="price-form-group">
-                            <div class="form-group">
-                                <label><strong>Harga Produk</strong></label>
-                                <input type="text" name="price" class="form-control" value="{{ old('price') }}"
-                                    placeholder="Masukan harga Produk" autocomplete="off">
-                                <x-input-error :messages="$errors->get('price')" class="text-danger" />
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Diskon (%) (optional)</strong></label>
-                                <small class="text-danger">*Masukan 0 jika produk tidak diskon</small>
-                                <input type="text" name="discount" class="form-control"
-                                    value="{{ old('discount') }}" autocomplete="off">
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Harga Setelah Diskon (optional)</strong></label>
-                                <input type="text" name="price_after_discount" class="form-control"
-                                    value="{{ old('price_after_discount') }}" autocomplete="off" readonly>
-                            </div>
-
-                            <div class="form-group">
-                                <label><strong>Tanggal Harga Efektif</strong></label>
-                                <input type="date" name="price_effective_from" class="form-control"
-                                    value="{{ old('price_effective_from') }}" autocomplete="off">
-                            </div>
-                        </div> --}}
-
-                        <div class="form-group">
-                            <label><strong>Berat Produk</strong></label>
-                            <input type="number" name="product_weight" class="form-control"
-                                value="{{ old('product_weight') }}" placeholder="Masukan berat Produk (optional)"
-                                autocomplete="off" required>
-                            <x-input-error :messages="$errors->get('product_weight')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
-                            <label><strong>Unit Produk</strong></label>
-                            <select name="product_weight_type" class="form-control" id="" required>
-                                <option value="">=== Pilih Unit Produk ===</option>
-                                @foreach ($unit_category as $unit )
-                                    <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('product_weight_type')" class="text-danger" />
-                        </div>
 
                         <div class="form-group">
                             <label><strong>Deskripsi Produk</strong></label>
@@ -171,8 +128,8 @@
 
                         <div class="form-group">
                             <label><strong>Tanggal awal</strong></label>
-                            <input type="date" name="start_date" class="form-control"
-                                value="{{ old('point') }}" autocomplete="off">
+                            <input type="date" name="start_date" class="form-control" value="{{ old('point') }}"
+                                autocomplete="off">
                         </div>
 
                         <div class="form-group">
