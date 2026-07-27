@@ -26,7 +26,7 @@
                 <br>
                 <div style="display: flex; gap:10px;align-items:center;" class="title-content-head">
                     <div class="route-back">
-                        <a href="{{ route('profile-menu') }}"><i class="fa fa-arrow-left"></i></a>
+                        <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
                     </div>
                     <h4 style="font-size: 20px;margin-bottom:0;"><strong>Notifikasi</strong></h4>
                 </div>
@@ -34,54 +34,140 @@
                 <div class="menu-list">
 
                     <hr class="hr-menu">
+                    @if ($notif_customer > 1)
+                        <div style="margin-bottom: 20px;" class="notification-all-read">
+                            <form action="{{ route('all_notif_read', $notifications->first()->customer) }}"
+                                method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="text" name="customer" value="{{ $notifications->first()->customer }}"
+                                    hidden>
+                                <input type="checkbox" required> Baca semua
+                                <button style="background:none; border:none;font-size:14px;color:#bb0239;"
+                                    type="submit">simpan</button>
+                            </form>
+                        </div>
+                    @endif
+
 
                     @if ($notifications->isNotEmpty())
                         @foreach ($notifications as $nt)
-                            <div class="notification-card">
-                                <div class="notification-icon">
-                                    @if ($nt->category == 1)
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                    @elseif($nt->category == 2)
-                                        <i class="fa-solid fa-bullhorn"></i>
-                                    @elseif($nt->category == 3)
-                                        <i class="fa-solid fa-circle-check"></i>
-                                    @elseif($nt->category == 4)
-                                        <i class="fa-solid fa-gift"></i>
-                                    @else
-                                        <i class="fa-solid fa-bell"></i>
-                                    @endif
-                                </div>
+                            @if ($nt->is_read == 'N')
+                                <form action="{{ route('click_read_notif', $nt->notif_id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="notification-card-noread">
+                                        <div class="notification-icon">
+                                            @if ($nt->category == 1)
+                                                <i class="fa-solid fa-cart-shopping"></i>
+                                            @elseif($nt->category == 2)
+                                                <i class="fa-solid fa-bullhorn"></i>
+                                            @elseif($nt->category == 3)
+                                                <i class="fa-solid fa-circle-check"></i>
+                                            @elseif($nt->category == 4)
+                                                <i class="fa-solid fa-gift"></i>
+                                            @else
+                                                <i class="fa-solid fa-bell"></i>
+                                            @endif
+                                        </div>
 
-                                <div class="notification-content">
-                                    <div class="notification-header">
-                                        <h5>{{ $nt->title }}</h5>
-                                        <span class="notification-date">
-                                            {{ $nt->created_at }}
-                                        </span>
+                                        <div class="notification-content">
+                                            <div class="notification-header">
+                                                <h5>{{ $nt->title }}</h5>
+                                                <span class="notification-date">
+                                                    {{ $nt->created_at }}
+                                                </span>
+                                            </div>
+
+                                            <p>{{ $nt->message }}</p>
+                                            <div style="margin-bottom: 10px;" class="category-voucher">
+                                                @if ($nt->category == 1)
+                                                    @if ($nt->transaction_code)
+                                                        <p>Kode Pesanan: <span style="color:#bb0239;">
+                                                                #{{ $nt->transaction_code }} </span></p>
+                                                    @endif
+                                                @elseif($nt->category == 4)
+                                                    @if ($nt->reward)
+                                                        <p>Kode Reward: <span style="color:#bb0239;">
+                                                                #{{ $nt->reward }} </span></p>
+                                                    @endif
+                                                @elseif($nt->category == 2)
+                                                    @if ($nt->voucher)
+                                                        <p>Kode Voucher: <span style="color:#bb0239;">
+                                                                #{{ $nt->voucher }} </span></p>
+                                                    @endif
+                                                @elseif($nt->category == 6)
+                                                    @if ($nt->voucher_birthday)
+                                                        <p>Kode Voucher: <span style="color:#bb0239;">
+                                                                #{{ $nt->voucher_birthday }} </span></p>
+                                                    @endif
+                                                @endif
+                                            </div>
+
+                                            <div style="display: flex; justify-content: end;" class="btn-submit">
+                                                <button
+                                                    style="background:none; border:none;font-size:14px;color:#bb0239;"
+                                                    type="submit">Tandai
+                                                    sudah
+                                                    baca</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            @elseif($nt->is_read == 'Y')
+                                <div class="notification-card-read">
+                                    <div class="notification-icon">
+                                        @if ($nt->category == 1)
+                                            <i class="fa-solid fa-cart-shopping"></i>
+                                        @elseif($nt->category == 2)
+                                            <i class="fa-solid fa-bullhorn"></i>
+                                        @elseif($nt->category == 3)
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        @elseif($nt->category == 4)
+                                            <i class="fa-solid fa-gift"></i>
+                                        @else
+                                            <i class="fa-solid fa-bell"></i>
+                                        @endif
                                     </div>
 
-                                    <p>{{ $nt->message }}</p>
-                                    @if ($nt->category == 1)
-                                        @if ($nt->transaction_code)
-                                            <p>Kode Pesanan: <a style="color:#bb0239;"
-                                                    href="{{ route('invoice', $nt->transaction_code) }}">
-                                                    #{{ $nt->transaction_code }} </a></p>
+                                    <div class="notification-content">
+                                        <div class="notification-header">
+                                            <h5>{{ $nt->title }}</h5>
+                                            <span class="notification-date">
+                                                {{ $nt->created_at }}
+                                            </span>
+                                        </div>
+
+                                        <p>{{ $nt->message }}</p>
+                                        @if ($nt->category == 1)
+                                            @if ($nt->transaction_code)
+                                                <p>Kode Pesanan: <a style="color:#bb0239;"
+                                                        href="{{ route('invoice', $nt->transaction_code) }}">
+                                                        #{{ $nt->transaction_code }} </a></p>
+                                            @endif
+                                        @elseif($nt->category == 4)
+                                            @if ($nt->reward)
+                                                <p>Kode Reward: <a style="color:#bb0239;"
+                                                        href="{{ route('rewards-history') }}">
+                                                        #{{ $nt->reward }} </a></p>
+                                            @endif
+                                        @elseif($nt->category == 2)
+                                            @if ($nt->voucher)
+                                                <p>Kode Voucher: <a style="color:#bb0239;"
+                                                        href="{{ route('your-voucher') }}">
+                                                        #{{ $nt->voucher }} </a></p>
+                                            @endif
+                                        @elseif($nt->category == 6)
+                                            @if ($nt->voucher_birthday)
+                                                <p>Kode Voucher: <span style="color:#bb0239;">
+                                                        #{{ $nt->voucher_birthday }} </span></p>
+                                            @endif
                                         @endif
-                                    @elseif($nt->category == 4)
-                                        @if ($nt->reward)
-                                            <p>Kode Reward: <a style="color:#bb0239;"
-                                                    href="{{ route('rewards-history') }}">
-                                                    #{{ $nt->reward }} </a></p>
-                                        @endif
-                                    @elseif($nt->category == 2)
-                                        @if ($nt->voucher)
-                                            <p>Kode Voucher: <a style="color:#bb0239;"
-                                                    href="{{ route('your-voucher') }}">
-                                                    #{{ $nt->voucher }} </a></p>
-                                        @endif
-                                    @endif
+                                    </div>
+
                                 </div>
-                            </div>
+                            @endif
                         @endforeach
                     @else
                         <p style="text-align: center;margin:0 auto;">Tidak ada Notifikasi</p>
@@ -184,7 +270,18 @@
         height: 100%;
     }
 
-    .notification-card {
+    .notification-card-noread {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        margin-bottom: 12px;
+        background: #b9defb3b;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+        transition: .2s ease;
+    }
+
+    .notification-card-read {
         display: flex;
         gap: 15px;
         padding: 15px;
@@ -194,6 +291,7 @@
         box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
         transition: .2s ease;
     }
+
 
 
     .notification-icon {

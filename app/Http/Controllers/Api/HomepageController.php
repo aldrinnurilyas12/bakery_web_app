@@ -14,7 +14,11 @@ class HomepageController extends Controller
      */
     public function index(): View
     {
-        return view('layouts.main_pages.home_page');
+        $maintenance_info = DB::table('maintenance_information')
+        ->where('status', 7)
+        ->where('type', 'admin_web')
+        ->orderBy('created_at', 'DESC')->first();
+        return view('layouts.main_pages.home_page',compact('maintenance_info'));
     }
 
     /**

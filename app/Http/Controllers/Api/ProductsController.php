@@ -28,11 +28,7 @@ class ProductsController extends Controller
     public function create()
     {
         $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
-        $user_permission_forbidden = in_array($session_user->role_name , ['Supervisor', 'Manager', 'Casheer']);
-        if($user_permission_forbidden){
-            session()->flash('failed_message', 'Tidak bisa akses');
-            return redirect()->back();
-        }
+       
         $product_types = DB::table('product_types')->get();
         $shop = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->id;
         $product_category = DB::table('product_category')->get();
@@ -699,7 +695,7 @@ class ProductsController extends Controller
          $product = DB::table('v_products as p')
         ->where('p.product_code', $rq->product_code)->first();
 
-        $business_effective_date = Carbon::parse($product->price_effective_from);
+        $business_effective_date = Carbon::parse($product->current_price_effective);
         return view('layouts.main_pages.products.edit.product_price_update', compact('product', 'business_effective_date'));
     }
 

@@ -16,14 +16,30 @@
                 $submenu = DB::table('submenu as s')
                     ->whereIn('main_menu', ['1', '2', '3', '5', '9'])
                     ->where('status', 7)
-                    ->whereNotIn('id', ['9', '15', '16', '26', '29', '33', '34', '36', '37', '94'])
+                    ->whereNotIn('id', [
+                        '3',
+                        '9',
+                        '10',
+                        '15',
+                        '16',
+                        '24',
+                        '26',
+                        '29',
+                        '33',
+                        '34',
+                        '36',
+                        '37',
+                        '94',
+                        '101',
+                        '109',
+                    ])
                     ->orderBy('s.submenu_name', 'ASC')
                     ->get();
             } else {
                 $submenu = DB::table('submenu as s')
                     ->where('status', 7)
                     ->where('main_menu', '<>', 10)
-                    ->whereNotIn('id', ['15', '16', '94'])
+                    ->whereNotIn('id', ['15', '16', '94', '101', '109', '110'])
                     ->orderBy('s.submenu_name', 'ASC')
                     ->get();
             }

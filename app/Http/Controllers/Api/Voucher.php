@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BirthdayVoucherNotification;
+use App\Models\VoucherCustomer;
 use App\Models\VoucherModel;
+use App\Models\CustomerNotification as NotificationModel;
+use App\Models\CustomerNotificationDetail;
+use App\Services\CustomerNotification;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\File;
@@ -17,6 +22,7 @@ use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Services\UserLogActivity;
+use Illuminate\Support\Facades\Mail;
 
 class Voucher extends Controller
 {
@@ -50,7 +56,6 @@ class Voucher extends Controller
         $request->validate([
             'voucher_name'=> 'required',
             'quota'=> 'required',
-            'min_transaction'=> 'required',
             'start_date'=> 'required',
             'end_date'=> 'required',
             'voucher_type' => 'required'
@@ -58,7 +63,6 @@ class Voucher extends Controller
         [
             'voucher_name.required' => 'Nama E-Voucher harus diisi',
             'quota.required' => 'Kuota E-Voucher harus diisi',
-            'min_transaction.required' => 'masukan minimal transaksi',
             'start_date.required' => 'Tanggal awal Voucher harus diisi',
             'end_date.required' => 'Tanggal akhir Voucher harus diisi',
             'voucher_type.required' => 'Tipe Voucher harus dipilih'
@@ -250,5 +254,257 @@ class Voucher extends Controller
 
         session()->flash('message_success', 'Data Voucher berhasil disimpan!');
         return redirect()->route('voucher');
+    }
+
+
+
+
+    public function customer_voucher_birthday(Request $rq){
+
+        $vouchers = DB::table('v_vouchers')->where('voucher_type', 'birth_day')
+        ->where(function ($query) {
+                $query->whereMonth('start_date', 7)
+                    ->orWhereMonth('end_date', 7);
+            })
+        ->where('total_available', '>', 0)
+        ->get();
+
+
+        $customers_data = DB::table('v_customer_birthday_vouchers')->get();
+
+        $check_voucher_shared = DB::table('customer_vouchers as cv')
+                        ->first();
+        return view('layouts.main_pages.voucher.birthday_vouchers.customer_birthday', compact('customers_data', 'vouchers', 'check_voucher_shared'));
+    }
+
+
+    public function voucher_birthday_shared(Request $request)
+    {
+        $request->validate([
+            'customer'     => 'array',
+            'voucher_code' => 'required',
+        ]);
+
+        $customers = $request->customer ?? [];
+        $voucherCode = $request->voucher_code;
+        $folderPath = 'qrcode_voucher_customer';
+        $check_voucher_shared = DB::table('customer_vouchers as cv')
+        ->whereIn('customer', $customers)
+        ->distinct()
+        ->pluck('customer')->toArray();
+
+
+        $checkVoucher = DB::table('v_vouchers')
+        ->where('voucher_code', $voucherCode)->first();
+        $voucherExpired = DB::table('v_vouchers')
+        ->where('voucher_code', $voucherCode)->where('status', 7)->value('end_date');
+
+        if($checkVoucher->total_available == 0){
+            session()->flash('failed_message', 'Kuota Voucher ini telah habis.');
+            return redirect()->back();
+        }
+
+        if($voucherExpired && Carbon::now()->gt(Carbon::parse($voucherExpired)) ){
+            session()->flash('failed_message', 'Voucher ini telah Expired.');
+            return redirect()->back();
+        }
+
+
+        if (!Storage::disk('public')->exists($folderPath)) {
+            Storage::disk('public')->makeDirectory($folderPath);
+        }
+
+        $renderer = new ImageRenderer(
+            new RendererStyle(400),
+            new SvgImageBackEnd()
+        );
+
+        $writer = new Writer($renderer);
+        
+
+        $data = [];
+
+        foreach ($customers as $customer) {
+
+            $customerData = DB::table('customer')
+                ->select('customer_code', 'name')
+                ->where('customer_code', $customer)
+                ->first();
+
+            if (!$customerData) {
+                continue;
+            }
+
+            // Generate voucher customer
+            $customerVoucher = 'VOUCHER-BIRTHDAY'
+                . now()->format('Ymd')
+                . strtoupper(substr((string) Str::uuid(), 0, 5));
+
+            // Generate QR Code
+            $voucherDataQrCode = [
+                'voucher_code' => $customerVoucher,
+            ];
+
+            $fileName = uniqid() . '.svg';
+            $qrCodePath = $folderPath . '/' . $fileName;
+
+            $svgOutput = $writer->writeString(json_encode($voucherDataQrCode));
+            Storage::disk('public')->put($qrCodePath, $svgOutput);
+
+            // Kumpulkan voucher untuk bulk insert
+            
+            $data[] = [
+                'customer'              => $customer,
+                'voucher'               => $voucherCode,
+                'customer_voucher_code' => $customerVoucher,
+                'voucher_path'          => $qrCodePath,
+                'status'                => 7,
+                'voucher_used'          => 'N',
+                'expired_date'          => now()->addDays(25),
+                'created_at'            => now()
+            ];
+
+            
+
+        }
+
+      
+            foreach ($data as $voucher) {
+
+                    $customerName = DB::table('customer')->select('name', 'email')->where('customer_code', $voucher['customer'])->first();
+                    $voucher_name = DB::table('voucher')->where('voucher_code', $voucherCode)->first();
+                    if(in_array($voucher['customer'], $check_voucher_shared)){
+                        continue;
+                    }
+                    
+                    $notification = NotificationModel::create([
+                        'customer' => $voucher['customer'],
+                        'title' => 'Selamat Ulang Tahun!',
+                        'message' => 'Selamat ulang tahun! Selamat Anda mendapatkan E-Voucher dari kami.',
+                        'category' => 6,
+                        'is_read' => 'N'
+                    ]);
+
+                    CustomerNotificationDetail::create([
+                        'notif' => $notification->id,
+                        'voucher_birthday' => $voucher['customer_voucher_code'],
+                    ]);
+                    
+                    Mail::to($customerName->email)->sendNow(new BirthdayVoucherNotification([
+                            'name' => $customerName->name,
+                            'voucher' => $voucher_name->voucher_name
+                    ]));
+
+                    $insertData[] = $voucher;
+                    
+            }
+
+            if (!empty($insertData)) {
+                VoucherCustomer::insert($insertData);
+            } 
+
+
+        session()->flash('message_success', 'Voucher berhasil dibagikan ke seluruh pelanggan.');
+        return redirect()->back();
+    }
+
+    public function share_voucher_only_customer(Request $request){
+            $request->validate([
+                'voucher_code' => 'required',
+            ]);
+
+            $customer = $request->customer ?? [];
+            $voucherCode = $request->voucher_code;
+            $folderPath = 'qrcode_voucher_customer';
+            $customerName = DB::table('customer')->select('name', 'email')->where('customer_code', $customer)->first();
+            $check_voucher_shared = DB::table('customer_vouchers as cv')->where('customer', $customer)->first();
+            $checkVoucher = DB::table('v_vouchers')
+            ->where('voucher_code', $voucherCode)->first();
+            $voucherExpired = DB::table('v_vouchers')
+            ->where('voucher_code', $voucherCode)->where('status', 7)->value('end_date');
+
+            if($check_voucher_shared){
+                session()->flash('failed_message', "Voucher sudah dibagikan ke pelanggan {$customerName->name}" );
+                return redirect()->back();
+            }
+
+            if($checkVoucher->total_available == 0){
+                session()->flash('failed_message', 'Kuota Voucher ini telah habis.');
+                return redirect()->back();
+            }
+
+            if($voucherExpired && Carbon::now()->gt(Carbon::parse($voucherExpired)) ){
+                session()->flash('failed_message', 'Voucher ini telah Expired.');
+                return redirect()->back();
+            }
+
+
+            if (!Storage::disk('public')->exists($folderPath)) {
+                Storage::disk('public')->makeDirectory($folderPath);
+            }
+
+            $renderer = new ImageRenderer(
+                new RendererStyle(400),
+                new SvgImageBackEnd()
+            );
+
+            $writer = new Writer($renderer);
+
+            $customerVoucher = 'VOUCHER-BIRTHDAY'
+                . now()->format('Ymd')
+                . strtoupper(substr((string) Str::uuid(), 0, 5));
+
+            // Generate QR Code
+            $voucherDataQrCode = [
+                'voucher_code' => $customerVoucher,
+            ];
+
+            $fileName = uniqid() . '.svg';
+            $qrCodePath = $folderPath . '/' . $fileName;
+
+            $svgOutput = $writer->writeString(json_encode($voucherDataQrCode));
+            Storage::disk('public')->put($qrCodePath, $svgOutput);
+        
+
+            if(!$check_voucher_shared){
+                VoucherCustomer::create([
+                    'customer'              => $customer,
+                    'voucher'               => $voucherCode,
+                    'customer_voucher_code' => $customerVoucher,
+                    'voucher_path'          => $qrCodePath,
+                    'status'                => 7,
+                    'voucher_used'          => 'N',
+                    'expired_date'          => now()->addDays(25),
+                    'created_at'            => now()
+                ]);
+
+                $voucher_name = DB::table('voucher')->where('voucher_code', $voucherCode)->first();
+            
+               
+                    
+                $notification = NotificationModel::create([
+                        'customer' => $customer,
+                        'title' => 'Selamat Ulang Tahun!',
+                        'message' => 'Selamat ulang tahun! Selamat Anda mendapatkan E-Voucher dari kami.',
+                        'category' => 6,
+                        'is_read' => 'N'
+                    ]);
+
+                    CustomerNotificationDetail::create([
+                        'notif' => $notification->id,
+                        'voucher_birthday' => $customerVoucher,
+                    ]);
+
+
+                    Mail::to($customerName->email)->sendNow(new BirthdayVoucherNotification([
+                            'name' => $customerName->name,
+                            'voucher' => $voucher_name->voucher_name
+                    ]));
+            }
+
+            session()->flash('message_success', "Voucher berhasil dibagikan ke pelanggan {$customerName->name}" );
+            return redirect()->back();
+
+
     }
 }

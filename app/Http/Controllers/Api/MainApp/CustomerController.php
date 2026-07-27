@@ -13,7 +13,9 @@ use App\Models\RewardsModel;
 use App\Models\RewardsStoreModel;
 use App\Models\TransactionModel;
 use App\Models\VoucherCustomer;
+use App\Models\CustomerNotification as CustomerNotificationModel;
 use App\Services\CustomerNotification;
+use App\Services\CustomerLogActivities;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -68,7 +70,10 @@ class CustomerController extends Controller
         $CUSTOMER_LOGIN_SESSION = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         $customer = DB::table('v_customers')->where('customer_code', $CUSTOMER_LOGIN_SESSION)->first();
         $birth_date = Carbon::parse($customer->birth_date);  
-        return view('layouts.main_views.customer_views.profile', compact('customer', 'birth_date'));
+         $notif_customer = DB::table('customer_notifications')
+            ->where('customer', $CUSTOMER_LOGIN_SESSION)
+            ->where('is_read', 'N')->count();
+        return view('layouts.main_views.customer_views.profile', compact('customer', 'birth_date', 'notif_customer'));
     }
 
     public function generate_qr_code(Request $request)
@@ -360,6 +365,13 @@ class CustomerController extends Controller
                 'password' => Hash::make($request->password),
                 'updated_at' => now()
             ]);
+
+            CustomerLogActivities::log(
+                    customer: $customer_code,
+                    category: 'Update Password',
+                    description: "Customer Update Password"  
+            );
+
             session()->flash('message_success', 'Berhasil merubah kata sandi!');
             return redirect()->back();
         }
@@ -373,6 +385,13 @@ class CustomerController extends Controller
                 'status' => 8,
                 'deleted_at' => now()
             ]);
+
+            CustomerLogActivities::log(
+                customer: $customer_code,
+                category: 'Nonactive Account',
+                description: "Customer Nonactive Account"  
+            );
+
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             session()->flash('message_success', 'Akun anda berhasil dihapus!');
@@ -385,8 +404,19 @@ class CustomerController extends Controller
         $auth_check = auth()->guard('customer')->user();
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         
-        $favorite_exists = DB::table('products_favorite')->where('product', $request->product)->where('variant', $request->variant)
-                ->where('customer_code', $customer_code)->first();
+        $favorite_exists = DB::table('products_favorite')
+            ->where('product', $request->product)
+            ->where('variant', $request->variant)
+            ->where('customer_code', $customer_code)->first();
+        
+         $like_product_exists = DB::table('customers_log_activities')
+                ->where('product', $request->product)
+                ->where('variant', $request->variant ?? null)
+                ->where('customer', $customer_code)
+                ->where('category', 'Like Product')
+                ->first(); 
+          
+        
 
             if(!auth()->guard('customer')->check()) {
                     session()->flash('failed_message', 'Anda harus login untuk sukai produk ini');
@@ -394,6 +424,16 @@ class CustomerController extends Controller
             }    
 
             if($auth_check){
+
+                    if(!$like_product_exists){
+                        CustomerLogActivities::log(
+                            customer: $customer_code,
+                            product: $request->product,
+                            variant: $request->variant,
+                            category: 'Like Product',
+                            description: "Customer Like Product"  
+                        );
+                    }
 
                     if($favorite_exists){
                         session()->flash('message_success', 'Produk ini sudah anda sukai!');
@@ -452,18 +492,60 @@ class CustomerController extends Controller
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
     
         $notifications = DB::table('customer_notifications as cn')
-                    ->select('cn.title', 'cn.message', 'cn.is_read','cn.category','cn.created_at', 'cnd.transaction as transaction_code', 'cnd.reward', 'cnd.voucher')
+                    ->select('cn.id as notif_id','cn.title', 'cn.message', 'cn.is_read','cn.category','cn.is_read', 'cn.customer','cn.created_at', 'cnd.transaction as transaction_code', 'cnd.reward', 'cnd.voucher', 'cnd.voucher_birthday')
                     ->leftJoin('notification_categories as nc', 'cn.category', '=', 'nc.id')
                     ->leftJoin('customer_notifications_detail as cnd', 'cn.id', '=', 'cnd.notif')
                     ->where('cn.customer', $customer_code)
                     ->orderBy('cn.created_at', 'DESC')
                     ->get();
 
+        
+
+         $notif_customer = DB::table('customer_notifications')
+            ->where('customer', $customer_code)
+            ->where('is_read', 'N')->count();
+
+
 
 
         $user_register = DB::table('customer')->where('customer_code', $customer_code)->exists();
-        return view('layouts.main_views.customer_views.notifications', compact('notifications', 'user_register'));
+        return view('layouts.main_views.customer_views.notifications', compact('notifications', 'user_register', 'notif_customer'));
     }
+
+    public function click_read_notif(Request $rq){
+
+        $notif_id = $rq->notif_id;
+
+        
+
+        CustomerNotificationModel::where('id', $notif_id)->update([
+            'is_read' => 'Y',
+            'updated_at' => now()
+        ]);
+
+
+        return redirect()->back();
+
+
+    }
+
+    public function all_notif_read(Request $rq){
+
+        $customer = $rq->customer;
+
+        
+
+        CustomerNotificationModel::where('customer', $customer)->update([
+            'is_read' => 'Y',
+            'updated_at' => now()
+        ]);
+
+
+        return redirect()->back();
+
+
+    }
+
 
      public function download_invoice_pdf(Request $request)
     {
@@ -522,6 +604,12 @@ class CustomerController extends Controller
             'phone_number' => $request->phone_number,
             'updated_at' =>$updated_at
         ]);
+
+        CustomerLogActivities::log(
+            customer: $customer_code,
+            category: 'Update Profile',
+            description: "Customer Update Profile"  
+        );
 
         session()->flash('message_success', 'Berhasil perbarui data anda');
         return redirect()->back();
@@ -768,6 +856,20 @@ class CustomerController extends Controller
         ->get();
 
         return view('layouts.main_pages.customers.customer_feedback', compact('customer_feedback'));
+    }
+
+    public function customer_log_activities(Request $request){
+
+        $customer = $request->customer_code;
+
+        $customer_log_activities = DB::table('customers_log_activities as cla')
+                ->select('cla.category as log_category', 'cla.description as log_description', 'p.product_name', 'cla.created_at')
+                ->leftJoin('products as p', 'cla.product', '=', 'p.product_code')
+                ->leftJoin('customer as c', 'cla.customer', '=', 'c.customer_code')
+                ->where('cla.customer', $customer)
+                ->get();
+
+        return view('layouts.main_pages.customers.category_log_activities', compact('customer_log_activities'));
     }
 
     public function edit(string $id)

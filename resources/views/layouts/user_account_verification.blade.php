@@ -32,12 +32,12 @@
         </div>
 
         <div class="user-info">
-             <p>Gunakan Tanggal Lahir sebagai kata sandi default anda</p>
+            <p>Gunakan Tanggal Lahir sebagai kata sandi default anda</p>
             <p>format: ddmmyyyy => 12012001</p>
         </div>
 
         <footer>
-            <p>Kencana Bakery &copy;2025</p>
+            <p>Kencana Bakery &copy; {{ now()->year }}</p>
         </footer>
 
     </div>

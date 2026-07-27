@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
+use App\Services\CustomerLogActivities;
 
 class CustomerForgotPasswordRequest extends Controller
 {
@@ -196,6 +197,12 @@ class CustomerForgotPasswordRequest extends Controller
                     'updated_at' => now(),
                     
                 ]);
+
+                CustomerLogActivities::log(
+                    customer: $user->customer_code,
+                    category: 'Update Password',
+                    description: "Customer Update Password"  
+                );
 
                 session()->flash('message_success', 'Kata sandi berhasil diperbarui');
                 return redirect()->route('login_app');

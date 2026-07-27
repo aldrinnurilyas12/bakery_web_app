@@ -49,6 +49,16 @@
                         </div>
 
                         <div class="form-group">
+                            <label for=""><strong>Jenis Voucher</strong></label>
+                            <select id="voucher-type" name="voucher_type" id="" class="form-control" required>
+                                <option value="">=== Pilih Jenis Voucher ===</option>
+                                <option value="regular">Regular</option>
+                                <option value="birth_day">Ulang Tahun</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('voucher_type')" class="text-danger" />
+                        </div>
+
+                        <div class="form-group">
                             <label><strong>Masukan jumlah nominal (Opsional)</strong></label>
                             <br>
                             <small style="font-style: oblique;">Jika sudah pakai jumlah nominal maka opsi Diskon tidak
@@ -65,7 +75,7 @@
 
                         <div class="form-group">
                             <label><strong>Masukan minimal transaksi (Rp)</strong></label>
-                            <input type="number" name="min_transaction" class="form-control"
+                            <input id="min-transaction" type="number" name="min_transaction" class="form-control"
                                 value="{{ old('min_transaction') }}" placeholder="Masukan minimal transaksi"
                                 autocomplete="off">
                             <x-input-error :messages="$errors->get('min_transaction')" class="text-danger" />
@@ -79,23 +89,19 @@
                         </div>
 
                         <div class="form-group">
-                            <label for=""><strong>Jenis Voucher</strong></label>
-                            <select name="voucher_type" id="" class="form-control" required>
-                                <option value="">=== Pilih Jenis Voucher ===</option>
-                                <option value="regular">Regular</option>
-                                <option value="birth_day">Ulang Tahun</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('voucher_type')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
                             <label><strong>Tanggal awal berlaku voucher</strong></label>
+                            <br>
+                            <small class="text-danger">*Jika Jenis Voucher Ulang Tahun Atur periode dari awal tanggal
+                                bulan misal (01 Juli 2026 s.d 31 Juli 2026)</small>
                             <input type="date" name="start_date" class="form-control" autocomplete="off" required>
                             <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal akhir berlaku voucher</strong></label>
+                            <br>
+                            <small class="text-danger">*Jika Jenis Voucher Ulang Tahun Atur periode sampai akhir
+                                tanggal bulan (01 Juli 2026 s.d 31 Juli 2026)</small>
                             <input type="date" name="end_date" class="form-control" autocomplete="off" required>
                             <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
                         </div>
@@ -142,6 +148,27 @@
                 nominalInput.disabled = false;
             }
         });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const voucherType = document.getElementById("voucher-type");
+        const minTransaction = document.getElementById("min-transaction");
+
+        function toggleMinTransaction() {
+            if (voucherType.value === "birth_day") {
+                minTransaction.readOnly = true;
+                minTransaction.value = ""; // opsional: kosongkan nilainya
+            } else {
+                minTransaction.readOnly = false;
+            }
+        }
+
+        // Jalankan saat halaman dimuat
+        toggleMinTransaction();
+
+        // Jalankan saat pilihan berubah
+        voucherType.addEventListener("change", toggleMinTransaction);
     });
 </script>
 

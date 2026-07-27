@@ -25,7 +25,7 @@
         </p>
 
         <footer>
-            <p>Kencana Bakery &copy;2025</p>
+            <p>Kencana Bakery &copy; {{ now()->year }}</p>
         </footer>
 
     </div>

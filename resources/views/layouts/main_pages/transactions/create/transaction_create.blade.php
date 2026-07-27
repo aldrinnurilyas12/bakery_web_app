@@ -57,6 +57,11 @@
                                 <a class="text-primary" href="{{ route('transaction.index') }}"><i
                                         class="fa fa-list"></i>&nbsp;Riwayat
                                     Transaksi</a>
+
+                                <span>|</span>
+
+                                <a class="text-primary" href="{{ route('dailyproducts_data') }}"><i
+                                        class="fa fa-list"></i>&nbsp;Produk Daily</a>
                             </div>
                         </div>
                     </div>
@@ -128,8 +133,8 @@
                                                                             )
                                                                             ->first();
                                                                     @endphp
-                                                                    <div style="position: left;" class="card"
-                                                                        style="width: 200px;">
+                                                                    <div style="position: left;height:max-content;"
+                                                                        class="card" style="width: 200px;">
                                                                         @if ($product->product_code == $products_images->product_code)
                                                                             <img class="card-img"
                                                                                 src="{{ asset('storage/' . $products_images->images) }}"
@@ -302,20 +307,19 @@
                                                     <div class="products-card"
                                                         style="display: flex; flex-wrap: wrap; gap: 20px;">
                                                         @foreach ($promo_bundling as $product)
-                                                            <div style="position: left;" class="card"
-                                                                style="width: 200px;">
-                                                                <img class="card-img"
+                                                            <div style="position: left;height:max-content;width: 200px;"
+                                                                class="card">
+                                                                <div style="position: absolute;background:#bb0239;color:white;padding:2px;border-radius: 3px;font-weight: bold;"
+                                                                    class="category-class">
+                                                                    <p>Paket Bundling</p>
+                                                                </div>
+
+                                                                <img style="width:100%;" class="card-img"
                                                                     src="{{ asset('storage/' . $product->images) }}"
                                                                     alt="">
                                                                 <p class="product-name">
                                                                     <strong>{{ $product->bundling_name }}</strong>
                                                                 </p>
-
-                                                                <div style="display: flex; gap:6px;"
-                                                                    class="category-class">
-                                                                    <small class="text-secondary">Paket
-                                                                        Bundling</small>
-                                                                </div>
 
                                                                 @if ($product->price)
                                                                     <div class="price">
@@ -335,6 +339,15 @@
                                                                         @else
                                                                             <span>{{ $product->total_available }}</span>
                                                                         @endif
+                                                                    </p>
+                                                                </div>
+
+                                                                <div style="display:flex; gap:3px;font-size: 12px;"
+                                                                    class="period-time">
+                                                                    <p> {{ \Carbon\carbon::parse($product->start_date)->format('d-m-Y') }}
+                                                                    </p>
+                                                                    <p>s.d</p>
+                                                                    <p> {{ \Carbon\carbon::parse($product->end_date)->format('d-m-Y') }}
                                                                     </p>
                                                                 </div>
 
@@ -388,8 +401,8 @@
                                                                                 <span>Produk habis:</span>
                                                                                 <div class="product-empty-info">
                                                                                     @foreach ($produkHabis as $produk)
-                                                                                        {{ $no++ }}.
-                                                                                        {{ $produk }}
+                                                                                        <li> {{ $no++ }}.
+                                                                                            {{ $produk }}</li>
                                                                                     @endforeach
                                                                                 </div>
 
@@ -487,8 +500,8 @@
                                                                     ->where('product_code', $product->product_code)
                                                                     ->first();
                                                             @endphp
-                                                            <div style="position: left;" class="card"
-                                                                style="width: 200px;">
+                                                            <div style="position: left;height:max-content;"
+                                                                class="card" style="width: 200px;">
                                                                 @if ($product->product_code == $products_images->product_code)
                                                                     <img class="card-img"
                                                                         src="{{ asset('storage/' . $products_images->images) }}"

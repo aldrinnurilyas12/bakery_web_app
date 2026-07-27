@@ -15,6 +15,7 @@
 <body>
 
     <div class="form-input">
+        @include('layouts.component_admin.navbar.maintenance_info_admin')
 
         <div class="content-grettings">
 
@@ -22,6 +23,8 @@
                 Welcome to <span style=" color: #bb0239;">Kencana <span style="color: #4d4d4d;">Bakery</span></span>
             </h1>
             <p class="title-content">Selamat datang di Website Admin Kencana Bakery</p>
+
+
         </div>
 
         <div class="form-group">
@@ -38,15 +41,15 @@
                     <label style="color:black;" for="">Masukan Email atau Nama Pengguna</label>
                     <input class="form-input-text" type="text" value="{{ old('login') }}" name="login"
                         placeholder="Masukan Email Anda atau username" autocomplete="off">
-                     <x-input-error :messages="$errors->get('login')" class="text-danger" />
+                    <x-input-error :messages="$errors->get('login')" class="text-danger" />
                 </div>
 
                 <div class="input-group">
-                    <label  style="color:black;" for="">Masukan Kata Sandi</label>
+                    <label style="color:black;" for="">Masukan Kata Sandi</label>
                     <div style="position: relative;">
                         <input id="password" class="form-input-text" type="password" name="password"
                             placeholder="Masukan kata sandi" autocomplete="off">
-                         <x-input-error :messages="$errors->get('password')" class="text-danger" />
+                        <x-input-error :messages="$errors->get('password')" class="text-danger" />
                         <i class="fas fa-eye" id="togglePassword"
                             style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                         </i>
@@ -55,14 +58,14 @@
                 </div>
 
                 <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-                 </div>
-                    
-                <br>
-                
-               @error('g-recaptcha-response')
-                <div class="text-danger mt-2">
-                    {{ $message }}
                 </div>
+
+                <br>
+
+                @error('g-recaptcha-response')
+                    <div class="text-danger mt-2">
+                        {{ $message }}
+                    </div>
                 @enderror
 
                 <div class="button-group">
@@ -92,9 +95,7 @@
             confirmButtonText: 'OK'
         });
     </script>
-@endif
-
-@if (Session::has('failed_message'))
+@elseif (Session::has('failed_message'))
     <script>
         Swal.fire({
             title: 'Gagal',
@@ -105,22 +106,6 @@
         });
     </script>
 @endif
-
-
-<script>
-    const toggle = document.getElementById('togglePassword');
-    const password = document.getElementById('password');
-
-    toggle.addEventListener('click', function() {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-
-        // ganti icon
-        this.classList.toggle('fa-eye');
-        this.classList.toggle('fa-eye-slash');
-    });
-</script>
- <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
@@ -242,6 +227,9 @@
         transition: background-color 0.3s ease;
     }
 
+    .alerti-info-none {
+        display: none;
+    }
 
     /* Form Input Text Alignment */
     .input-group input {
@@ -261,6 +249,10 @@
 
     /* Responsive */
     @media (max-width: 480px) {
+        .alerti-info-none {
+            display: block;
+        }
+
         .form-input {
             padding: 20px;
             width: 90%;
@@ -281,6 +273,9 @@
 
 
     @media (max-width: 680px) {
+        .alerti-info-none {
+            display: block;
+        }
 
         .content-grettings {
             list-style-type: none;
@@ -289,6 +284,23 @@
         }
     }
 </style>
+
+
+<script>
+    const toggle = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+
+    toggle.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+
+        // ganti icon
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {

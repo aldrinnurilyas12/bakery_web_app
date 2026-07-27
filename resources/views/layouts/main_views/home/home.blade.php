@@ -20,6 +20,10 @@
 
 <body>
     <div class="main-container">
+
+
+
+
         <!-- CUSTOMER SEGMENT -->
         <div class="customer-segment">
             <div class="main-customer">
@@ -27,8 +31,13 @@
                     <img src="{{ asset('assets\front_end\assets\logo\kencanabakery.png') }}" alt="Kencana Bakery Logo"
                         class="logo" />
                     <div class="notification-customer">
-                        <a style="color: white;" href="{{ route('notification') }}">
+                        <a href="{{ route('notification') }}" class="notification-link">
                             <i class="fa fa-bell"></i>
+                            @if (auth()->guard('customer')->user())
+                                <span class="count-notif">
+                                    {{ $notif_customer > 99 ? '99+' : $notif_customer }}
+                                </span>
+                            @endif
                         </a>
                     </div>
                 </div>
@@ -78,16 +87,6 @@
         </div>
 
         <div class="container-fluid">
-
-            @php
-                if (auth()->guard('customer')->user()) {
-                    $CUSTOMER_LOGIN_SESSION = app(
-                        'App\Http\Controllers\Auth\AuthenticatedSessionController',
-                    )->getCustomer()->customer_code;
-                    $customer = DB::table('v_customers')->where('customer_code', $CUSTOMER_LOGIN_SESSION)->first();
-                }
-            @endphp
-
             <!-- PROMO -->
             @if ($promos->isNotEmpty())
                 <div class="container">
@@ -364,79 +363,77 @@
                                         </div>
                                     </a>
                                 @endforeach
-                            </div>
-                        @endif
 
-                        @if ($promo_bundling)
-                            <div class="grid-products">
-                                @foreach ($promo_bundling as $item)
-                                    <a class="direct-content" href="{{ route('promo', $item->bundling_code) }}">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="image-wrapper">
+                                @if ($promo_bundling)
+                                    @foreach ($promo_bundling as $item)
+                                        <a class="direct-content" href="{{ route('promo', $item->bundling_code) }}">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="image-wrapper">
 
-                                                    <img class="products-img"
-                                                        src="{{ asset('storage/' . $item->images) }}" alt="">
+                                                        <img class="products-img"
+                                                            src="{{ asset('storage/' . $item->images) }}"
+                                                            alt="">
 
 
-                                                    <div class="image-overlay">
-                                                        <span class="promo-badge">Promo</span>
+                                                        <div class="image-overlay">
+                                                            <span class="promo-badge">Promo</span>
 
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <h2 class="product-name">{{ $item->bundling_name }}</h2>
+                                                    <h2 class="product-name">{{ $item->bundling_name }}</h2>
 
-                                                <div class="product-price">
-                                                    <div class="flex-price">
-                                                        <p class="price" style="margin:0;">Rp
-                                                            {{ number_format($item->price) }}
-                                                        </p>
+                                                    <div class="product-price">
+                                                        <div class="flex-price">
+                                                            <p class="price" style="margin:0;">Rp
+                                                                {{ number_format($item->price) }}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="detail-product">
-                                                    <p> Detail item: </p>
+                                                    <div class="detail-product">
+                                                        <p> Detail item: </p>
 
-                                                    <div class="detail-info-product">
+                                                        <div class="detail-info-product">
 
-                                                        <ul>
-                                                            @php
-                                                                $stockHabis = false;
-                                                            @endphp
-                                                            @foreach ($all_product as $prd)
-                                                                @if ($item->bundling_code == $prd->bundling_code)
-                                                                    @if ($prd->stock_available <= 0)
-                                                                        @php
-                                                                            $stockHabis = true;
-                                                                        @endphp
+                                                            <ul>
+                                                                @php
+                                                                    $stockHabis = false;
+                                                                @endphp
+                                                                @foreach ($all_product as $prd)
+                                                                    @if ($item->bundling_code == $prd->bundling_code)
+                                                                        @if ($prd->stock_available <= 0)
+                                                                            @php
+                                                                                $stockHabis = true;
+                                                                            @endphp
+                                                                        @endif
+                                                                        <li style="font-size:14px;">
+                                                                            {{ $prd->product_name }}
+                                                                            &nbsp; x{{ $prd->quantity }}</li>
                                                                     @endif
-                                                                    <li style="font-size:14px;">
-                                                                        {{ $prd->product_name }}
-                                                                        &nbsp; x{{ $prd->quantity }}</li>
-                                                                @endif
-                                                            @endforeach
-                                                        </ul>
+                                                                @endforeach
+                                                            </ul>
+
+                                                        </div>
+
+                                                        <div style="margin-bottom:10px;" class="info-stockempty">
+                                                            @if ($stockHabis)
+                                                                <span style="font-size: 13px;"
+                                                                    class="text-danger">*ada
+                                                                    produk
+                                                                    habis</span>
+                                                            @endif
+                                                        </div>
 
                                                     </div>
-
-                                                    <div style="margin-bottom:10px;" class="info-stockempty">
-                                                        @if ($stockHabis)
-                                                            <span style="font-size: 13px;" class="text-danger">*ada
-                                                                produk
-                                                                habis</span>
-                                                        @endif
-                                                    </div>
-
                                                 </div>
-                                            </div>
 
-                                        </div>
-                                    </a>
-                                @endforeach
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                @endif
                             </div>
-                        @else
-                            <div class="center">Produk tidak tersedia</div>
                         @endif
                     </div>
                 </div>
@@ -622,12 +619,5 @@
     <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
-
-<style>
-    a.direct-content {
-        text-decoration: none;
-    }
-</style>
-
 
 </html>

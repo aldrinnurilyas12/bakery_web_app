@@ -63,6 +63,7 @@
                         @endif
 
                         <hr>
+
                         <div class="card-body">
                             @if ($review->isNotEmpty())
                                 <div class="table-responsive">

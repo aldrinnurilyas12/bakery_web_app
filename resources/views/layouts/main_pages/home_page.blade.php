@@ -23,8 +23,10 @@
                     <h1 class="mt-4">Dashboard</h1>
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">Welcome back, &nbsp;</li>
-                        {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }} <span>&nbsp; | &nbsp; </span>
-                         <li>{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name }}</li>
+                        {{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->username }}
+                        <span>&nbsp; | &nbsp; </span>
+                        <li>{{ app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name }}
+                        </li>
                     </ol>
                     <div class="row">
                         <div class="col-xl-3 col-md-6">
@@ -79,6 +81,41 @@
                         </div>
                     </div>
 
+                    @if ($maintenance_info)
+                        <div class="alert alert-danger">
+                            <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                                class="empty-transaction">
+
+                                <div style="display: flex;" class="empty-content">
+                                    <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
+                                        <img width="70" height="70"
+                                            src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
+                                        <div style="display: block;" class="text-content">
+                                            <h3>{{ $maintenance_info->maintenance_information }}</h3>
+                                            <p>{{ $maintenance_info->message }}</p>
+
+                                            <div class="date-info">
+                                                Tanggal Berlaku:
+                                                {{ \Carbon\carbon::parse($maintenance_info->start_date)->format('d M Y') }}
+                                                {{ \Carbon\carbon::parse($maintenance_info->hour_start)->format('H:i') }}
+                                                &nbsp;
+                                                <span>S/d</span>
+                                                &nbsp;
+                                                {{ \Carbon\carbon::parse($maintenance_info->end_date)->format('d M Y') }}
+                                                {{ \Carbon\carbon::parse($maintenance_info->hour_end)->format('H:i') }}
+                                                <br>
+                                                <strong>Sisa Waktu:
+                                                    <span id="countdowntime"></span>
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    @endif
+
                 </div>
             </main>
         </div>
@@ -109,5 +146,43 @@
         });
     </script>
 @endif
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Ambil tanggal dari end_date
+        const endDate =
+            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('Y-m-d') : '' }}";
+        const endTime =
+            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->hour_end)->format('H:i:s') : '' }}";
+
+        // Bentuk datetime lengkap
+        const endDateTime = new Date(endDate + "T" + endTime);
+
+        function updateCountdown() {
+
+            const now = new Date();
+            const distance = endDateTime.getTime() - now.getTime();
+
+            if (distance <= 0) {
+                document.getElementById("countdowntime").innerHTML = "Maintenance telah berakhir";
+                clearInterval(interval);
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("countdowntime").innerHTML =
+                `${days} Hari ${hours} Jam ${minutes} Menit ${seconds} Detik`;
+        }
+
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+
+    });
+</script>
+
 
 </html>

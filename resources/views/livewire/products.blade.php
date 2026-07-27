@@ -21,15 +21,7 @@
                     <div style="display: flex;gap:10px;" class="flex-content">
 
                         @if ($products->isNotEmpty())
-                            @if ($module_documentation)
-                                <div style="align-self: center; background: rgb(222, 222, 255);padding:8px; border-radius: 5px;"
-                                    class="documentation-module">
-                                    <a title="Dokumentasi Modul"
-                                        href="{{ route('show_module_documentation', $module_documentation->url_path) }}">
-                                        <i aria-label="Module Documentation" class="fa fa-file"></i>
-                                    </a>
-                                </div>
-                            @endif
+
                             @if (!$user_permission_forbidden)
                                 <div class="button-add-product">
                                     <a class="btn-general" href="{{ route('product_create') }}">Tambah Produk</a>
@@ -288,7 +280,7 @@
                                                                 <th>Harga Variant </th>
                                                                 <th>Discount</th>
                                                                 <th>Harga setelah discount</th>
-
+                                                                <th>Tanggal Harga Efektif</th>
                                                             </tr>
 
                                                             @foreach ($product_variants as $prd)
@@ -341,6 +333,9 @@
                                                                                 -
                                                                             </td>
                                                                         @endif
+                                                                        <td>
+                                                                            {{ \Carbon\carbon::parse($product->current_price_effective)->format('d M Y') ?: '-' }}
+                                                                        </td>
                                                                     </tr>
                                                                 @endif
                                                             @endforeach
@@ -406,9 +401,9 @@
                                                                 </tr>
 
                                                                 <tr>
-                                                                    <th>Tanggal efektif harga</th>
+                                                                    <th>Tanggal Harga Efektif</th>
                                                                     <td>
-                                                                        {{ $product->price_effective_from ?: '-' }}
+                                                                        {{ \Carbon\carbon::parse($product->current_price_effective)->format('d M Y') ?: '-' }}
                                                                     </td>
                                                                 </tr>
 
@@ -511,9 +506,9 @@
                                                                 </tr>
 
                                                                 <tr>
-                                                                    <th>Tanggal efektif harga</th>
+                                                                    <th>Tanggal Harga Efektif</th>
                                                                     <td>
-                                                                        {{ $product->price_effective_from ?: '-' }}
+                                                                        {{ \Carbon\carbon::parse($product->current_price_effective)->format('d M Y') ?: '-' }}
                                                                     </td>
                                                                 </tr>
 

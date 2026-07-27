@@ -101,6 +101,14 @@
                                                                 </td>
                                                             </tr>
 
+                                                            <tr>
+                                                                <th>Log Aktivitas</th>
+                                                                <td><a class="btn btn-primary"
+                                                                        href="{{ route('customer_log_activities', $customer->customer_code) }}"><i
+                                                                            class="fa fa-history"></i> Log
+                                                                        Aktivitas</a></td>
+                                                            </tr>
+
                                                         </table>
                                                     </td>
 

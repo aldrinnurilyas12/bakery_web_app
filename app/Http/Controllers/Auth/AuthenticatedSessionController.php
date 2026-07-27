@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use App\Models\UserLogActivities;
+use App\Services\CustomerLogActivities;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -19,7 +20,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+         $maintenance_info = DB::table('maintenance_information')
+        ->where('status', 7)
+         ->where('type', 'admin_web')
+        ->orderBy('created_at', 'DESC')
+        ->first();
+        return view('auth.login',compact('maintenance_info'));
     }
 
     /**
@@ -95,11 +101,16 @@ class AuthenticatedSessionController extends Controller
 
      public function logout_session_account(Request $request): RedirectResponse
     {
+        $customer = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         Auth::guard('customer')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
+
+        CustomerLogActivities::log(
+            customer: $customer,
+            category: 'Logout',
+            description: "Customer Logout Account"  
+        );
 
         return redirect('login_app');
     }

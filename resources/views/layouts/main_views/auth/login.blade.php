@@ -5,6 +5,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @section('content')
+    {{-- load content maintenance info --}}
+    @include('layouts.component_admin.navbar.maintenance_info')
     <div style="display: flex; justify-content: center;" class="d-flex-center">
         <div class="img-logo">
             <img src="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}" alt="Kencana Bakery Logo"
@@ -21,14 +23,14 @@
         <div class="form-group">
             <label>Email atau nomor handphone</label>
             <input type="text" name="login" value="{{ old('login') }}" placeholder="Masukan email anda atau no.hp"
-                 autocomplete="off" required>
+                autocomplete="off" required>
             <x-input-error :messages="$errors->get('login')" class="text-danger" />
         </div>
 
         <div class="form-group">
             <label>Kata sandi</label>
             <div style="position: relative;">
-                <input id="password" type="password" name="password" placeholder="Masukan kata sandi anda" 
+                <input id="password" type="password" name="password" placeholder="Masukan kata sandi anda"
                     autocomplete="off" required>
                 <i class="fas fa-eye" id="togglePassword"
                     style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
@@ -37,24 +39,26 @@
             </div>
         </div>
 
-         <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
         </div>
         <br>
-         @error('g-recaptcha-response')
+        @error('g-recaptcha-response')
             <div class="text-danger mt-2">
                 {{ $message }}
             </div>
-         @enderror
+        @enderror
 
         <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Login</span>
             <span class="spinner"></span></button>
     </form>
-    <a class="btn-login-google" href="{{ route('google.login')}}"><img style="width:20px;height:20px;" src="{{ asset('assets\front_end\assets\icons\google_icon.png') }}" alt="">  Login dengan akun google</span>
+    <a class="btn-login-google" href="{{ route('google.login') }}"><img style="width:20px;height:20px;"
+            src="{{ asset('assets\front_end\assets\icons\google_icon.png') }}" alt=""> Login dengan akun
+        google</span>
     </a>
 
 
 
-            <span class="spinner"></span></button>
+    <span class="spinner"></span></button>
     <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
     @if (Session::has('message_success'))
         <script>

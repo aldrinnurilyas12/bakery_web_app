@@ -27,7 +27,7 @@ class CustomerForgotPasswordRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Customer Forgot Password Request',
+            subject: 'Customer Forgot Password Request - Kencana Bakery Services',
         );
     }
 

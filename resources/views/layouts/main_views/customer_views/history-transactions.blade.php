@@ -75,7 +75,7 @@
                     {{-- Tab all products --}}
                     <div class="tab-pane fade show active" id="tab-history" role="tabpanel">
                         <div style="height: 400px;overflow-y: auto;" class="container-products">
-                            <div class="menu-list">
+                            <div style="width:100%;" class="menu-list">
                                 @if ($history_transaction->isNotEmpty())
                                     @foreach ($history_transaction as $history)
                                         @php

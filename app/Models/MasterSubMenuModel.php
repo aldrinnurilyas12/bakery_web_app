@@ -13,6 +13,7 @@ class MasterSubMenuModel extends Model
         'submenu_name',
         'submenu_link',
         'main_menu',
+        'type',
         'icon',
         'status',
         'allow_access_outside_operational_hours',

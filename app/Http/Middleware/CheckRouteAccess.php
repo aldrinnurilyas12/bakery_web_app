@@ -25,44 +25,77 @@ class CheckRouteAccess
 
         $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
         $CUSTOMER_ENV =  app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer();
-
         $position = $GLOBAL_ENV->position_name ?? null;
-
-        $ALLOWED_USER = in_array($position, [
-            'IT Developer',
-            'Manager',
-            'Supervisor'
-        ]);
-
+        $IT_GUY = $position === 'IT Developer';
 
         $routeName = $request->segment(1);
-        $route = DB::table('submenu')->where('submenu_link', $routeName)->first();
-        $allowed_route = DB::table('submenu')
-                ->where('allow_access_outside_operational_hours', 'Y')
-                ->pluck('submenu_link')
-                ->toArray();
-        $operational_hours = Carbon::now('Asia/Jakarta')->hour;
         $module_documentation = ModuleDocumentation::where('url_path', $routeName)->first();
 
+        $maintenance_info = $maintenance_info = DB::table('maintenance_information')
+        ->where('status', 7)
+        ->where('type', 'admin_web')
+        ->orderBy('created_at', 'DESC')
+        ->exists();
+
+        $maintenance_info_cust = DB::table('maintenance_information')
+        ->where('status', 7)
+        ->where('type', 'customer_web')
+        ->orderBy('created_at', 'DESC')
+        ->exists();
+
+        $role = $GLOBAL_ENV->role_id ?? null;
+
+        if(!$role){
+            if($maintenance_info_cust){
+                 Auth::guard('customer')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                session()->flash('failed_message', 'Maaf saat ini anda tidak bisa akses '); 
+                return redirect()->route('login_app');
+            }
+              return $next($request);
+        }
+
+
         if($CUSTOMER_ENV){
+            if($maintenance_info_cust){
+                 Auth::guard('customer')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                session()->flash('failed_message', 'Maaf saat ini anda tidak bisa akses '); 
+                return redirect()->route('login_app');
+            }
             return $next($request);
         }
-
-        if (!$ALLOWED_USER) {
-            // termasuk yang tidak punya position_name (global env)
-
-            if (!in_array($routeName, $allowed_route)) {
-                if ($route && $route->status == 8) {
-                    session()->flash('failed_message', 'Tidak bisa akses');
-                    return redirect()->back();
-                }
-
-                // if($operational_hours < 9  || $operational_hours > 21){
-                // session()->flash('failed_message', 'Maaf tidak bisa akses, Jam operasional : 08:00 s.d 21:00.');
-                // return redirect()->back();
-                // }
-             }
+    
+        if(!$IT_GUY){
+            
+            if($maintenance_info){
+                session()->flash('failed_message', 'Maaf saat ini anda tidak bisa akses Module pada website ini'); 
+                return redirect()->route('dashboard_main');
+            }
+            
         }
+
+
+    
+        $routeId = DB::table('submenu')
+        ->where('submenu_link', $routeName)
+        ->pluck('id');
+        $hasPermission = DB::table('user_permission_access')
+                    ->where('submenu', $routeId)
+                    ->where('role', $role)
+                    ->exists();
+
+        // dd($hasPermission);
+
+        
+
+        if(!$hasPermission){
+            session()->flash('failed_message', 'Maaf anda tidak bisa akses menu ini'); 
+            return redirect()->route('dashboard_main');
+        }
+
 
         View::share('module_documentation', $module_documentation);
         return $next($request);

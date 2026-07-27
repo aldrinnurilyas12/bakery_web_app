@@ -57,6 +57,17 @@
                             <x-input-error :messages="$errors->get('submenu_link')" class="text-danger" />
                         </div>
 
+
+                        <div class="form-group">
+                            <label><strong>Tipe Submenu</strong></label>
+                            <select class="form-control" name="type" id="">
+                                <option value="">=== Pilih ===</option>
+                                <option value="admin">Admin Web</option>
+                                <option value="main_web">Customer Web</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('type')" class="text-danger" />
+                        </div>
+
                         <div class="form-group">
                             <label><strong>Akses diluar jam operasional</strong></label>
                             <select class="form-control" name="allow_access_outside_operational_hours" id="">

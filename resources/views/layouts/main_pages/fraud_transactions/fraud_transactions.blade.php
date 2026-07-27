@@ -22,10 +22,11 @@
             <main>
                 @php
                     $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
-                    $user_permission_forbidden = in_array($session_user->role_name, [
+                    $user_permission = in_array($session_user->role_name, [
                         'Supervisor',
                         'Manager',
                         'IT Developer',
+                        'Staff',
                     ]);
                 @endphp
                 <div class="container-fluid px-4">
@@ -51,7 +52,7 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                @if ($user_permission_forbidden)
+                                                @if ($user_permission)
                                                     <th>Aksi</th>
                                                 @endif
                                                 <th>Informasi Transaksi</th>
@@ -66,7 +67,7 @@
                                             @foreach ($fraud_transactions as $key => $fraud)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    @if ($user_permission_forbidden)
+                                                    @if ($user_permission)
                                                         <td>
                                                             @if ($fraud->status_name == 'Resolved')
                                                                 <a class="btn btn-success"><i class="fa fa-check"></i>

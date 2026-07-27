@@ -22,29 +22,29 @@
                 <div class="container-fluid px-4">
                     <h4>Update Data Harga Produk</h4>
                     <hr>
-                    <form id="formGeneralMaster" action="{{ route('product_price_edit', $product->product_code) }}" method="POST"
-                        enctype="multipart/form-data">
+                    <form id="formGeneralMaster" action="{{ route('product_price_edit', $product->product_code) }}"
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
                             <label><strong>Nama Produk</strong></label>
-                            <input type="text" class="form-control"
-                                value="{{ $product->product }}" placeholder="Masukan nama Produk" autocomplete="off"
-                                readonly>
+                            <input type="text" class="form-control" value="{{ $product->product }}"
+                                placeholder="Masukan nama Produk" autocomplete="off" readonly>
                         </div>
 
                         <div class="form-group">
                             <label><strong>HPP Produk</strong></label>
-                            <input  type="text" class="form-control"
-                                value="{{'Rp' . number_format($product->hpp) }}" readonly autocomplete="off"
-                                required>
-                            <input name="hpp" type="text" value="{{ str_replace(',', '', number_format($product->hpp)) }}" hidden>
+                            <input type="text" class="form-control" value="{{ 'Rp' . number_format($product->hpp) }}"
+                                readonly autocomplete="off" required>
+                            <input name="hpp" type="text"
+                                value="{{ str_replace(',', '', number_format($product->hpp)) }}" hidden>
                         </div>
 
                         <div id="normalPrice" class="price-form-group">
                             <div class="form-group">
                                 <label><strong>Harga Produk</strong></label>
-                                 <input type="text" hidden name="price_before" class="form-control" value="{{ $product->price }}"autocomplete="off">
+                                <input type="text" hidden name="price_before" class="form-control"
+                                    value="{{ $product->price }}"autocomplete="off">
                                 <input type="text" name="price" class="form-control" value="{{ $product->price }}"
                                     placeholder="Masukan harga Produk" autocomplete="off">
                                 <x-input-error :messages="$errors->get('price')" class="text-danger" />
@@ -53,14 +53,16 @@
                             <div class="form-group">
                                 <label><strong>Diskon (%) (optional)</strong></label>
                                 <small class="text-danger">*Masukan 0 jika produk tidak diskon</small>
-                                 <input type="text" hidden name="discount_before" class="form-control" value="{{ $product->discount }}"autocomplete="off">
+                                <input type="text" hidden name="discount_before" class="form-control"
+                                    value="{{ $product->discount }}"autocomplete="off">
                                 <input type="text" name="discount" class="form-control"
                                     value="{{ $product->discount }}" autocomplete="off">
                             </div>
 
                             <div class="form-group">
                                 <label><strong>Harga Setelah Diskon (optional)</strong></label>
-                                 <input type="text" hidden name="price_after_discount_before" class="form-control" value="{{ $product->price_after_discount }}"autocomplete="off">
+                                <input type="text" hidden name="price_after_discount_before" class="form-control"
+                                    value="{{ $product->price_after_discount }}"autocomplete="off">
                                 <input type="text" name="price_after_discount" class="form-control"
                                     value="{{ $product->price_after_discount }}"autocomplete="off" readonly>
                             </div>
@@ -68,12 +70,12 @@
                             <div class="form-group">
                                 <label><strong>Tanggal Harga Efektif</strong></label>
                                 <input type="date" name="price_effective_from_before" class="form-control"
-                                        value="{{ old('business_effective_date', $product->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
-                                        autocomplete="off" hidden>
+                                    value="{{ old('business_effective_date', $product->current_price_effective ? $business_effective_date->format('Y-m-d') : null) }}"
+                                    autocomplete="off" hidden>
                                 <input type="date" name="price_effective_from" class="form-control"
-                                        value="{{ old('business_effective_date', $product->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
-                                        autocomplete="off">
-                                
+                                    value="{{ old('business_effective_date', $product->current_price_effective ? $business_effective_date->format('Y-m-d') : null) }}"
+                                    autocomplete="off">
+
                             </div>
                         </div>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PromoNotificationMail;
 use App\Models\PromoCampaign;
 use App\Models\PromoCampaignImages;
 use App\Models\PromoCampaignProducts;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Services\UserLogActivity;
+use Illuminate\Support\Facades\Mail;
 
 class PromoCampaignController extends Controller
 {
@@ -68,7 +70,11 @@ class PromoCampaignController extends Controller
         ]);
 
         $created_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $customers = DB::table('customer')
+            ->where('status', 7)
+            ->where('account_email_verified', 'Y')->get();
 
+       
         $uuid = (string) Str::uuid();
         $unique_code = substr($uuid, 0,8);
         
@@ -95,6 +101,16 @@ class PromoCampaignController extends Controller
                 'created_at' => now()
             ]);
         }
+
+        foreach($customers as $customer){
+             Mail::to($customer->email)->sendNow(new PromoNotificationMail([
+                'promo_name' => $promo->promo_name,
+                'start_date' => $promo->start_date,
+                'end_date' => $promo->end_date,
+                'name' => $customer->name
+            ]));
+        }
+
 
         UserLogActivity::log(
                 module: 'Promo Campaign',

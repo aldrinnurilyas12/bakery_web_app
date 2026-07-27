@@ -60,12 +60,13 @@
                                     <div style="display: flex; flex-wrap: wrap; gap:10px;">
                                         @foreach ($bundling as $bundl)
                                             <div class="card bg-light text-black mb-4">
-                                                <div style="display: flex;align-items: center; gap:10px;font-weight: bold;"
+                                                <div style="display: flex; gap:10px;font-weight: bold;"
                                                     class="card-body">
                                                     <div style="display: flex; gap:10px;" class="image-content">
                                                         <img width="90" height="90"
                                                             src="{{ url('storage/' . $bundl->images) }}" alt="">
-                                                        <div class="content-text">
+                                                        <div class="content-text"
+                                                            style="height:300px; overflow-y:auto;">
                                                             <div style="width: 200px;" class="title-text">
                                                                 <h5 style="font-size:15px;">{{ $bundl->bundling_name }}
                                                                 </h5>

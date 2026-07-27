@@ -27,7 +27,7 @@ class SendOtpEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send OTP Email',
+            subject: 'Send OTP Email - Kencana Bakery Services',
         );
     }
 

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use App\Services\UserLogActivity;
 use App\Models\UserLogActivities;
+use App\Services\CustomerLogActivities;
 
 
 class LoginRequest extends FormRequest
@@ -54,12 +55,12 @@ class LoginRequest extends FormRequest
         $this->validate([
             'login' => 'required',
             'password' => 'required',
-            'g-recaptcha-response' => 'required'
+            // 'g-recaptcha-response' => 'required'
         ],
         [
             'login.required' => 'Harap masukan email atau nomor handphone anda',
             'password.required' => 'Harap masukan kata sandi',
-            'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
+            // 'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
         ]);
 
         $this->ensureIsNotRateLimited();
@@ -73,27 +74,27 @@ class LoginRequest extends FormRequest
 
 
          // Verifikasi reCAPTCHA
-        $response = Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-                [
-                    'secret'   => config('services.recaptcha.secret_key'),
-                    'response' => $this->input('g-recaptcha-response'),
-                    'remoteip' => $this->ip(),
-                ]
-            );
+        // $response = Http::asForm()->post(
+        //     'https://www.google.com/recaptcha/api/siteverify',
+        //         [
+        //             'secret'   => config('services.recaptcha.secret_key'),
+        //             'response' => $this->input('g-recaptcha-response'),
+        //             'remoteip' => $this->ip(),
+        //         ]
+        //     );
 
-        $result = $response->json();
+        // $result = $response->json();
 
 
         $nik = DB::table('users')->where('username', $login)->orWhere('email', $login)->first();
 
 
 
-        if (!($result['success'] ?? false)) {
-            return back()->withErrors([
-                        'captcha' => 'Verifikasi reCAPTCHA gagal.',
-                    ])->withInput();
-        }
+        // if (!($result['success'] ?? false)) {
+        //     return back()->withErrors([
+        //                 'captcha' => 'Verifikasi reCAPTCHA gagal.',
+        //             ])->withInput();
+        // }
 
 
         // Jika pengguna tidak ditemukan
@@ -253,6 +254,12 @@ class LoginRequest extends FormRequest
                 ->with('failed_message', 'Kata sandi salah!')
                 ->withInput();
         }
+
+        CustomerLogActivities::log(
+            customer: $user->customer_code,
+            category: 'Login',
+            description: "Customer Login Account"  
+        );
 
         RateLimiter::clear($this->throttleKey());
         return redirect()->intended(route('home'));

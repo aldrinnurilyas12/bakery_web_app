@@ -37,10 +37,10 @@
 
                                 @if ($main_menu->isNotEmpty())
                                     @if (!$user_permission_forbidden)
-                                        <div class="button-add-product">
+                                        <div style="display:flex; gap:20px;" class="button-add-product">
                                             <a style="color:black;" class="btn btn-info" href="#"
                                                 data-toggle="modal" data-target="#changeStatus">Update Status</a>
-                                            |
+
                                             <div class="button-add-product">
                                                 <a class="btn-general" href="{{ route('main_menu_create') }}">Tambah
                                                     Menu Utama</a>

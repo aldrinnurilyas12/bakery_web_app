@@ -25,8 +25,12 @@
                     <img src="{{ asset('assets\front_end\assets\logo\kencanabakery.png') }}" alt="Kencana Bakery Logo"
                         class="logo" />
                     <div class="notification-customer">
-                        <a style="color: white;" href="{{ route('notification') }}">
+                        <a href="{{ route('notification') }}" class="notification-link">
                             <i class="fa fa-bell"></i>
+
+                            <span class="count-notif">
+                                {{ $notif_customer > 99 ? '99+' : $notif_customer }}
+                            </span>
                         </a>
                     </div>
                 </div>
@@ -123,7 +127,7 @@
                         <input class="form-control" type="date"
                             value="{{ old('birth_date', $customer->birth_date ? $birth_date->format('Y-m-d') : null) }}"
                             name="birth_date" autocomplete="off" required>
-                        @if(!$customer->birth_date)
+                        @if (!$customer->birth_date)
                             <small class="text-danger">*Harap masukan tanggal lahir</small>
                         @endif
                         <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
@@ -131,8 +135,9 @@
 
                     <div class="form-group">
                         <label><strong>Alamat</strong></label>
-                        <input type="text" name="address" class="form-control" placeholder="Harap masukan Alamat rumah anda" value="{{ $customer->address }}" required>
-                         @if(!$customer->address)
+                        <input type="text" name="address" class="form-control"
+                            placeholder="Harap masukan Alamat rumah anda" value="{{ $customer->address }}" required>
+                        @if (!$customer->address)
                             <small class="text-danger">*Harap masukan alamat</small>
                         @endif
                         <x-input-error :messages="$errors->get('address')" class="text-danger" />
@@ -141,9 +146,10 @@
 
                     <div class="form-group">
                         <label><strong>No. Handphone</strong></label>
-                        <input type="text" name="phone_number" placeholder="Masukan No.Handphone anda diawali (62)" class="form-control"
+                        <input type="text" name="phone_number"
+                            placeholder="Masukan No.Handphone anda diawali (62)" class="form-control"
                             value="{{ $customer->phone_number }}" required>
-                        @if(!$customer->phone_number)
+                        @if (!$customer->phone_number)
                             <small class="text-danger">*Harap masukan nomor handphone</small>
                         @endif
                         <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />

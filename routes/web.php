@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\VariantCategory;
 use App\Http\Controllers\GoogleOauthController;
 use App\http\Controllers\Api\ModulesDocumentation;
 use App\Http\Controllers\Api\FraudAnalysis;
+use App\Http\Controllers\Api\MaintenanceInformation;
 use App\Http\Controllers\Api\CustomerSegmentCategories;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\Cors;
@@ -54,25 +55,25 @@ Route::get('product_detail/{product_code}', [ShowProducts::class, 'product_detai
 
 // ROUTE FOR MAIN APP:
 Route::get('login_app', [RegisteredCustomer::class, 'login_layouts'])->name('login_app');
-Route::get('register_account', [RegisteredCustomer::class, 'register_layouts'])->name('register_account');
+Route::get('register_account', [RegisteredCustomer::class, 'register_layouts'])->name('register_account')->middleware('route_access');
 Route::get('account_verification/{customer_code}', [RegisteredCustomer::class, 'account_verification'])->name('account_verification');
-Route::get('home', [MainAppHomePageController::class, 'homepage'])->name('home');
-Route::get('product/{slug}', [MainAppHomePageController::class, 'product_detail'])->name('product');
-Route::get('promo/{bundling_code}', [MainAppHomePageController::class, 'promo_detail'])->name('promo');
-Route::get('rewards-catalogue', [CustomerController::class, 'rewards_catalogue'])->name('rewards-catalogue');
+Route::get('home', [MainAppHomePageController::class, 'homepage'])->name('home')->middleware('route_access');
+Route::get('product/{slug}', [MainAppHomePageController::class, 'product_detail'])->name('product')->middleware('route_access');
+Route::get('promo/{bundling_code}', [MainAppHomePageController::class, 'promo_detail'])->name('promo')->middleware('route_access');
+Route::get('rewards-catalogue', [CustomerController::class, 'rewards_catalogue'])->name('rewards-catalogue')->middleware('route_access');
 Route::post('register_member_account', [RegisteredCustomer::class, 'store'])->name('register_member_account');
-Route::post('login_execute', [AuthenticatedSessionController::class, 'request_sign_in'])->name('login_execute');
-Route::get('product-search/', [MainAppHomePageController::class, 'product_search'])->name('product-search');
+Route::post('login_execute', [AuthenticatedSessionController::class, 'request_sign_in'])->name('login_execute')->middleware('route_access');
+Route::get('product-search/', [MainAppHomePageController::class, 'product_search'])->name('product-search')->middleware('route_access');
 Route::get('promo-campaign', [MainAppHomePageController::class, 'promo_campaign'])->name('promo-campaign')->middleware('route_access');
-Route::get('promo-detail/{promo_code}', [MainAppHomePageController::class, 'promo_campaign_detail'])->name('promo-detail');
-Route::get('reward-detail/{rewards_code}', [CustomerController::class, 'reward_detail'])->name('reward-detail');
-Route::get('fstore/', [MainAppHomePageController::class, 'filter_store'])->name('fstore');
+Route::get('promo-detail/{promo_code}', [MainAppHomePageController::class, 'promo_campaign_detail'])->name('promo-detail')->middleware('route_access');
+Route::get('reward-detail/{rewards_code}', [CustomerController::class, 'reward_detail'])->name('reward-detail')->middleware('route_access');
+Route::get('fstore/', [MainAppHomePageController::class, 'filter_store'])->name('fstore')->middleware('route_access');
 Route::apiResource('customer-forgot-password', App\Http\Controllers\Api\CustomerForgotPasswordRequest::class);
-Route::get('forgot-password-help', [CustomerForgotPasswordRequest::class, 'create'])->name('forgot-password-help');
+Route::get('forgot-password-help', [CustomerForgotPasswordRequest::class, 'create'])->name('forgot-password-help')->middleware('route_access');
 Route::post('check-email-otp', [CustomerForgotPasswordRequest::class, 'send_otp'])->name('check-email-otp');
 Route::get('otp-confirmation-request', [CustomerForgotPasswordRequest::class, 'otp_confirmation'])->name('otp-confirmation-request');
 Route::post('otp-proccess-request', [CustomerForgotPasswordRequest::class, 'otp_auth_confirmation'])->name('otp-proccess-request');
-Route::get('change-password-req', [CustomerForgotPasswordRequest::class, 'change_password_layouts'])->name('change-password-req');
+Route::get('change-password-req', [CustomerForgotPasswordRequest::class, 'change_password_layouts'])->name('change-password-req')->middleware('route_access');
 Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest::class, 'change_password_proccess'])->name('change-password-proccessing');
 
 
@@ -83,22 +84,22 @@ Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest
 // Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
 
 // OAuth Google:
-Route::get('/auth/google', [GoogleOauthController::class, 'redirect'])->name('google.login');
-Route::get('/auth/google/callback', [GoogleOauthController::class, 'callback']);
+Route::get('/auth/google', [GoogleOauthController::class, 'redirect'])->name('google.login')->middleware('route_access');
+Route::get('/auth/google/callback', [GoogleOauthController::class, 'callback'])->middleware('route_access');
 
 
 Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('profile', [CustomerController::class, 'profile'])->name('profile')->middleware('route_access');
-    Route::get('profile-menu', [CustomerController::class, 'menu'])->name('profile-menu');
+    Route::get('profile-menu', [CustomerController::class, 'menu'])->name('profile-menu')->middleware('route_access');
     Route::get('history-transactions', [CustomerController::class, 'history_transaction'])->name('history-transaction')->middleware('route_access');
     Route::get('transaction_get', [CustomerController::class, 'filter_transaction'])->name('transaction_get');
-    Route::get('invoice/{transaction_code}', [CustomerController::class, 'invoice'])->name('invoice');
+    Route::get('invoice/{transaction_code}', [CustomerController::class, 'invoice'])->name('invoice')->middleware('route_access');
     Route::get('your-voucher', [CustomerController::class, 'customer_voucher'])->name('your-voucher')->middleware('route_access');
     Route::get('change-password-help', [CustomerController::class, 'change_password_layout'])->name('change-password-help')->middleware('route_access');
     Route::put('nonactive_account/{customer_code}', [CustomerController::class, 'nonactive_account'])->name('nonactive_account');
     Route::put('update_password', [CustomerController::class, 'update_customer_password'])->name('update_password');
     Route::post('add_favorite', [CustomerController::class, 'favorite_product'])->name('add_favorite');
-    Route::get('favorite', [CustomerController::class, 'favorite_list'])->name('favorite');
+    Route::get('favorite', [CustomerController::class, 'favorite_list'])->name('favorite')->middleware('route_access');
     Route::post('logout_account', [AuthenticatedSessionController::class, 'logout_session_account'])->name('logout_account');
     Route::get('notification', [CustomerController::class, 'notification'])->name('notification')->middleware('route_access');
     Route::put('update_customer/{customer_code}', [CustomerController::class, 'update_customer'])->name('update_customer');
@@ -110,6 +111,8 @@ Route::middleware(['customer', 'nocache'])->group(function () {
     Route::get('invoice_download/{transaction_code}', [CustomerController::class, 'download_invoice_pdf'])->name('invoice_download');
     Route::put('generate_qr_code', [CustomerController::class, 'generate_qr_code'])->name('generate_qr_code');
     Route::post('product_review_save', [CustomerController::class, 'product_review_save'])->name('product_review_save');
+    Route::put('click_read_notif/{notif_id}', [CustomerController::class, 'click_read_notif'])->name('click_read_notif');
+    Route::put('all_notif_read/{customer}', [CustomerController::class, 'all_notif_read'])->name('all_notif_read');
 });
 
 
@@ -123,7 +126,7 @@ Route::get('/admin_kencana_bakery', function () {
 Route::get('login_kencana_bakery',[AuthenticatedSessionController::class,'create'])->name('login_kencana_bakery');
 Route::post('login_exe', [AuthenticatedSessionController::class, 'store'])->name('login_exe');
 Route::apiResource('forgot-password', App\Http\Controllers\Api\RequestForgotPassword::class);
-Route::get('request-forgot-password', [RequestForgotPassword::class, 'create'])->name('request-forgot-password');
+Route::get('request-forgot-password', [RequestForgotPassword::class, 'create'])->name('request-forgot-password')->middleware('route_access');
 Route::post('password-auth-proccess', [RequestForgotPassword::class, 'password_proccess_auth'])->name('password-auth-proccess');
 Route::get('otp-confirmation', [RequestForgotPassword::class, 'otp_confirmation'])->name('otp-confirmation');
 Route::post('otp-proccess', [RequestForgotPassword::class, 'otp_auth_confirmation'])->name('otp-proccess');
@@ -135,7 +138,7 @@ Route::get('user_account_verification/{nik}', [RegisteredUserController::class, 
 
 Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('dashboard_main', [HomepageController::class, 'index'])->name('dashboard_main');
-    Route::get('profile_information', [ProfileController::class, 'user_profile'])->name('profile_information');
+    Route::get('profile_information', [ProfileController::class, 'user_profile'])->name('profile_information')->middleware('route_access');
     Route::put('profile_update/{id}', [ProfileController::class, 'update'])->name('profile_update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('welcome', [HomePageController::class, 'welcome_page'])->name('welcome');
@@ -161,7 +164,8 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class)->middleware('route_access');
     Route::apiResource('customer_segment', App\Http\Controllers\Api\CustomerSegmentCategories::class)->middleware('route_access');
     Route::get('customer_segment_create', [CustomerSegmentCategories::class, 'create' ] )->name('customer_segment_create');
-    Route::get('customer_feedback', [CustomerController::class, 'customer_feedback'])->name('customer_feedback');
+    Route::get('customer_feedback', [CustomerController::class, 'customer_feedback'])->name('customer_feedback')->middleware('route_access');
+    Route::get('customer_log_activities/{customer_code}', [CustomerController::class, 'customer_log_activities'])->name('customer_log_activities')->middleware('route_access');
 
     // Employee API
     Route::apiResource('master_employee', App\Http\Controllers\Api\EmployeeController::class)->middleware('route_access');
@@ -189,9 +193,9 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('product_price_edit/{product_code}', [ProductsController::class, 'update_product_price'])->name('product_price_edit');
     Route::get('add_ingredients/{product_code}', [ProductsController::class, 'add_ingredients_layouts'])->name('add_ingredients')->middleware('route_access');
     Route::post('save_ingredients', [ProductsController::class, 'save_ingredients'])->name('save_ingredients');
-    Route::get('product-price-history/{product_code}/{variant?}', [ProductsController::class, 'product_price_history'])->name('product-price-history');
-    Route::get('bill-of-material/{product}', [ProductsController::class, 'bill_of_material'])->name('bill-of-material');
-    Route::get('bill-of-material-detail/{ingredients_code}', [ProductsController::class, 'bill_of_material_detail'])->name('bill-of-material-detail');
+    Route::get('product-price-history/{product_code}/{variant?}', [ProductsController::class, 'product_price_history'])->name('product-price-history')->middleware('route_access');
+    Route::get('bill-of-material/{product}', [ProductsController::class, 'bill_of_material'])->name('bill-of-material')->middleware('route_access');
+    Route::get('bill-of-material-detail/{ingredients_code}', [ProductsController::class, 'bill_of_material_detail'])->name('bill-of-material-detail')->middleware('route_access');
     Route::put('update_status_bom/{ingredients_code}', [ProductsController::class, 'update_status_bom'])->name('update_status_bom');
 
     Route::get('add_product_variant/{product_code}', [ProductsController::class, 'add_product_variant_layout'])->name('add_product_variant');
@@ -200,20 +204,16 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('edit_variant/{variant_code}', [ProductsController::class, 'edit_variant'])->name('edit_variant');
     Route::delete('delete_variant/{variant_code}', [ProductsController::class, 'delete_variant'])->name('delete_variant');
     Route::put('delete_variant_product/{product_code}', [ProductsController::class, 'update_product_variant'])->name('delete_variant_product');
-    Route::get('product-review-detail/{product_code}', [ProductsController::class, 'product_review'])->name('product-review-detail');
+    Route::get('product-review-detail/{product_code}', [ProductsController::class, 'product_review'])->name('product-review-detail')->middleware('route_access');
 
     // Products Bundling 
-    Route::apiResource('promo_bundling', App\Http\Controllers\Api\PromoBundling::class);
-    Route::get('promo_bundling_create', [PromoBundling::class, 'create'])->name('promo_bundling_create');
+    Route::apiResource('promo_bundling', App\Http\Controllers\Api\PromoBundling::class)->middleware('route_access');
+    Route::get('promo_bundling_create', [PromoBundling::class, 'create'])->name('promo_bundling_create')->middleware('route_access');
     Route::put('bundling_nonactive/{bundling_code}', [PromoBundling::class,'bundling_nonactive'])->name('bundling_nonactive');
     Route::delete('promo_bundling_delete/{bundling_code}', [PromoBundling::class, 'destroy'])->name('promo_bundling_delete');
 
-
-
-
-
     // DailyProducts Route
-    Route::apiResource('master_daily_products', App\Http\Controllers\Api\DailyProducts::class);
+    Route::apiResource('master_daily_products', App\Http\Controllers\Api\DailyProducts::class)->middleware('route_access');
     Route::put('daily_product_edit/{daily_code}', [DailyProducts::class, 'update'])->name('daily_product_edit');
     Route::put('nonactive_daily_product/{product}', [DailyProducts::class, 'nonactive_daily_product'])->name('nonactive_daily_product');
     Route::get('dailyproduct_create', [DailyProducts::class, 'create'])->name('dailyproduct_create')->middleware('route_access');
@@ -221,14 +221,15 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::delete('dailyproduct_delete/{product_code}', [DailyProducts::class, 'destroy'])->name('dailyproduct_delete');
     Route::get('/dailyproducts_data', function () {
         return view('pages.dailyproduct-data');
-    })->name('dailyproducts_data')->middleware('route_access');;
+    })->name('dailyproducts_data')->middleware('route_access');
     Route::get('/filter_data', [DailyProducts::class, 'filter'])->name('filter_data');
     Route::delete('dailyproduct_delete_variant/{variant_code}', [DailyProducts::class, 'delete_variant'])->name('dailyproduct_delete_variant');
     Route::get('get_stock_product/{distribution_store}', [DailyProducts::class, 'get_stock']);
     Route::get('daily-product-detail/{product}/{variant?}', [DailyProducts::class, 'daily_product_detail'])->name('daily-product-detail');
     Route::put('update_expired_status_distribution/{distribution_store_code}', [DailyProducts::class, 'update_expired_status_distribution'])->name('update_expired_status_distribution');
+
     // Route Promo Campaign
-    Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class);
+    Route::apiResource('master_promo_campaign', App\Http\Controllers\Api\PromoCampaignController::class)->middleware('route_access');
     Route::get('promo_create', [PromoCampaignController::class, 'create'])->name('promo_create')->middleware('route_access');
     Route::get('promo_update/{promo_code}', [PromoCampaignController::class, 'edit'])->name('promo_update')->middleware('route_access');
     Route::put('promo_edit/{promo_code}', [PromoCampaignController::class, 'update'])->name('promo_edit');
@@ -239,7 +240,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     })->name('promo_campaign')->middleware('route_access');
 
     // Rewards Routes
-    Route::apiResource('master_rewards', App\Http\Controllers\Api\RewardsController::class);
+    Route::apiResource('master_rewards', App\Http\Controllers\Api\RewardsController::class)->middleware('route_access');
     Route::get('rewards_create', [RewardsController::class, 'create'])->name('rewards_create')->middleware('route_access');
     Route::get('rewards_update/{reward_store_code}', [RewardsController::class, 'edit'])->name('rewards_update')->middleware('route_access');
     Route::get('rewards_master_update/{rewards_code}', [RewardsController::class, 'edit_master_reward'])->name('rewards_master_update')->middleware('route_access');
@@ -255,7 +256,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('/filter_rewards', [RewardsController::class, 'filter_rewards'])->name('filter_rewards');
 
     // Route Voucher
-    Route::apiResource('master_voucher', App\Http\Controllers\Api\Voucher::class);
+    Route::apiResource('master_voucher', App\Http\Controllers\Api\Voucher::class)->middleware('route_access');
     Route::get('voucher_create', [Voucher::class, 'create'])->name('voucher_create')->middleware('route_access');
     Route::get('voucher_update/{voucher_code}', [Voucher::class, 'edit'])->name('voucher_update')->middleware('route_access');
     Route::put('voucher_edit/{voucher_code}', [Voucher::class, 'update'])->name('voucher_edit');
@@ -265,9 +266,12 @@ Route::middleware(['auth', 'nocache'])->group(function () {
         return view('pages.voucher');
     })->name('voucher_data')->middleware('route_access');
     Route::get('redeem_vouchers', [Voucher::class, 'redeem_voucher_data'])->name('redeem_vouchers')->middleware('route_access');
+    Route::get('customer_voucher_birthday', [Voucher::class,'customer_voucher_birthday'])->name('customer_voucher_birthday')->middleware('route_access');
+    Route::post('voucher_birthday_shared', [Voucher::class, 'voucher_birthday_shared'])->name('voucher_birthday_shared');
+    Route::post('share_voucher_only_customer', [Voucher::class, 'share_voucher_only_customer'])->name('share_voucher_only_customer');
 
     // Raw Material Route
-    Route::apiResource('master_material', App\Http\Controllers\Api\RawMaterialController::class);
+    Route::apiResource('master_material', App\Http\Controllers\Api\RawMaterialController::class)->middleware('route_access');
     Route::get('material_create', [RawMaterialController::class, 'create'])->name('material_create')->middleware('route_access');
     Route::get('material_update/{material_code}', [RawMaterialController::class, 'edit'])->name('material_update')->middleware('route_access');
     Route::put('material_edit/{material_code}', [RawMaterialController::class, 'update'])->name('material_edit');
@@ -297,7 +301,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('purchase_detail/{purchase_code}', [PurchaseOrderController::class, 'get_detail'])->name('purchase_detail')->middleware('route_access');
 
     // Production Product Route
-    Route::apiResource('master_production_product', App\Http\Controllers\Api\ProductionProductController::class);
+    Route::apiResource('master_production_product', App\Http\Controllers\Api\ProductionProductController::class)->middleware('route_access');
     Route::get('production_create', [ProductionProductController::class, 'create'])->name('production_create');
     Route::get('production_update/{production_code}', [ProductionProductController::class, 'edit'])->name('production_update');
     Route::put('production_edit/{production_code}', [ProductionProductController::class, 'update'])->name('production_edit');
@@ -331,7 +335,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
 
     // Products Waste
     Route::post('product_waste_save', [ProductionProductController::class, 'product_waste_save'])->name('product_waste_save');
-    Route::get('product-wastes', [ProductionProductController::class, 'product_waste'])->name('product-wastes')->middleware('route_access');;
+    Route::get('product-wastes', [ProductionProductController::class, 'product_waste'])->name('product-wastes')->middleware('route_access');
     Route::get('product-waste-create', [ProductionProductController::class, 'waste_create'])->name('product-waste-create')->middleware('route_access');
     Route::get('product-waste-distribution/{distribution_store_code}', [ProductionProductController::class, 'waste_distribution_create'])->name('product-waste-distribution')->middleware('route_access');
     Route::delete('waste-delete/{waste_code}', [ProductionProductController::class, 'waste_delete'])->name('waste-delete');
@@ -358,7 +362,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
 
     // Route for Transactions
     Route::apiResource('transaction', App\Http\Controllers\Api\TransactionController::class)->middleware('route_access');
-    Route::get('transaction_create', [TransactionController::class, 'transaction_create_layout'])->name('transaction_create');
+    Route::get('transaction_create', [TransactionController::class, 'transaction_create_layout'])->name('transaction_create')->middleware('route_access');
     Route::get('invoice_detail/{transaction_code}', [TransactionController::class, 'invoice'])->name('invoice_detail');
     Route::get('/invoice/{transaction_code}/print', [TransactionController::class, 'download_pdf']);
     Route::get('/show_promo_code', [TransactionController::class, 'show_promo_code'])->name('show_promo_code');
@@ -404,6 +408,9 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('submenu_update_status', [MasterMainMenu::class, 'submenu_update_status'])->name('submenu_update_status');
     Route::delete('submenu_delete/{id}', [MasterMainMenu::class, 'submenu_delete'])->name('submenu_delete');
 
+
+    Route::get('user_role_permission', [MasterMainMenu::class, 'user_role_permission'])->name('user_role_permission')->middleware('route_access');
+    Route::post('role_permission_save', [MasterMainMenu::class, 'permission_save'])->name('role_permission_save');
     // ROUTE Business Intelligence
     Route::apiResource('business_intelligence', App\Http\Controllers\Api\BusinessIntelligence::class)->middleware('route_access');
     Route::get('data_analytics', [BusinessIntelligence::class, 'data_analytics_layouts'])->name('data_analytics')->middleware('route_access');
@@ -436,7 +443,19 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::delete('delete_module/{url_path}', [ModulesDocumentation::class, 'destroy'])->name('delete_module');
     Route::get('show_module_documentation/{url_path}', [ModulesDocumentation::class, 'show_module'])->name('show_module_documentation');
 
-    Route::get('log_user_activities', [RegisteredUserController::class, 'log_users_activities'])->name('log_user_activities');
+    Route::get('log_user_activities', [RegisteredUserController::class, 'log_users_activities'])->name('log_user_activities')->middleware('route_access');
+    Route::get('online_users', [RegisteredUserController::class, 'online_users'])->name('online_users')->middleware('route_access');
+
+    Route::apiResource('maintenance_information', App\Http\Controllers\Api\MaintenanceInformation::class)->middleware('route_access');
+    Route::get('maintenance_create', [MaintenanceInformation::class,'create'])->name('maintenance_create')->middleware('route_access');
+    Route::put('change-status-maintenance/{info_code}', [MaintenanceInformation::class, 'change_status'])->name('change-status-maintenance');
+
+
+
+
+
+
+
 }); 
 
 require __DIR__ . '/auth.php';

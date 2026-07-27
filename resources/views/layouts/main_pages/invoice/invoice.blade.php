@@ -103,7 +103,7 @@ as total_qty_bundle"),
                             <div class="col-xl-8">
                                 <ul class="list-unstyled">
                                     <li><span class="fw-bold">ID Pelanggan :</span>
-                                        <span>{{ $invoice->customer }}</span>
+                                        <span>{{ $invoice->customer_code }}</span>
                                     </li>
                                     <li><span class="fw-bold">Pelanggan :</span> <span>{{ $invoice->name }}</span>
                                     </li>

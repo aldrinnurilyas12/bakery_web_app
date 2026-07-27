@@ -254,7 +254,9 @@ class RegisteredUserController extends Controller
 
     public function log_users_activities(Request $request)
     {
-        $user_log = DB::table('user_log_activities as ula')->leftJoin('employee as e', 'ula.user', '=', 'e.nik')->orderBy('ula.created_at', 'DESC')->get();
+        $user_log = DB::table('user_log_activities as ula')
+        ->leftJoin('employee as e', 'ula.user', '=', 'e.nik')
+        ->orderBy('ula.created_at', 'DESC')->get();
 
         return view('layouts.main_pages.users.user_log_activities', compact('user_log'));
     }
@@ -294,5 +296,30 @@ class RegisteredUserController extends Controller
             session()->flash('failed_message', 'Data pengguna gagal dihapus!');
             return redirect()->back();
         }
+    }
+
+
+    public function online_users(Request $request)
+    {
+        $session_users = DB::table('sessions')
+        ->whereNotNull('user_id')
+        ->pluck('user_id')
+        ->toArray();
+
+        $users_data = DB::table('users as u')
+        ->select('u.*', 'e.name', 'jp.position_name', 's.store_name')
+        ->leftJoin('employee as e', 'u.nik', '=', 'e.nik')
+        ->leftJoin('store as s', 'e.store', '=', 's.id')
+        ->leftJoin('job_position as jp', 'e.position', '=', 'jp.position_code')
+        ->where('u.account_verified', 'Y')
+        ->where('u.is_active', 7)
+        ->get();
+
+        $users_online = DB::table('users as u')
+        ->whereIn('u.id', $session_users)
+        ->pluck('u.id')
+        ->toArray();
+
+        return view('layouts.main_pages.users.users_online', compact('users_data', 'users_online'));
     }
 }

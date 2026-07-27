@@ -101,6 +101,8 @@ a.card-category {
 
 .container-products {
     width: 90%;
+    display: flex;
+    flex-wrap: wrap;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     background: white;
@@ -873,6 +875,51 @@ p.text-center {
         padding-right: 10px;
         margin-right: auto;
         margin-left: auto;
+    }
+
+    a.direct-content {
+        text-decoration: none;
+    }
+
+    a.notification-link {}
+
+    .notification-link {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        color: #fff;
+        text-decoration: none;
+        font-size: 20px;
+    }
+
+    .notification-link:hover,
+    .notification-link:focus,
+    .notification-link:active {
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .count-notif {
+        position: absolute;
+        top: -8px;
+        right: -10px;
+
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+
+        background: #fff;
+        color: #bb0239;
+        border-radius: 999px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+        border: 2px solid #bb0239;
     }
 
 

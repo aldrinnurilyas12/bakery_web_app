@@ -22,6 +22,8 @@
                 @php
                     $session_user = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
                     $user_permission_forbidden = in_array($session_user->role_name, ['Supervisor', 'Manager']);
+
+                    $showSubmenuName = DB::table('main_menu')->where('id', $main_menu_id->id)->first();
                 @endphp
                 <div class="container-fluid px-4">
                     <br>
@@ -29,7 +31,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Sub Menu</a>
+                                Lainnya > Submenu > <strong>{{ $showSubmenuName->menu_name }}</strong>
                             </div>
                             @if ($submenu->isNotEmpty())
                                 @if (!$user_permission_forbidden)
@@ -100,14 +102,14 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if($sub->allow_access_outside_operational_hours)
-                                                            @if($sub->allow_access_outside_operational_hours == 'Y')
+                                                        @if ($sub->allow_access_outside_operational_hours)
+                                                            @if ($sub->allow_access_outside_operational_hours == 'Y')
                                                                 <span class="text-success">Ya</span>
                                                             @else
                                                                 <span class="text-danger">Tidak</span>
                                                             @endif
                                                         @else
-                                                        <span>-</span>
+                                                            <span>-</span>
                                                         @endif
                                                     </td>
                                                     <td><i class="{{ $sub->icon }} "></i>

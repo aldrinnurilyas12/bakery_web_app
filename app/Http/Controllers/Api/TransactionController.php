@@ -425,12 +425,6 @@ class TransactionController extends Controller
         $unique_code = substr($uuid, 0, 5);
         $customerVoucher = 'VOUCHER'. $date . $unique_code;
         $outlet_operational = now()->hour;
-
-        // $bundlingCode  = $request->input('bundling_code', []);
-
-        
-        
-        // HITUNG TOTAL VOUCHER YANG SUDAH DIGUNAKAN
         $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
                     ->leftJoin('voucher as v', 'v.voucher_code', '=', 'vu.voucher_code')
                     ->where('vu.voucher_code', $codeVoucher)->where('vu.voucher_used', 'Y')->count('vu.voucher_code');
@@ -494,7 +488,6 @@ class TransactionController extends Controller
             }
         }
 
-
         if($amount){
             if($amount < $grand_total){
                 session()->flash('failed_message', 'Total Bayar tidak boleh kurang dari grand total');
@@ -510,7 +503,7 @@ class TransactionController extends Controller
 
 
         // ====================== MAIN TRANSACTION ========================
-        // Last edited : 16/07/2026
+
 
         try{
             if(!$IT_GUY){
@@ -635,11 +628,8 @@ class TransactionController extends Controller
         }
 
 
-        // FRAUD TRANSACTIONS IDENTIFICATION => RULE -> OUTSIDE_OPERATIONAL_HOURS
-        // fraud status info = 1 => Fraud, 2 => NotFraud, 3 => fraud_detected
-
-
         // =====================FRAUD TRANSACTION IDENTIFICATION LAYER =========
+
         // fraud => empty payment_method
         if(empty($payment_type)){
               $fraud =  FraudTransactions::create([
@@ -714,34 +704,35 @@ class TransactionController extends Controller
         // Testing by IT
         if(!$IT_GUY){
             if($voucher_code){
-                VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
-                    'voucher_used' => 'Y',
-                    'status' => 8,
-                    'updated_at' => now()
-                ]);
+                    VoucherCustomer::where('customer_voucher_code', $voucher_code)->where('customer', $customer)->update([
+                        'voucher_used' => 'Y',
+                        'status' => 8,
+                        'updated_at' => now()
+                    ]);
 
-            $redeemVoucher =  VoucherRedeem::create([
-                    'voucher_code' => $codeVoucher,
-                    'customer_voucher' => $voucher_code,
-                    'customer' => $customer,
-                    'redeem_date' => now(),
-                    'casheer' => $casheer,
-                    'status' => 17,
-                    'store' => $store_code,
-                    'created_at' => now(),
-                    'created_by' => $casheer
-                ]);
+                    $redeemVoucher =  VoucherRedeem::create([
+                        'voucher_code' => $codeVoucher,
+                        'customer_voucher' => $voucher_code,
+                        'customer' => $customer,
+                        'redeem_date' => now(),
+                        'casheer' => $casheer,
+                        'status' => 17,
+                        'store' => $store_code,
+                        'created_at' => now(),
+                        'created_by' => $casheer
+                    ]);
 
-                TransactionsVouchers::create([
-                    'transaction_code' => $main_transaction->transaction_code,
-                    'voucher_code' => $codeVoucher,
-                    'customer_voucher' => $redeemVoucher->customer_voucher,
-                    'status' => 8,
-                    'voucher_used' => 'Y',
-                    'used_at' => now(),
-                    'created_at' => now(),
-                    'created_by' => $casheer
-                ]);
+                    TransactionsVouchers::create([
+                        'transaction_code' => $main_transaction->transaction_code,
+                        'voucher_code' => $codeVoucher,
+                        'customer_voucher' => $redeemVoucher->customer_voucher,
+                        'status' => 8,
+                        'voucher_used' => 'Y',
+                        'used_at' => now(),
+                        'created_at' => now(),
+                        'created_by' => $casheer
+                    ]);
+                
             }
         }
         
@@ -794,87 +785,88 @@ class TransactionController extends Controller
                 'transaction_date' => $main_transaction->transaction_date
             ]));
         }
- 
-        
 
         if($get_voucher) {
+            if($outlet_operational > 21 || $outlet_operational < 8){
+            }else{
 
-            $voucherShared = VoucherCustomer::where('customer', $customer)
-            ->where('voucher', $get_voucher->voucher_code)->exists();
-            $voucherCustomer = DB::table('customer_vouchers as cv')
-            ->where('voucher', $get_voucher->voucher_code)
-            ->count();
-            $voucher_quota =  $get_voucher->quota;
-            $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
-            $voucherExpired = now()->greaterThan($get_voucher->end_date);
-            $customer_email = DB::table('customer')->where('customer_code', $customer)->first();
-        
+                $voucherShared = VoucherCustomer::where('customer', $customer)
+                ->where('voucher', $get_voucher->voucher_code)->exists();
+                $voucherCustomer = DB::table('customer_vouchers as cv')
+                ->where('voucher', $get_voucher->voucher_code)
+                ->count();
+                $voucher_quota =  $get_voucher->quota;
+                $checkingQuotaVoucher = $voucherCustomer >= $voucher_quota;
+                $voucherExpired = now()->greaterThan($get_voucher->end_date);
+                $customer_email = DB::table('customer')->where('customer_code', $customer)->first();
+            
 
-            if($main_transaction->customer){
-                Mail::to($customer_email->email)->sendNow(new TransactionCustomerNotification([
-                        'name' => $customer_email->name,
-                        'transaction_code' => $main_transaction->transaction_code,
-                        'grand_total' => $main_transaction->grand_total,
-                        'transaction_date' => $main_transaction->transaction_date
-                ]));
-            }
+                if($main_transaction->customer){
+                    Mail::to($customer_email->email)->sendNow(new TransactionCustomerNotification([
+                            'name' => $customer_email->name,
+                            'transaction_code' => $main_transaction->transaction_code,
+                            'grand_total' => $main_transaction->grand_total,
+                            'transaction_date' => $main_transaction->transaction_date
+                    ]));
+                }
 
-            if($getAmount >= $get_voucher->min_transaction) {
-                if(!$checkingQuotaVoucher && $get_voucher){
-                    if(!$voucherExpired) {
-                        if(!$IT_GUY){ 
-                                    
-                                    $uuid = (string) Str::uuid();
-                                    $unique_code = substr($uuid, 0, 8);
-                                    $voucher_data_qr_code  = [
-                                        'voucher_code' => $customerVoucher
-                                    ];
-                                    $folderPath = 'qrcode_voucher_customer';
-                                    if (!Storage::disk('public')->exists($folderPath)) {
-                                        Storage::disk('public')->makeDirectory($folderPath);
+                if($getAmount >= $get_voucher->min_transaction) {
+                    if(!$checkingQuotaVoucher && $get_voucher){
+                        if(!$voucherExpired) {
+                            if(!$IT_GUY){ 
+                                        
+                                        $uuid = (string) Str::uuid();
+                                        $unique_code = substr($uuid, 0, 8);
+                                        $voucher_data_qr_code  = [
+                                            'voucher_code' => $customerVoucher
+                                        ];
+                                        $folderPath = 'qrcode_voucher_customer';
+                                        if (!Storage::disk('public')->exists($folderPath)) {
+                                            Storage::disk('public')->makeDirectory($folderPath);
+                                        }
+
+                                        $fileName = uniqid() . '.svg';
+                                        $qrCodePath = $folderPath . '/' . $fileName;
+                                        $renderer = new ImageRenderer(
+                                            new RendererStyle(400),
+                                            new SvgImageBackEnd()
+                                        );
+
+                                        $writer = new Writer($renderer);
+                                        $svgOutput = $writer->writeString(json_encode($voucher_data_qr_code));
+
+                                        Storage::disk('public')->put($qrCodePath, $svgOutput);
+
+                                        VoucherCustomer::create([
+                                            'customer' => $main_transaction->customer,
+                                            'voucher' => $get_voucher->voucher_code,
+                                            'customer_voucher_code' =>$customerVoucher,
+                                            'transaction' => $main_transaction->transaction_code,
+                                            'status' => 7,
+                                            'voucher_used' => 'N',
+                                            'voucher_path' => $qrCodePath,
+                                            'created_by' => $casheer,
+                                            'created_at' => now()
+                                        ]);
+
+                                        Mail::to($customer_email->email)->sendNow(new GetVoucherInfoCustomer([
+                                            'name' => $customer_email->name,
+                                            'voucher_code' => $get_voucher->voucher_code,
+                                            'voucher_name' => $get_voucher->voucher_name,
+                                            'email' => $customer_email->email
+                                        ]));
+
+                                        CustomerNotification::log(
+                                            customer: $customer,
+                                            title: 'Selamat anda mendapatkan E-Voucher!',
+                                            message:'Silahkan gunakan E-Voucher untuk mendapatkan Potongan saat melakukan Transaksi',
+                                            category: 2,
+                                            is_read: 'N',
+                                            voucher: $customerVoucher
+                                        );
+
                                     }
-
-                                    $fileName = uniqid() . '.svg';
-                                    $qrCodePath = $folderPath . '/' . $fileName;
-                                    $renderer = new ImageRenderer(
-                                        new RendererStyle(400),
-                                        new SvgImageBackEnd()
-                                    );
-
-                                    $writer = new Writer($renderer);
-                                    $svgOutput = $writer->writeString(json_encode($voucher_data_qr_code));
-
-                                    Storage::disk('public')->put($qrCodePath, $svgOutput);
-
-                                    VoucherCustomer::create([
-                                        'customer' => $main_transaction->customer,
-                                        'voucher' => $get_voucher->voucher_code,
-                                        'customer_voucher_code' =>$customerVoucher,
-                                        'transaction' => $main_transaction->transaction_code,
-                                        'status' => 7,
-                                        'voucher_used' => 'N',
-                                        'voucher_path' => $qrCodePath,
-                                        'created_by' => $casheer,
-                                        'created_at' => now()
-                                    ]);
-
-                                    Mail::to($customer_email->email)->sendNow(new GetVoucherInfoCustomer([
-                                        'name' => $customer_email->name,
-                                        'voucher_code' => $get_voucher->voucher_code,
-                                        'voucher_name' => $get_voucher->voucher_name,
-                                        'email' => $customer_email->email
-                                    ]));
-
-                                    CustomerNotification::log(
-                                        customer: $customer,
-                                        title: 'Selamat anda mendapatkan E-Voucher!',
-                                        message:'Silahkan gunakan E-Voucher untuk mendapatkan Potongan saat melakukan Transaksi',
-                                        category: 2,
-                                        is_read: 'N',
-                                        voucher: $customerVoucher
-                                    );
-
-                                }
+                        }
                     }
                 }
             }
@@ -905,7 +897,7 @@ class TransactionController extends Controller
 
     public function invoice(Request $request)
     {
-        $invoice = DB::table('v_main_transactions')
+        $invoice = DB::table('v_transaction')
         ->where('transaction_code', $request->transaction_code)
         ->first();
 
@@ -931,7 +923,7 @@ class TransactionController extends Controller
         
 
 
-        if(!$invoice || !$invoice){
+        if(!$invoice){
 
             session()->flash('failed_message', 'Invoice tidak ada!');
             return redirect()->back();

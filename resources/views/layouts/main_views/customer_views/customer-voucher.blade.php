@@ -54,8 +54,8 @@
                 <div class="tab-content">
                     {{-- Tab all products --}}
                     <div class="tab-pane fade show active" id="tab-used" role="tabpanel">
-                        <div class="container-products">
-                            <div class="menu-list">
+                        <div style="width:100%;" class="container-products">
+                            <div style="width:100%;" class="menu-list">
                                 @if ($vouchers_used->isNotEmpty())
                                     @foreach ($vouchers_used as $voucher)
                                         <div class="card-reward">
@@ -142,8 +142,8 @@
                     </div>
 
                     <div class="tab-pane fade" id="tab-not-used" role="tabpanel">
-                        <div class="container-products">
-                            <div class="menu-list">
+                        <div style="width:100%;" class="container-products">
+                            <div style="width:100%;" class="menu-list">
                                 @if ($vouchers->isNotEmpty())
                                     @foreach ($vouchers as $voucher)
                                         <div class="card-reward">
@@ -164,75 +164,85 @@
                                                                 </a>
                                                             @endif
                                                         @endif
-                                                        <span class="info-voucher">
-                                                            @if ($voucher->end_date <= now())
-                                                                <span style="margin-bottom:10px;"
-                                                                    class="badge badge-danger">Expired</span>
-                                                            @else
-                                                                @if ($voucher->voucher_used == 'Y')
-                                                                    <span class="badge badge-success">Terpakai </span>
+                                                        <div style="display: block;" class="info-voucher-date">
+                                                            <span class="info-voucher">
+                                                                @if ($voucher->end_date <= now())
+                                                                    <span style="margin-bottom:10px;"
+                                                                        class="badge badge-danger">Expired</span>
                                                                 @else
-                                                                    <span class="badge badge-secondary">Belum Terpakai
-                                                                    </span>
+                                                                    @if ($voucher->voucher_used == 'Y')
+                                                                        <span class="badge badge-success">Terpakai
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="badge badge-secondary">Belum
+                                                                            Terpakai
+                                                                        </span>
+                                                                    @endif
                                                                 @endif
-                                                            @endif
-                                                        </span>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                     <div class="content-text">
                                                         <div style="width: 200px;" class="title-text">
                                                             <h5 style="font-size:15px;">{{ $voucher->voucher_name }}
                                                             </h5>
-                                                            <p>
+
                                                             <h5 style="font-size:15px;color:#bb0239;">
                                                                 {{ $voucher->customer_voucher_code }}
                                                             </h5>
-                                                            </p>
+
                                                         </div>
-                                                        <p
-                                                            style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px;">
-                                                            Discount:
-                                                            <span style="color:black;">{{ $voucher->discount . '%' }}
-                                                            </span> &nbsp;
-                                                            <span>Kategori:
+
+                                                        <div style="display:flex;gap:10px;" class="flex-content-wrap">
+
+                                                            @if ($voucher->discount)
+                                                                @if ($voucher->discount == 100)
+                                                                @else
+                                                                    <span
+                                                                        style="font-size: 13px;color:gray; font-weight: normal;">
+                                                                        Discount:
+                                                                        <span
+                                                                            style="color:black;">{{ $voucher->discount . '%' }}
+                                                                        </span>
+                                                                    </span>
+                                                                @endif
+                                                            @else
                                                                 <span
-                                                                    style="color:black;">{{ $voucher->voucher_type }}</span></span>
-                                                        </p>
-                                                        <div style="font-size: 14px; font-weight: 500;margin-bottom: 20px;"
-                                                            class="date">
-                                                            <small>{{ \Carbon\Carbon::parse($voucher->start_date)->format('Y-m-d') }}</small>
-                                                            <span>s.d</span>
-                                                            <small>
-                                                                {{ \Carbon\Carbon::parse($voucher->end_date)->format('Y-m-d') }}</small>
+                                                                    style="font-size: 13px;color:gray; font-weight: normal;">
+                                                                    Nominal:
+                                                                    <span
+                                                                        style="color:black;">{{ 'Rp.' . number_format($voucher->nominal) }}
+                                                                    </span>
+                                                                </span>
+                                                            @endif
+
+                                                            <div class="date">
+                                                                @if ($voucher->voucher_type == 'birth_day')
+                                                                    <span
+                                                                        style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px; display: flex;gap:5px;">Tgl
+                                                                        Expired:
+                                                                        <span
+                                                                            style="color:black;">{{ \Carbon\Carbon::parse($voucher->expired_date)->format('d M Y') }}</span>
+                                                                    </span>
+                                                                @else
+                                                                    <span
+                                                                        style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:5px; display: flex;gap:5px;">Tgl
+                                                                        Berlaku:
+                                                                        <span
+                                                                            style="color:black;">{{ \Carbon\Carbon::parse($voucher->start_date)->format('d M Y') }}</span>
+                                                                        <span>s.d</span>
+                                                                        <span style="color:black;">
+                                                                            {{ \Carbon\Carbon::parse($voucher->end_date)->format('d M Y') }}</span>
+                                                                    </span>
+                                                                @endif
+                                                            </div>
                                                         </div>
-                                                        {{-- @if (auth()->guard('customer')->user())
-                                                <div class="btn-redeem-point">
-                                                    <a style="color: white; background:#bb0239; padding:8px; border-radius:5px;text-decoration: none;font-size:12px;"
-                                                        href="">Redeem Point</a>
-                                                </div>
-                                            @else
-                                                <div class="btn-redeem-point">
-                                                    <a style="color: white; background:#bb0239; padding:8px; border-radius:5px;text-decoration: none;font-size:12px;"
-                                                        href="">Redeem Point</a>
-                                                </div>
-                                            @endif --}}
+
+
+
                                                     </div>
                                                 </div>
                                             </div>
-                                            {{-- <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-black"
-                                        href="{{ route('rewards_update', $voucher->rewards_code) }}">Edit</a>
-
-                                    @if ($voucher->status == 8)
-                                        <a class="btn btn-success" href="#" data-toggle="modal"
-                                            data-target="#deleteModalRewards{{ $voucher->rewards_code }}">Aktifkan
-                                            Kembali
-                                        </a>
-                                    @else
-                                        <a class="btn btn-primary" href="#" data-toggle="modal"
-                                            data-target="#deleteModalRewards{{ $voucher->rewards_code }}">Nonaktif
-                                        </a>
-                                    @endif
-                                </div> --}}
                                         </div>
                                     @endforeach
                                 @else

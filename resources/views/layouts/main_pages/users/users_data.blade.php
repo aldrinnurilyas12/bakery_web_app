@@ -34,10 +34,16 @@
                                 Master Data > <strong>Akun Pengguna</strong>
                             </div>
 
+
                             @if ($v_users->isNotEmpty())
-                                <div class="button-add-product">
-                                    <a class="btn-general" href="{{ route('users_register_account') }}">Tambah
-                                        Pengguna</a>
+                                <div style="display:flex; gap:20px;" class="button-add-product">
+                                    <a class="btn btn-warning" href="{{ route('online_users') }}">Online
+                                        User</a>
+
+                                    <div class="button-add-product">
+                                        <a class="btn-general" href="{{ route('users_register_account') }}">Tambah
+                                            Pengguna</a>
+                                    </div>
                                 </div>
                             @endif
                         </div>

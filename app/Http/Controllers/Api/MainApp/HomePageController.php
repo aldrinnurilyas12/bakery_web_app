@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
+use App\Services\CustomerLogActivities;
 
 class HomePageController extends Controller
 {
@@ -27,6 +28,11 @@ class HomePageController extends Controller
 
     public function homepage(Request $request) :View 
     {
+        $auth_check = auth()->guard('customer')->user();
+
+        if($auth_check){
+        $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
+        }
         $activeCategory = $request->query('category', null);
         $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
         $productsPromo = DB::table('v_daily_products')
@@ -75,6 +81,15 @@ class HomePageController extends Controller
             ->get();
 
         $store =  DB::table('store')->get();
+
+        $notif_customer = 0;
+
+        if($auth_check && $customer_code){
+            $notif_customer = DB::table('customer_notifications')
+            ->where('customer', $customer_code)
+            ->where('is_read', 'N')->count();
+        }
+
         
         return view('layouts.main_views.home.home', compact(
             'products',
@@ -84,13 +99,15 @@ class HomePageController extends Controller
             'store',
             'activeCategory',
             'promo_bundling',
-            'all_product'
+            'all_product',
+            'notif_customer'
         ));
     }
 
     public function filter_store(Request $request)
     {
         $store_id = $request->store;
+        $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         $activeCategory = $request->query('category', null);
         $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
         $productsPromo = DB::table('v_daily_products')
@@ -131,6 +148,13 @@ class HomePageController extends Controller
             ->limit(3)
             ->get();
 
+        if($customer_code){
+            $notif_customer = DB::table('customer_notifications')
+            ->where('customer', $customer_code)
+            ->where('is_read', 'N')->count();
+        }
+
+
 
         if($store_id){
             $products = $productsQuery->where('store_code', $store_id)->get();
@@ -154,7 +178,8 @@ class HomePageController extends Controller
             'all_product',
             'promos',
             'store',
-            'activeCategory'
+            'activeCategory',
+            'notif_customer'
         ));
     }
 
@@ -162,6 +187,8 @@ class HomePageController extends Controller
     {
 
        $code = $request->route('slug');
+       $customer = auth()->guard('customer')->user()->customer_code;
+
 
 
         // coba sebagai product_code dulu
@@ -182,7 +209,24 @@ class HomePageController extends Controller
             ->distinct()
             ->orderBy('pr.created_at', 'DESC')->get();
 
-        
+         $view_product_exists = DB::table('customers_log_activities')
+                ->where('product', $product->product_code)
+                ->where('variant', $product->variant_code)
+                ->where('customer', $customer)
+                ->where('category', 'View Product')->first();
+    
+
+        if(auth()->guard('customer')->user()){
+            if(!$view_product_exists){
+                CustomerLogActivities::log(
+                    customer: $customer,
+                    product: $product->product_code,
+                    variant: $product->variant_code,
+                    category: 'View Product',
+                    description: "Customer View Product"  
+                );
+            }
+        }
         
 
         // cek kalau tidak ditemukan

@@ -27,7 +27,7 @@ class GetVoucherInfoCustomer extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Customer E-Voucher Information',
+            subject: 'Customer E-Voucher Information - Kencana Bakery Services',
         );
     }
 

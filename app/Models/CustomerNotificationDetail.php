@@ -11,6 +11,7 @@ class CustomerNotificationDetail extends Model
         'notif',
         'transaction',
         'reward',
-        'voucher'
+        'voucher',
+        'voucher_birthday'
     ];
 }

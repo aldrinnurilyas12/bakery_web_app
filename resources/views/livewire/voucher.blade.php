@@ -23,6 +23,13 @@
                                 </a>
                             </div>
                         @endif
+                        @if (!$user_permission_forbidden)
+                            <div class="button-add-product">
+                                <a class="btn-general" href="{{ route('customer_voucher_birthday') }}">Bagikan E-Voucher
+                                    Ulang
+                                    Tahun</a>
+                            </div>
+                        @endif
                         @if ($vouchers->isNotEmpty())
                             @if (!$user_permission_forbidden)
                                 <div class="button-add-product">
@@ -56,16 +63,31 @@
                                                 </div>
 
                                                 <div class="content-text">
-                                                    <div style="width: 200px;" class="title-text">
-                                                        <h5 style="font-size:15px;">{{ $voucher->voucher_name }}</h5>
+                                                    <div style="width:100%; display:flex; justify-content: space-between;"
+                                                        class="title-text">
+                                                        <h5 style="font-size:15px;width:200px;">
+                                                            {{ $voucher->voucher_name }}</h5>
+                                                        @if ($voucher->voucher_type == 'regular')
+                                                            <div style="background: blue;color:white;  border-radius: 2px; padding:2px;width:max-content;font-size:12px;"
+                                                                class="expired-status">
+                                                                <span>Regular</span>
+                                                            </div>
+                                                        @else
+                                                            <div style="background:red;color:white;  border-radius: 2px; padding:2px;width:max-content;font-size:12px;"
+                                                                class="expired-status">
+                                                                <span>Ulang Tahun</span>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                     <p
                                                         style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;">
+                                                        @if ($voucher->min_transaction > 0)
+                                                            <span>Min Transaksi:
+                                                                {{ 'Rp.' . number_format($voucher->min_transaction) }}</span>
+                                                            &nbsp;
 
-                                                        <span>Min Transaksi:
-                                                            {{ 'Rp.' . number_format($voucher->min_transaction) }}</span>
-                                                        &nbsp;
-                                                        <br>
+                                                            <br>
+                                                        @endif
                                                     <div
                                                         style="display: flex; gap:20px; font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;">
                                                         @if ($voucher->discount)
@@ -109,10 +131,6 @@
                                                                 <p style="margin-bottom: 0;">Status: <span
                                                                         class="text-success">Aktif</span>
                                                                     </span>
-                                                                </p>
-
-                                                                <p style="margin-bottom: 0;">Kategori : <span>
-                                                                        {{ $voucher->voucher_type }}</span>
                                                                 </p>
                                                             </div>
                                                         @endif

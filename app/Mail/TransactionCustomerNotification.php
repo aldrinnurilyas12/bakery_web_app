@@ -27,7 +27,7 @@ class TransactionCustomerNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Terima kasih telah belanja di Outlet kami',
+            subject: 'Terima kasih telah belanja di Outlet kami - Kencana Bakery Services',
         );
     }
 

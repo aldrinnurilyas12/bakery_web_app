@@ -17,6 +17,7 @@ class VoucherCustomer extends Model
         'status',
         'voucher_used',
         'voucher_path',
+        'expired_date',
         'created_by',
         'updated_by'
     ];

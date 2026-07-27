@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PromoNotificationMail;
 use App\Models\PromoBundling as ModelsPromoBundling;
 use App\Models\PromoBundlingDetail;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\UserLogActivity;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 
 class PromoBundling extends Controller
@@ -22,15 +24,6 @@ class PromoBundling extends Controller
         $store = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->store_code;
 
         $bundling = DB::table('v_promo_bundling')->get();
-
-        // $all_product = DB::table('promo_bundling_detail as pbd')
-        //             ->select('pbd.quantity', 'pbd.bundling_code', 'p.product_name', 'p.product_code', 'vdp.stock_available')
-        //             ->leftJoin('products as p', 'pbd.product', '=', 'p.product_code')
-        //             ->leftJoin('v_daily_products as vdp', 'pbd.product', '=', 'vdp.product_code')
-        //             ->where('vdp.store_code', $store)
-        //             ->get();
-        // dd($all_product);
-
         $all_product = DB::table('promo_bundling_detail as pbd')
     ->select(
         'pbd.quantity',
@@ -96,8 +89,11 @@ class PromoBundling extends Controller
 
         $productSelect = $request->product;
         $quantities   = $request->quantity;
+        $customers = DB::table('customer')
+            ->where('status', 7)
+            ->where('account_email_verified', 'Y')->get();
 
-
+    
         if ($request->hasFile('images')) {
                 $promo_image = $request->file('images');
                 $folderPath = 'promo_bundling/' . $bundling_code;
@@ -118,7 +114,15 @@ class PromoBundling extends Controller
                     'updated_at' => null
                 ];
 
-                ModelsPromoBundling::create($data);
+                $promo = ModelsPromoBundling::create($data);
+                foreach($customers as $customer){
+                        Mail::to($customer->email)->sendNow(new PromoNotificationMail([
+                        'promo_name' => $promo->bundling_name,
+                        'start_date' => $promo->start_date,
+                        'end_date' => $promo->end_date,
+                        'name' => $customer->name
+                    ]));
+                }
 
                 foreach($productSelect as $key => $productMany){
                     PromoBundlingDetail::create([
@@ -128,10 +132,14 @@ class PromoBundling extends Controller
                         'quantity'=> (int) ($quantities[$key] ?? 0)
                     ]);
                 }
+
+                
+        
                 
         }
 
-         UserLogActivity::log(
+
+        UserLogActivity::log(
                 module: 'Promo Bundling',
                 method_type: 'CREATE',
                 description: "user create new promo bundling: {$bundling_code}"      

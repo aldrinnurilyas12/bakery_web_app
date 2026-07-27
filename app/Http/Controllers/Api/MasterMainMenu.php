@@ -209,6 +209,7 @@ class MasterMainMenu extends Controller
             'submenu_link' => 'required',
             'main_menu' => 'required',
             'icon' => 'required',
+            'type' => 'required',
             'description' => 'required',
             'allow_access_outside_operational_hours' => 'required'
         ],
@@ -216,6 +217,7 @@ class MasterMainMenu extends Controller
             'submenu_name.required' => 'Nama Submenu harus diisi',
             'submenu_link.required' => 'Link Submenu harus diisi',
             'main_menu.required' => 'Menu utama harus diisi',
+            'type.required' => 'Tipe Submenu harus diisi',
             'icon.required' => 'Icon harus diisi',
             'description.required' => 'Deskripsi submenu harus diisi',
             'allow_access_outside_operational_hours.required' => 'Harus dipilih'
@@ -231,6 +233,7 @@ class MasterMainMenu extends Controller
         MasterSubMenuModel::create([
             'submenu_name' => $request->submenu_name,
             'submenu_link' => $request->submenu_link,
+            'type' => $request->type,
             'main_menu' => $request->main_menu,
             'icon' => $request->icon,
             'description' => $request->description,
@@ -259,7 +262,7 @@ class MasterMainMenu extends Controller
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $submenu = DB::table('submenu as s')
         ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
-        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours', 's.icon','s.status', 's.description','mm.id', 'mm.menu_name', 's.updated_at')
+        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours','s.type', 's.icon','s.status', 's.description','mm.id', 'mm.menu_name', 's.updated_at')
         ->where('s.id', $request->submenu_id)
         ->first();
         return view('layouts.main_pages.master_menu.edit.submenu_edit', compact('submenu', 'status'));
@@ -284,6 +287,7 @@ class MasterMainMenu extends Controller
         MasterSubMenuModel::where('id', $request->id)->update([
             'submenu_name' => $request->submenu_name,
             'submenu_link' => $request->submenu_link,
+            'type' => $request->type,
             'icon' => $request->icon,
             'description' => $request->description,
             'status' => $request->status,
@@ -330,4 +334,61 @@ class MasterMainMenu extends Controller
         session()->flash('message_success', 'Berhasil perbarui Submenu');
          return redirect()->back();
     }
+
+    public function user_role_permission(Request $rq){
+
+        $role = DB::table('role')->get();
+        $submenu = DB::table('submenu')->where('main_menu', '<>', 6)->orderBy('submenu_name', 'ASC')->get();
+        $permissions = DB::table('user_permission_access')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [$item->submenu . '_' . $item->role => true];
+        });
+
+
+        return view('layouts.main_pages.role_user_permission.role_permission', compact('role', 'submenu', 'permissions'));
+    }
+
+    public function permission_save(Request $request){
+      
+        DB::beginTransaction();
+
+        try {
+
+            // Hapus semua permission lama
+            DB::table('user_permission_access')->truncate();
+
+            $data = [];
+
+            foreach ($request->permission ?? [] as $submenuId => $roles) {
+
+                foreach ($roles as $roleId) {
+
+                    $data[] = [
+                        'submenu' => $submenuId,
+                        'role'    => $roleId,
+                        'created_at' => now()
+                    ];
+                }
+            }
+
+            if (!empty($data)) {
+                DB::table('user_permission_access')->insert($data);
+            }
+            session()->flash('message_success', 'Perubahan berhasil disimpan');
+            return redirect()->back();
+
+            DB::commit();
+            
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with('error', $e->getMessage());
+        }
+
+
+    }
+    
 }

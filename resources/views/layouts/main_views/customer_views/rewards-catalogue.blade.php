@@ -42,9 +42,9 @@
                     <hr class="hr-menu">
                     @if ($rewards->isNotEmpty())
                         @foreach ($rewards as $reward)
-                            <div class="card-reward">
+                            <div style="width:95%; class="card-reward">
                                 <div class="body-reward"
-                                    style="width:max-content; box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:10px;margin:10px;">
+                                    style="width:100%; box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:10px;margin:10px;">
                                     <div style="display: flex; gap:10px;margin-bottom: 10px;" class="image-content">
                                         <img width="90" height="120" src="{{ url('storage/' . $reward->images) }}"
                                             alt="">

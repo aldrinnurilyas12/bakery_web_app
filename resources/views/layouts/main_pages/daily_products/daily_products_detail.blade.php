@@ -30,7 +30,7 @@
                         <div style="display: flex; justify-content:space-between;" class="card-header">
 
                             <div class="title">
-                                Master Data / <a href="{{ route('master_category.index') }}">Produk Daily Detail</a>
+                                Master Data > Produk Daily > <strong> Produk Daily Detail</strong>
                             </div>
                             @if ($daily_products->isNotEmpty())
                                 Store : {{ $daily_products->first()->store_name }}

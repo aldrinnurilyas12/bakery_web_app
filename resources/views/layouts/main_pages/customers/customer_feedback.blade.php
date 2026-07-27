@@ -63,10 +63,9 @@
                                                     <td>
                                                         @foreach ($feedback_type as $type)
                                                             @if ($type->feedback == $feedback->feedback_code)
-                                                                <span
-                                                                    style="border:1px solid rgb(44, 44, 245);padding:2px; 
-                                                                    border-radius:4px;color:rgb(44, 44, 245);gap:10px;display:flex; flex-wrap: wrap;width:max-content;">
-                                                                    {{ $type->feedback_type }}</span>
+                                                                <span>
+                                                                    <li>{{ $type->feedback_type }}</li>
+                                                                </span>
                                                             @endif
                                                         @endforeach
                                                     </td>
