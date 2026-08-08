@@ -133,7 +133,7 @@ class RegisteredCustomer extends Controller
             'password' => Hash::make($request->password),
             'phone_number' => $request->phone_number,
             'qr_code' => $qrCodePath,
-            'member_date' => Carbon::now()->format('y-m-d'),
+            'member_date' => Carbon::now()->format('d M Y'),
             'status' => 8,
             'account_email_verified' => 'N',
             'account_email_verified_at' => null,

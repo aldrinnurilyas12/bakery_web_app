@@ -50,95 +50,281 @@
                                 </div>
                             </div>
                         @endif
-                        <div class="card-body">
-                            @if ($product_price->isNotEmpty())
-                                <div class="table-responsive">
-                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Detail Harga</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $no = 1;
-                                            ?>
-                                            @foreach ($product_price as $key => $history)
-                                                <tr>
-                                                    <td><?php echo $no++; ?></td>
-                                                    <td>
-                                                        <table class="table table-bordered" id="dataTable"
-                                                            width="100%" cellspacing="0">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Harga terbaru</th>
-                                                                    <th>Diskon terbaru</th>
-                                                                    <th>Harga setelah diskon terbaru</th>
-                                                                    <th>Tanggal harga efektif terbaru</th>
-                                                                    <th>Harga lama</th>
-                                                                    <th>Diskon lama</th>
-                                                                    <th>Harga setelah diskon lama</th>
-                                                                    <th>Tanggal harga efektif lama</th>
-                                                                    <th>Status</th>
-                                                                    <th>Created at</th>
-                                                                    <th>Updated at</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td> {{ 'Rp.' . number_format($history->price_after) }}
-                                                                    </td>
-                                                                    <td> {{ $history->discount_after ?: '-' }}
-                                                                    </td>
-                                                                    <td> {{ !empty($history->price_after_discount_after)
-                                                                        ? 'Rp.' . number_format($history->price_after_discount_after)
-                                                                        : '-' }}
-                                                                    </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($history->business_effective_date_new)->format('Y-m-d') }}
-                                                                    </td>
+                        <hr>
 
-                                                                    <td> {{ 'Rp.' . number_format($history->price_before) }}
-                                                                    </td>
-                                                                    <td> {{ $history->discount_before ?: '-' }}
-                                                                    </td>
-                                                                    <td> {{ !empty($history->price_after_discount_before)
-                                                                        ? 'Rp.' . number_format($history->price_after_discount_before)
-                                                                        : '-' }}
-                                                                    </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($history->business_effective_date_old)->format('Y-m-d') }}
-                                                                    </td>
-                                                                    <td>{{ $history->status_name }}</td>
-                                                                    <td>{{ $history->created_at }}</td>
-                                                                    <td>{{ $history->updated_at }}</td>
-                                                                </tr>
-                                                            </tbody>
+                        <ul class="nav nav-tabs" id="expenseTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="all-tab" data-bs-toggle="tab"
+                                    data-bs-target="#all" type="button">
+                                    Harga Baru
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="old_price-tab" data-bs-toggle="tab"
+                                    data-bs-target="#old_price" type="button">
+                                    Harga Lama
+                                </button>
+                            </li>
+                        </ul>
+
+                        <hr>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="all" role="tabpanel">
+                                <div class="card-body">
+                                    @if ($product_price->isNotEmpty())
+                                        <div class="table-responsive">
+                                            <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Detail Harga</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    $no = 1;
+                                                    ?>
+                                                    @foreach ($product_price as $key => $history)
+                                                        <tr>
+                                                            <td><?php echo $no++; ?></td>
+
+                                                            <td>
+                                                                <table class="table table-bordered" id="dataTable"
+                                                                    width="100%" cellspacing="0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            @if ($history->price == null)
+                                                                                <th>Harga Saat Ini</th>
+                                                                            @else
+                                                                                <th>Harga Terbaru</th>
+                                                                            @endif
+
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            @if ($history->price)
+                                                                                <td>
+                                                                                    <table
+                                                                                        style="font-size: 14px; color:black;"
+                                                                                        class="table table-bordered"
+                                                                                        id="dataTable" width="100%"
+                                                                                        cellspacing="0">
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <th>Harga Normal
+                                                                                                </th>
+                                                                                                <td> {{ 'Rp.' . number_format($current_price->price) }}
+                                                                                                </td>
+                                                                                            </tr>
+
+                                                                                            <tr>
+                                                                                                <th>Diskon </th>
+                                                                                                <td>
+                                                                                                    @if ($history->discount == 0)
+                                                                                                        -
+                                                                                                    @else
+                                                                                                        {{ $history->discount . '%' }}
+                                                                                                    @endif
+
+                                                                                                </td>
+                                                                                            </tr>
+
+                                                                                            <tr>
+                                                                                                <th>Harga setelah
+                                                                                                    diskon
+                                                                                                </th>
+                                                                                                <td> {{ !empty($current_price->price_after_discount)
+                                                                                                    ? 'Rp.' . number_format($current_price->price_after_discount)
+                                                                                                    : '-' }}
+                                                                                                </td>
+                                                                                            </tr>
 
 
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
-                                    class="empty-transaction">
+                                                                                            <tr>
+                                                                                                <th>Tanggal harga
+                                                                                                    efektif
+                                                                                                </th>
+                                                                                                <td>{{ \Carbon\Carbon::parse($current_price->price_effective_from)->format('d M Y') }}
+                                                                                                </td>
+                                                                                            </tr>
 
-                                    <div style="display: flex;" class="empty-content">
-                                        <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
-                                            <img width="70" height="70"
-                                                src="{{ asset('assets/front_end/assets/img/null.png') }}"
-                                                alt="">
-                                            <div style="display: block;" class="text-content">
-                                                <h3>Belum ada history harga untuk produk ini</h3>
-                                            </div>
+
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </td>
+                                                                            @else
+                                                                                <td>Tidak ada harga terbaru</td>
+                                                                            @endif
+
+                                                                        </tr>
+                                                                    </tbody>
+
+
+                                                                </table>
+                                                            </td>
+
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
-                                    </div>
+                                    @else
+                                        <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                                            class="empty-transaction">
 
+                                            <div style="display: flex;" class="empty-content">
+                                                <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
+                                                    <img width="70" height="70"
+                                                        src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                        alt="">
+                                                    <div style="display: block;" class="text-content">
+                                                        <h3>Belum ada history harga untuk produk ini</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
+
+                            {{-- Old Price --}}
+                            <div class="tab-pane fade" id="old_price" role="tabpanel">
+                                <div class="card-body">
+                                    @if ($old_product_price)
+                                        <div class="table-responsive">
+                                            <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Detail Harga</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    $no = 1;
+                                                    
+                                                    ?>
+                                                    @foreach ($old_product_price as $key => $history)
+                                                        <tr>
+                                                            <td><?php echo $no++; ?></td>
+
+                                                            <td>
+                                                                <table class="table table-bordered" id="dataTable"
+                                                                    width="100%" cellspacing="0">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Harga lama</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr>
+
+                                                                            {{-- Harga Lama --}}
+                                                                            <td>
+                                                                                <table
+                                                                                    style="font-size: 14px; color:black;"
+                                                                                    class="table table-bordered"
+                                                                                    id="dataTable" width="100%"
+                                                                                    cellspacing="0">
+                                                                                    <tbody>
+                                                                                        <tr>
+                                                                                            <th>Kode Harga </th>
+                                                                                            <td> {{ $history->price_code }}
+                                                                                            </td>
+                                                                                        </tr>
+
+                                                                                        <tr>
+                                                                                            <th>Harga Normal </th>
+                                                                                            <td> {{ 'Rp.' . number_format($history->price) }}
+                                                                                            </td>
+                                                                                        </tr>
+
+                                                                                        <tr>
+                                                                                            <th>Diskon</th>
+                                                                                            <td>
+                                                                                                @if ($history->discount == 0)
+                                                                                                    -
+                                                                                                @else
+                                                                                                    {{ $history->discount . '%' }}
+                                                                                                @endif
+
+                                                                                            </td>
+                                                                                        </tr>
+
+                                                                                        <tr>
+                                                                                            <th>Harga Diskon
+                                                                                            </th>
+                                                                                            <td> {{ !empty($history->price_after_discount) ? 'Rp.' . number_format($history->price_after_discount) : '-' }}
+                                                                                            </td>
+                                                                                        </tr>
+
+
+                                                                                        <tr>
+                                                                                            <th>Tanggal harga efektif
+                                                                                            </th>
+                                                                                            <td>{{ \Carbon\Carbon::parse($history->current_price_effective)->format('d M Y') }}
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th>Status
+                                                                                            </th>
+                                                                                            <td>
+                                                                                                @if ($history->status_name == 'Active')
+                                                                                                    <span
+                                                                                                        class="text-success">{{ $history->status_name }}</span>
+                                                                                                @else
+                                                                                                    <span
+                                                                                                        class="text-danger">{{ $history->status_name }}</span>
+                                                                                                @endif
+                                                                                            </td>
+                                                                                        </tr>
+
+                                                                                        <tr>
+                                                                                            <th>Tanggal Buat
+                                                                                            </th>
+                                                                                            <td>{{ $history->created_at }}
+                                                                                            </td>
+                                                                                        </tr>
+
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </td>
+
+
+                                                                        </tr>
+                                                                    </tbody>
+
+
+                                                                </table>
+                                                            </td>
+
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                                            class="empty-transaction">
+
+                                            <div style="display: flex;" class="empty-content">
+                                                <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
+                                                    <img width="70" height="70"
+                                                        src="{{ asset('assets/front_end/assets/img/null.png') }}"
+                                                        alt="">
+                                                    <div style="display: block;" class="text-content">
+                                                        <h3>Belum ada history harga untuk produk ini</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -184,6 +370,71 @@
 
     body {
         font-family: "DM Sans", serif;
+    }
+
+    /* Container */
+    .container {
+        max-width: 900px;
+    }
+
+    /* Tabs wrapper */
+    .nav-tabs {
+        border-bottom: none;
+        gap: 10px;
+        padding: 25px;
+    }
+
+    /* Tab button */
+    .nav-tabs .nav-link {
+        border: none;
+        color: #555;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    /* Hover effect */
+
+
+    /* Active tab */
+    .nav-tabs .nav-link.active {
+        background: #bb0239;
+        color: #fff;
+
+    }
+
+    /* Tab content box */
+    .tab-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Form styling */
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .form-control:focus {
+        border-color: #bb0239;
+        box-shadow: none;
+    }
+
+    /* Button */
+    .btn-primary {
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-weight: 500;
+    }
+
+    /* Title */
+    h3 {
+        font-weight: 600;
+        margin-bottom: 20px;
     }
 </style>
 

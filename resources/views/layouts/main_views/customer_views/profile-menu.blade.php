@@ -55,6 +55,25 @@
                     @endforeach
 
                     <hr class="hr-menu">
+                    <span>Lainnya</span>
+                    <hr class="hr-menu">
+
+                    <div class="group-menu">
+                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
+                            <i class="fa fa-list"></i>
+                            <a class="menu" href="{{ route('privacy_policy') }}" class="text-decoration-none">
+                                Privacy & Policy
+                            </a>
+                        </div>
+
+
+                        <form id="logout-form" action="{{ route('logout_account') }}" method="POST" class="d-none">
+                            @csrf
+                            <button type="submit">Logout</button>
+                        </form>
+                    </div>
+
+                    <hr class="hr-menu">
                     <div class="group-menu">
                         <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
                             <i class="fa fa-sign-out"></i>
@@ -114,8 +133,8 @@
             @endphp
 
             @if ($customer)
-                <div class="modal fade" id="openqr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true">
+                <div class="modal fade" id="openqr" tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div style="display: flex; justify-content: space-between;" class="modal-header">

@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Kencana Bakery - Master Data Kategori</title>
-    <link href="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
-    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.js') }}"></script>
+    <title>Kencana Bakery - Master Data Rewards</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
@@ -48,7 +45,6 @@
                             @endif
                         </div>
 
-
                         <div class="card-body">
                             <div wire:poll.keep.alive.2s>
                                 @if ($rewards->isNotEmpty())
@@ -86,10 +82,10 @@
                                                                 class="date">
                                                                 <label for="">Tanggal Berlaku</label>
                                                                 <br>
-                                                                <small>{{ \Carbon\Carbon::parse($reward->start_date)->format('Y-m-d') }}</small>
+                                                                <small>{{ \Carbon\Carbon::parse($reward->start_date)->format('d M Y') }}</small>
                                                                 <span>s.d</span>
                                                                 <small>
-                                                                    {{ \Carbon\Carbon::parse($reward->end_date)->format('Y-m-d') }}</small>
+                                                                    {{ \Carbon\Carbon::parse($reward->end_date)->format('d M Y') }}</small>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -131,6 +127,18 @@
                                                         <a class="btn btn-primary"
                                                             href="{{ route('rewards_master_update', $reward->rewards_code) }}">Edit
                                                         </a>
+
+                                                        @if ($reward->status_name == 'Active')
+                                                            <a class="btn btn-warning" data-toggle="modal"
+                                                                data-target="#deleteModalRewards{{ $reward->rewards_code }}">
+                                                                Nonaktifkan
+                                                            </a>
+                                                        @else
+                                                            <a class="btn btn-success" data-toggle="modal"
+                                                                data-target="#deleteModalRewards{{ $reward->rewards_code }}">
+                                                                Aktifkan
+                                                            </a>
+                                                        @endif
                                                     </div>
                                                 @endif
                                             </div>
@@ -162,12 +170,11 @@
                 </div>
             </main>
 
-            {{-- @foreach ($rewards as $reward)
-                <div wire:ignore class="modal fade"
-                    id="deleteModalRewards-{{ $reward->rewards_code }}-{{ $reward->store_code }}" tabindex="-1"
-                    role="dialog"
-                    aria-labelledby="exampleModalLabel-{{ $reward->rewards_code }}-{{ $reward->store_code }}"
-                    aria-hidden="true">
+
+
+            @foreach ($rewards as $reward)
+                <div wire:ignore class="modal fade" id="deleteModalRewards{{ $reward->rewards_code }}" tabindex="-1"
+                    role="dialog" aria-labelledby="exampleModalLabel{{ $reward->rewards_code }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -180,80 +187,92 @@
                             <div class="modal-body">
                                 @if ($reward->status_name == 'Active')
                                     Apakah anda yakin ingin men-Nonaktif Reward
-                                    {{ $reward->rewards_name }} - {{ $reward->store_name }}
+                                    {{ $reward->rewards_name }}
                                     ?
                                 @else
                                     Apakah anda yakin ingin aktifkan Reward
-                                    {{ $reward->rewards_name }} - {{ $reward->store_name }}
+                                    {{ $reward->rewards_name }}
                                     ?
                                 @endif
                                 <br>
                                 <br>
-                                <form method="POST"
-                                    action="{{ route('rewards_nonactive', [
-                                        'reward' => $reward->rewards_code,
-                                        'store' => $reward->store_code,
-                                    ]) }}">
+                                <form method="POST" action="{{ route('rewards_nonactive', $reward->rewards_code) }}">
                                     @csrf
                                     @method('PUT')
                                     <div class="form-group">
                                         @if ($reward->status_name == 'Active')
-                                            <input type="checkbox" name="status" value="8">
-                                            <input type="text" name="store" value="{{ $reward->store_code }}"
-                                                hidden>
+                                            <input type="checkbox" name="status" value="8" required>
                                             <label for="">Nonaktifkan</label>
                                         @else
-                                            <input type="checkbox" name="status" value="7">
-                                            <input type="text" name="store" value="{{ $reward->store_code }}"
-                                                hidden>
-                                            <label for="">Aktifkan</label>
+                                            <input type="text" name="rewards_code"
+                                                value="{{ $reward->rewards_code }}" hidden>
+                                            <div class="form-group">
+                                                <label for=""><strong>Masa Berlaku</strong></label>
+                                                <div class="form-date-group" style="display:flex;gap:10px;">
+                                                    <div class="d-block-content" style="display: block">
+                                                        <label for=""><strong>Tanggal akhir</strong></label>
+                                                        <input type="date" name="start_date" class="form-control"
+                                                            required>
+                                                    </div>
+                                                    <span>s.d</span>
+                                                    <div class="d-block-content" style="display: block">
+                                                        <label for=""><strong>Tanggal akhir</strong></label>
+                                                        <input type="date" name="end_date" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <input type="checkbox" name="status" value="7" required>
+                                                <label for="">Aktifkan</label>
                                         @endif
                                     </div>
                                     <br>
 
-                                    @if ($reward->status_name == 'Active')
-                                        <button class="btn btn-danger" type="submit">Nonaktifkan</button>
-                                    @else
-                                        <button class="btn btn-primary" type="submit">Aktifkan</button>
-                                    @endif
 
-                                </form>
                             </div>
 
                             <div class="modal-footer">
+                                @if ($reward->status_name == 'Active')
+                                    <button class="btn btn-danger" type="submit">Nonaktifkan</button>
+                                @else
+                                    <button class="btn btn-primary" type="submit">Aktifkan</button>
+                                @endif
+
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
-            @endforeach --}}
-
-            @if (Session::has('message_success'))
-                <script>
-                    Swal.fire({
-                        title: 'Berhasil',
-                        text: "{{ Session::get('message_success') }}",
-                        icon: 'success',
-                        timer: 2000,
-                        confirmButtonText: 'OK'
-                    });
-                </script>
-            @elseif (Session::has('failed_message'))
-                <script>
-                    Swal.fire({
-                        title: 'Gagal',
-                        text: "{{ Session::get('failed_message') }}",
-                        icon: 'error',
-                        timer: 2000,
-                        confirmButtonText: 'OK'
-                    });
-                </script>
-            @endif
-
-
-
+            @endforeach
         </div>
     </div>
 </body>
 
+<script src="{{ asset('assets/front_end/assets/vendor/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+@if (Session::has('message_success'))
+    <script>
+        Swal.fire({
+            title: 'Berhasil',
+            text: "{{ Session::get('message_success') }}",
+            icon: 'success',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@elseif (Session::has('failed_message'))
+    <script>
+        Swal.fire({
+            title: 'Gagal',
+            text: "{{ Session::get('failed_message') }}",
+            icon: 'error',
+            timer: 2000,
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
 
 </html>

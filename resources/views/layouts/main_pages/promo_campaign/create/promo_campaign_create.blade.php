@@ -78,17 +78,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label><strong>Status Promo</strong></label>
-                            <select name="status" class="form-control" id="">
-                                <option value="">=== Pilih Status ===</option>
-                                @foreach ($status as $sts)
-                                    <option value="{{ $sts->id }}">{{ $sts->status_name }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('status')" class="text-danger" />
-                        </div>
-
-                        <div class="form-group">
                             <label><strong>Tanggal awal promo</strong></label>
                             <input type="date" name="start_date" class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
@@ -105,6 +94,19 @@
                             <input type="file" name="images" class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('images')" class="text-danger" />
                         </div>
+
+
+                        <div class="send-notification-info">
+                            <label for=""><strong>Kirim notifikasi ke pelanggan?</strong></label>
+                            <br>
+                            <small class="text-danger">*tindakan ini mengirim notifikasi ke email semua pelanggan
+                                Kencana
+                                Bakery</small>
+                            <br>
+                            <input type="checkbox" name="send_notification" value="Y"> Ya,
+                            Kirim
+                        </div>
+                        <br>
                         <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Simpan
                                 Data</span>
                             <span class="spinner"></span></button>

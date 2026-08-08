@@ -12,9 +12,9 @@
 @if ($maintenance_info)
     <div class="notif-info">
         <div style="display: flex;margin:auto;align-items: center;padding-bottom: 15px;" class="alertwfwfs">
-            <img width="50" height="50" src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
             <div class="text-content-info">
-                <h5>{{ $maintenance_info->maintenance_information }}</h5>
+                <i style="width:40px;height:40px;" class="fa fa-warning"></i>
+                <h5 style="margin-bottom: 4px;margin-top: 4px;">{{ $maintenance_info->maintenance_information }}</h5>
                 <p class="p-message">{{ $maintenance_info->message }}</p>
 
                 <div class="date-info">
@@ -95,7 +95,7 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         const endDate =
-            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('Y-m-d') : '' }}";
+            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('d M Y') : '' }}";
         const endTime =
             "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->hour_end)->format('H:i:s') : '' }}";
 

@@ -113,9 +113,9 @@
                                                             <span class="text-danger">{{ $point->status_name }}</span>
                                                         @endif
                                                     </td>
-                                                    <td> {{ \Carbon\Carbon::parse($point->start_date)->format('Y-m-d') }}
+                                                    <td> {{ \Carbon\Carbon::parse($point->start_date)->format('d M Y') }}
                                                     </td>
-                                                    <td> {{ \Carbon\Carbon::parse($point->end_date)->format('Y-m-d') }}
+                                                    <td> {{ \Carbon\Carbon::parse($point->end_date)->format('d M Y') }}
                                                     </td>
                                                     <td>{{ $point->created_at }}</td>
                                                     <td>{{ $point->updated_at }}</td>

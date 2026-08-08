@@ -55,12 +55,12 @@ class LoginRequest extends FormRequest
         $this->validate([
             'login' => 'required',
             'password' => 'required',
-            // 'g-recaptcha-response' => 'required'
+            'g-recaptcha-response' => 'required'
         ],
         [
             'login.required' => 'Harap masukan email atau nomor handphone anda',
             'password.required' => 'Harap masukan kata sandi',
-            // 'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
+            'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
         ]);
 
         $this->ensureIsNotRateLimited();
@@ -74,28 +74,25 @@ class LoginRequest extends FormRequest
 
 
          // Verifikasi reCAPTCHA
-        // $response = Http::asForm()->post(
-        //     'https://www.google.com/recaptcha/api/siteverify',
-        //         [
-        //             'secret'   => config('services.recaptcha.secret_key'),
-        //             'response' => $this->input('g-recaptcha-response'),
-        //             'remoteip' => $this->ip(),
-        //         ]
-        //     );
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+                [
+                    'secret'   => config('services.recaptcha.secret_key'),
+                    'response' => $this->input('g-recaptcha-response'),
+                    'remoteip' => $this->ip(),
+                ]
+            );
 
-        // $result = $response->json();
+        $result = $response->json();
+        if (!($result['success'] ?? false)) {
+            return back()->withErrors([
+                'captcha' => 'Verifikasi reCAPTCHA gagal.',
+                ])->withInput();
+                }
+                
 
-
+        
         $nik = DB::table('users')->where('username', $login)->orWhere('email', $login)->first();
-
-
-
-        // if (!($result['success'] ?? false)) {
-        //     return back()->withErrors([
-        //                 'captcha' => 'Verifikasi reCAPTCHA gagal.',
-        //             ])->withInput();
-        // }
-
 
         // Jika pengguna tidak ditemukan
         if (!$user_available) {
@@ -230,12 +227,8 @@ class LoginRequest extends FormRequest
                 ->withInput();
         } elseif ($user->status == 8) {
             RateLimiter::hit($this->throttleKey());
-            return back()
-                ->withErrors([
-                    'login' => 'Akun sudah tidak aktif'
-                ])
-                ->with('failed_message', 'Akun sudah tidak aktif')
-                ->withInput();
+            session()->flash('failed_message', 'Akun anda sudah tidak aktif');
+            return redirect()->route('nonactive-account-information',['email' => $login]);
         }elseif ($user->account_email_verified == 'N' || $user->account_email_verified_at == null) {
             RateLimiter::hit($this->throttleKey());
             return back()

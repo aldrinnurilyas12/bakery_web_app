@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountEmailVerification;
 use App\Mail\CustomerForgotPasswordRequest as MailCustomerForgotPasswordRequest;
 use App\Models\CustomerForgotPasswordRequest as ModelsCustomerForgotPasswordRequest;
 use App\Models\CustomerModel;
+use App\Models\CustomerRecoveryAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Services\CustomerLogActivities;
+use Illuminate\Support\Str;
 
 class CustomerForgotPasswordRequest extends Controller
 {
@@ -38,22 +41,59 @@ class CustomerForgotPasswordRequest extends Controller
 
         $email = $request->email;
         $otp = rand(100000, 9999);
+        $date = now()->format('dmY');
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 10). $date . rand(100000, 9999);
+        $token_link_recovery_account = $unique_code;
+        $account_recovery = $request->account_recovery;
 
-        if($email == null)
-        {
+        if($email == null){
             session()->flash('failed_message', 'Email harus diisi!');
             return redirect()->back();
         }
 
-        $checking_email_exists = DB::table('customer')->where('email', $email)->first();
+        $checking_email_exists = DB::table('customer')
+            ->where('email', $email)->first();
+        $checking_email_nonactive = DB::table('customer')
+            ->where('email', $email)->where('status', 8)->whereNotNull('deleted_at')->exists();
 
         if(!$checking_email_exists){
             session()->flash('failed_message', 'Email tidak ditemukan!');
             return redirect()->back();
-        }else{
-            
+        }
 
-        $data = ModelsCustomerForgotPasswordRequest::create([
+        $customer = $checking_email_exists->customer_code;
+
+       if($account_recovery == 'Y'){
+            if($checking_email_nonactive){
+                if($customer){
+                    $account_recovery = CustomerRecoveryAccount::create([
+                        'customer' => $customer,
+                        'token_link' => $token_link_recovery_account,
+                        'expired_at' => now()->addMinutes(5),
+                        'status' => 8
+                    ]);
+
+                    Mail::to($request->email)->sendNow(new AccountEmailVerification([
+                        'email' => $request->email,
+                        'token_link_recovery_account' => $token_link_recovery_account
+                    ]));
+
+                    session()->flash('message_success', 'Link pemulihan akun sudah dikirim ke alamat email anda');
+                    return redirect()->route('login_app');
+                }
+            }else{
+                return redirect()->back();
+            }
+        }     
+
+        if($checking_email_nonactive){
+            session()->flash('failed_message', 'Akun anda sudah tidak aktif!');
+            return redirect()->back();
+        }
+
+        if(!$checking_email_nonactive){
+            $data = ModelsCustomerForgotPasswordRequest::create([
                 'email' => $request->email,
                 'otp' => $otp,
                 'status' => 13,
@@ -65,10 +105,11 @@ class CustomerForgotPasswordRequest extends Controller
                 'otp' => $data->otp,
                 'email' => $data->email
             ]));
-
-            session()->flash('message_success', 'Kode OTP sudah terkirim ke alamat email anda!');
-            return redirect()->route('otp-confirmation-request', ['email' => $data->email]);
         }
+
+        session()->flash('message_success', 'Kode OTP sudah terkirim ke alamat email anda!');
+        return redirect()->route('otp-confirmation-request', ['email' => $data->email]);
+            
     }
 
      public function otp_confirmation(Request $rq){

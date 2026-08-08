@@ -20,7 +20,7 @@ class CheckRouteAccess
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next) : Response
     {
 
         $GLOBAL_ENV = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers();
@@ -51,7 +51,7 @@ class CheckRouteAccess
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 session()->flash('failed_message', 'Maaf saat ini anda tidak bisa akses '); 
-                return redirect()->route('login_app');
+                return redirect()->route('alert-info');
             }
               return $next($request);
         }
@@ -63,7 +63,7 @@ class CheckRouteAccess
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 session()->flash('failed_message', 'Maaf saat ini anda tidak bisa akses '); 
-                return redirect()->route('login_app');
+                return redirect()->route('alert-info');
             }
             return $next($request);
         }
@@ -77,20 +77,22 @@ class CheckRouteAccess
             
         }
 
-
-    
         $routeId = DB::table('submenu')
         ->where('submenu_link', $routeName)
-        ->pluck('id');
-        $hasPermission = DB::table('user_permission_access')
-                    ->where('submenu', $routeId)
+        ->distinct()
+        ->pluck('submenu_link');
+          
+        // dd($routeId);
+
+
+        $hasPermission = DB::table('user_permission_access as upa')
+                    ->join('submenu as s', 'upa.submenu', '=', 's.id')
+                    ->where('s.submenu_link', $routeId)
                     ->where('role', $role)
                     ->exists();
+      
 
-        // dd($hasPermission);
-
-        
-
+     
         if(!$hasPermission){
             session()->flash('failed_message', 'Maaf anda tidak bisa akses menu ini'); 
             return redirect()->route('dashboard_main');

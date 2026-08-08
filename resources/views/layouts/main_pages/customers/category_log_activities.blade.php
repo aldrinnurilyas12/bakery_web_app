@@ -29,6 +29,14 @@
                                 Master Data > <strong> Log Aktivitas Pelanggan </strong>
                             </div>
                         </div>
+                        <div class="card-header">
+
+                            <div class="title">
+                                <label for=""><strong> Pelanggan </strong></label>
+                                <input type="text" class="form-control"
+                                    value="{{ $customer_log_activities->first()->name }}" readonly>
+                            </div>
+                        </div>
                         <div class="card-body">
                             @if ($customer_log_activities->isNotEmpty())
                                 <div class="table-responsive">

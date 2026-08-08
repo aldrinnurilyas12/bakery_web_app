@@ -863,7 +863,7 @@ class CustomerController extends Controller
         $customer = $request->customer_code;
 
         $customer_log_activities = DB::table('customers_log_activities as cla')
-                ->select('cla.category as log_category', 'cla.description as log_description', 'p.product_name', 'cla.created_at')
+                ->select('c.name','cla.category as log_category', 'cla.description as log_description', 'p.product_name', 'cla.created_at')
                 ->leftJoin('products as p', 'cla.product', '=', 'p.product_code')
                 ->leftJoin('customer as c', 'cla.customer', '=', 'c.customer_code')
                 ->where('cla.customer', $customer)

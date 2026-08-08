@@ -113,7 +113,7 @@
                                                         </td>
                                                     @endif
                                                     <td>{{ $dst->distribution_code }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($dst->distribution_date)->format('Y-m-d') }}
+                                                    <td>{{ \Carbon\Carbon::parse($dst->distribution_date)->format('d M Y') }}
                                                     </td>
                                                     <td>
                                                         @if ($dst->status_name == 'All Items Received')

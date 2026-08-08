@@ -57,15 +57,15 @@
             <div style="position: relative;">
                 <input id="password" type="password" name="password" autocomplete="off" placeholder="Buat kata sandi anda">
                 <i class="fas fa-eye" id="togglePassword"
-                        style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                    style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
                 </i>
             </div>
             <x-input-error :messages="$errors->get('password')" class="text-danger" />
         </div>
 
-         <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
         </div>
-         @error('g-recaptcha-response')
+        @error('g-recaptcha-response')
             <div class="text-danger mt-2">
                 {{ $message }}
             </div>

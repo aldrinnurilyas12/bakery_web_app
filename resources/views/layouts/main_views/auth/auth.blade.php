@@ -33,6 +33,7 @@
             width: 50%;
             background: #fff;
             padding: 30px;
+            margin-top: auto;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }

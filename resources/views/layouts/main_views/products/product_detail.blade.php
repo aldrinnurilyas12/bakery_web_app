@@ -30,12 +30,8 @@
                 <div class="product-card">
                     <div class="container-product-info">
                         <div style="display: flex; justify-content:space-between;" class="info-detail">
-                            <div style="display: flex; justify-content:space-between; gap:10px;font-size: 14px;"
+                            <div style="display: flex; justify-content:space-between; gap:10px;font-size: 14px;align-items: center;"
                                 class="group-like">
-                                <p style="margin-bottom: 10px;" class="text-secondary">{{ $product->category }}</p>
-
-
-
                                 @if ($product->rating > 0)
                                     <div style="display: flex; gap:5px;" class="star">
                                         <img style="width:15px;height:15px;margin-top:3px;"
@@ -50,6 +46,11 @@
 
                                 @if ($product->total_like > 0)
                                     <p>{{ $product->total_like }} orang suka ini</p>
+                                    &middot;
+                                @endif
+
+                                @if ($total_product_view)
+                                    <p>{{ $total_product_view }}x dilihat</p>
                                 @endif
                             </div>
 
@@ -73,6 +74,8 @@
                             </div>
                         </div>
                         <h4 style="margin-bottom: 4px;">{{ $product->product }}</h4>
+                        <p class="text-secondary">{{ $product->category }}</p>
+
                         @if ($product->variant_type)
                             <p style="margin-bottom: 5px;font-size: 15px;">Ukuran: {{ $product->variant_type }}</p>
                         @endif

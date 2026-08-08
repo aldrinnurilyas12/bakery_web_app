@@ -34,7 +34,9 @@
                             </div>
                             @if ($store->isNotEmpty())
                                 @if (!$user_permission_forbidden)
-                                    <div class="button-add-product">
+                                    <a class="btn btn-warning" href=""><i class="fa fa-location"></i>
+                                        Location</a>
+                                    <div style="display: flex; gap:10px;" class="button-add-product">
                                         <a class="btn-general" href="{{ route('store_create') }}">Tambah
                                             Store</a>
                                     </div>

@@ -67,17 +67,6 @@
                                                         class="title-text">
                                                         <h5 style="font-size:15px;width:200px;">
                                                             {{ $voucher->voucher_name }}</h5>
-                                                        @if ($voucher->voucher_type == 'regular')
-                                                            <div style="background: blue;color:white;  border-radius: 2px; padding:2px;width:max-content;font-size:12px;"
-                                                                class="expired-status">
-                                                                <span>Regular</span>
-                                                            </div>
-                                                        @else
-                                                            <div style="background:red;color:white;  border-radius: 2px; padding:2px;width:max-content;font-size:12px;"
-                                                                class="expired-status">
-                                                                <span>Ulang Tahun</span>
-                                                            </div>
-                                                        @endif
                                                     </div>
                                                     <p
                                                         style="font-size: 13px;color:gray; font-weight: normal;margin-bottom:8px;">
@@ -112,7 +101,7 @@
                                                     </div>
                                                     </p>
 
-                                                    <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;"
+                                                    <div style="font-size: 13px; font-weight: 500;margin-bottom: 0;display:flex;flex-wrap: wrap;gap:6px;"
                                                         class="status">
                                                         @if ($voucher->status_name == 'Inactive')
                                                             <div style="display: flex; gap:10px; margin-bottom: 5px;"
@@ -120,9 +109,6 @@
                                                                 <p style="margin-bottom: 0;">Status: <span
                                                                         class="text-danger">Tidak aktif</span>
 
-                                                                </p>
-                                                                <p style="margin-bottom: 0;">Kategori : <span>
-                                                                        {{ $voucher->voucher_type }}</span>
                                                                 </p>
                                                             </div>
                                                         @else
@@ -134,15 +120,20 @@
                                                                 </p>
                                                             </div>
                                                         @endif
+                                                        ~
+                                                        <p style="margin-bottom: 0;">Kategori : <span>
+                                                                {{ $voucher->voucher_type }}</span>
+                                                        </p>
+
                                                     </div>
 
                                                     <div style="font-size: 13px; font-weight: 500;" class="date">
                                                         <label for="">Tanggal Berlaku</label>
                                                         <br>
-                                                        <small>{{ \Carbon\Carbon::parse($voucher->start_date)->format('Y-m-d') }}</small>
+                                                        <small>{{ \Carbon\Carbon::parse($voucher->start_date)->format('d M Y') }}</small>
                                                         <span>s.d</span>
                                                         <small>
-                                                            {{ \Carbon\Carbon::parse($voucher->end_date)->format('Y-m-d') }}</small>
+                                                            {{ \Carbon\Carbon::parse($voucher->end_date)->format('d M Y') }}</small>
                                                     </div>
                                                 </div>
                                             </div>

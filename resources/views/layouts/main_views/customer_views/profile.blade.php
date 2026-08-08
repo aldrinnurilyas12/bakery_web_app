@@ -125,7 +125,7 @@
                     <div class="form-group">
                         <label><strong>Tanggal Lahir</strong></label>
                         <input class="form-control" type="date"
-                            value="{{ old('birth_date', $customer->birth_date ? $birth_date->format('Y-m-d') : null) }}"
+                            value="{{ old('birth_date', $customer->birth_date ? $birth_date->format('d M Y') : null) }}"
                             name="birth_date" autocomplete="off" required>
                         @if (!$customer->birth_date)
                             <small class="text-danger">*Harap masukan tanggal lahir</small>

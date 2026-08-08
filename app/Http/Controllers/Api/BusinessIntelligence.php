@@ -371,11 +371,11 @@ class BusinessIntelligence extends Controller
         // Periode bulan sebelumnya
         $prev_start_date = Carbon::parse($start_date)
             ->subMonth()
-            ->format('Y-m-d');
+            ->format('d M Y');
 
         $prev_end_date = Carbon::parse($end_date)
             ->subMonth()
-            ->format('Y-m-d');
+            ->format('d M Y');
 
         $total_transaction = DB::table('v_main_transactions')->select('transaction_code')
 

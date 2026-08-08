@@ -32,6 +32,7 @@
                         <div class="card mb-4">
                             <div style="display: flex; justify-content:space-between;" class="card-header">
 
+
                                 <div class="title">
                                     Lainnya > <strong> User Role Permission </strong>
                                 </div>
@@ -47,6 +48,13 @@
                                     <div class="save-changes">
                                         <button class="btn-general" type="submit">Simpan Perubahan</button>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="card-header">
+                                <div class="alert alert-info">
+                                    <li>kode <strong>CUD</strong> adalah hak akses user dalam operasi module yang
+                                        bersifat Insert, Update,
+                                        Delete data</li>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -75,8 +83,17 @@
                                             @foreach ($submenu as $sub)
                                                 <tr>
                                                     <td><?php echo $no++; ?></td>
-                                                    <td><strong>{{ $sub->submenu_name }} </strong>
-                                                        &nbsp; &nbsp; [{{ $sub->submenu_link }}]</td>
+                                                    <td>
+                                                        <strong>
+                                                            @if (Str::startsWith($sub->submenu_name, 'CUD'))
+                                                                <span
+                                                                    class="text-danger">CUD</span>{{ Str::after($sub->submenu_name, 'CUD') }}
+                                                            @else
+                                                                {{ $sub->submenu_name }}
+                                                            @endif
+                                                            &nbsp; &nbsp; [{{ $sub->submenu_link }}]
+                                                        </strong>
+                                                    </td>
                                                     @foreach ($role as $r)
                                                         <td class="text-center">
                                                             <input type="checkbox" class="role-{{ $r->id }}"

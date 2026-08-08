@@ -8,7 +8,7 @@
     <title>Kencana Bakery - Ubah Variant Produk</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 </head>
 
@@ -42,8 +42,8 @@
                             <label><strong>HPP Produk</strong></label>
                             <input type="text" class="form-control"
                                 value="{{ 'Rp.' . number_format($variant->hpp) }}" readonly>
-                            <input name="hpp" type="text" class="form-control"
-                                value="{{ $variant->hpp }}" hidden readonly>
+                            <input name="hpp" type="text" class="form-control" value="{{ $variant->hpp }}" hidden
+                                readonly>
                         </div>
 
                         <div class="form-group">
@@ -105,10 +105,10 @@
                         <div class="form-group">
                             <label><strong>Tanggal Harga Efektif</strong></label>
                             <input type="date" name="price_effective_from_after" class="form-control"
-                                value="{{ old('business_effective_date', $variant->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                value="{{ old('business_effective_date', $variant->price_effective_from ? $business_effective_date->format('d M Y') : null) }}"
                                 autocomplete="off">
                             <input type="date" name="price_effective_from_before" class="form-control"
-                                value="{{ old('business_effective_date', $variant->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                value="{{ old('business_effective_date', $variant->price_effective_from ? $business_effective_date->format('d M Y') : null) }}"
                                 autocomplete="off" hidden>
                         </div>
 

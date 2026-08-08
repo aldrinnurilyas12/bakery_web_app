@@ -68,7 +68,7 @@ class StoreOutletController extends Controller
             'location' => $request->location,
             'head_of_branch' => $request->head_of_branch,
             'latitude' => $request->latitude,
-            'longitude' => $request->lomgitude,
+            'longitude' => $request->longitude,
             'status' => 7
         ]);
 

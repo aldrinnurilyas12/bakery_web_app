@@ -27,6 +27,7 @@ class MaintenanceInformation extends Controller
         $status_categories = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $check_last_active = DB::table('maintenance_information')->where('status', 7)->orderBy('created_at', 'DESC')->first();
         
+        
         return view('layouts.main_pages.maintenance_information.maintenance_info', compact('maintenance_info', 'status_categories', 'check_last_active'));
     }
 

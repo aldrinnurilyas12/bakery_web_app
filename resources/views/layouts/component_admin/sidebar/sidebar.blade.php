@@ -32,6 +32,8 @@
                         '94',
                         '101',
                         '109',
+                        '112',
+                        '163',
                     ])
                     ->orderBy('s.submenu_name', 'ASC')
                     ->get();
@@ -39,7 +41,7 @@
                 $submenu = DB::table('submenu as s')
                     ->where('status', 7)
                     ->where('main_menu', '<>', 10)
-                    ->whereNotIn('id', ['15', '16', '94', '101', '109', '110'])
+                    ->whereNotIn('id', ['15', '16', '94', '101', '109', '110', '112', '163'])
                     ->orderBy('s.submenu_name', 'ASC')
                     ->get();
             }

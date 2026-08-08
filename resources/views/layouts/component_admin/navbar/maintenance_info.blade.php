@@ -10,34 +10,37 @@
 @endphp
 
 
-@if ($maintenance_info)
-    <div class="notif-info">
-        <div style="display: flex; gap:20px;margin:auto;justify-content:center;align-items: center;" class="alertwfwfs">
-            <img width="50" height="50" src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
-            <div class="text-content-info">
-                <h5>{{ $maintenance_info->maintenance_information }}</h5>
-                <p class="p-message">{{ $maintenance_info->message }}</p>
+<div class="notif-main">
+    @if ($maintenance_info)
+        <div class="notif-info">
+            <div style="display: flex; gap:20px;margin:auto;justify-content:center;align-items: center;"
+                class="alertwfwfs">
+                <div class="text-content-info">
+                    <i style="width:40px;height:40px;" class="fa fa-warning"></i>
+                    <h5>{{ $maintenance_info->maintenance_information }}</h5>
+                    <p class="p-message">{{ $maintenance_info->message }}</p>
 
-                <div class="date-info">
-                    Tanggal:
-                    {{ \Carbon\carbon::parse($maintenance_info->start_date)->format('d M Y') }}
-                    {{ \Carbon\carbon::parse($maintenance_info->hour_start)->format('H:i') }}
-                    &nbsp;
-                    <span>s/d</span>
-                    &nbsp;
-                    {{ \Carbon\carbon::parse($maintenance_info->end_date)->format('d M Y') }}
-                    {{ \Carbon\carbon::parse($maintenance_info->hour_end)->format('H:i') }}
+                    <div class="date-info">
+                        Tanggal:
+                        {{ \Carbon\carbon::parse($maintenance_info->start_date)->format('d M Y') }}
+                        {{ \Carbon\carbon::parse($maintenance_info->hour_start)->format('H:i') }}
+                        &nbsp;
+                        <span>s/d</span>
+                        &nbsp;
+                        {{ \Carbon\carbon::parse($maintenance_info->end_date)->format('d M Y') }}
+                        {{ \Carbon\carbon::parse($maintenance_info->hour_end)->format('H:i') }}
 
-                    <br>
-                    <strong>Sisa Waktu:
-                        <span id="countdown"></span>
-                    </strong>
+                        <br>
+                        <strong>Sisa Waktu:
+                            <span id="countdown"></span>
+                        </strong>
 
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-@endif
+    @endif
+</div>
 
 
 
@@ -57,12 +60,15 @@
         width: 500px;
     }
 
+    .notif-main {
+        display: flex;
+        justify-content: center;
+    }
+
+
+
     .notif-info {
         position: absolute;
-        width: 50%;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
         z-index: 9999;
         text-align: center;
         background: rgb(168, 0, 0);
@@ -80,10 +86,6 @@
 
         .notif-info {
             position: absolute;
-            width: 80%;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
             z-index: 9999;
             text-align: center;
             background: rgb(168, 0, 0);
@@ -99,7 +101,7 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         const endDate =
-            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('Y-m-d') : '' }}";
+            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('d M Y') : '' }}";
         const endTime =
             "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->hour_end)->format('H:i:s') : '' }}";
 

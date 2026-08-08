@@ -430,14 +430,11 @@ class ProductsController extends Controller
                     ->select(
                         'p.product_name',
                         'p.product_code',
-                        'pph.price_after',
-                        'pph.discount_after',
-                        'pph.price_after_discount_after',
-                        'pph.business_effective_date_new',
-                        'pph.price_before',
-                        'pph.discount_before',
-                        'pph.price_after_discount_before',
-                        'pph.business_effective_date_old',
+                        'pph.price_code',
+                        'pph.price',
+                        'pph.discount',
+                        'pph.price_after_discount',
+                        'pph.business_effective_date',
                         'sc.status_name',
                         'vc.name',
                         'pph.created_at',
@@ -454,9 +451,14 @@ class ProductsController extends Controller
             $query->where('pph.variant', $variant);
         }
 
-        $product_price = $query->orderBy('pph.created_at', 'DESC')->get();
+        $current_price = (clone $query)->select('p.price', 'p.discount', 'p.price_after_discount', 'p.price_effective_from')->first();
 
-        return view('layouts.main_pages.products.product_price_history', compact('product_price'));
+        $product_price = (clone $query)->where('pph.status', 7)->orderBy('pph.created_at', 'DESC')->get();
+        $old_product_price = (clone $query)->where('pph.status', 8)->orderBy('pph.created_at', 'DESC')->get();
+        
+       
+        
+        return view('layouts.main_pages.products.product_price_history', compact('product_price', 'old_product_price', 'current_price'));
     }
 
     /**
@@ -635,6 +637,9 @@ class ProductsController extends Controller
         $product_code = $request->product_code;
         $hpp = $request->hpp;
         $price = $request->price;
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 6);
+        $price_code = 'PRC' . now()->format('dmy'). $unique_code;
         $check_hpp = DB::table('v_products')->select('hpp')->where('product_code', $product_code)->first();
        
         if($check_hpp->hpp == null){
@@ -672,13 +677,14 @@ class ProductsController extends Controller
         ]);
 
          ProductPriceHistory::create([
-                'product' => $product_code,
+                'product' => $request->product_code,
+                'price_code' => $price_code,
                 'variant' => null,
                 'hpp' => $request->hpp,
-                'price_before' =>$request->price,
-                'discount_before' => $request->discount,
-                'price_after_discount_before' => $request->price_after_discount,
-                'business_effective_date_old' => $request->price_effective_from,
+                'price' =>$request->price,
+                'discount' => $request->discount,
+                'price_after_discount' => $request->price_after_discount,
+                'business_effective_date' => $request->price_effective_from,
                 'status' => 7,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -700,7 +706,12 @@ class ProductsController extends Controller
     }
 
     public function update_product_price(Request $rq)
+    
     {
+        $uuid = (string) Str::uuid();
+        $unique_code = substr($uuid, 0, 6);
+        $price_code = 'PRC' . now()->format('dmy'). $unique_code;
+
         DB::table('products')->where('product_code', $rq->product_code)->update([
             'price' => $rq->price,
             'discount' => $rq->discount,
@@ -708,18 +719,21 @@ class ProductsController extends Controller
             'updated_at' => now()
         ]);
 
+        ProductPriceHistory::where('status', 7)
+        ->where('product',$rq->product_code )
+        ->update([
+            'status' => 8
+        ]);
+
         ProductPriceHistory::create([
                 'product' => $rq->product_code,
+                'price_code' => $price_code,
                 'variant' => null,
                 'hpp' => $rq->hpp,
-                'price_before' =>$rq->price_before,
-                'price_after' => $rq->price,
-                'discount_before' => $rq->discount_before,
-                'discount_after' => $rq->discount,
-                'price_after_discount_before' => $rq->price_after_discount_before,
-                'price_after_discount_after' => $rq->price_after_discount,
-                'business_effective_date_old' => $rq->price_effective_from_before,
-                'business_effective_date_new' => $rq->price_effective_from,
+                'price' =>$rq->price,
+                'discount' => $rq->discount,
+                'price_after_discount' => $rq->price_after_discount,
+                'business_effective_date' => $rq->price_effective_from,
                 'status' => 7,
                 'created_at' => now(),
                 'updated_at' => now()

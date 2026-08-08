@@ -35,8 +35,9 @@
                         @foreach ($promo_campaign as $promo)
                             <div class="card-reward">
                                 <div class="body-reward"
-                                    style="width:max-content; box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:10px;margin:10px;">
-                                    <div style="display: flex; gap:10px;margin-bottom: 10px;" class="image-content">
+                                    style=" box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:10px;margin:10px;">
+                                    <div style="display: flex;flex-wrap:wrap; gap:10px;margin-bottom: 10px;"
+                                        class="image-content">
                                         <img width="90" height="120" src="{{ url('storage/' . $promo->images) }}"
                                             alt="">
                                         <div class="content-text">
@@ -46,10 +47,10 @@
                                             <div class="date">
                                                 <span style="font-size: 13px;">Periode promo:</span>
                                                 <br>
-                                                <small>{{ \Carbon\Carbon::parse($promo->start_date)->format('Y-m-d') }}</small>
+                                                <small>{{ \Carbon\Carbon::parse($promo->start_date)->format('d M Y') }}</small>
                                                 <span>s.d</span>
                                                 <small>
-                                                    {{ \Carbon\Carbon::parse($promo->end_date)->format('Y-m-d') }}</small>
+                                                    {{ \Carbon\Carbon::parse($promo->end_date)->format('d M Y') }}</small>
                                             </div>
                                         </div>
                                     </div>

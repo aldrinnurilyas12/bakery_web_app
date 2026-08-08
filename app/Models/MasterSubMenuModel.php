@@ -14,6 +14,7 @@ class MasterSubMenuModel extends Model
         'submenu_link',
         'main_menu',
         'type',
+        'is_cud',
         'icon',
         'status',
         'allow_access_outside_operational_hours',

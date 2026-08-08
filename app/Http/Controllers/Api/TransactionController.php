@@ -58,7 +58,7 @@ class TransactionController extends Controller
         ->orderBy('transaction_date', 'DESC')->get();
 
         $main_transaction = DB::table('v_main_transactions')->where('store_code', $USER_STORE)->orderBy('transaction_date', 'DESC')
-        ->whereDate('transaction_date', now()->format('Y-m-d'))
+        ->whereDate('transaction_date', now()->format('d M Y'))
         ->where('transaction_type' , '=', 'SALE')->paginate(500);
 
         $show_items = DB::table('transactions_detail as td')
@@ -334,7 +334,7 @@ class TransactionController extends Controller
                 return redirect()->back();
             }
 
-            if($transaction_hour >=23){
+            if($transaction_hour >=22){
                 session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
                 return redirect()->back();
             }
@@ -428,7 +428,7 @@ class TransactionController extends Controller
         $voucherQuotaUsedTotal = DB::table('transactions_voucher as vu')
                     ->leftJoin('voucher as v', 'v.voucher_code', '=', 'vu.voucher_code')
                     ->where('vu.voucher_code', $codeVoucher)->where('vu.voucher_used', 'Y')->count('vu.voucher_code');
-
+        $transaction_hour = Carbon::now('Asia/Jakarta')->hour;
        
         $checkCustomerVoucherUsed =DB::table('transactions_voucher as tv')
                     ->leftJoin('transactions as t', 'tv.transaction_code', '=', 't.transaction_code')
@@ -504,6 +504,18 @@ class TransactionController extends Controller
 
         // ====================== MAIN TRANSACTION ========================
 
+        
+        if(!$IT_GUY){
+            if($transaction_hour < 8){
+                session()->flash('failed_message', 'Sistem belum buka!');
+                return redirect()->back();
+            }
+
+            if($transaction_hour >=22){
+                session()->flash('failed_message', 'Jam operasional sistem sudah tutup!');
+                return redirect()->back();
+            }
+        }
 
         try{
             if(!$IT_GUY){

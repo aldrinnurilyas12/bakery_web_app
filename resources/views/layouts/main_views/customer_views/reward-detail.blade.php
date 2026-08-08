@@ -61,8 +61,8 @@
                                         class="date">
                                         <div style="font-size: 14px;" class="p-date">
                                             <p style="margin-bottom: 0;">Tanggal berlaku:</p>
-                                            {{ \Carbon\Carbon::parse($reward->start_date)->format('Y-m-d') }} s.d
-                                            {{ \Carbon\Carbon::parse($reward->end_date)->format('Y-m-d') }}
+                                            {{ \Carbon\Carbon::parse($reward->start_date)->format('d M Y') }} s.d
+                                            {{ \Carbon\Carbon::parse($reward->end_date)->format('d M Y') }}
                                         </div>
                                     </div>
                                 </div>

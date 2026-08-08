@@ -28,11 +28,24 @@
                             <div class="title">
                                 Lainnya > <strong> Informasi Perbaikan Sistem </strong>
                             </div>
-                            @if (!$check_last_active)
+
+
+                            @if ($check_last_active && $check_last_active->type == 'admin_web')
                                 <div class="button-add-product">
                                     <a class="btn-general" href="{{ route('maintenance_create') }}">Tambah
                                         Informasi</a>
                                 </div>
+                            @elseif($check_last_active && $check_last_active->type == 'customer_web')
+                                <div class="button-add-product">
+                                    <a class="btn-general" href="{{ route('maintenance_create') }}">Tambah
+                                        Informasi</a>
+                                </div>
+                            @elseif(!$check_last_active)
+                                <div class="button-add-product">
+                                    <a class="btn-general" href="{{ route('maintenance_create') }}">Tambah
+                                        Informasi</a>
+                                </div>
+                            @else
                             @endif
 
                         </div>

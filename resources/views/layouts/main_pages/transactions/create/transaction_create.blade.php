@@ -43,7 +43,7 @@
                             <div style="display:flex;gap:10px; justify-content: space-between;" class="group-store">
                                 <div class="time">
                                     <i class="fa fa-clock"></i> <span
-                                        class="text-secondary">{{ now()->format('Y-m-d') }}</span>
+                                        class="text-secondary">{{ now()->format('d M Y') }}</span>
                                 </div>
 
                                 <div class="store">

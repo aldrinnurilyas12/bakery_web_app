@@ -70,10 +70,10 @@
                             <div class="form-group">
                                 <label><strong>Tanggal Harga Efektif</strong></label>
                                 <input type="date" name="price_effective_from_before" class="form-control"
-                                    value="{{ old('business_effective_date', $product->current_price_effective ? $business_effective_date->format('Y-m-d') : null) }}"
+                                    value="{{ old('business_effective_date', $product->current_price_effective ? $business_effective_date->format('d M Y') : null) }}"
                                     autocomplete="off" hidden>
                                 <input type="date" name="price_effective_from" class="form-control"
-                                    value="{{ old('business_effective_date', $product->current_price_effective ? $business_effective_date->format('Y-m-d') : null) }}"
+                                    value="{{ old('business_effective_date', $product->current_price_effective ? $business_effective_date->format('d M Y') : null) }}"
                                     autocomplete="off">
 
                             </div>

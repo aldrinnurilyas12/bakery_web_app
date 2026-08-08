@@ -27,6 +27,7 @@
                             <li>Jika ingin menyambung jangan pakai '&' dan spasi, pakai underscore (_) contoh :
                                 Muffins_and_Cupcakes</li>
                             <li>Icon diambil dari situs web font-awesome dengan hanya input seperti : fa fa-users</li>
+                            <li>Berikan kode "CUD" jika operasi adalah Insert, Update, dan Delete data.</li>
                         </ul>
                     </div>
                     <form id="formGeneralMaster" action="{{ route('submenu_save') }}" method="POST"
@@ -82,6 +83,13 @@
                             <label><strong>Icon</strong></label>
                             <input type="text" name="icon" class="form-control"
                                 placeholder="Masukan icon contoh : fa fa-users" id="inputEmail4" autocomplete="off">
+                            <x-input-error :messages="$errors->get('icon')" class="text-danger" />
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Apakah ada operasi CUD (Insert, Update, Delete) ?</strong></label>
+                            <br>
+                            <input type="checkbox" value="Y"> Ya &nbsp;
                             <x-input-error :messages="$errors->get('icon')" class="text-danger" />
                         </div>
 

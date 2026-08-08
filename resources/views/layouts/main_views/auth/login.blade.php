@@ -87,7 +87,7 @@
         <a href="{{ route('register_account') }}">Daftar akun</a>
     </div>
 
-    <div class="link">
+    <div style="display: flex; gap:10px; justify-content: center;" class="link">
         <a style="text-decoration:underline;" href="{{ route('forgot-password-help') }}">Lupa kata sandi?</a>
     </div>
 

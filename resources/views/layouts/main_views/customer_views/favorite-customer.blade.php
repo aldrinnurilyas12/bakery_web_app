@@ -114,7 +114,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="center">Produk favorite anda belum ada</div>
+                        <p style="text-align: center;margin:0 auto;">Anda belum menyukai produk apapun</p>
                     @endif
                 </div>
 

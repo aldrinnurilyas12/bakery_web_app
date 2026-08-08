@@ -54,31 +54,34 @@ Route::get('promos', [ShowProducts::class, 'show_promos']);
 Route::get('product_detail/{product_code}', [ShowProducts::class, 'product_detail']);
 
 // ROUTE FOR MAIN APP:
-Route::get('login_app', [RegisteredCustomer::class, 'login_layouts'])->name('login_app');
+Route::get('login_app', [RegisteredCustomer::class, 'login_layouts'])->name('login_app')->middleware('route_access');
 Route::get('register_account', [RegisteredCustomer::class, 'register_layouts'])->name('register_account')->middleware('route_access');
-Route::get('account_verification/{customer_code}', [RegisteredCustomer::class, 'account_verification'])->name('account_verification');
+Route::get('account_verification/{customer_code}', [RegisteredCustomer::class, 'account_verification'])->name('account_verification')->middleware('route_access');
 Route::get('home', [MainAppHomePageController::class, 'homepage'])->name('home')->middleware('route_access');
 Route::get('product/{slug}', [MainAppHomePageController::class, 'product_detail'])->name('product')->middleware('route_access');
 Route::get('promo/{bundling_code}', [MainAppHomePageController::class, 'promo_detail'])->name('promo')->middleware('route_access');
 Route::get('rewards-catalogue', [CustomerController::class, 'rewards_catalogue'])->name('rewards-catalogue')->middleware('route_access');
-Route::post('register_member_account', [RegisteredCustomer::class, 'store'])->name('register_member_account');
+Route::post('register_member_account', [RegisteredCustomer::class, 'store'])->name('register_member_account')->middleware('route_access');
 Route::post('login_execute', [AuthenticatedSessionController::class, 'request_sign_in'])->name('login_execute')->middleware('route_access');
 Route::get('product-search/', [MainAppHomePageController::class, 'product_search'])->name('product-search')->middleware('route_access');
 Route::get('promo-campaign', [MainAppHomePageController::class, 'promo_campaign'])->name('promo-campaign')->middleware('route_access');
 Route::get('promo-detail/{promo_code}', [MainAppHomePageController::class, 'promo_campaign_detail'])->name('promo-detail')->middleware('route_access');
 Route::get('reward-detail/{rewards_code}', [CustomerController::class, 'reward_detail'])->name('reward-detail')->middleware('route_access');
 Route::get('fstore/', [MainAppHomePageController::class, 'filter_store'])->name('fstore')->middleware('route_access');
-Route::apiResource('customer-forgot-password', App\Http\Controllers\Api\CustomerForgotPasswordRequest::class);
+Route::apiResource('customer-forgot-password', App\Http\Controllers\Api\CustomerForgotPasswordRequest::class)->middleware('route_access');
 Route::get('forgot-password-help', [CustomerForgotPasswordRequest::class, 'create'])->name('forgot-password-help')->middleware('route_access');
-Route::post('check-email-otp', [CustomerForgotPasswordRequest::class, 'send_otp'])->name('check-email-otp');
-Route::get('otp-confirmation-request', [CustomerForgotPasswordRequest::class, 'otp_confirmation'])->name('otp-confirmation-request');
-Route::post('otp-proccess-request', [CustomerForgotPasswordRequest::class, 'otp_auth_confirmation'])->name('otp-proccess-request');
+Route::post('check-email-otp', [CustomerForgotPasswordRequest::class, 'send_otp'])->name('check-email-otp')->middleware(['route_access', 'throttle:5,2']);
+Route::get('otp-confirmation-request', [CustomerForgotPasswordRequest::class, 'otp_confirmation'])->name('otp-confirmation-request')->middleware('route_access');
+Route::post('otp-proccess-request', [CustomerForgotPasswordRequest::class, 'otp_auth_confirmation'])->name('otp-proccess-request')->middleware('route_access');
 Route::get('change-password-req', [CustomerForgotPasswordRequest::class, 'change_password_layouts'])->name('change-password-req')->middleware('route_access');
-Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest::class, 'change_password_proccess'])->name('change-password-proccessing');
-
-
-
-
+Route::put('change-password-proccessing/{email}', [CustomerForgotPasswordRequest::class, 'change_password_proccess'])->name('change-password-proccessing')->middleware('route_access');
+Route::get('recovery_account_request', [MainAppHomePageController::class, 'recovery_account_request'])->name('recovery_account_request')->middleware('route_access');
+Route::put('recovery_account_verification_save/{token_link}',[MainAppHomePageController::class, 'recovery_account_verification_save'])->name('recovery_account_verification_save')->middleware('route_access');
+Route::get('recovery_account_verification/{token_link_recovery_account}', [MainAppHomePageController::class, 'recovery_account_verification'])->name('recovery_account_verification')->middleware('route_access');
+Route::get('nonactive-account-information/{email}', [MainAppHomePageController::class, 'nonactive_account_information'])->name('nonactive-account-information')->middleware('route_access');
+Route::get('outlet_list', [MainAppHomePageController::class, 'outlet_list'])->name('outlet_list')->middleware('route_access');
+Route::get('privacy_policy', [MainAppHomePageController::class, 'privacy_policy'])->name('privacy_policy')->middleware('route_access');
+Route::get('alert-info', [MainAppHomePageController::class,'alert_info_layout'])->name('alert-info');
 // for testing get API Eksternal
 // Route::get('omdb_services', [OmdbApiServices::class, 'index']);
 // Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
@@ -125,7 +128,7 @@ Route::get('/admin_kencana_bakery', function () {
 
 Route::get('login_kencana_bakery',[AuthenticatedSessionController::class,'create'])->name('login_kencana_bakery');
 Route::post('login_exe', [AuthenticatedSessionController::class, 'store'])->name('login_exe');
-Route::apiResource('forgot-password', App\Http\Controllers\Api\RequestForgotPassword::class);
+Route::apiResource('forgot-password', App\Http\Controllers\Api\RequestForgotPassword::class)->middleware('route_access');
 Route::get('request-forgot-password', [RequestForgotPassword::class, 'create'])->name('request-forgot-password')->middleware('route_access');
 Route::post('password-auth-proccess', [RequestForgotPassword::class, 'password_proccess_auth'])->name('password-auth-proccess');
 Route::get('otp-confirmation', [RequestForgotPassword::class, 'otp_confirmation'])->name('otp-confirmation');
@@ -144,7 +147,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('welcome', [HomePageController::class, 'welcome_page'])->name('welcome');
 
     // USERS Route
-    Route::apiResource('user_register', App\Http\Controllers\Auth\RegisteredUserController::class);
+    Route::apiResource('user_register', App\Http\Controllers\Auth\RegisteredUserController::class)->middleware('route_access');
     Route::get('users_register_account', [RegisteredUserController::class, 'show_users_register'])->name('users_register_account')->middleware('route_access');
     Route::get('users_data', [RegisteredUserController::class, 'master_main_users'])->name('users_data')->middleware('route_access');
     Route::post('signout', [AuthenticatedSessionController::class, 'destroy'])->name('signout');
@@ -161,7 +164,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('point_update_status/{id}', [GetPointMemberTransaction::class, 'update'])->name('point_update_status');
     
     //  Customer API
-    Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class)->middleware('route_access');
+    Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class);
     Route::apiResource('customer_segment', App\Http\Controllers\Api\CustomerSegmentCategories::class)->middleware('route_access');
     Route::get('customer_segment_create', [CustomerSegmentCategories::class, 'create' ] )->name('customer_segment_create');
     Route::get('customer_feedback', [CustomerController::class, 'customer_feedback'])->name('customer_feedback')->middleware('route_access');
@@ -177,7 +180,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('employee_activity/{nik}', [EmployeeController::class, 'employee_activity'])->name('employee_activity');
 
     // Products Route
-    Route::apiResource('master_products', App\Http\Controllers\Api\ProductsController::class);
+    Route::apiResource('master_products', App\Http\Controllers\Api\ProductsController::class)->middleware('route_access');
     Route::get('product_create', [ProductsController::class, 'create'])->name('product_create')->middleware('route_access');
     Route::get('product_update/{product_code}', [ProductsController::class, 'product_update_layout'])->name('product_update')->middleware('route_access');
     Route::put('edit_product/{product_code}', [ProductsController::class, 'update'])->name('edit_product');
@@ -371,7 +374,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::post('export_transaction_excel', [TransactionController::class, 'download_excel'])->name('export_transaction_excel');
     Route::get('invoice_pdf_download/{transaction_code}', [TransactionController::class, 'download_invoice_pdf'])->name('invoice_pdf_download');
     // Route Fraud Transactions
-    Route::apiResource('fraud-analysis', App\Http\Controllers\Api\FraudAnalysis::class);
+    Route::apiResource('fraud-analysis', App\Http\Controllers\Api\FraudAnalysis::class)->middleware('route_access');
     Route::put('update_fraud_transaction/{fraud_code}', [FraudAnalysis::class, 'update_status_fraud'])->name('update_fraud_transaction');
 
     // Route Shopping Cart 
@@ -380,7 +383,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::delete('delete_item_cart/{product_code}', [ShoppingCartController::class, 'delete_cart_product'])->name('delete_item_cart');
 
     // Route Discount
-    Route::apiResource('discount', App\Http\Controllers\Api\DiscountController::class);
+    Route::apiResource('discount', App\Http\Controllers\Api\DiscountController::class)->middleware('route_access');
     Route::get('discount_create', [DiscountController::class, 'discount_create_layout'])->name('discount_create')->middleware('route_access');
     Route::get('update_discount/{id}', [DiscountController::class, 'edit_layout'])->name('update_discount')->middleware('route_access');
     Route::put('edit_discount/{id}', [DiscountController::class, 'update'])->name('edit_discount');

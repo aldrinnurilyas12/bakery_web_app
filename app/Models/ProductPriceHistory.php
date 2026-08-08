@@ -9,16 +9,13 @@ class ProductPriceHistory extends Model
     protected $table = 'product_price_history';
     protected $fillable = [
         'product',
+        'price_code',
         'variant',
         'hpp',
-        'price_after',
-        'discount_after',
-        'price_after_discount_after',
-        'business_effective_date_new',
-        'price_before',
-        'discount_before',
-        'price_after_discount_before',
-        'business_effective_date_old',
+        'price',
+        'discount',
+        'price_after_discount',
+        'business_effective_date',
         'status'
     ];
 }

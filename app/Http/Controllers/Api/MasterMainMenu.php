@@ -234,6 +234,7 @@ class MasterMainMenu extends Controller
             'submenu_name' => $request->submenu_name,
             'submenu_link' => $request->submenu_link,
             'type' => $request->type,
+            'is_cude' => $request->is_cud,
             'main_menu' => $request->main_menu,
             'icon' => $request->icon,
             'description' => $request->description,
@@ -288,6 +289,7 @@ class MasterMainMenu extends Controller
             'submenu_name' => $request->submenu_name,
             'submenu_link' => $request->submenu_link,
             'type' => $request->type,
+            'is_cud' => $request->is_cud,
             'icon' => $request->icon,
             'description' => $request->description,
             'status' => $request->status,
@@ -338,7 +340,22 @@ class MasterMainMenu extends Controller
     public function user_role_permission(Request $rq){
 
         $role = DB::table('role')->get();
-        $submenu = DB::table('submenu')->where('main_menu', '<>', 6)->orderBy('submenu_name', 'ASC')->get();
+
+        $submenu = DB::table('submenu as s')
+            ->where('s.main_menu', '<>', 6)
+            ->where('s.status', 7)
+            ->where(function ($query) {
+                $query->where('s.is_cud', 'Y')
+                    ->orWhereNotExists(function ($sub) {
+                        $sub->select(DB::raw(1))
+                            ->from('submenu as x')
+                            ->whereColumn('x.submenu_link', 's.submenu_link')
+                            ->where('x.is_cud', 'Y');
+                    });
+            })
+            ->orderBy('s.submenu_name', 'ASC')
+            ->get();
+
         $permissions = DB::table('user_permission_access')
         ->get()
         ->mapWithKeys(function ($item) {

@@ -88,7 +88,7 @@
                                                     <div style="font-size: 12px;" class="group-date">
                                                         <p style="font-size: 13px;margin:0;">Lokasi pengambilan:</p>
                                                         <div style="display:flex; gap:10px;" class="flex-location">
-                                                            <span>{{ \Carbon\Carbon::parse($reward->claimed_at)->format('Y-m-d') }}</span>
+                                                            <span>{{ \Carbon\Carbon::parse($reward->claimed_at)->format('d M Y') }}</span>
                                                             |
                                                             <span>{{ $reward->store_name }}</span>
                                                         </div>
@@ -157,7 +157,7 @@
                                                     <div style="font-size: 13px;" class="group-date">
                                                         <p>Jadwal Pengambilan</p>
                                                         <div style="display:flex; gap:10px;" class="flex-location">
-                                                            <span>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}</span>
+                                                            <span>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('d M Y') }}</span>
                                                             |
                                                             <span>{{ $reward->store_name }}</span>
                                                         </div>

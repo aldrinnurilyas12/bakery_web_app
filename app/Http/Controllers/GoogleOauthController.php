@@ -15,6 +15,8 @@ use BaconQrCode\Renderer\Image\EpsImageBackEnd;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Services\CustomerNotification;
 
 
 class GoogleOauthController extends Controller
@@ -25,8 +27,21 @@ class GoogleOauthController extends Controller
 
     public function callback(){
 
+  
         $googleUser = Socialite::driver('google')->user();
         $customer = ModelsCustomerModel::where('email', $googleUser->getEmail())->first();
+
+        $nonactive_account = DB::table('customer')
+            ->where('email', $googleUser->getEmail())
+            ->where('status', 8)
+            ->whereNotNull('deleted_at')->exists();
+        
+        
+        if($nonactive_account){
+            session()->flash('failed_message', 'Akun anda sudah tidak aktif');
+            return redirect()->route('nonactive-account-information',['email' => $googleUser->getEmail()]);
+        }
+
         if (!$customer) {
 
             $date = Carbon::now()->format('Ymd');
@@ -66,8 +81,15 @@ class GoogleOauthController extends Controller
             $customer->qr_code = $qrCodePath;
             $customer->account_email_verified = 'Y';
             $customer->account_email_verified_at = now();
-            $customer->member_date = Carbon::now()->format('Y-m-d');
+            $customer->member_date = Carbon::now()->format('d M Y');
             $customer->save();
+            CustomerNotification::log(
+                customer: $customer_code,
+                title: 'Daftar Akun',
+                message:'Anda telah berhasil daftar akun!',
+                category: 3,
+                is_read: 'N'
+            );
         }else{
              if (!$customer->google_id) {
                 $customer->google_id = $googleUser->getId();

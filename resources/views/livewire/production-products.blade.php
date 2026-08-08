@@ -49,6 +49,14 @@
                         @endif
                     </div>
                 </div>
+                <div style="font-size: 13px;" class="alert alert-info">
+                    <ul>
+                        <li>Status Completed akan berhasil jika semua produk sudah dalam selesai produksi</li>
+                        <li>Stock Central akan terisi otomatis jika status "Completed"</li>
+                    </ul>
+                </div>
+
+
                 @if (!$filter_forbidden_access)
                     <div class="card-header">
                         <div class="title">

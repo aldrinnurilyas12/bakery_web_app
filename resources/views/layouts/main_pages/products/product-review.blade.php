@@ -63,58 +63,57 @@
                         @endif
 
                         <hr>
+                    </div>
 
-                        <div class="card-body">
-                            @if ($review->isNotEmpty())
-                                <div class="table-responsive">
-                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
+                    <div class="card-body">
+                        @if ($review->isNotEmpty())
+                            <div class="table-responsive">
+                                <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Transaksi</th>
+                                            <th>Pelanggan</th>
+                                            <th>Rating</th>
+                                            <th>Review</th>
+                                            <th>Tanggal Review</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $no = 1;
+                                        ?>
+                                        @foreach ($review as $rvw)
                                             <tr>
-                                                <th>No</th>
-                                                <th>Transaksi</th>
-                                                <th>Pelanggan</th>
-                                                <th>Rating</th>
-                                                <th>Review</th>
-                                                <th>Tanggal Review</th>
+                                                <td><?php echo $no++; ?></td>
+                                                <td><a style="color:#bb0239;"
+                                                        href="{{ route('invoice_detail', $rvw->transaction) }}">{{ $rvw->transaction }}</a>
+                                                </td>
+                                                <td> {{ $rvw->name ?: '-' }} </td>
+                                                <td>{{ number_format($rvw->rating, 0) }}</td>
+                                                <td> {{ $rvw->review ?: '-' }} </td>
+                                                <td>{{ $rvw->review_date }}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $no = 1;
-                                            ?>
-                                            @foreach ($review as $rvw)
-                                                <tr>
-                                                    <td><?php echo $no++; ?></td>
-                                                    <td><a style="color:#bb0239;"
-                                                            href="{{ route('invoice_detail', $rvw->transaction) }}">{{ $rvw->transaction }}</a>
-                                                    </td>
-                                                    <td> {{ $rvw->name ?: '-' }} </td>
-                                                    <td>{{ number_format($rvw->rating, 0) }}</td>
-                                                    <td> {{ $rvw->review ?: '-' }} </td>
-                                                    <td>{{ $rvw->review_date }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
-                                    class="empty-transaction">
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div style="height: 50vh; display:flex; justify-content:center; border:1px solid gray;border-radius:10px;"
+                                class="empty-transaction">
 
-                                    <div style="display: flex;" class="empty-content">
-                                        <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
-                                            <img width="70" height="70"
-                                                src="{{ asset('assets/front_end/assets/img/null.png') }}"
-                                                alt="">
-                                            <div style="display: block;align-self: center;" class="text-content">
-                                                <h3>Tidak ada Review dan Rating</h3>
-                                            </div>
+                                <div style="display: flex;" class="empty-content">
+                                    <div style="display: flex; gap:20px;margin:auto;" class="alert-info">
+                                        <img width="70" height="70"
+                                            src="{{ asset('assets/front_end/assets/img/null.png') }}" alt="">
+                                        <div style="display: block;align-self: center;" class="text-content">
+                                            <h3>Tidak ada Review dan Rating</h3>
                                         </div>
                                     </div>
-
                                 </div>
-                            @endif
-                        </div>
+
+                            </div>
+                        @endif
                     </div>
                 </div>
         </div>

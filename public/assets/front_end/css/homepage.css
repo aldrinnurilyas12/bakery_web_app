@@ -100,11 +100,11 @@ a.card-category {
 }
 
 .container-products {
-    width: 90%;
+    width: 95%;
     display: flex;
     flex-wrap: wrap;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    /* padding-left: 0.5rem;
+    padding-right: 0.5rem; */
     background: white;
     box-sizing: border-box;
 
@@ -121,7 +121,7 @@ a.card-category {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0.625rem;
+    padding-top:0.625rem;
 }
 
 p.hello {
@@ -328,6 +328,11 @@ a.btn-delete {
     margin-top: 4.6rem;
 }
 
+.menu-list {
+    height: 70vh;
+    overflow-y: auto;
+}
+
 form.filter-store {
     display: flex;
 
@@ -408,7 +413,7 @@ h1.title {
     justify-content: space-between;
     gap: 10px;
     width: 100%;
-    padding: 0.625rem 0;
+    padding: 0.625rem;
 }
 
 .grid-products-favorite {
@@ -416,7 +421,7 @@ h1.title {
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 10px;
-    padding: 0.625rem 0;
+    padding: 0.625rem;
 }
 
 /* Grid produk/promo */
@@ -427,7 +432,7 @@ h1.title {
     width: 100%;
     overflow-x: auto;
     scroll-behavior: smooth;
-    padding: 0.625rem;
+    padding-top: 0.625rem;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 }
@@ -717,6 +722,10 @@ a.btn-order-product {
     gap: 8px;
 }
 
+a.btn-general {
+    color: white;
+    text-decoration: none;
+}
 
 .spinner {
     width: 18px;
@@ -827,7 +836,7 @@ a.btn-order-product {
 
 /* Product Info */
 .container-product-info {
-    padding: 0.625rem 0rem 0.625rem 0rem;
+    padding: 0rem 0rem 0.625rem 0rem;
 }
 
 .container-product-info h4 {
@@ -924,7 +933,7 @@ p.text-center {
 
 
 /* Responsive */
-@media (max-width: 62.5rem) {
+@media (max-width: 650px) {
     .custom-carousel-btn {
         width: 1.875rem;
         height: 1.875rem;
@@ -1015,7 +1024,7 @@ p.text-center {
     .card {
         flex: 0 0 auto;
         /* jangan shrink */
-        width: 11rem;
+        width: 10rem;
         border: 0.0625rem solid #ddd;
         border-radius: 0.5rem;
         display: flex;
@@ -1078,6 +1087,7 @@ p.text-center {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
+        padding: 0.625rem;
     }
 
     .location-map {

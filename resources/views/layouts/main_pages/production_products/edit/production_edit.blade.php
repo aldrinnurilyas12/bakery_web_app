@@ -137,7 +137,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal Produksi Produk</strong></label>
                             <input
-                                value="{{ old('production_date', $production->production_date ? $production_date->format('Y-m-d') : null) }}"
+                                value="{{ old('production_date', $production->production_date ? $production_date->format('d M Y') : null) }}"
                                 type="date" name="production_date" class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('production_date')" class="text-danger" />
                         </div>

@@ -148,10 +148,10 @@
                                 <div class="form-group">
                                     <label><strong>Tanggal Harga Efektif</strong></label>
                                     <input type="date" name="price_effective_from_after" class="form-control"
-                                        value="{{ old('business_effective_date', $products->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                        value="{{ old('business_effective_date', $products->price_effective_from ? $business_effective_date->format('d M Y') : null) }}"
                                         autocomplete="off">
                                     <input type="date" name="price_effective_from_before" class="form-control"
-                                        value="{{ old('business_effective_date', $products->price_effective_from ? $business_effective_date->format('Y-m-d') : null) }}"
+                                        value="{{ old('business_effective_date', $products->price_effective_from ? $business_effective_date->format('d M Y') : null) }}"
                                         autocomplete="off" hidden>
                                 </div>
 
@@ -246,14 +246,14 @@
                         <div class="form-group">
                             <label><strong>Tanggal awal</strong></label>
                             <input type="date" name="start_date" class="form-control"
-                                value="{{ old('point_start_date', $products->point_start_date ? $point_start_date->format('Y-m-d') : null) }}"
+                                value="{{ old('point_start_date', $products->point_start_date ? $point_start_date->format('d M Y') : null) }}"
                                 autocomplete="off">
                         </div>
 
                         <div class="form-group">
                             <label><strong>Tanggal akhir</strong></label>
                             <input type="date" name="end_date" class="form-control"
-                                value="{{ old('point_end_date', $products->point_end_date ? $point_end_date->format('Y-m-d') : null) }}"
+                                value="{{ old('point_end_date', $products->point_end_date ? $point_end_date->format('d M Y') : null) }}"
                                 autocomplete="off">
                         </div>
 

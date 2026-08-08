@@ -36,6 +36,7 @@
                             Daily & Produk belum pernah dipakai transaksi</li>
                         <li>Harga hanya bisa di input ketika HPP produk sudah ada, segera lakukan Input Bill Of Material
                             (BoM)</li>
+                        <li>Jika ada diskon maka harga yang dipakai adalah harga setelah diskon</li>
                     </ul>
                 </div>
 
@@ -56,7 +57,7 @@
                                             @if ($products->first()->product_variant == 'Y')
                                                 <th>Harga Variant</th>
                                             @endif
-                                            <th>Harga</th>
+                                            <th>Harga Normal</th>
                                             <th>Produk Point</th>
                                             <th>Review & Rating</th>
                                             <th>Akses oleh</th>
@@ -354,7 +355,7 @@
                                                             <tbody>
 
                                                                 <tr>
-                                                                    <th>Harga</th>
+                                                                    <th>Harga Normal</th>
                                                                     <td>
                                                                         @if ($product->price)
                                                                             {{ 'Rp.' . number_format($product->price) }}
@@ -434,7 +435,7 @@
                                                                 </tr>
 
                                                                 <tr>
-                                                                    <th>Harga</th>
+                                                                    <th>Harga Normal</th>
                                                                     <td>
                                                                         @if ($product->price)
                                                                             {{ 'Rp.' . number_format($product->price) }}
@@ -533,13 +534,13 @@
 
                                                                 <tr>
                                                                     <th>Tanggal Mulai</th>
-                                                                    <td>{{ \Carbon\Carbon::parse($product->point_start_date)->format('Y-m-d') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($product->point_start_date)->format('d M Y') }}
                                                                     </td>
                                                                 </tr>
 
                                                                 <tr>
                                                                     <th>Tanggal Akhir</th>
-                                                                    <td>{{ \Carbon\Carbon::parse($product->point_end_date)->format('Y-m-d') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($product->point_end_date)->format('d M Y') }}
                                                                     </td>
                                                                 </tr>
                                                             </tbody>

@@ -42,7 +42,7 @@
                     <hr class="hr-menu">
                     @if ($rewards->isNotEmpty())
                         @foreach ($rewards as $reward)
-                            <div style="width:95%; class="card-reward">
+                            <div style="width:95%;" class="card-reward">
                                 <div class="body-reward"
                                     style="width:100%; box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;padding:20px; border-radius:10px;margin:10px;">
                                     <div style="display: flex; gap:10px;margin-bottom: 10px;" class="image-content">
@@ -59,10 +59,10 @@
                                                     {{ $reward->total_stock ?: 'habis' }}</span>
                                             </p>
                                             <div class="date">
-                                                <small>{{ \Carbon\Carbon::parse($reward->start_date)->format('Y-m-d') }}</small>
+                                                <small>{{ \Carbon\Carbon::parse($reward->start_date)->format('d M Y') }}</small>
                                                 <span>s.d</span>
                                                 <small>
-                                                    {{ \Carbon\Carbon::parse($reward->end_date)->format('Y-m-d') }}</small>
+                                                    {{ \Carbon\Carbon::parse($reward->end_date)->format('d M Y') }}</small>
                                             </div>
 
                                         </div>
@@ -80,21 +80,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                {{-- <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-black"
-                                        href="{{ route('rewards_update', $reward->rewards_code) }}">Edit</a>
 
-                                    @if ($reward->status == 8)
-                                        <a class="btn btn-success" href="#" data-toggle="modal"
-                                            data-target="#deleteModalRewards{{ $reward->rewards_code }}">Aktifkan
-                                            Kembali
-                                        </a>
-                                    @else
-                                        <a class="btn btn-primary" href="#" data-toggle="modal"
-                                            data-target="#deleteModalRewards{{ $reward->rewards_code }}">Nonaktif
-                                        </a>
-                                    @endif
-                                </div> --}}
                             </div>
                         @endforeach
                     @else

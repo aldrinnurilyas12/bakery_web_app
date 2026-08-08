@@ -274,7 +274,17 @@ class RewardsController extends Controller
             session()->flash('failed_message', 'Centang status dahulu!');
             return redirect()->back();
         }
-        RewardsStoreModel::where('reward', $request->reward)->where('store', $request->store)->update([
+
+        if($request->status == 7){
+            RewardsModel::where('rewards_code', $request->reward)->update([
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'updated_at' => now(),
+                'updated_by' => $updated_by
+            ]);
+        }
+
+        RewardsStoreModel::where('reward', $request->reward)->update([
             'status' => $request->status,
             'updated_by' => $updated_by,
             'updated_at' => now()

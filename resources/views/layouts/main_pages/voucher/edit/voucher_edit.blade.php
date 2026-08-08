@@ -99,7 +99,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal awal berlaku voucher</strong></label>
                             <input type="date" name="start_date" class="form-control"
-                                value="{{ old('start_date', $vouchers->start_date ? $start_date->format('Y-m-d') : null) }}"
+                                value="{{ old('start_date', $vouchers->start_date ? $start_date->format('d M Y') : null) }}"
                                 autocomplete="off">
                             <x-input-error :messages="$errors->get('start_datex ')" class="text-danger" />
                         </div>
@@ -107,7 +107,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal akhir berlaku voucher</strong></label>
                             <input type="date" name="end_date" class="form-control"
-                                value="{{ old('end_date', $vouchers->end_date ? $end_date->format('Y-m-d') : null) }}"
+                                value="{{ old('end_date', $vouchers->end_date ? $end_date->format('d M Y') : null) }}"
                                 autocomplete="off">
                             <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
                         </div>

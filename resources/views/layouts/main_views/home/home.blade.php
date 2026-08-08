@@ -21,9 +21,7 @@
 <body>
     <div class="main-container">
 
-
-
-
+        {{-- @include('layouts.component_admin.navbar.maintenance_info') --}}
         <!-- CUSTOMER SEGMENT -->
         <div class="customer-segment">
             <div class="main-customer">
@@ -31,14 +29,23 @@
                     <img src="{{ asset('assets\front_end\assets\logo\kencanabakery.png') }}" alt="Kencana Bakery Logo"
                         class="logo" />
                     <div class="notification-customer">
-                        <a href="{{ route('notification') }}" class="notification-link">
-                            <i class="fa fa-bell"></i>
-                            @if (auth()->guard('customer')->user())
+                        @if (auth()->guard('customer')->user())
+                            <a href="{{ route('notification') }}" class="notification-link">
+                                <i class="fa fa-bell"></i>
                                 <span class="count-notif">
                                     {{ $notif_customer > 99 ? '99+' : $notif_customer }}
                                 </span>
-                            @endif
-                        </a>
+                            </a>
+                        @else
+                            <div style="display: flex; gap:10px;" class="info-content">
+                                <a href="{{ route('outlet_list') }}" class="notification-link">
+                                    <i class="fas fa-map"></i>
+                                </a>
+                                <a href="{{ route('privacy_policy') }}" class="notification-link">
+                                    <i class="fa fa-info-circle"></i>
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -137,7 +144,7 @@
 
             {{-- section Products --}}
 
-            <div style="margin-top: 30px;" class="container">
+            <div style="margin-top: 30px;margin-bottom:10px;" class="container">
                 <div class="title-content">
                     <h1 class="title">Produk kami</h1>
                 </div>
@@ -188,7 +195,7 @@
                 {{-- Tab all products --}}
                 <div class="tab-pane fade show active" id="tab-all" role="tabpanel">
                     <div class="container-products">
-                        @if ($products)
+                        @if ($products->isNotEmpty())
                             <div class="grid-products">
                                 @foreach ($products as $item)
                                     @php
@@ -271,7 +278,7 @@
                                 @endforeach
                             </div>
                         @else
-                            <div class="center">Produk tidak tersedia</div>
+                            <p style="text-align: center;margin:0 auto;">Produk tidak tersedia</p>
                         @endif
                     </div>
 
@@ -281,7 +288,7 @@
                 <div class="tab-pane fade" id="tab-promo" role="tabpanel">
                     <div class="container-products">
 
-                        @if ($products_promo)
+                        @if ($products_promo->isNotEmpty())
                             <div class="grid-products">
                                 @foreach ($products_promo as $item)
                                     @php
@@ -434,6 +441,8 @@
                                     @endforeach
                                 @endif
                             </div>
+                        @else
+                            <p style="text-align: center;margin:0 auto;">Promo tidak tersedia</p>
                         @endif
                     </div>
                 </div>
@@ -526,7 +535,7 @@
                                     @endforeach
                                 </div>
                             @else
-                                <div class="center">Produk tidak tersedia</div>
+                                <p style="text-align: center;margin:0 auto;">Produk tidak tersedia</p>
                             @endif
 
                         </div>

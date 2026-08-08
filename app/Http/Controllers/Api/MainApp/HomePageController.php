@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\MainApp;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerModel;
+use App\Models\CustomerRecoveryAccount;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -21,9 +23,9 @@ class HomePageController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function alert_info_layout()
     {
-        //
+        return view('layouts.main_views.home.maintenance_info');
     }
 
     public function homepage(Request $request) :View 
@@ -34,12 +36,16 @@ class HomePageController extends Controller
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
         }
         $activeCategory = $request->query('category', null);
-        $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
+        $productsQuery = DB::table('v_daily_products')
+        ->whereNotNull('price')
+        ->where('status', 'Ready');
+
         $productsPromo = DB::table('v_daily_products')
             ->where(function ($query) {
                 $query->where('discount', '<>', 0)
                     ->orWhere('variant_discount', '<>', 0);
             })
+            ->whereNotNull('price')
             ->where('status', 'Ready')
             ->where('store_id', 1);
 
@@ -186,11 +192,12 @@ class HomePageController extends Controller
     public function product_detail(Request $request)
     {
 
-       $code = $request->route('slug');
-       $customer = auth()->guard('customer')->user()->customer_code;
+        $code = $request->route('slug');
+        $customer = false;
 
-
-
+        if(auth()->guard('customer')->user()){
+            $customer = auth()->guard('customer')->user()->customer_code;
+        }
         // coba sebagai product_code dulu
         $product = DB::table('v_daily_products')
             ->where('status', 'Ready')
@@ -214,6 +221,10 @@ class HomePageController extends Controller
                 ->where('variant', $product->variant_code)
                 ->where('customer', $customer)
                 ->where('category', 'View Product')->first();
+
+        $total_product_view = DB::table('customers_log_activities')
+                ->where('category', 'View Product')
+                ->where('product', $product->product_code)->count();
     
 
         if(auth()->guard('customer')->user()){
@@ -236,7 +247,7 @@ class HomePageController extends Controller
         }
        
 
-        return view('layouts.main_views.products.product_detail', compact('product', 'review'));
+        return view('layouts.main_views.products.product_detail', compact('product', 'review', 'total_product_view'));
     }
 
     public function promo_detail(Request $request)
@@ -267,7 +278,8 @@ class HomePageController extends Controller
     public function promo_campaign()
     {
         $promo_campaign = DB::table('promo_campaign as pc')
-        ->leftJoin('promo_campaign_images as pi', 'pc.promo_code', '=', 'pi.promo_code')->where('status', 7)->get();
+        ->leftJoin('promo_campaign_images as pi', 'pc.promo_code', '=', 'pi.promo_code')
+        ->where('status', 7)->get();
          return view('layouts.main_views.customer_views.promo-campaign', compact('promo_campaign'));
     }
 
@@ -301,6 +313,147 @@ class HomePageController extends Controller
         }
 
          return view('layouts.main_views.customer_views.product-search', compact('product'));
+    }
+
+    public function nonactive_account_information(String $email)
+    {
+
+        $info_account = DB::table('customer')->where('email', $email)->select('deleted_at')->first();
+        $checkAccountActive = DB::table('customer')->where('email', $email)->select('status')->first();
+
+       
+
+        if(!$info_account) {
+            session()->flash('failed_message', 'Akun tidak ditemukan atau akun mungkin masih aktif!');
+            return redirect()->route('login_app');
+        }
+        $inactive_date = $info_account->deleted_at;
+
+        if($inactive_date == null){
+            session()->flash('failed_message', 'Akun tidak ditemukan atau akun mungkin masih aktif!');
+            return redirect()->route('login_app');
+        }
+
+         if($checkAccountActive->status == 7){
+            return redirect()->route('login_app');
+        }
+
+
+        return view('layouts.main_views.customer_views.account_recovery.recovery_account_main', compact('inactive_date'));
+    }
+
+
+    public function outlet_list(){
+
+        $store = DB::table('store')->where('status', 7)->get();
+        return view('layouts.main_views.customer_views.outlet_list', compact('store'));
+    }
+
+    public function privacy_policy(){
+        return view('layouts.main_views.customer_views.privacy_policy');
+    }
+
+
+    public function recovery_account_request(Request $rq){
+        return view('layouts.main_views.customer_views.account_recovery.request');
+    }
+
+    public function recovery_account_verification(Request $request){
+
+        $token_link = $request->token_link_recovery_account;
+        $customer_data = DB::table('customer as c')
+                    ->leftjoin('customer_recovery_account as cra', 'c.customer_code', '=', 'cra.customer')
+                    ->where('cra.status', 8)
+                    ->orderBy('cra.expired_at', 'DESC')
+                    ->first();
+
+
+        $checkTokenExpired = DB::table('customer_recovery_account')
+                ->where('token_link', $token_link)
+                ->where('status', 27)
+                ->whereNull('used_at')->first();
+
+        $checkTokenUsed = DB::table('customer_recovery_account')
+                ->where('token_link', $token_link)
+                ->where('status', 7)
+                ->whereNotNull('used_at')->first();
+
+        if($checkTokenExpired){
+             session()->flash('failed_message', 'Token sudah expired!');
+            return redirect()->route('login_app');
+        }
+
+        if($checkTokenUsed){
+             session()->flash('message_success', 'Token sudah terpakai!');
+            return redirect()->route('login_app');
+        }
+
+        return view('layouts.main_views.customer_views.account_recovery.request_verification_recovery_account', compact('token_link', 'customer_data'));
+    }
+
+
+    public function recovery_account_verification_save(Request $request){
+
+        $token = $request->token_link;
+        $email = $request->email;
+
+        // dd($token);
+
+        $checkTokenUsed = DB::table('customer_recovery_account')
+            ->where('token_link', $token)
+            ->where('status', 7)
+            ->whereNotNull('used_at')->first();
+
+
+        $checkTokenExpired = DB::table('customer_recovery_account')
+                ->where('token_link', $token)
+                ->where('status', 27)
+                ->whereNull('used_at')->first();
+        
+        $checkTokenExists = DB::table('customer_recovery_account')
+            ->where('token_link', $token)->first();
+
+        
+        if(!$checkTokenExists){
+            session()->flash('failed_message', 'Token tidak ada!');
+            return redirect()->route('login_app');
+        }
+
+        if($checkTokenUsed){
+            session()->flash('failed_message', 'Token anda sudah terpakai!');
+            return redirect()->route('login_app');
+        }
+
+
+        if($checkTokenExpired){
+            session()->flash('failed_message', 'Token anda sudah Expired, segera Kirim Kembali pemulihan akun!');
+            return redirect()->route('login_app');
+        }
+
+
+
+       $token = DB::table('customer as c')
+            ->join('customer_recovery_account as cra', 'c.customer_code', '=', 'cra.customer')
+            ->where('cra.token_link', $token)
+            ->where('cra.expired_at', '>', now())
+            ->where('c.email', $email)
+            ->update([
+                'c.status' => 7,
+                'c.reactivated_at' => now(),
+                'cra.status' => 7,
+                'cra.used_at' => now()
+            ]);
+
+        
+
+         if(!$token){
+            session()->flash('failed_message', 'Token anda sudah Expired, segera Kirim Kembali pemulihan akun!');
+            return redirect()->route('login_app');
+        }
+
+        session()->flash('message_success', 'Akun anda berhasil dipulihkan Silahkan Login Kembali!');
+        return redirect()->route('login_app');
+        
     }
 
     /**

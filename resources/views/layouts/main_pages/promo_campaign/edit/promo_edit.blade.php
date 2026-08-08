@@ -78,7 +78,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal awal promo</strong></label>
                             <input type="date" name="start_date"
-                                value="{{ old('start_date', $promo->start_date ? $start_date->format('Y-m-d') : null) }}"
+                                value="{{ old('start_date', $promo->start_date ? $start_date->format('d M Y') : null) }}"
                                 class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>
@@ -86,7 +86,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal akhir promo</strong></label>
                             <input type="date" name="end_date"
-                                value="{{ old('end_date', $promo->end_date ? $end_date->format('Y-m-d') : null) }}"
+                                value="{{ old('end_date', $promo->end_date ? $end_date->format('d M Y') : null) }}"
                                 class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('end_date')" class="text-danger" />
                         </div>

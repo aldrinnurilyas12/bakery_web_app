@@ -64,7 +64,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal Expired</strong></label>
                             <input type="date" name="expired_date"
-                                value="{{ old('expired_date', $product->expired_date ? $expired_date->format('Y-m-d') : null) }}"
+                                value="{{ old('expired_date', $product->expired_date ? $expired_date->format('d M Y') : null) }}"
                                 class="form-control" autocomplete="off">
                             <x-input-error :messages="$errors->get('expired_date')" class="text-danger" />
                         </div>

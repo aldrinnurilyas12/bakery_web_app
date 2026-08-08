@@ -46,7 +46,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal Lahir</strong></label>
                             <input class="form-control"
-                                value="{{ old('birth_date', $employee->birth_date ? $birth_date->format('Y-m-d') : null) }}"
+                                value="{{ old('birth_date', $employee->birth_date ? $birth_date->format('d M Y') : null) }}"
                                 type="date" name="birth_date" autocomplete="off">
                             <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
                         </div>
@@ -112,7 +112,7 @@
                         <div class="form-group">
                             <label><strong>Tanggal Mulai Bekerja</strong></label>
                             <input class="form-control" type="date"
-                                value="{{ old('start_date', $employee->start_date ? $start_date->format('Y-m-d') : null) }}"
+                                value="{{ old('start_date', $employee->start_date ? $start_date->format('d M Y') : null) }}"
                                 name="start_date" autocomplete="off">
                             <x-input-error :messages="$errors->get('start_date')" class="text-danger" />
                         </div>

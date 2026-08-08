@@ -37,7 +37,7 @@
 
                 <hr class="hr-menu">
                 <form action="{{ route('transaction_get') }}" method="GET" enctype="multipart/form-data">
-                    <div style="display:flex; gap:15px;margin-bottom: 15px;" class="filter-history">
+                    <div style="display:flex;flex-wrap: wrap; gap:8px;margin-bottom: 15px;" class="filter-history">
 
                         <div class="start-date">
                             <label for=""><strong>Tanggal awal</strong></label>

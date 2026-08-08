@@ -124,7 +124,7 @@
                                                                             </span>
                                                                         @endif
                                                                     </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('d M Y') }}
                                                                     </td>
                                                                     <td> {{ $reward->redeem_date }} </td>
                                                                     <td>{{ $reward->approval_by }}</td>
@@ -207,7 +207,7 @@
                                                                             </span>
                                                                         @endif
                                                                     </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('d M Y') }}
                                                                     </td>
                                                                     <td> {{ $reward->redeem_date }} </td>
                                                                     <td>{{ $reward->approval_by }}</td>
@@ -308,7 +308,7 @@
                                                                             </span>
                                                                         @endif
                                                                     </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('Y-m-d') }}
+                                                                    <td>{{ \Carbon\Carbon::parse($reward->pickup_schedule)->format('d M Y') }}
                                                                     </td>
                                                                     <td> {{ $reward->redeem_date }} </td>
                                                                     <td>{{ $reward->approval_by }}</td>

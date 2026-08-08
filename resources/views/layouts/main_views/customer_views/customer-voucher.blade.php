@@ -97,10 +97,10 @@
                                                         </p>
                                                         <div style="font-size: 14px; font-weight: 500;margin-bottom: 20px;"
                                                             class="date">
-                                                            <small>{{ \Carbon\Carbon::parse($voucher->start_date)->format('Y-m-d') }}</small>
+                                                            <small>{{ \Carbon\Carbon::parse($voucher->start_date)->format('d M Y') }}</small>
                                                             <span>s.d</span>
                                                             <small>
-                                                                {{ \Carbon\Carbon::parse($voucher->end_date)->format('Y-m-d') }}</small>
+                                                                {{ \Carbon\Carbon::parse($voucher->end_date)->format('d M Y') }}</small>
                                                         </div>
                                                         {{-- @if (auth()->guard('customer')->user())
                                                 <div class="btn-redeem-point">

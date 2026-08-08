@@ -50,7 +50,6 @@ class PromoCampaignController extends Controller
             'promo_name' => 'required',
             'promo_code' => 'required',
             'quota' => 'required',
-            'status' => 'required',
             'description' => 'required',
             'min_transaction' => 'required',
             'start_date' => 'required',
@@ -62,7 +61,6 @@ class PromoCampaignController extends Controller
             'promo_code.required' => 'Masukan kode promo',
             'min_transaction.required' => 'Masukan minimal transaksi',
             'quota.required' => 'Kuota promo harus diisi',
-            'status.required' => 'Pilih status',
             'description.required' => 'Deskripsi harus diisi',
             'start_date.required' => 'Tanggal awal promo harus diisi',
             'end_date.required' => 'Tanggal akhir promo harus diisi',
@@ -87,7 +85,7 @@ class PromoCampaignController extends Controller
                 'promo_name' => $request->promo_name,
                 'promo_code' => $request->promo_code,
                 'min_transaction' => $request->min_transaction,
-                'status' => $request->status,
+                'status' => 7,
                 'quota' => $request->quota,
                 'description' => $request->description,
                 'start_date' => $request->start_date,
@@ -102,13 +100,15 @@ class PromoCampaignController extends Controller
             ]);
         }
 
-        foreach($customers as $customer){
-             Mail::to($customer->email)->sendNow(new PromoNotificationMail([
-                'promo_name' => $promo->promo_name,
-                'start_date' => $promo->start_date,
-                'end_date' => $promo->end_date,
-                'name' => $customer->name
-            ]));
+        if($request->send_notification == 'Y'){
+            foreach($customers as $customer){
+                Mail::to($customer->email)->sendNow(new PromoNotificationMail([
+                    'promo_name' => $promo->promo_name,
+                    'start_date' => $promo->start_date,
+                    'end_date' => $promo->end_date,
+                    'name' => $customer->name
+                ]));
+            }
         }
 
 

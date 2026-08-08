@@ -140,10 +140,10 @@
                                                                 class="date">
                                                                 <label for="">Tanggal Berlaku</label>
                                                                 <br>
-                                                                <small>{{ \Carbon\Carbon::parse($bundl->start_date)->format('Y-m-d') }}</small>
+                                                                <small>{{ \Carbon\Carbon::parse($bundl->start_date)->format('d M Y') }}</small>
                                                                 <span>s.d</span>
                                                                 <small>
-                                                                    {{ \Carbon\Carbon::parse($bundl->end_date)->format('Y-m-d') }}</small>
+                                                                    {{ \Carbon\Carbon::parse($bundl->end_date)->format('d M Y') }}</small>
                                                             </div>
 
                                                             @if ($stockHabis)
