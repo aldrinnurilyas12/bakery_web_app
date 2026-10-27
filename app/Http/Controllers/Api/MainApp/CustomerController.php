@@ -872,6 +872,29 @@ class CustomerController extends Controller
         return view('layouts.main_pages.customers.category_log_activities', compact('customer_log_activities'));
     }
 
+    public function pickup_order(Request $request){
+
+        $stores = DB::table('store')->where('status', 7)->get();
+        return view('layouts.main_views.customer_views.pickup_order.pickup_order', compact('stores'));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function edit(string $id)
     {
         //

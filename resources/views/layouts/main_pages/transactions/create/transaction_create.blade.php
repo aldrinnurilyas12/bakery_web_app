@@ -20,9 +20,18 @@
 
 <body class="sb-nav-fixed">
     @include('layouts.component_admin.navbar.navbar')
-    {{-- @include('layouts.component_admin.sidebar.sidebar') --}}
+    @php
+        $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $check_login_mode = DB::table('users')->where('nik', $nik)->value('login_mode');
+    @endphp
+    @if ($check_login_mode == 'TRX')
+        @include('layouts.component_admin.sidebar.sidebar_transaction')
+    @else
+        @include('layouts.component_admin.sidebar.sidebar')
+    @endif
+
     <div id="layoutSidenav">
-        <div style="width: 100%; padding: 20px;margin-top: 30px;" id="adada">
+        <div id="layoutSidenav_content">
             <main>
                 <br>
                 <div class="container">
@@ -57,11 +66,6 @@
                                 <a class="text-primary" href="{{ route('transaction.index') }}"><i
                                         class="fa fa-list"></i>&nbsp;Riwayat
                                     Transaksi</a>
-
-                                <span>|</span>
-
-                                <a class="text-primary" href="{{ route('dailyproducts_data') }}"><i
-                                        class="fa fa-list"></i>&nbsp;Produk Daily</a>
                             </div>
                         </div>
                     </div>

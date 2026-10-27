@@ -727,6 +727,26 @@ a.btn-general {
     text-decoration: none;
 }
 
+.btn-general-secondary {
+    width: 100%;
+    background: #909090;
+    color: white;
+    border-radius: 6px;
+    padding: 10px;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+a.btn-general-secondary {
+    color: white;
+    text-decoration: none;
+}
+
+
 .spinner {
     width: 18px;
     height: 18px;
@@ -1035,7 +1055,7 @@ p.text-center {
     .card-search {
         flex: 0 0 auto;
         /* jangan shrink */
-        width: 10rem;
+        width: 10.5rem;
         border: 0.0625rem solid #ddd;
         border-radius: 0.5rem;
         display: flex;

@@ -17,7 +17,16 @@
 
 <body class="sb-nav-fixed">
     @include('layouts.component_admin.navbar.navbar')
-    @include('layouts.component_admin.sidebar.sidebar')
+    @php
+        $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $check_login_mode = DB::table('users')->where('nik', $nik)->value('login_mode');
+    @endphp
+    @if ($check_login_mode == 'TRX')
+        @include('layouts.component_admin.sidebar.sidebar_transaction')
+    @else
+        @include('layouts.component_admin.sidebar.sidebar')
+    @endif
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>
@@ -112,14 +121,13 @@
                                                 <th>No</th>
                                                 <th>Invoice</th>
                                                 <th>Tanggal</th>
+                                                <th>Pelanggan</th>
                                                 <th>Quantity</th>
                                                 <th>Payment</th>
                                                 <th>Total Bayar</th>
                                                 <th>Kembalian</th>
                                                 <th>Subtotal</th>
                                                 <th>Grand Total</th>
-                                                <th>Pelanggan</th>
-                                                <th>Jenis Transaksi</th>
                                                 <th>Store</th>
                                                 <th>Kasir</th>
                                                 <th>Created at</th>
@@ -139,6 +147,13 @@
                                                             {{ $transaction->transaction_code }}</a>
                                                     </td>
                                                     <td>{{ $transaction->transaction_date }}</td>
+                                                    <td>
+                                                        @if ($transaction->customer)
+                                                            {{ $transaction->customer . ' - ' . $transaction->name }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $transaction->total_qty }}</td>
                                                     <td>{{ $transaction->payment_type }}</td>
                                                     <td>
@@ -158,20 +173,6 @@
                                                     <td>{{ 'Rp. ' . number_format($transaction->subtotal) }}
                                                     </td>
                                                     <td>{{ 'Rp. ' . number_format($transaction->grand_total) }}</td>
-                                                    <td>
-                                                        @if ($transaction->customer)
-                                                            {{ $transaction->customer . ' - ' . $transaction->name }}
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if ($transaction->transaction_type)
-                                                            {{ $transaction->transaction_type }}
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
                                                     <td>
                                                         @if ($transaction->store_name)
                                                             {{ $transaction->store_name }}

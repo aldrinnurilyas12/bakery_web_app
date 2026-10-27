@@ -264,7 +264,7 @@
                                                                                         <tr>
                                                                                             <th>Tanggal harga efektif
                                                                                             </th>
-                                                                                            <td>{{ \Carbon\Carbon::parse($history->current_price_effective)->format('d M Y') }}
+                                                                                            <td>{{ \Carbon\Carbon::parse($history->business_effective_date)->format('d M Y') ?: '-' }}
                                                                                             </td>
                                                                                         </tr>
                                                                                         <tr>

@@ -6,7 +6,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @section('content')
     {{-- load content maintenance info --}}
-    @include('layouts.component_admin.navbar.maintenance_info')
     <div style="display: flex; justify-content: center;" class="d-flex-center">
         <div class="img-logo">
             <img src="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}" alt="Kencana Bakery Logo"

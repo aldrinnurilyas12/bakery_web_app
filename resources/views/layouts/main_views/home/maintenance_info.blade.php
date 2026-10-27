@@ -1,5 +1,3 @@
-@extends('layouts.main_views.auth.auth')
-
 @section('title', 'Kencana Bakery | Maintenance Information')
 <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

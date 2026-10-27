@@ -81,7 +81,9 @@ Route::get('recovery_account_verification/{token_link_recovery_account}', [MainA
 Route::get('nonactive-account-information/{email}', [MainAppHomePageController::class, 'nonactive_account_information'])->name('nonactive-account-information')->middleware('route_access');
 Route::get('outlet_list', [MainAppHomePageController::class, 'outlet_list'])->name('outlet_list')->middleware('route_access');
 Route::get('privacy_policy', [MainAppHomePageController::class, 'privacy_policy'])->name('privacy_policy')->middleware('route_access');
+Route::get('transactions_information', [MainAppHomePageController::class, 'orders_information'])->name('transactions_information')->middleware('route_access');
 Route::get('alert-info', [MainAppHomePageController::class,'alert_info_layout'])->name('alert-info');
+Route::get('maintenance-alert-info', [MainAppHomePageController::class,'alert_info'])->name('maintenance-alert-info');
 // for testing get API Eksternal
 // Route::get('omdb_services', [OmdbApiServices::class, 'index']);
 // Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');
@@ -116,6 +118,9 @@ Route::middleware(['customer', 'nocache'])->group(function () {
     Route::post('product_review_save', [CustomerController::class, 'product_review_save'])->name('product_review_save');
     Route::put('click_read_notif/{notif_id}', [CustomerController::class, 'click_read_notif'])->name('click_read_notif');
     Route::put('all_notif_read/{customer}', [CustomerController::class, 'all_notif_read'])->name('all_notif_read');
+
+    // Route PickUp Orders
+    Route::get('orders', [CustomerController::class, 'pickup_order'])->name('orders')->middleware('route_access');
 });
 
 
@@ -131,20 +136,21 @@ Route::post('login_exe', [AuthenticatedSessionController::class, 'store'])->name
 Route::apiResource('forgot-password', App\Http\Controllers\Api\RequestForgotPassword::class)->middleware('route_access');
 Route::get('request-forgot-password', [RequestForgotPassword::class, 'create'])->name('request-forgot-password')->middleware('route_access');
 Route::post('password-auth-proccess', [RequestForgotPassword::class, 'password_proccess_auth'])->name('password-auth-proccess');
-Route::get('otp-confirmation', [RequestForgotPassword::class, 'otp_confirmation'])->name('otp-confirmation');
-Route::post('otp-proccess', [RequestForgotPassword::class, 'otp_auth_confirmation'])->name('otp-proccess');
-Route::get('change-password', [RequestForgotPassword::class, 'change_password_layouts'])->name('change-password')->middleware('route_access');
-Route::put('change-password-proccess/{email}', [RequestForgotPassword::class, 'change_password_proccess'])->name('change-password-proccess');
-Route::get('user_account_verification/{nik}', [RegisteredUserController::class, 'account_verification'])->name('user_account_verification');
+Route::get('otp-confirmation', [RequestForgotPassword::class, 'otp_confirmation'])->name('otp-confirmation')->middleware('route_access');
+Route::post('otp-proccess', [RequestForgotPassword::class, 'otp_auth_confirmation'])->name('otp-proccess')->middleware('route_access');
+Route::get('change-password', [RequestForgotPassword::class, 'change_password_layouts'])->name('change-password')->middleware('route_access')->middleware('route_access');
+Route::put('change-password-proccess/{email}', [RequestForgotPassword::class, 'change_password_proccess'])->name('change-password-proccess')->middleware('route_access');
+Route::get('user_account_verification/{nik}', [RegisteredUserController::class, 'account_verification'])->name('user_account_verification')->middleware('route_access');
 
 
 
 Route::middleware(['auth', 'nocache'])->group(function () {
-    Route::get('dashboard_main', [HomepageController::class, 'index'])->name('dashboard_main');
+    Route::get('dashboard_main', [HomepageController::class, 'index'])->name('dashboard_main')->middleware('route_access');
     Route::get('profile_information', [ProfileController::class, 'user_profile'])->name('profile_information')->middleware('route_access');
-    Route::put('profile_update/{id}', [ProfileController::class, 'update'])->name('profile_update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('welcome', [HomePageController::class, 'welcome_page'])->name('welcome');
+    Route::put('profile_update/{id}', [ProfileController::class, 'update'])->name('profile_update')->middleware('route_access');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy')->middleware('route_access');
+    Route::get('welcome', [MainAppHomePageController::class, 'welcome_page'])->name('welcome');
+    Route::put('set_login_role/{nik}', [MainAppHomePageController::class, 'set_login_mode'])->name('set_login_role');
 
     // USERS Route
     Route::apiResource('user_register', App\Http\Controllers\Auth\RegisteredUserController::class)->middleware('route_access');
@@ -164,7 +170,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::put('point_update_status/{id}', [GetPointMemberTransaction::class, 'update'])->name('point_update_status');
     
     //  Customer API
-    Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class);
+    Route::apiResource('master_customers', App\Http\Controllers\Api\CustomerController::class)->middleware('route_access');
     Route::apiResource('customer_segment', App\Http\Controllers\Api\CustomerSegmentCategories::class)->middleware('route_access');
     Route::get('customer_segment_create', [CustomerSegmentCategories::class, 'create' ] )->name('customer_segment_create');
     Route::get('customer_feedback', [CustomerController::class, 'customer_feedback'])->name('customer_feedback')->middleware('route_access');
@@ -447,6 +453,7 @@ Route::middleware(['auth', 'nocache'])->group(function () {
     Route::get('show_module_documentation/{url_path}', [ModulesDocumentation::class, 'show_module'])->name('show_module_documentation');
 
     Route::get('log_user_activities', [RegisteredUserController::class, 'log_users_activities'])->name('log_user_activities')->middleware('route_access');
+    Route::get('main_log_user_activities/{nik}', [RegisteredUserController::class, 'main_log_users_activities'])->name('main_log_user_activities');
     Route::get('online_users', [RegisteredUserController::class, 'online_users'])->name('online_users')->middleware('route_access');
 
     Route::apiResource('maintenance_information', App\Http\Controllers\Api\MaintenanceInformation::class)->middleware('route_access');

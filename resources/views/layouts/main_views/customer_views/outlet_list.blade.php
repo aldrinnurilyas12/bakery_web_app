@@ -22,7 +22,7 @@
     <div class="main-container">
 
         <div class="container">
-            <div class="container-fluid px-4">
+            <div class="container-fluid">
                 <br>
                 <br>
                 <div style="display: flex; justify-content: space-between;align-items: center;" class="group-info">

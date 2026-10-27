@@ -194,6 +194,17 @@
                             </div>
                         @endif
 
+                        <br>
+                        <div class="btn-add-cart">
+                            <div class="btn-cart">
+                                @if ($check_status_submenu->status == 8)
+                                    <button type="button" class="btn-general-secondary">Tambah Pesanan</button>
+                                @else
+                                    <button class="btn-general">Tambah Pesanan</button>
+                                @endif
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

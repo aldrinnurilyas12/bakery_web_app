@@ -126,7 +126,7 @@
                                 @endforeach
                             </div>
                         @else
-                            <div class="center">Produk tidak ada</div>
+                            <p style="text-align: center;margin:0 auto;">Produk tidak ditemukan.</p>
                         @endif
                     </div>
 
@@ -239,5 +239,13 @@
 <script src="{{ asset('assets/front_end/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/front_end/js/js/demo/datatables-demo.js') }}"></script>
+
+
+
+<style>
+    .grid-products-favorite {
+        padding: 10px 0px 0px 0px;
+    }
+</style>
 
 </html>

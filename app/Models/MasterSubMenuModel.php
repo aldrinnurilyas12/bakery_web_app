@@ -17,6 +17,7 @@ class MasterSubMenuModel extends Model
         'is_cud',
         'icon',
         'status',
+        'show_menu',
         'allow_access_outside_operational_hours',
         'description'
     ];

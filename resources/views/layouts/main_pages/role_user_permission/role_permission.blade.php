@@ -46,7 +46,7 @@
                                     </div>
 
                                     <div class="save-changes">
-                                        <button class="btn-general" type="submit">Simpan Perubahan</button>
+                                        <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
                                     </div>
                                 </div>
                             </div>

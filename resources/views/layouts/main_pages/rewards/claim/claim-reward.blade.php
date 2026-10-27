@@ -20,7 +20,16 @@
 
 <body class="sb-nav-fixed">
     @include('layouts.component_admin.navbar.navbar')
-    @include('layouts.component_admin.sidebar.sidebar')
+    @php
+        $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        $check_login_mode = DB::table('users')->where('nik', $nik)->value('login_mode');
+    @endphp
+    @if ($check_login_mode == 'TRX')
+        @include('layouts.component_admin.sidebar.sidebar_transaction')
+    @else
+        @include('layouts.component_admin.sidebar.sidebar')
+    @endif
+
     <div id="layoutSidenav">
         <div id="layoutSidenav_content">
             <main>

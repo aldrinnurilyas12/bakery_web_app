@@ -55,12 +55,12 @@ class LoginRequest extends FormRequest
         $this->validate([
             'login' => 'required',
             'password' => 'required',
-            'g-recaptcha-response' => 'required'
+            // 'g-recaptcha-response' => 'required'
         ],
         [
             'login.required' => 'Harap masukan email atau nomor handphone anda',
             'password.required' => 'Harap masukan kata sandi',
-            'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
+            // 'g-recaptcha-response.required' => 'Harap Verifikasi dahulu'
         ]);
 
         $this->ensureIsNotRateLimited();
@@ -74,25 +74,46 @@ class LoginRequest extends FormRequest
 
 
          // Verifikasi reCAPTCHA
-        $response = Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-                [
-                    'secret'   => config('services.recaptcha.secret_key'),
-                    'response' => $this->input('g-recaptcha-response'),
-                    'remoteip' => $this->ip(),
-                ]
-            );
+        // $response = Http::asForm()->post(
+        //     'https://www.google.com/recaptcha/api/siteverify',
+        //         [
+        //             'secret'   => config('services.recaptcha.secret_key'),
+        //             'response' => $this->input('g-recaptcha-response'),
+        //             'remoteip' => $this->ip(),
+        //         ]
+        //     );
 
-        $result = $response->json();
-        if (!($result['success'] ?? false)) {
-            return back()->withErrors([
-                'captcha' => 'Verifikasi reCAPTCHA gagal.',
-                ])->withInput();
-                }
+        // $result = $response->json();
+        // if (!($result['success'] ?? false)) {
+        //     return back()->withErrors([
+        //         'captcha' => 'Verifikasi reCAPTCHA gagal.',
+        //         ])->withInput();
+        //         }
                 
 
-        
         $nik = DB::table('users')->where('username', $login)->orWhere('email', $login)->first();
+        $findPosition = DB::table('users as u')
+            ->select('e.position')
+            ->join('employee as e', 'u.nik', '=', 'e.nik')
+            ->where('u.username', $login)->orWhere('u.email', $login)->first();
+
+        // dd($findPosition);
+
+        $IT_GUY = $findPosition->position == 'IT';
+
+        $check_maintenance_info = DB::table('maintenance_information')
+        ->where('status', 7)
+        ->where('type', 'admin_web')
+        ->orderBy('created_at', 'DESC')
+        ->first();
+
+
+        if(!$IT_GUY){
+            if($check_maintenance_info){
+                session()->flash('failed_message', 'Maaf saat ini anda tidak bisa akses '); 
+                return redirect()->route('maintenance-alert-info');
+            }
+        }
 
         // Jika pengguna tidak ditemukan
         if (!$user_available) {

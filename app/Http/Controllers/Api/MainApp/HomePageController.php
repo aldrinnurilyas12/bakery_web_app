@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\MainApp;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerModel;
 use App\Models\CustomerRecoveryAccount;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -20,12 +21,47 @@ class HomePageController extends Controller
         //
     }
 
+    public function welcome_page()
+    {
+
+        $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        return view('layouts.main_pages.welcome_page', compact('nik'));
+    }
+
+    public function set_login_mode(Request $rq){
+
+        $rq->validate([
+            'select_mode' => 'required'
+        ]);
+
+        $select_mode = $rq->select_mode;
+        $nik = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
+        
+        $change_mode = DB::table('users')
+        ->where('nik', $nik)->update([
+            'login_mode' => $select_mode
+        ]);
+
+        if($change_mode){
+            if($select_mode == 'TRX'){
+                return redirect()->route('transaction_create');
+            }else{
+                return redirect()->route('dashboard_main');
+            }
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
     public function alert_info_layout()
     {
         return view('layouts.main_views.home.maintenance_info');
+    }
+
+    public function alert_info()
+    {
+        return view('layouts.main_views.home.maintenance_info_admin');
     }
 
     public function homepage(Request $request) :View 
@@ -113,7 +149,7 @@ class HomePageController extends Controller
     public function filter_store(Request $request)
     {
         $store_id = $request->store;
-        $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()->customer_code;
+        $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()?->customer_code;
         $activeCategory = $request->query('category', null);
         $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
         $productsPromo = DB::table('v_daily_products')
@@ -153,6 +189,8 @@ class HomePageController extends Controller
             ->where('status', 'Active')
             ->limit(3)
             ->get();
+
+        $notif_customer = [];
 
         if($customer_code){
             $notif_customer = DB::table('customer_notifications')
@@ -205,6 +243,10 @@ class HomePageController extends Controller
                 $query->where('slug', $code);
             })
             ->first();
+        $check_status_submenu = DB::table('submenu')
+            ->where('submenu_link', 'orders')
+            ->first();
+        
 
         $review = DB::table('product_reviews as pr')
             ->select('pr.review', 'pr.rating', 'pr.review_date','pr.hidden_name', 'c.name', 'vdp.slug', 'pr.created_at')
@@ -247,7 +289,7 @@ class HomePageController extends Controller
         }
        
 
-        return view('layouts.main_views.products.product_detail', compact('product', 'review', 'total_product_view'));
+        return view('layouts.main_views.products.product_detail', compact('product', 'review', 'total_product_view', 'check_status_submenu'));
     }
 
     public function promo_detail(Request $request)
@@ -351,6 +393,10 @@ class HomePageController extends Controller
 
     public function privacy_policy(){
         return view('layouts.main_views.customer_views.privacy_policy');
+    }
+
+    public function orders_information(){
+        return view('layouts.main_views.customer_views.orders_information');
     }
 
 

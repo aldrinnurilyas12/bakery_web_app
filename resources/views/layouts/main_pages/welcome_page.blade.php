@@ -8,45 +8,154 @@
     <title>Welcome to Kencana Bakery</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}">
 </head>
 
 <body>
+
     <div class="container">
-    <div style="margin-top:40px;overflow-y:auto;" class="video-content">
-        <div class="text-content">
-            <h4 class="title">Web Admin Kencana Bakery</h4>
+        <div class="video-content">
+            <div class="text-content">
+                <h4 style="text-align: center;margin-top: 20px;" class="title">Web Admin Kencana Bakery</h4>
 
-            <div class="empty-transaction">
-                <div class="empty-content">
-                    <div class="center-content">
+                <div class="empty-transaction">
+                    <div class="empty-content">
+                        <div class="center-content">
 
-                        <div class="module-card operasional-modules">
-                            <img style="width: 200px; height: 200px;" src="{{ asset('assets/front_end/images/module_admin.png') }}" alt="Operasional">
-                            <h4>Operasional</h4>
-                            <a class="btn btn-general" href="{{ route('dashboard_main') }}">
-                                Operasional
-                            </a>
+                            <form method="POST" action="{{ route('set_login_role', $nik) }}"
+                                enctype="multipart/form-data">
+
+                                @csrf
+                                @method('PUT')
+
+                                <div class="content-mode">
+
+                                    <label class="module-card operasional-modules">
+                                        <img src="{{ asset('assets/front_end/images/module_admin.png') }}"
+                                            alt="Operasional">
+
+                                        <h4>Operasional</h4>
+
+                                        <span>
+                                            <input type="radio" name="select_mode" value="OPR" required>
+                                            Menu Operasional
+                                        </span>
+                                    </label>
+
+                                    <label class="module-card transaction-module">
+                                        <img src="{{ asset('assets/front_end/images/pos_image.jpg') }}" alt="Transaksi">
+
+                                        <h4>Transaksi</h4>
+
+                                        <span>
+                                            <input type="radio" name="select_mode" value="TRX" required>
+                                            Menu Transaksi
+                                        </span>
+                                    </label>
+
+                                </div>
+
+                                <button class="btn btn-general" type="submit">
+                                    Pilih Mode
+                                </button>
+
+                            </form>
+
                         </div>
-
-                        <div class="module-card transaction-module">
-                            <img style="width: 200px; height: 200px;" src="{{ asset('assets/front_end/images/pos_image.jpg') }}" alt="Transaksi">
-                            <h4>Transaksi</h4>
-                            <a class="btn btn-general" href="{{ route('transaction_create') }}">
-                                Transaksi
-                            </a>
-                        </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-</div>
+
 </body>
+
+
+<style>
+    /* Container card */
+    .content-mode {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto 24px;
+        box-sizing: border-box;
+    }
+
+    /* Card mode */
+    .module-card {
+        width: 100%;
+        min-width: 0;
+        padding: 24px 20px;
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    /* Gambar dalam card */
+    .module-card img {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        aspect-ratio: 1 / 1;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+
+    /* Judul card */
+    .module-card h4 {
+        margin-bottom: 12px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    /* Tombol */
+    .btn-general {
+        display: block;
+        margin: 0 auto;
+        min-height: 44px;
+        width: 30%;
+        padding: 12px 28px;
+    }
+
+    /* Mobile dan tablet kecil: card ke bawah */
+    @media (max-width: 576px) {
+        .content-mode {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .module-card {
+            padding: 20px 16px;
+        }
+
+        .module-card img {
+            max-width: 150px;
+        }
+
+        .text-content .title {
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .btn-general {
+            width: 100%;
+        }
+    }
+</style>
+
 @if (Session::has('message_success'))
     <script>
         Swal.fire({
@@ -71,76 +180,7 @@
 
 
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
-    .container {
-    min-height: 100vh;
-}
-
-.video-content {
-    min-height: calc(100vh - 40px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-y: auto;
-}
-
-.text-content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.title {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.empty-transaction,
-.empty-content {
-    width: 100%;
-}
-
-.center-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 30px;
-}
-
-.module-card {
-    width: 250px;
-    text-align: center;
-    padding: 20px;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 2px 10px rgba(0,0,0,.1);
-}
-
-.module-card img {
-    width: 150px;
-    height: 200px;
-    object-fit: cover;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .center-content {
-        flex-direction: column;
-    }
-
-    .module-card {
-        width: 90%;
-        max-width: 300px;
-    }
-}
-
-
-
-</style>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
     integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
 </script>

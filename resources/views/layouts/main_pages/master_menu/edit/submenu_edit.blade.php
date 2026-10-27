@@ -108,6 +108,17 @@
                         </div>
 
                         <div class="form-group">
+                            <label><strong>Tampilkan Menu</strong></label>
+                            <select class="form-control" name="show_menu" id="">
+                                <option value="Y" {{ $submenu->show_menu == 'Y' ? 'selected' : '' }}>Ya
+                                </option>
+                                <option value="N" {{ $submenu->show_menu == 'N' ? 'selected' : '' }}>
+                                    Tidak</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('show_menu')" class="text-danger" />
+                        </div>
+
+                        <div class="form-group">
                             <label><strong>Deskripsi</strong></label>
                             <textarea name="description" class="form-control">
                                 {{ $submenu->description }}

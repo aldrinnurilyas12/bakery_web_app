@@ -63,6 +63,7 @@
                                                 <th>Submenu</th>
                                                 <th>Submenu Link</th>
                                                 <th>Status</th>
+                                                <th>Tampil Menu</th>
                                                 <th>Akses diluar jam operasional</th>
                                                 <th>Icon</th>
                                                 <th>Deskripsi</th>
@@ -99,6 +100,14 @@
                                                             <span class="text-success">Aktif</span>
                                                         @else
                                                             <span class="text-danger">Nonaktif</span>
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if ($sub->show_menu == 'Y')
+                                                            <span class="text-success">Ya</span>
+                                                        @else
+                                                            <span class="text-danger">Tidak</span>
                                                         @endif
                                                     </td>
                                                     <td>

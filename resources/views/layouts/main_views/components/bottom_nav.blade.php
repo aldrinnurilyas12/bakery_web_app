@@ -45,12 +45,19 @@
                         </div>
                     </a> --}}
 
-                    <a href="#" data-toggle="modal" data-target="#openqr"
-                        class="text-decoration-none text-secondary text-center">
+                    <a href="{{ route('orders') }}" class="text-decoration-none text-secondary text-center">
                         <div>
                             <i style="background: #bb0239; padding:6px; border-radius: 4px;color:white;"
-                                class="fa fa-qrcode"></i><br>
-                            <small style="color:black;" class="icon-text">QR</small>
+                                class="fa fa-cart-plus"></i><br>
+                            <small style="color:black;" class="icon-text">Orders</small>
+                        </div>
+                    </a>
+                @else
+                    <a href="{{ route('outlet_list') }}" class="text-decoration-none text-secondary text-center">
+                        <div>
+                            <i style="background: #bb0239; padding:6px; border-radius: 4px;color:white;"
+                                class="fas fa-map"></i><br>
+                            <small style="color:black;" class="icon-text">Lokasi</small>
                         </div>
                     </a>
                 @endif

@@ -19,7 +19,7 @@
 <body>
     @php
         $main_menu = DB::table('main_menu')->where('location', 'main_web')->get();
-        $submenu = DB::table('submenu')->where('status', 7)->get();
+        $submenu = DB::table('submenu')->where('show_menu', 'Y')->get();
 
     @endphp
     <div class="main-container">
@@ -60,7 +60,7 @@
 
                     <div class="group-menu">
                         <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
-                            <i class="fa fa-list"></i>
+                            <i class="fa-solid fa-file-shield"></i>
                             <a class="menu" href="{{ route('privacy_policy') }}" class="text-decoration-none">
                                 Privacy & Policy
                             </a>

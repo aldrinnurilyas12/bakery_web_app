@@ -40,8 +40,10 @@
                                                 <th>No</th>
                                                 <th>Pengguna</th>
                                                 <th>Status</th>
+                                                <th>Login Mode</th>
                                                 <th>Posisi</th>
                                                 <th>Store</th>
+                                                <th>Lihat Aktivitas</th>
 
                                             </tr>
                                         </thead>
@@ -65,8 +67,23 @@
                                                             </span>
                                                         @endif
                                                     </td>
+                                                    <td>
+
+                                                        @if ($user->login_mode == 'TRX')
+                                                            <p>Transaksi</p>
+                                                        @elseif($user->login_mode == null)
+                                                            <p>-</p>
+                                                        @else
+                                                            <p>Operasional</p>
+                                                        @endif
+
+                                                    </td>
                                                     <td>{{ $user->position_name }}</td>
                                                     <td>{{ $user->store_name }}</td>
+                                                    <td style="display: flex;justify-content: center;"><a
+                                                            href="{{ route('main_log_user_activities', $user->nik) }}">
+                                                            <i class="fa fa-external-link"></i></a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

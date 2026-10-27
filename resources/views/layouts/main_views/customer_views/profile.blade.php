@@ -25,13 +25,18 @@
                     <img src="{{ asset('assets\front_end\assets\logo\kencanabakery.png') }}" alt="Kencana Bakery Logo"
                         class="logo" />
                     <div class="notification-customer">
-                        <a href="{{ route('notification') }}" class="notification-link">
-                            <i class="fa fa-bell"></i>
-
-                            <span class="count-notif">
-                                {{ $notif_customer > 99 ? '99+' : $notif_customer }}
-                            </span>
-                        </a>
+                        <div style="display: flex; gap:10px;" class="flex-content-qr-notif">
+                            <a href="#" data-toggle="modal" data-target="#openqr"
+                                class="text-decoration-none text-center">
+                                <i style="color: white;" class="fa fa-qrcode"></i>
+                            </a>
+                            <a href="{{ route('notification') }}" class="notification-link">
+                                <i class="fa fa-bell"></i>
+                                <span class="count-notif">
+                                    {{ $notif_customer > 99 ? '99+' : $notif_customer }}
+                                </span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="grettings-customer">

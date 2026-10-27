@@ -1,6 +1,6 @@
 @extends('layouts.main_views.auth.auth')
 
-@section('title', 'Kencana Bakery | Login')
+@section('title', 'Kencana Bakery | Lupa kata sandi')
 <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,7 +12,7 @@
         </div>
     </div>
     <div style="display: flex; justify-content: left;font-weight: bold;" class="d-flex-center">
-        <h2 style="font-weight: bold;font-size: 20px;">Lupa password</h2>
+        <h2 style="font-weight: bold;font-size: 20px;">Lupa Kata Sandi</h2>
     </div>
 
     <form id="formGeneral" method="POST" action="{{ route('password-auth-proccess') }}">

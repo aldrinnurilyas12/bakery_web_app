@@ -24,11 +24,7 @@ class HomepageController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function welcome_page()
-    {
-
-        return view('layouts.main_pages.welcome_page');
-    }
+    
 
     /**
      * Store a newly created resource in storage.

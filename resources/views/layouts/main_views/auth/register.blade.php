@@ -1,86 +1,89 @@
-@extends('layouts.main_views.auth.auth')
-
 @section('title', 'Kencana Bakery | Daftar Akun')
+@extends('layouts.main_views.auth.auth')
 <link rel="stylesheet" href="{{ asset('assets/front_end/css/admin_css.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 @section('content')
-    <div style="display: flex; justify-content: center;" class="d-flex-center">
-        <div class="img-logo">
-            <img src="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}" alt="Kencana Bakery Logo"
-                class="logo" />
-        </div>
-    </div>
-    <div style="display: flex; justify-content: left;" class="d-flex-center">
-        <h2 style="font-weight: bold;font-size: 20px;">Daftar akun</h2>
-    </div>
-
-    <form id="formGeneral" method="POST" action="{{ route('register_member_account') }}">
-        @csrf
-
-        <div class="form-group">
-            <label>Nama</label>
-            <input type="text" name="name" value="{{ old('name') }}" autocomplete="off"
-                placeholder="Masukan Nama anda">
-            <x-input-error :messages="$errors->get('name')" class="text-danger" />
-        </div>
-
-        <div class="form-group">
-            <label>Alamat</label>
-            <input type="text" name="address" value="{{ old('address') }}" autocomplete="off"
-                placeholder="Masukan Alamat anda">
-            <x-input-error :messages="$errors->get('address')" class="text-danger" />
-        </div>
-
-        <div class="form-group">
-            <label>No. Telepon</label>
-            <input type="number" name="phone_number" value="{{ old('phone_number') }}" autocomplete="off"
-                placeholder="Masukan No.Hp anda awali dengan (62) contoh 6289678998789">
-            <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
-        </div>
-
-        <div class="form-group">
-            <label>Tanggal lahir</label>
-            <input type="date" name="birth_date">
-            <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
-        </div>
-
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" autocomplete="off"
-                placeholder="Masukan alamat email anda">
-            <x-input-error :messages="$errors->get('email')" class="text-danger" />
-        </div>
-
-
-        <div class="form-group">
-            <label>Kata Sandi</label>
-            <div style="position: relative;">
-                <input id="password" type="password" name="password" autocomplete="off" placeholder="Buat kata sandi anda">
-                <i class="fas fa-eye" id="togglePassword"
-                    style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
-                </i>
+    <div class="card-auth">
+        <div style="display: flex; justify-content: center;" class="d-flex-center">
+            <div class="img-logo">
+                <img src="{{ asset('assets\front_end\assets\logo\kencanabakery_logo2.png') }}" alt="Kencana Bakery Logo"
+                    class="logo" />
             </div>
-            <x-input-error :messages="$errors->get('password')" class="text-danger" />
+        </div>
+        <div style="display: flex; justify-content: left;" class="d-flex-center">
+            <h2 style="font-weight: bold;font-size: 20px;">Daftar akun</h2>
         </div>
 
-        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
-        </div>
-        @error('g-recaptcha-response')
-            <div class="text-danger mt-2">
-                {{ $message }}
+
+        <form id="formGeneral" method="POST" action="{{ route('register_member_account') }}">
+            @csrf
+
+            <div class="form-group">
+                <label>Nama</label>
+                <input type="text" name="name" value="{{ old('name') }}" autocomplete="off"
+                    placeholder="Masukan Nama anda">
+                <x-input-error :messages="$errors->get('name')" class="text-danger" />
             </div>
-        @enderror
+
+            <div class="form-group">
+                <label>Alamat</label>
+                <input type="text" name="address" value="{{ old('address') }}" autocomplete="off"
+                    placeholder="Masukan Alamat anda">
+                <x-input-error :messages="$errors->get('address')" class="text-danger" />
+            </div>
+
+            <div class="form-group">
+                <label>No. Telepon</label>
+                <input type="number" name="phone_number" value="{{ old('phone_number') }}" autocomplete="off"
+                    placeholder="Masukan No.Hp anda awali dengan (62) contoh 6289678998789">
+                <x-input-error :messages="$errors->get('phone_number')" class="text-danger" />
+            </div>
+
+            <div class="form-group">
+                <label>Tanggal lahir</label>
+                <input type="date" name="birth_date">
+                <x-input-error :messages="$errors->get('birth_date')" class="text-danger" />
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" autocomplete="off"
+                    placeholder="Masukan alamat email anda">
+                <x-input-error :messages="$errors->get('email')" class="text-danger" />
+            </div>
 
 
-        <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Register Your Account</span>
-            <span class="spinner"></span></button>
-    </form>
+            <div class="form-group">
+                <label>Kata Sandi</label>
+                <div style="position: relative;">
+                    <input id="password" type="password" name="password" autocomplete="off"
+                        placeholder="Buat kata sandi anda">
+                    <i class="fas fa-eye" id="togglePassword"
+                        style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+                    </i>
+                </div>
+                <x-input-error :messages="$errors->get('password')" class="text-danger" />
+            </div>
 
-    <div class="link">
-        <a href="{{ route('login_app') }}">Login</a>
-        <br>
-        <div class="group-terms">
-            <a class="terms" href="#" data-toggle="modal" data-target="#privacy">Privacy Policy</a>
+            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}">
+            </div>
+            @error('g-recaptcha-response')
+                <div class="text-danger mt-2">
+                    {{ $message }}
+                </div>
+            @enderror
+
+
+            <button id="btnGeneral" type="submit" class="btn-general"><span class="btn-text">Register Your Account</span>
+                <span class="spinner"></span></button>
+        </form>
+
+        <div class="link">
+            <a href="{{ route('login_app') }}">Login</a>
+            <br>
+            <div class="group-terms">
+                <a class="terms" href="#" data-toggle="modal" data-target="#privacy">Privacy Policy</a>
+            </div>
         </div>
     </div>
 
@@ -188,3 +191,9 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endsection
 <script src="{{ asset('assets/front_end/js/button_change.js') }}"></script>
+
+<style>
+    .auth-container {
+        margin-top: auto;
+    }
+</style>

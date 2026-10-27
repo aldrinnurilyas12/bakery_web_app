@@ -161,7 +161,9 @@ class MasterMainMenu extends Controller
             return redirect()->back();
         }
 
-       $submenu = DB::table('submenu as s')->select('mm.id','mm.menu_name','s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours', 's.icon','s.status','s.description', 's.created_at','s.updated_at')
+       $submenu = DB::table('submenu as s')->select('mm.id','mm.menu_name','s.id as submenu_id', 's.submenu_name',
+       's.submenu_link','s.allow_access_outside_operational_hours', 's.icon','s.status','s.show_menu',
+       's.description', 's.created_at','s.updated_at')
                 ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
                 ->where('s.main_menu', $request->id)->get();
                 
@@ -239,6 +241,7 @@ class MasterMainMenu extends Controller
             'icon' => $request->icon,
             'description' => $request->description,
             'status' => 7,
+            'show_menu' => 'Y',
             'allow_access_outside_operational_hours' => $request->allow_access_outside_operational_hours
         ]);
 
@@ -263,7 +266,7 @@ class MasterMainMenu extends Controller
         $status = DB::table('status_category')->whereIn('id', ['7', '8'])->get();
         $submenu = DB::table('submenu as s')
         ->leftJoin('main_menu as mm', 's.main_menu', '=', 'mm.id')
-        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours','s.type', 's.icon','s.status', 's.description','mm.id', 'mm.menu_name', 's.updated_at')
+        ->select('s.id as submenu_id', 's.submenu_name','s.submenu_link','s.allow_access_outside_operational_hours','s.type', 's.icon','s.status','s.show_menu', 's.description','mm.id', 'mm.menu_name', 's.updated_at')
         ->where('s.id', $request->submenu_id)
         ->first();
         return view('layouts.main_pages.master_menu.edit.submenu_edit', compact('submenu', 'status'));
@@ -293,6 +296,7 @@ class MasterMainMenu extends Controller
             'icon' => $request->icon,
             'description' => $request->description,
             'status' => $request->status,
+            'show_menu' => $request->show_menu,
             'allow_access_outside_operational_hours' => $request->allow_access_outside_operational_hours
         ]);
 

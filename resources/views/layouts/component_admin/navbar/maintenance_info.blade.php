@@ -65,6 +65,20 @@
         justify-content: center;
     }
 
+    .notif-main {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .alertwfwfs {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+
 
 
     .notif-info {
@@ -101,7 +115,7 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         const endDate =
-            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('d M Y') : '' }}";
+            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('Y-m-d') : '' }}";
         const endTime =
             "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->hour_end)->format('H:i:s') : '' }}";
 

@@ -11,7 +11,9 @@
         app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->position_name == 'IT Developer';
 @endphp
 
-@include('layouts.component_admin.navbar.maintenance_info_admin')
+@if (!$IT_GUY)
+    @include('layouts.component_admin.navbar.maintenance_info_admin')
+@endif
 
 <nav class="sb-topnav navbar navbar-expand navbar-light bg-light">
     <!-- Navbar Brand-->

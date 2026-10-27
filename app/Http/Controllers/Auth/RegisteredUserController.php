@@ -261,6 +261,18 @@ class RegisteredUserController extends Controller
         return view('layouts.main_pages.users.user_log_activities', compact('user_log'));
     }
 
+
+    public function main_log_users_activities(Request $request, $nik)
+    {
+        
+        $user_log = DB::table('user_log_activities as ula')
+        ->leftJoin('employee as e', 'ula.user', '=', 'e.nik')
+        ->where('e.nik',$nik )
+        ->orderBy('ula.created_at', 'DESC')->get();
+
+        return view('layouts.main_pages.users.user_log_activities', compact('user_log'));
+    }
+
     public function destroy($id) {
         $user = User::find($id);
         
@@ -307,7 +319,7 @@ class RegisteredUserController extends Controller
         ->toArray();
 
         $users_data = DB::table('users as u')
-        ->select('u.*', 'e.name', 'jp.position_name', 's.store_name')
+        ->select('u.*','u.nik','e.name', 'jp.position_name', 's.store_name', 'u.login_mode')
         ->leftJoin('employee as e', 'u.nik', '=', 'e.nik')
         ->leftJoin('store as s', 'e.store', '=', 's.id')
         ->leftJoin('job_position as jp', 'e.position', '=', 'jp.position_code')
