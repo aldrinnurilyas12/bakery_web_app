@@ -82,7 +82,7 @@
             <a href="{{ route('login_app') }}">Login</a>
             <br>
             <div class="group-terms">
-                <a class="terms" href="#" data-toggle="modal" data-target="#privacy">Privacy Policy</a>
+                <a class="terms" href="#" data-toggle="modal" data-target="#privacy">Kebijakan & Privasi</a>
             </div>
         </div>
     </div>

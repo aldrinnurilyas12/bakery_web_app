@@ -35,12 +35,14 @@
                     <h4 style="font-size: 20px;margin-bottom: 0;"><strong>Menu</strong></h4>
                 </div>
 
+
                 <div class="menu-list">
+                    <hr class="hr-menu">
+                    <strong>Menu Utama</strong>
                     @foreach ($main_menu as $main)
                         @foreach ($submenu as $sub)
                             @if ($main->id == $sub->main_menu)
-                                <hr class="hr-menu">
-                                <div class="group-menu">
+                                <div style="margin-top: 20px;" class="group-menu">
                                     <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
                                         <i class="{{ $sub->icon }}"></i>
                                         <a class="menu"
@@ -50,27 +52,45 @@
                                         <i class="fa fa-arrow-right"></i>
                                     </div>
                                 </div>
+                                <hr class="hr-menu">
                             @endif
                         @endforeach
                     @endforeach
 
+
+                    <strong>Lainnya</strong>
+                    <div style="margin-top: 20px;" class="group-menu">
+                        <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
+                            <i class="fa fa-phone"></i>
+                            <a class="menu" href="{{ route('contact_us') }}" class="text-decoration-none">
+                                Hubungi Kami
+                            </a>
+                        </div>
+                        <div class="arrow-right">
+                            <i class="fa fa-arrow-right"></i>
+                        </div>
+                    </div>
+
                     <hr class="hr-menu">
-                    <span>Lainnya</span>
-                    <hr class="hr-menu">
+
 
                     <div class="group-menu">
                         <div style="display: flex; gap:10px;align-items: center;" class="group-icon-list">
                             <i class="fa-solid fa-file-shield"></i>
                             <a class="menu" href="{{ route('privacy_policy') }}" class="text-decoration-none">
-                                Privacy & Policy
+                                Kebijakan & Privasi
                             </a>
                         </div>
+
 
 
                         <form id="logout-form" action="{{ route('logout_account') }}" method="POST" class="d-none">
                             @csrf
                             <button type="submit">Logout</button>
                         </form>
+                        <div class="arrow-right">
+                            <i class="fa fa-arrow-right"></i>
+                        </div>
                     </div>
 
                     <hr class="hr-menu">
@@ -88,6 +108,9 @@
                             @csrf
                             <button type="submit">Logout</button>
                         </form>
+                        <div class="arrow-right">
+                            <i class="fa fa-arrow-right"></i>
+                        </div>
                     </div>
                     <hr class="hr-menu">
                 </div>

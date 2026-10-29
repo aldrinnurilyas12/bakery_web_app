@@ -31,7 +31,7 @@
                             </div>
                         @else
                             <div class="route-back">
-                                <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
+                                <a href="{{ route('info-menu') }}"><i class="fa fa-arrow-left"></i></a>
                             </div>
                         @endif
                         <h4 style="font-size: 20px;margin-bottom:0;"><strong>Kebijakan Privasi </strong></h4>
@@ -57,7 +57,6 @@
                                 <br>
                                 <hr class="hr-menu">
                                 <h4>1. Informasi yang Kami Kumpulkan</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Kami dapat mengumpulkan informasi seperti:
                                 </p>
@@ -71,7 +70,7 @@
 
                                 <hr class="hr-menu">
                                 <h4>2. Penggunaan Informasi</h4>
-                                <hr class="hr-menu">
+
                                 <p>
                                     Informasi yang dikumpulkan digunakan untuk:
                                 </p>
@@ -85,7 +84,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>3. Informasi Produk dan Promo</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Kami menyediakan informasi produk seperti nama, harga, deskripsi,
                                     stok, dan promo yang berlaku. Informasi dapat berubah sewaktu-waktu
@@ -94,7 +92,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>4. Keamanan Data</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Kami menerapkan langkah keamanan yang sesuai untuk melindungi data
                                     pengguna dari akses yang tidak sah, penyalahgunaan, atau kehilangan data.
@@ -102,7 +99,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>5. Cookies</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Website kami menggunakan cookies untuk membantu menyediakan pengalaman
                                     penggunaan yang lebih baik, menyimpan preferensi pengguna, dan meningkatkan
@@ -116,7 +112,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>6. Berbagi Data</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Kami tidak menjual data pribadi pengguna. Data hanya dapat dibagikan
                                     kepada pihak pendukung layanan seperti pembayaran, pengiriman, atau
@@ -125,7 +120,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>7. Hak Pengguna</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Pengguna dapat meminta perubahan, pembaruan, atau penghapusan data
                                     pribadi dengan menghubungi kami melalui kontak resmi.
@@ -133,7 +127,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>8. Perubahan Kebijakan</h4>
-                                <hr class="hr-menu">
                                 <p>
                                     Kami dapat memperbarui Privacy Policy ini sewaktu-waktu sesuai dengan
                                     perubahan layanan dan kebijakan yang berlaku.
@@ -141,7 +134,6 @@
 
                                 <hr class="hr-menu">
                                 <h4>Kontak</h4>
-                                <hr class="hr-menu">
 
                                 <p>
                                     Jika memiliki pertanyaan mengenai kebijakan privasi ini, silakan hubungi:

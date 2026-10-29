@@ -33,7 +33,7 @@
                             </div>
                         @else
                             <div class="route-back">
-                                <a href="{{ route('home') }}"><i class="fa fa-arrow-left"></i></a>
+                                <a href="{{ route('info-menu') }}"><i class="fa fa-arrow-left"></i></a>
                             </div>
                         @endif
                         <h4 style="font-size: 20px;margin-bottom:0;"><strong>Outlet Kami </strong></h4>

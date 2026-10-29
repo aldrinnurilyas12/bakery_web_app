@@ -351,7 +351,7 @@ class RewardsController extends Controller
         $redeem_code = $request->redeem_code;
         $redeem_by = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getUsers()->nik;
         RedeemRewardModel::where('redeem_code', $redeem_code)->update([
-            'status' => 11,
+            'status' => $request->status_claimed,
             'claimed_at' => now(),
             'redeem_by' => $redeem_by,
             'updated_at' => now()

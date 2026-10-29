@@ -83,7 +83,9 @@ Route::get('outlet_list', [MainAppHomePageController::class, 'outlet_list'])->na
 Route::get('privacy_policy', [MainAppHomePageController::class, 'privacy_policy'])->name('privacy_policy')->middleware('route_access');
 Route::get('transactions_information', [MainAppHomePageController::class, 'orders_information'])->name('transactions_information')->middleware('route_access');
 Route::get('alert-info', [MainAppHomePageController::class,'alert_info_layout'])->name('alert-info');
+Route::get('contact_us', [CustomerController::class,'contact_us'])->name('contact_us');
 Route::get('maintenance-alert-info', [MainAppHomePageController::class,'alert_info'])->name('maintenance-alert-info');
+Route::get('info-menu', [CustomerController::class, 'info_menu'])->name('info-menu');
 // for testing get API Eksternal
 // Route::get('omdb_services', [OmdbApiServices::class, 'index']);
 // Route::get('search-movies', [OmdbApiServices::class, 'search_movies'])->name('search-movies');

@@ -151,7 +151,9 @@ class HomePageController extends Controller
         $store_id = $request->store;
         $customer_code = app('App\Http\Controllers\Auth\AuthenticatedSessionController')->getCustomer()?->customer_code;
         $activeCategory = $request->query('category', null);
-        $productsQuery = DB::table('v_daily_products')->where('status', 'Ready');
+        $productsQuery = DB::table('v_daily_products')
+        ->where('price', '>', 0)->where('price_after_discount', '>', 0)
+        ->where('status', 'Ready');
         $productsPromo = DB::table('v_daily_products')
             ->where(function ($query) {
                 $query->where('discount', '<>', 0)

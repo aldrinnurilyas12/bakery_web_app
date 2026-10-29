@@ -107,7 +107,11 @@
                                                                             class="btn-action">
                                                                             @if ($reward->status_name == 'Claimed')
                                                                                 <a class="btn btn-secondary"
-                                                                                    href="#">Klaim
+                                                                                    href="#">processed
+                                                                                </a>
+                                                                            @elseif ($reward->status_name == 'Cancelled')
+                                                                                <a class="btn btn-secondary"
+                                                                                    href="#">processed
                                                                                 </a>
                                                                             @else
                                                                                 <a class="btn btn-primary"
@@ -125,6 +129,10 @@
                                                                     <td>
                                                                         @if ($reward->status_name == 'Claimed')
                                                                             <span class="text-success">
+                                                                                {{ $reward->status_name }}
+                                                                            </span>
+                                                                        @elseif ($reward->status_name == 'Cancelled')
+                                                                            <span class="text-danger">
                                                                                 {{ $reward->status_name }}
                                                                             </span>
                                                                         @else
@@ -208,6 +216,10 @@
                                                                     <td>
                                                                         @if ($reward->status_name == 'Claimed')
                                                                             <span class="text-success">
+                                                                                {{ $reward->status_name }}
+                                                                            </span>
+                                                                        @elseif ($reward->status_name == 'Cancelled')
+                                                                            <span class="text-danger">
                                                                                 {{ $reward->status_name }}
                                                                             </span>
                                                                         @else
@@ -374,18 +386,33 @@
                     </div>
                     <div class="modal-body">Apakah anda yakin ingin Klaim Reward
                         {{ $reward->redeem_code }} ?</div>
-                    <div class="modal-footer">
-                        <form id="formGeneralMaster" action="{{ route('claimed-reward', $reward->redeem_code) }}"
-                            method="POST">
-                            @csrf
-                            @method('PUT')
-                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Klaim
+
+                    <form id="formGeneralMaster" action="{{ route('claimed-reward', $reward->redeem_code) }}"
+                        method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="reward-options">
+                            <input type="radio" value="11" name="status_claimed" id="kl">
+                            <label for="kl" class="reward-btn claim-btn">
+                                ✓ Klaim Reward
+                            </label>
+
+                            <input type="radio" value="2" name="status_claimed" id="qq">
+                            <label for="qq" class="reward-btn cancel-btn">
+                                ✕ Cancel Reward
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+
+
+                            <button id="btnMaster" type="submit" class="btn-general"><span class="btn-text">Prosess
                                     Reward</span>
                                 <span class="spinner"></span></button>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
+        </div>
         </div>
     @endforeach
 </body>
@@ -478,6 +505,57 @@
     h3 {
         font-weight: 600;
         margin-bottom: 20px;
+    }
+
+    .reward-options {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .reward-options input[type="radio"] {
+        display: none;
+    }
+
+    .reward-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        color: white;
+    }
+
+    /* Tombol Klaim - Biru */
+    .claim-btn {
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .claim-btn:hover {
+        background-color: #1d4ed8;
+    }
+
+    /* Tombol Cancel - Merah */
+    .cancel-btn {
+        background-color: #ffffff;
+        border-color: #dc2626;
+        color: red;
+    }
+
+
+    /* Efek saat dipilih */
+    #kl:checked+.claim-btn,
+    #qq:checked+.cancel-btn {
+        box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.3);
+        transform: scale(1.03);
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
     }
 </style>
 

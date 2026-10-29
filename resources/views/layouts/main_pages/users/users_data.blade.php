@@ -92,16 +92,15 @@
 
                                                     </td>
                                                     <td>
-                                                        @if ($user->is_active == 'Y')
-                                                            Ya
+                                                        @if ($user->is_active == '7')
+                                                            <p class="text-success">Aktif</p>
                                                         @else
-                                                            Tidak
+                                                            <p class="text-danger">Tidak Aktif</p>
                                                         @endif
 
                                                         &nbsp;
                                                         <a href="#" data-toggle="modal"
                                                             data-target="#changeStatus{{ $user->nik }}">
-                                                            <br>
                                                             <i class="fa fa-edit"></i>
                                                         </a>
                                                     </td>

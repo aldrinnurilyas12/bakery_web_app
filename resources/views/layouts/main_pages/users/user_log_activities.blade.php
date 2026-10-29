@@ -33,7 +33,11 @@
                                 Master Data > <strong> Log Aktivitas Pengguna </strong>
                             </div>
                         </div>
-
+                        <div style="display: flex; justify-content: space-between;" class="card-header">
+                            <div class="back-btn">
+                                <a class="btn btn-primary" href="{{ route('online_users') }}">Kembali</a>
+                            </div>
+                        </div>
                         <div class="card-body">
                             @if ($user_log->isNotEmpty())
                                 <div class="table-responsive">

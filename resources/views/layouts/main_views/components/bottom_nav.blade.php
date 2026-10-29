@@ -52,14 +52,6 @@
                             <small style="color:black;" class="icon-text">Orders</small>
                         </div>
                     </a>
-                @else
-                    <a href="{{ route('outlet_list') }}" class="text-decoration-none text-secondary text-center">
-                        <div>
-                            <i style="background: #bb0239; padding:6px; border-radius: 4px;color:white;"
-                                class="fas fa-map"></i><br>
-                            <small style="color:black;" class="icon-text">Lokasi</small>
-                        </div>
-                    </a>
                 @endif
 
                 <a href="{{ route('rewards-catalogue') }}" class="text-decoration-none text-secondary text-center">
@@ -74,9 +66,9 @@
                         <small style="color:black;" class="icon-text">Menu</small>
                     </a>
                 @else
-                    <a href="{{ url('/login_app') }}" class="text-decoration-none text-secondary text-center">
+                    <a href="{{ url('/info-menu') }}" class="text-decoration-none text-secondary text-center">
                         <i class="fa fa-user"></i><br>
-                        <small style="color:black;" class="icon-text">Login</small>
+                        <small style="color:black;" class="icon-text">Akun</small>
                     </a>
                 @endif
 

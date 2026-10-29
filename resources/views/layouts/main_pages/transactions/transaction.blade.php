@@ -52,7 +52,7 @@
                         </div>
                         <hr>
                         <div class="card-header">
-                            <div class="title">
+                            <div style="display: flex; flex-wrap: wrap; justify-content: space-between;" class="title">
                                 <div class="filter-data">
                                     <label for=""><strong>Filter Transaksi</strong></label>
                                     <br>
@@ -109,6 +109,22 @@
                                             </form>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div class="login-mode">
+                                    <form method="POST" action="{{ route('set_login_role', $nik) }}"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="content-mode">
+                                            <input type="text" hidden name="select_mode" value="TRX" required>
+                                        </div>
+
+                                        <button class="btn btn-primary" type="submit">
+                                            Masuk menu Transaksi
+                                        </button>
+
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -201,8 +217,6 @@
                                                 <h3>Belum ada transaksi</h3>
                                                 @if (!$user_permission_forbidden)
                                                     <p class="text-secondary">Buat transaksi pertama anda</p>
-                                                    <a class="btn btn-primary" href="{{ 'transaction_create' }}">Buat
-                                                        Transaksi</a>
                                                 @endif
                                             </div>
                                         </div>

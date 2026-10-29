@@ -125,6 +125,17 @@ class CustomerController extends Controller
         return view('layouts.main_views.customer_views.profile-menu');
     }
 
+    public function info_menu() : View 
+    {
+        return view('layouts.main_views.customer_views.info-menu');
+    }
+
+    public function contact_us() : View 
+    {
+        return view('layouts.main_views.customer_views.contact_us');
+    }
+
+
 
        public function history_transaction()
     {
@@ -478,6 +489,7 @@ class CustomerController extends Controller
         "))
         ->leftJoin('products as p', 'pf.product', '=', 'p.product_code')
         ->leftJoin('product_variant as pv','pf.variant', '=', 'pv.variant_code')
+        ->where('p.price_after_discount', '>', 0)
         ->where('pf.customer_code', '=', $customer_code)->orderBy('pf.created_at', 'DESC')->get();
 
 

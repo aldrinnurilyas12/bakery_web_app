@@ -115,7 +115,6 @@
                                             <tr>
                                                 <th>No</th>
                                                 <th>Info Detail</th>
-                                                <th>Bahan Baku</th>
                                                 <th>Kode Produksi</th>
                                                 <th>Biaya Produksi</th>
                                                 <th>Target Produksi Produk</th>

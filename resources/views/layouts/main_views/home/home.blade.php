@@ -44,11 +44,11 @@
                                 </a>
                             </div>
                         @else
-                            <div style="display: flex; gap:10px;" class="info-content">
+                            {{-- <div style="display: flex; gap:10px;" class="info-content">
                                 <a href="{{ route('privacy_policy') }}" class="notification-link">
                                     <i class="fa-solid fa-file-shield"></i>
                                 </a>
-                            </div>
+                            </div> --}}
                         @endif
                     </div>
                 </div>

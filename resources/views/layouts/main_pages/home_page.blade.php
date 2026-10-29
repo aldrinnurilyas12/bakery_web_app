@@ -151,9 +151,10 @@
 
         // Ambil tanggal dari end_date
         const endDate =
-            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('d M Y') : '' }}";
+            "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->end_date)->format('Y-m-d') : '' }}";
         const endTime =
             "{{ $maintenance_info ? \Carbon\Carbon::parse($maintenance_info->hour_end)->format('H:i:s') : '' }}";
+
 
         // Bentuk datetime lengkap
         const endDateTime = new Date(endDate + "T" + endTime);

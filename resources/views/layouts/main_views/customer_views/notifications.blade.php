@@ -168,6 +168,7 @@
 
                                 </div>
                             @endif
+                            <hr class="hr-menu">
                         @endforeach
                     @else
                         <p style="text-align: center;margin:0 auto;">Tidak ada Notifikasi</p>
@@ -277,7 +278,6 @@
         margin-bottom: 12px;
         background: #b9defb3b;
         border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
         transition: .2s ease;
     }
 
@@ -288,7 +288,6 @@
         margin-bottom: 12px;
         background: #fff;
         border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
         transition: .2s ease;
     }
 
